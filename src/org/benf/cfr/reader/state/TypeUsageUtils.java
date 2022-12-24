@@ -2,7 +2,6 @@ package org.benf.cfr.reader.state;
 
 import org.benf.cfr.reader.bytecode.analysis.types.InnerClassInfo;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.StringUtils;
 import org.benf.cfr.reader.util.output.IllegalIdentifierDump;
 
@@ -10,7 +9,7 @@ import java.util.LinkedList;
 
 class TypeUsageUtils {
     static String generateInnerClassShortName(final IllegalIdentifierDump iid, final JavaRefTypeInstance clazz, JavaRefTypeInstance analysisType, boolean prefixAnalysisType) {
-        LinkedList<JavaRefTypeInstance> classStack = ListFactory.newLinkedList();
+        LinkedList<JavaRefTypeInstance> classStack = new LinkedList<>();
 
         boolean analysisTypeFound = false;
         if (clazz.getRawName().startsWith(analysisType.getRawName())) {

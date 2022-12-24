@@ -9,7 +9,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.ConditionalUtils;
 import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.ConfusedCFRException;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.Optional;
 import org.benf.cfr.reader.util.output.Dumper;
 
@@ -56,7 +55,7 @@ public class UnstructuredIf extends AbstractUnStructuredStatement {
                 Op04StructuredStatement fakeElseTarget = getContainer().getTargets().get(1);
                 fakeElse.addTarget(fakeElseTarget);
                 fakeElseTarget.addSource(fakeElse);
-                LinkedList<Op04StructuredStatement> fakeBlockContent = ListFactory.newLinkedList();
+                LinkedList<Op04StructuredStatement> fakeBlockContent = new LinkedList<>();
                 fakeBlockContent.add(fakeElse);
                 Op04StructuredStatement fakeElseBlock = new Op04StructuredStatement(new Block(fakeBlockContent, true));
                 return new StructuredIf(getLoc(), ConditionalUtils.simplify(conditionalExpression.getNegated()), innerBlock, fakeElseBlock);

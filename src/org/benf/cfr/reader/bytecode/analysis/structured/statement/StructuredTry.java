@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.structured.statement;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.matchutil.MatchIterator;
@@ -11,14 +12,13 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.scope.LValueScopeDiscov
 import org.benf.cfr.reader.bytecode.analysis.structured.StructuredScope;
 import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import org.benf.cfr.reader.state.TypeUsageCollector;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.List;
 
 public class StructuredTry extends AbstractStructuredStatement {
     private Op04StructuredStatement tryBlock;
-    private final List<Op04StructuredStatement> catchBlocks = ListFactory.newList();
+    private final List<Op04StructuredStatement> catchBlocks = new ObjectArrayList<>();
     private Op04StructuredStatement finallyBlock;
     private final BlockIdentifier tryBlockIdentifier;
     private List<Op04StructuredStatement> resourceBlock;
@@ -37,7 +37,7 @@ public class StructuredTry extends AbstractStructuredStatement {
     }
 
     public void addResources(List<Op04StructuredStatement> resources) {
-        if (resourceBlock == null) resourceBlock = ListFactory.newList();
+        if (resourceBlock == null) resourceBlock = new ObjectArrayList<>();
         resourceBlock.addAll(resources);
     }
 

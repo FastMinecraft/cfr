@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.matchutil.*;
@@ -18,7 +19,6 @@ import org.benf.cfr.reader.bytecode.analysis.structured.statement.placeholder.En
 import org.benf.cfr.reader.bytecode.analysis.types.TypeConstants;
 import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.entities.Method;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.collections.SetUtil;
 
@@ -114,7 +114,7 @@ public abstract class TryResourcesTransformerBase implements StructuredStatement
         }
         if (exceptionDeclare == null) return false;
 
-        List<StructuredStatement> catchContent = ListFactory.newList();
+        List<StructuredStatement> catchContent = new ObjectArrayList<>();
         catchBlock.linearizeStatementsInto(catchContent);
 
         WildcardMatch wcm = new WildcardMatch();

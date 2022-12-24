@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.matchutil.MatchIterator;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.matchutil.MatchSequence;
@@ -33,7 +34,6 @@ import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.entities.ClassFileField;
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.state.DCCommonState;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.List;
@@ -106,6 +106,7 @@ public class J14ClassObjectRewriter {
         final WildcardMatch wcm = new WildcardMatch();
         final WildcardMatch.StaticVariableWildcard staticVariable = wcm.getStaticVariable("classVar", classType, new InferredJavaType(TypeConstants.CLASS, InferredJavaType.Source.TEST));
         LValueExpression staticExpression = new LValueExpression(staticVariable);
+        Expression[] original = new Expression[]{ wcm.getExpressionWildCard("classString") };
         Expression test = new TernaryExpression(BytecodeLoc.NONE,
                 new ComparisonOperation(BytecodeLoc.NONE, staticExpression, Literal.NULL, CompOp.EQ),
                 new AssignmentExpression(BytecodeLoc.NONE, staticVariable,
@@ -113,7 +114,8 @@ public class J14ClassObjectRewriter {
                                 classType,
                                 TypeConstants.CLASS,
                                 null,
-                                ListFactory.newImmutableList(wcm.getExpressionWildCard("classString")))
+                            ObjectList.of(original)
+                        )
                         ),
                 staticExpression);
 

@@ -1,11 +1,11 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.GotoStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.IfStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.Nop;
-import org.benf.cfr.reader.util.collections.ListFactory;
 
 import java.util.List;
 
@@ -43,7 +43,7 @@ public class NegativeJumps {
      * RequireDirectAfter - y MUST equal x+1.
      */
     public static void rewriteNegativeJumps(List<Op03SimpleStatement> statements, boolean requireChainedConditional) {
-        List<Op03SimpleStatement> removeThese = ListFactory.newList();
+        List<Op03SimpleStatement> removeThese = new ObjectArrayList<>();
         for (int x = 0; x < statements.size() - 2; ++x) {
             Op03SimpleStatement aStatement = statements.get(x);
             Statement innerAStatement = aStatement.getStatement();

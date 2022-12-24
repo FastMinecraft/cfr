@@ -1,6 +1,8 @@
 package org.benf.cfr.reader;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.types.InnerClassInfo;
+import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.entities.Method;
@@ -12,17 +14,13 @@ import org.benf.cfr.reader.state.TypeUsageCollectingDumper;
 import org.benf.cfr.reader.state.TypeUsageInformation;
 import org.benf.cfr.reader.util.*;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
+
+import java.util.*;
 import java.util.function.Predicate;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.*;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class Driver {
 
@@ -67,7 +65,8 @@ public class Driver {
                 c.loadInnerClasses(dcCommonState);
             }
             if (options.getOption(OptionsImpl.RENAME_DUP_MEMBERS)) {
-                MemberNameResolver.resolveNames(dcCommonState, ListFactory.newList(dcCommonState.getClassCache().getLoadedTypes()));
+                Collection<org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance> original = dcCommonState.getClassCache().getLoadedTypes();
+                MemberNameResolver.resolveNames(dcCommonState, new ObjectArrayList<JavaRefTypeInstance>(original));
             }
 
             TypeUsageCollectingDumper collectingDumper = new TypeUsageCollectingDumper(options, c);
@@ -119,14 +118,14 @@ public class Driver {
             Map<Integer, List<JavaTypeInstance>> clstypes = dcCommonState.explicitlyLoadJar(path, analysisType);
             Set<JavaTypeInstance> versionCollisions = getVersionCollisions(clstypes);
             dcCommonState.setCollisions(versionCollisions);
-            List<Integer> versionsSeen = ListFactory.newList();
+            List<Integer> versionsSeen = new ObjectArrayList<>();
             
             addMissingOuters(clstypes);
             
             for (Map.Entry<Integer, List<JavaTypeInstance>> entry : clstypes.entrySet()) {
                 int forVersion = entry.getKey();
                 versionsSeen.add(forVersion);
-                List<Integer> localVersionsSeen = ListFactory.newList(versionsSeen);
+                List<Integer> localVersionsSeen = new ObjectArrayList<>(versionsSeen);
                 List<JavaTypeInstance> types = entry.getValue();
                 doJarVersionTypes(forVersion, localVersionsSeen, dcCommonState, dumperFactory, illegalIdentifierDump, summaryDumper, progressDumper, types);
             }

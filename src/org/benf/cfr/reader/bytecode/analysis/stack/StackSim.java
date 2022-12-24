@@ -1,10 +1,10 @@
 package org.benf.cfr.reader.bytecode.analysis.stack;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op02WithProcessedDataAndRefs;
 import org.benf.cfr.reader.bytecode.analysis.types.StackType;
 import org.benf.cfr.reader.bytecode.analysis.types.StackTypes;
 import org.benf.cfr.reader.util.ConfusedCFRException;
-import org.benf.cfr.reader.util.collections.ListFactory;
 
 import java.util.List;
 
@@ -39,7 +39,7 @@ public class StackSim {
 
     public List<StackEntryHolder> getHolders(int offset, long num) {
         StackSim thisSim = this;
-        List<StackEntryHolder> res = ListFactory.newList();
+        List<StackEntryHolder> res = new ObjectArrayList<>();
         while (num > 0) {
             if (offset > 0) {
                 offset--;

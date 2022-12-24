@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.structured.statement;
 
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
@@ -12,7 +13,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.scope.LValueScopeDiscov
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.scope.ScopeDiscoverInfoCache;
 import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import org.benf.cfr.reader.state.TypeUsageCollector;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.List;
@@ -109,7 +109,7 @@ public class StructuredIter extends AbstractStructuredBlockStatement {
     @Override
     public List<LValue> findCreatedHere() {
         if (!(iterator instanceof LocalVariable)) return null;
-        return ListFactory.newImmutableList(iterator);
+        return ObjectList.of(new LValue[]{ iterator });
     }
 
 

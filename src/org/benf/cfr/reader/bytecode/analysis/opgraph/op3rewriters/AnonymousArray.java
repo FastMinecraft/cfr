@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
@@ -16,7 +17,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.wildcard.WildcardMatch;
 import org.benf.cfr.reader.bytecode.analysis.stack.StackEntry;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 
 import java.util.List;
 
@@ -53,8 +53,8 @@ public class AnonymousArray {
         if (bound < 0) return false;
 
         Op03SimpleStatement next = newArray;
-        List<Expression> anon = ListFactory.newList();
-        List<Op03SimpleStatement> anonAssigns = ListFactory.newList();
+        List<Expression> anon = new ObjectArrayList<>();
+        List<Op03SimpleStatement> anonAssigns = new ObjectArrayList<>();
         Expression arrayExpression;
         if (arrayLValue instanceof StackSSALabel) {
             arrayExpression = new StackValue(stm.getCombinedLoc(), (StackSSALabel) arrayLValue);

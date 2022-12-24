@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.state;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.apiunreleased.ClassFileSource2;
 import org.benf.cfr.reader.apiunreleased.JarContent;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
@@ -15,7 +16,6 @@ import org.benf.cfr.reader.util.DecompilerComment;
 import org.benf.cfr.reader.util.MiscConstants;
 import org.benf.cfr.reader.util.bytestream.BaseByteData;
 import org.benf.cfr.reader.util.bytestream.ByteData;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
@@ -121,7 +121,7 @@ public class DCCommonState {
         JarContent jarContent = classFileSource.addJarContent(path, type);
 
         TreeMap<Integer, List<JavaTypeInstance>> baseRes = MapFactory.newTreeMap();
-        Map<Integer, List<JavaTypeInstance>> res = MapFactory.newLazyMap(baseRes, arg -> ListFactory.newList());
+        Map<Integer, List<JavaTypeInstance>> res = MapFactory.newLazyMap(baseRes, arg -> new ObjectArrayList<>());
         boolean isMultiReleaseJar = isMultiReleaseJar(jarContent);
 
         for (String classPath : jarContent.getClassFiles()) {

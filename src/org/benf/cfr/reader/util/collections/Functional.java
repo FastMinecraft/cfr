@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.util.collections;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 
 import java.util.*;
@@ -36,7 +37,7 @@ public class Functional {
     }
 
     public static <X> List<X> filter(Collection<X> input, Predicate<X> predicate) {
-        List<X> result = ListFactory.newList();
+        List<X> result = new ObjectArrayList<>();
         for (X item : input) {
             if (predicate.test(item)) result.add(item);
         }
@@ -44,7 +45,7 @@ public class Functional {
     }
 
     public static <X> X findOrNull(Collection<X> input, Predicate<X> predicate) {
-        List<X> result = ListFactory.newList();
+        List<X> result = new ObjectArrayList<>();
         for (X item : input) {
             if (predicate.test(item)) return item;
         }
@@ -60,7 +61,7 @@ public class Functional {
     }
 
     public static <X> boolean any(Collection<X> input, Predicate<X> predicate) {
-        List<X> result = ListFactory.newList();
+        List<X> result = new ObjectArrayList<>();
         for (X item : input) {
             if (predicate.test(item)) return true;
         }
@@ -68,7 +69,7 @@ public class Functional {
     }
 
     public static <X> boolean all(Collection<X> input, Predicate<X> predicate) {
-        List<X> result = ListFactory.newList();
+        List<X> result = new ObjectArrayList<>();
         for (X item : input) {
             if (!predicate.test(item)) return false;
         }
@@ -76,8 +77,8 @@ public class Functional {
     }
 
     public static <X> Pair<List<X>, List<X>> partition(Collection<X> input, Predicate<X> predicate) {
-        List<X> lTrue = ListFactory.newList();
-        List<X> lFalse = ListFactory.newList();
+        List<X> lTrue = new ObjectArrayList<>();
+        List<X> lFalse = new ObjectArrayList<>();
         for (X item : input) {
             if (predicate.test(item)) {
                 lTrue.add(item);
@@ -90,7 +91,7 @@ public class Functional {
 
 
     public static <X, Y> List<Y> map(Collection<X> input, Function<X, Y> function) {
-        List<Y> result = ListFactory.newList();
+        List<Y> result = new ObjectArrayList<>();
         for (X item : input) {
             result.add(function.apply(item));
         }
@@ -107,7 +108,7 @@ public class Functional {
 
     public static <X> List<X> uniqAll(List<X> input) {
         Set<X> found = SetFactory.newSet();
-        List<X> result = ListFactory.newList();
+        List<X> result = new ObjectArrayList<>();
         for (X in : input) {
             if (found.add(in)) result.add(in);
         }
@@ -134,7 +135,7 @@ public class Functional {
             List<X> lx = tgt.get(key);
             //noinspection Java8MapApi
             if (lx == null) {
-                lx = ListFactory.newList();
+                lx = new ObjectArrayList<>();
                 tgt.put(key, lx);
             }
             lx.add(x);
@@ -148,12 +149,12 @@ public class Functional {
             List<X> lx = temp.get(x);
             //noinspection Java8MapApi
             if (lx == null) {
-                lx = ListFactory.newList();
+                lx = new ObjectArrayList<>();
                 temp.put(x, lx);
             }
             lx.add(x);
         }
-        List<Y> res = ListFactory.newList();
+        List<Y> res = new ObjectArrayList<>();
         for (List<X> lx : temp.values()) {
             res.add(gf.apply(lx));
         }

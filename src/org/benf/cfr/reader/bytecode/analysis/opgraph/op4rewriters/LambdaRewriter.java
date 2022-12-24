@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers.LocalDeclarationRemover;
@@ -49,7 +50,6 @@ import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryMethodRef;
 import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.util.CannotLoadClassException;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.lambda.LambdaUtils;
 
@@ -63,7 +63,7 @@ public class LambdaRewriter implements Op04Rewriter, ExpressionRewriter {
     private final ClassFile thisClassFile;
     private final JavaTypeInstance typeInstance;
     private final Method method;
-    private final LinkedList<Expression> processingStack = ListFactory.newLinkedList();
+    private final LinkedList<Expression> processingStack = new LinkedList<>();
 
     public LambdaRewriter(DCCommonState state, Method method) {
         this.state = state;
@@ -341,11 +341,11 @@ public class LambdaRewriter implements Op04Rewriter, ExpressionRewriter {
                  * \arg0 ... arg(n-1) -> curriedArgs, arg0 ... arg(n-1)
                  * where curriedArgs will lose first arg if instance method.
                  */
-                List<Expression> replacementParameters = ListFactory.newList();
+                List<Expression> replacementParameters = new ObjectArrayList<>();
                 for (int n = instance ? 1 : 0, m = curriedArgs.size(); n < m; ++n) {
                     replacementParameters.add(getLambdaVariable(curriedArgs.get(n)));
                 }
-                List<LValue> anonymousLambdaArgs = ListFactory.newList();
+                List<LValue> anonymousLambdaArgs = new ObjectArrayList<>();
                 List<LocalVariable> originalParameters = lambdaMethod.getMethodPrototype().getComputedParameters();
                 int offset = replacementParameters.size();
                 for (int n = 0; n < nLambdaArgs; ++n) {

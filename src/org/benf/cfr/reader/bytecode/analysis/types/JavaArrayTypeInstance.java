@@ -1,12 +1,12 @@
 package org.benf.cfr.reader.bytecode.analysis.types;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.types.annotated.JavaAnnotatedTypeInstance;
 import org.benf.cfr.reader.entities.annotations.AnnotationTableEntry;
 import org.benf.cfr.reader.state.ObfuscationTypeMap;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.state.TypeUsageInformation;
 import org.benf.cfr.reader.util.DecompilerComments;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 import org.benf.cfr.reader.util.output.IllegalIdentifierDump;
 import org.benf.cfr.reader.util.output.ToStringDumper;
@@ -42,9 +42,9 @@ public class JavaArrayTypeInstance implements JavaTypeInstance {
         private final JavaAnnotatedTypeInstance annotatedUnderlyingType;
 
         Annotated() {
-            entries = ListFactory.newList();
+            entries = new ObjectArrayList<>();
             for (int x=0;x<dimensions;++x) {
-                entries.add(ListFactory.newList());
+                entries.add(new ObjectArrayList<AnnotationTableEntry>());
             }
             annotatedUnderlyingType = underlyingType.getAnnotatedInstance();
         }

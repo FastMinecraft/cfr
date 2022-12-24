@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.expression;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
@@ -35,7 +36,6 @@ import org.benf.cfr.reader.entities.bootstrap.MethodHandleBehaviour;
 import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryMethodHandle;
 import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryMethodRef;
 import org.benf.cfr.reader.util.DecompilerComments;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.Arrays;
@@ -128,7 +128,8 @@ public class MethodHandlePlaceholder extends AbstractExpression {
                 new Op04StructuredStatement(Block.getBlockFor(true, new StructuredReturn(BytecodeLoc.TODO, from(handle), TypeConstants.METHOD_HANDLE))),
                 identifier);
         LValue caught = new LocalVariable("except", new InferredJavaType(TypeConstants.THROWABLE, InferredJavaType.Source.EXPRESSION));
-        List<JavaRefTypeInstance> catchTypes = ListFactory.newList(TypeConstants.NOSUCHMETHOD_EXCEPTION, TypeConstants.ILLEGALACCESS_EXCEPTION);
+        List<JavaRefTypeInstance> catchTypes = new ObjectArrayList<>(new JavaRefTypeInstance[]{ TypeConstants.NOSUCHMETHOD_EXCEPTION, TypeConstants.ILLEGALACCESS_EXCEPTION });
+        Expression[] original = new Expression[]{ new LValueExpression(caught) };
         StructuredCatch catche = new StructuredCatch(
                 catchTypes,
                 new Op04StructuredStatement(Block.getBlockFor(true,
@@ -136,7 +137,8 @@ public class MethodHandlePlaceholder extends AbstractExpression {
                                 new ConstructorInvokationExplicit(getLoc(),
                                         new InferredJavaType(TypeConstants.ILLEGALARGUMENT_EXCEPTION, InferredJavaType.Source.CONSTRUCTOR),
                                         TypeConstants.ILLEGALARGUMENT_EXCEPTION,
-                                        ListFactory.newList(new LValueExpression(caught)))))),
+                                    new ObjectArrayList<Expression>(original)
+                                )))),
                 caught,
                 Collections.singleton(identifier)
         );
@@ -162,13 +164,13 @@ public class MethodHandlePlaceholder extends AbstractExpression {
         MethodPrototype refProto = ref.getMethodPrototype();
         String descriptor = ref.getNameAndTypeEntry().getDescriptor().getValue();
 
+        Expression[] original = new Expression[]{ new Literal(TypedLiteral.getClass(refProto.getClassType())), new Literal(TypedLiteral.getString(
+            QuotingUtils.addQuotes(refProto.getName(), false))), getMethodType(new Literal(TypedLiteral.getString(QuotingUtils.enquoteString(descriptor)))) };
         return new MemberFunctionInvokationExplicit(BytecodeLoc.TODO,
                 new InferredJavaType(TypeConstants.METHOD_HANDLE, InferredJavaType.Source.EXPRESSION), TypeConstants.METHOD_HANDLES$LOOKUP, lookup, behaviourName
-                , ListFactory.newList(
-                new Literal(TypedLiteral.getClass(refProto.getClassType())),
-                new Literal(TypedLiteral.getString(QuotingUtils.addQuotes(refProto.getName(), false))),
-                getMethodType(new Literal(TypedLiteral.getString(QuotingUtils.enquoteString(descriptor))))
-        ));
+                ,
+            new ObjectArrayList<Expression>(original)
+        );
 
         /*
          * Ideally, we'd wrap this in an IIFE to hide the exceptions.

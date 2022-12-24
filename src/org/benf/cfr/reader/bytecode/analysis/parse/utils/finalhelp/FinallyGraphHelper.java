@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.utils.finalhelp;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.MemberFunctionInvokation;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.*;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
@@ -12,7 +13,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.lvalue.LocalVariable;
 import org.benf.cfr.reader.bytecode.analysis.parse.lvalue.StackSSALabel;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.*;
 import org.benf.cfr.reader.entities.exceptions.ExceptionTableEntry;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
@@ -24,7 +24,7 @@ public record FinallyGraphHelper(FinallyCatchBody finallyCatchBody) {
         List<Op03SimpleStatement> in,
         Set<Op03SimpleStatement> toRemove
     ) {
-        List<Op03SimpleStatement> res = ListFactory.newList();
+        List<Op03SimpleStatement> res = new ObjectArrayList<>();
         for (Op03SimpleStatement i : in) {
             while (i != null && i.getStatement() instanceof Nop) {
                 switch (i.getTargets().size()) {
@@ -47,7 +47,7 @@ public record FinallyGraphHelper(FinallyCatchBody finallyCatchBody) {
         Op03SimpleStatement finalThrow = finallyCatchBody.getThrowOp();
         Map<Op03SimpleStatement, Op03SimpleStatement> matched = new IdentityHashMap<>();
         Set<Op03SimpleStatement> toRemove = SetFactory.newOrderedSet();
-        LinkedList<Pair<Op03SimpleStatement, Op03SimpleStatement>> pending = ListFactory.newLinkedList();
+        LinkedList<Pair<Op03SimpleStatement, Op03SimpleStatement>> pending = new LinkedList<>();
         if (finallyCatchBody.isEmpty()) {
             return new Result(toRemove, null, null);
         }
@@ -100,8 +100,10 @@ public record FinallyGraphHelper(FinallyCatchBody finallyCatchBody) {
                 }
             }
 
-            List<Op03SimpleStatement> tgta = ListFactory.newList(a.getTargets());
-            List<Op03SimpleStatement> tgtb = ListFactory.newList(b.getTargets());
+            Collection<Op03SimpleStatement> original1 = a.getTargets();
+            List<Op03SimpleStatement> tgta = new ObjectArrayList<>(original1);
+            Collection<Op03SimpleStatement> original = b.getTargets();
+            List<Op03SimpleStatement> tgtb = new ObjectArrayList<>(original);
             // This fixes 22a, but breaks 1!!
 //            tgta.remove(finalThrowProxy);
 //            tgtb.remove(finallyCatchBody.throwOp);

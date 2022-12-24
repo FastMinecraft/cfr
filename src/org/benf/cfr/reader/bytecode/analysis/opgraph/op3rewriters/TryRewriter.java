@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
@@ -13,11 +14,11 @@ import org.benf.cfr.reader.entities.exceptions.ExceptionCheckImpl;
 import org.benf.cfr.reader.entities.exceptions.ExceptionGroup;
 import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.collections.SetUtil;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -34,7 +35,7 @@ class TryRewriter {
         Op03SimpleStatement currentStatement = tryStatement.getTargets().get(0);
         int x = in.indexOf(currentStatement);
 
-        List<Op03SimpleStatement> jumps = ListFactory.newList();
+        List<Op03SimpleStatement> jumps = new ObjectArrayList<>();
 
         while (currentStatement.getBlockIdentifiers().contains(tryBlockIdent)) {
             ++x;
@@ -178,7 +179,7 @@ class TryRewriter {
 
     private static void combineTryCatchEnds(Op03SimpleStatement tryStatement, List<Op03SimpleStatement> in) {
         TryStatement innerTryStatement = (TryStatement) tryStatement.getStatement();
-        List<Op03SimpleStatement> lastStatements = ListFactory.newList();
+        List<Op03SimpleStatement> lastStatements = new ObjectArrayList<>();
         lastStatements.add(getLastContiguousBlockStatement(innerTryStatement.getBlockIdentifier(), in, tryStatement));
         for (int x = 1, len = tryStatement.getTargets().size(); x < len; ++x) {
             Op03SimpleStatement statementContainer = tryStatement.getTargets().get(x);
@@ -295,7 +296,7 @@ class TryRewriter {
                 return;
             }
         }
-        List<Op03SimpleStatement> blockSources = ListFactory.newLinkedList();
+        List<Op03SimpleStatement> blockSources = new LinkedList<>();
         for (Op03SimpleStatement source : uniqueForwardTarget.getSources()) {
             if (SetUtil.hasIntersection(source.getBlockIdentifiers(), relevantBlocks)) {
                 blockSources.add(source);

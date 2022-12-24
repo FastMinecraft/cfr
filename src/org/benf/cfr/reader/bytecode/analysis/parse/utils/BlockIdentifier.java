@@ -1,7 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.utils;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -56,7 +56,8 @@ public class BlockIdentifier implements Comparable<BlockIdentifier> {
     }
 
     public static BlockIdentifier getOutermostContainedIn(Set<BlockIdentifier> endingBlocks, final Set<BlockIdentifier> blocksInAtThisPoint) {
-        List<BlockIdentifier> containedIn = Functional.filter(ListFactory.newList(endingBlocks),
+        List<BlockIdentifier> containedIn = Functional.filter(
+            new ObjectArrayList<BlockIdentifier>(endingBlocks),
             blocksInAtThisPoint::contains
         );
         if (containedIn.isEmpty()) return null;

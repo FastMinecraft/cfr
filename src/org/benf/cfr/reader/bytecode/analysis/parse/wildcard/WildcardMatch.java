@@ -1,5 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.wildcard;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.loc.HasByteCodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
@@ -23,7 +25,6 @@ import org.benf.cfr.reader.entities.exceptions.ExceptionCheck;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.*;
 import org.benf.cfr.reader.util.Optional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import java.util.function.Predicate;
 import org.benf.cfr.reader.util.output.Dumpable;
@@ -229,11 +230,11 @@ public class WildcardMatch {
     }
 
     public MemberFunctionInvokationWildcard getMemberFunction(String name, String methodname, Expression object) {
-        return getMemberFunction(name, methodname, false, object, ListFactory.newList());
+        return getMemberFunction(name, methodname, false, object, new ObjectArrayList<Expression>());
     }
 
     public MemberFunctionInvokationWildcard getMemberFunction(String name, String methodname, Expression object, Expression... args) {
-        return getMemberFunction(name, methodname, false, object, ListFactory.newImmutableList(args));
+        return getMemberFunction(name, methodname, false, object, ObjectList.of(args));
     }
 
     /* When matching a function invokation, we don't really have all the details to construct a plausible
@@ -249,11 +250,11 @@ public class WildcardMatch {
     }
 
     public StaticFunctionInvokationWildcard getStaticFunction(String name, JavaTypeInstance clazz, JavaTypeInstance returnType, String methodname) {
-        return getStaticFunction(name, clazz, returnType, methodname, ListFactory.newList());
+        return getStaticFunction(name, clazz, returnType, methodname, new ObjectArrayList<Expression>());
     }
 
     public StaticFunctionInvokationWildcard getStaticFunction(String name, JavaTypeInstance clazz, JavaTypeInstance returnType, String methodname, Expression... args) {
-        return getStaticFunction(name, clazz, returnType, methodname, ListFactory.newImmutableList(args));
+        return getStaticFunction(name, clazz, returnType, methodname, ObjectList.of(args));
     }
 
     /* When matching a function invokation, we don't really have all the details to construct a plausible

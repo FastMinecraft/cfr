@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers.ExpressionRewriterTransformer;
@@ -42,8 +43,8 @@ import org.benf.cfr.reader.util.MiscConstants;
 import org.benf.cfr.reader.util.MiscUtils;
 import org.benf.cfr.reader.util.Optional;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
+
 import java.util.function.Predicate;
 
 import java.util.Collections;
@@ -82,7 +83,7 @@ public class RecordRewriter {
         // getters don't have to be default - we can hide them if they ARE default getters, but
         // it's not required.
         // However, the 0 argument getter for each field has to exist, AND it has to be public.
-        List<Method> getters = ListFactory.newList();
+        List<Method> getters = new ObjectArrayList<>();
         for (ClassFileField cff : instances) {
             List<Method> methods = classFile.getMethodsByNameOrNull(cff.getFieldName());
             // TODO: Rather than search for the method to match the field, we could
@@ -315,7 +316,7 @@ public class RecordRewriter {
         if (canonicalCons.getCodeAttribute() == null) return false;
         Op04StructuredStatement code = canonicalCons.getAnalysis();
 
-        instances = ListFactory.newList(instances);
+        instances = new ObjectArrayList<>(instances);
 
         List<LocalVariable> args = canonicalCons.getMethodPrototype().getComputedParameters();
         // We expect a block.  The last N statements should be assignments
@@ -323,7 +324,7 @@ public class RecordRewriter {
         if (!(topCode instanceof Block block)) return false;
 
         List<Op04StructuredStatement> statements = block.getBlockStatements();
-        List<Op04StructuredStatement> toNop = ListFactory.newList();
+        List<Op04StructuredStatement> toNop = new ObjectArrayList<>();
         int nopFrom = statements.size();
         for (int x=statements.size()-1;x>=0;x--) {
             Op04StructuredStatement stm = statements.get(x);

@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.matchutil.EmptyMatchResultCollector;
@@ -40,7 +41,6 @@ import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.util.CannotLoadClassException;
 import org.benf.cfr.reader.util.MiscUtils;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 
 import java.util.List;
 
@@ -125,7 +125,7 @@ public class RetroLambdaRewriter extends AbstractExpressionRewriter {
                 new EndBlock(null)
         );
 
-        List<StructuredStatement> stm = ListFactory.newList();
+        List<StructuredStatement> stm = new ObjectArrayList<>();
         candidate.linearizeStatementsInto(stm);
         MatchIterator<StructuredStatement> mi = new MatchIterator<>(stm);
         mi.advance();
@@ -186,7 +186,7 @@ public class RetroLambdaRewriter extends AbstractExpressionRewriter {
         // By this point we're ok with hiding the synthetic class.
         cf.markHiddenInnerClass();
         if (fullLambdaBody == null) {
-            List<Expression> curried = ListFactory.newList();
+            List<Expression> curried = new ObjectArrayList<>();
             curried.add(sfArg);
             InferredJavaType ijt = new InferredJavaType(mainLambdaIndirect.getMethodPrototype().getReturnType(), InferredJavaType.Source.TRANSFORM);
             // We can only give a simple lambda which calls the method the external class calls.
@@ -203,7 +203,7 @@ public class RetroLambdaRewriter extends AbstractExpressionRewriter {
         if (m2code == null) return null;
 
         List<LocalVariable> m2params = method.getMethodPrototype().getComputedParameters();
-        List<Expression> m3args = ListFactory.newList();
+        List<Expression> m3args = new ObjectArrayList<>();
         m3args.add(wcm.getExpressionWildCard("field"));
         for (LocalVariable lv : m2params) {
             m3args.add(new LValueExpression(lv));
@@ -218,7 +218,7 @@ public class RetroLambdaRewriter extends AbstractExpressionRewriter {
                 new EndBlock(null)
         );
 
-        List<StructuredStatement> stm2 = ListFactory.newList();
+        List<StructuredStatement> stm2 = new ObjectArrayList<>();
         m2code.linearizeStatementsInto(stm2);
         MatchIterator<StructuredStatement> mi2 = new MatchIterator<>(stm2);
         mi2.advance();
@@ -227,14 +227,14 @@ public class RetroLambdaRewriter extends AbstractExpressionRewriter {
     }
 
     private Expression getFullLambdaBody(Method mainLambdaIndirect) {
-        List<StructuredStatement> stmStaticLocal = ListFactory.newList();
+        List<StructuredStatement> stmStaticLocal = new ObjectArrayList<>();
         Op04StructuredStatement lambdaStaticLocal = mainLambdaIndirect.getAnalysis();
         if (lambdaStaticLocal == null) return null;
         lambdaStaticLocal.linearizeStatementsInto(stmStaticLocal);
 
         WildcardMatch wcm = new WildcardMatch();
         List<LocalVariable> m2params = mainLambdaIndirect.getMethodPrototype().getComputedParameters();
-        List<Expression> m3args = ListFactory.newList();
+        List<Expression> m3args = new ObjectArrayList<>();
         if (m2params.size() == 0) return null;
         Expression thisPtr = new LValueExpression(m2params.get(0));
         if (!thisPtr.getInferredJavaType().getJavaTypeInstance().equals(mainLambdaIndirect.getClassFile().getClassType())) return null;
@@ -271,8 +271,8 @@ public class RetroLambdaRewriter extends AbstractExpressionRewriter {
         if (body == null) return null;
 
         List<LocalVariable> bodyArgs = lambdaBody.getMethodPrototype().getComputedParameters();
-        List<LValue> bodyLV = ListFactory.newList();
-        List<JavaTypeInstance> bodyTypes = ListFactory.newList();
+        List<LValue> bodyLV = new ObjectArrayList<>();
+        List<JavaTypeInstance> bodyTypes = new ObjectArrayList<>();
         for (LocalVariable arg : bodyArgs) {
             bodyLV.add(arg);
             bodyTypes.add(arg.getInferredJavaType().getJavaTypeInstance());

@@ -1,12 +1,13 @@
 package org.benf.cfr.reader.bytecode.analysis.types;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.types.annotated.JavaAnnotatedTypeInstance;
 import org.benf.cfr.reader.entities.annotations.AnnotationTableEntry;
 import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 import org.benf.cfr.reader.state.ObfuscationTypeMap;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.state.TypeUsageInformation;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.MiscConstants;
 import org.benf.cfr.reader.util.output.Dumper;
 import org.benf.cfr.reader.util.output.IllegalIdentifierDump;
@@ -48,7 +49,7 @@ public class JavaGenericPlaceholderTypeInstance implements JavaGenericBaseInstan
     }
 
     private class Annotated implements JavaAnnotatedTypeInstance {
-        private final List<AnnotationTableEntry> entries = ListFactory.newList();
+        private final List<AnnotationTableEntry> entries = new ObjectArrayList<>();
 
         @Override
         public JavaAnnotatedTypeIterator pathIterator() {
@@ -97,7 +98,7 @@ public class JavaGenericPlaceholderTypeInstance implements JavaGenericBaseInstan
 
     @Override
     public List<JavaTypeInstance> getGenericTypes() {
-        return ListFactory.newImmutableList(this);
+        return ObjectList.of(new JavaTypeInstance[]{ this });
     }
 
     @Override

@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.util.ConstructorUtils;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.util.MiscStatementTools;
@@ -21,7 +22,6 @@ import org.benf.cfr.reader.bytecode.analysis.types.TypeConstants;
 import org.benf.cfr.reader.entities.*;
 import org.benf.cfr.reader.util.*;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
@@ -71,7 +71,7 @@ public class NonStaticLifter {
          * code.  (If they don't it's not the end of the world, we're tidying up).
          */
 
-        List<List<Op04StructuredStatement>> constructorCodeList = ListFactory.newList();
+        List<List<Op04StructuredStatement>> constructorCodeList = new ObjectArrayList<>();
         int minSize = Integer.MAX_VALUE;
         for (Method constructor : constructors) {
             List<Op04StructuredStatement> blockStatements = MiscStatementTools.getBlockStatements(constructor.getAnalysis());

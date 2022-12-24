@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters.Cleaner;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters.ExactTypeFilter;
@@ -46,7 +47,7 @@ public class Op03Blocks {
         Set<Block3> ready = new TreeSet<>();
         ready.add(in.get(0));
 
-        List<Block3> output = ListFactory.newList(in.size());
+        List<Block3> output = new ObjectArrayList<>(in.size());
 
         while (!allBlocks.isEmpty()) {
             Block3 next;
@@ -187,7 +188,7 @@ public class Op03Blocks {
             JavaRefTypeInstance catchType = first.getCatchType();
             BlockIdentifier tryBlockMain = first.getTryBlockIdentifier();
 
-            List<BlockIdentifier> possibleAliases = ListFactory.newList();
+            List<BlockIdentifier> possibleAliases = new ObjectArrayList<>();
             for (int x = 1, len = caught.size(); x < len; ++x) {
                 ExceptionGroup.Entry entry = caught.get(x);
                 if (!entry.getCatchType().equals(catchType)) continue catchlist;
@@ -265,7 +266,7 @@ public class Op03Blocks {
                 Statement statement = blockStart.getStatement();
                 // Should do this for catch as well...
                 if (statement instanceof FinallyStatement) {
-                    for (Block3 source : ListFactory.newList(block.sources)) {
+                    for (Block3 source : new ObjectArrayList<>(block.sources)) {
                         Statement last = source.getEnd().getStatement();
                         if (last instanceof TryStatement tryStatement) {
                             Block3 lastDep = lastByBlock.get(tryStatement.getBlockIdentifier());
@@ -282,7 +283,7 @@ public class Op03Blocks {
     }
 
     private static List<Block3> buildBasicBlocks(final List<Op03SimpleStatement> statements) {
-        final List<Block3> blocks = ListFactory.newList();
+        final List<Block3> blocks = new ObjectArrayList<>();
         final Map<Op03SimpleStatement, Block3> starts = MapFactory.newMap();
         final Map<Op03SimpleStatement, Block3> ends = MapFactory.newMap();
 
@@ -311,7 +312,7 @@ public class Op03Blocks {
         for (Block3 block : blocks) {
             Op03SimpleStatement start = block.getStart();
             List<Op03SimpleStatement> prevList = start.getSources();
-            List<Block3> prevBlocks = ListFactory.newList(prevList.size());
+            List<Block3> prevBlocks = new ObjectArrayList<>(prevList.size());
             for (Op03SimpleStatement prev : prevList) {
                 Block3 prevEnd = ends.get(prev);
                 if (prevEnd == null) {
@@ -322,7 +323,7 @@ public class Op03Blocks {
 
             Op03SimpleStatement end = block.getEnd();
             List<Op03SimpleStatement> afterList = end.getTargets();
-            List<Block3> postBlocks = ListFactory.newList(afterList.size());
+            List<Block3> postBlocks = new ObjectArrayList<>(afterList.size());
             for (Op03SimpleStatement after : afterList) {
                 postBlocks.add(starts.get(after));
             }
@@ -331,7 +332,7 @@ public class Op03Blocks {
             block.addTargets(postBlocks);
 
             if (end.getStatement() instanceof TryStatement) {
-                List<Block3> depends = ListFactory.newList();
+                List<Block3> depends = new ObjectArrayList<>();
                 for (Block3 tgt : postBlocks) {
                     tgt.addSources(depends);
                     for (Block3 depend : depends) {
@@ -373,7 +374,7 @@ public class Op03Blocks {
         }
 
         BlockIdentifierFactory blockIdentifierFactory = new BlockIdentifierFactory();
-        List<Set<BlockIdentifier>> blockMembers = ListFactory.newList();
+        List<Set<BlockIdentifier>> blockMembers = new ObjectArrayList<>();
         for (int i = 0, len = blocks.size(); i < len; ++i) {
             blockMembers.add(SetFactory.newOrderedSet());
         }
@@ -417,7 +418,7 @@ public class Op03Blocks {
                             // of the loops which have been jumped into.
                             Set<BlockIdentifier> tmp = SetFactory.newSet(inThese);
                             tmp.removeAll(sourceInThese);
-                            List<Block3> newSources = ListFactory.newList();
+                            List<Block3> newSources = new ObjectArrayList<>();
                             for (BlockIdentifier jumpedInto : tmp) {
                                 if (firstByBlock.get(jumpedInto) != block) {
                                     newSources.add(lastByBlock.get(jumpedInto));
@@ -926,7 +927,7 @@ public class Op03Blocks {
         /*
          * Now go through, and emit the content, in order.
          */
-        List<Op03SimpleStatement> outStatements = ListFactory.newList();
+        List<Op03SimpleStatement> outStatements = new ObjectArrayList<>();
         for (Block3 outBlock : blocks) {
             outStatements.addAll(outBlock.getContent());
         }
@@ -1004,7 +1005,7 @@ public class Op03Blocks {
             }
         }
 
-        List<Set<BlockIdentifier>> identifiersByBlock = ListFactory.newList();
+        List<Set<BlockIdentifier>> identifiersByBlock = new ObjectArrayList<>();
         //noinspection ForLoopReplaceableByForEach
         for (int x = 0; x < size; ++x) {
             Block3 block = blocks.get(x);
@@ -1058,7 +1059,7 @@ public class Op03Blocks {
      * try block before the catch.
      */
     private static List<Block3> addTryEndDependencies(List<Block3> blocks) {
-        Map<BlockIdentifier, List<Block3>> tryContent = MapFactory.newLazyMap(arg -> ListFactory.newList());
+        Map<BlockIdentifier, List<Block3>> tryContent = MapFactory.newLazyMap(arg -> new ObjectArrayList<>());
         for (Block3 block : blocks) {
             for (BlockIdentifier blockIdentifier : block.getStart().getBlockIdentifiers()) {
                 if (blockIdentifier.getBlockType() == BlockType.TRYBLOCK) {
@@ -1146,7 +1147,7 @@ public class Op03Blocks {
 
     private static class Block3 implements Comparable<Block3> {
         InstrIndex startIndex;
-        final List<Op03SimpleStatement> content = ListFactory.newList();
+        final List<Op03SimpleStatement> content = new ObjectArrayList<>();
         final Set<Block3> sources = SetFactory.newOrderedSet();
         // This seems redundant? - verify need.
         final Set<Block3> originalSources = SetFactory.newOrderedSet();

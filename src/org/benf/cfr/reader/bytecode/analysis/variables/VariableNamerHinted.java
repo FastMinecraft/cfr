@@ -1,9 +1,9 @@
 package org.benf.cfr.reader.bytecode.analysis.variables;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 import org.benf.cfr.reader.entities.attributes.LocalVariableEntry;
 import org.benf.cfr.reader.util.MiscConstants;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.output.IllegalIdentifierReplacement;
 
@@ -81,7 +81,7 @@ public class VariableNamerHinted implements VariableNamer {
 
     @Override
     public List<NamedVariable> getNamedVariables() {
-        return ListFactory.newList(cache.values());
+        return new ObjectArrayList<>(cache.values());
     }
 
     @Override

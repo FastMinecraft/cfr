@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.expression;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.StatementContainer;
@@ -11,7 +12,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.*;
 import org.benf.cfr.reader.bytecode.analysis.structured.expression.StructuredStatementExpression;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.util.StringUtils;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.List;
@@ -31,7 +31,7 @@ public class SwitchExpression extends AbstractExpression {
 
         private Branch rewrite(ExpressionRewriter expressionRewriter, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
             boolean thisChanged = false;
-            List<Expression> newCases = ListFactory.newList();
+            List<Expression> newCases = new ObjectArrayList<>();
             for (Expression exp : cases) {
                 Expression newExp = expressionRewriter.rewriteExpression(exp, ssaIdentifiers, statementContainer, flags);
                 if (newExp != exp) {
@@ -114,7 +114,7 @@ public class SwitchExpression extends AbstractExpression {
         if (newValue != value) {
             changed = true;
         }
-        List<Branch> out = ListFactory.newList();
+        List<Branch> out = new ObjectArrayList<>();
         for (Branch case1 : cases) {
             Branch newBranch = case1.rewrite(expressionRewriter, ssaIdentifiers, statementContainer, flags);
             if (newBranch != case1) {
@@ -161,7 +161,7 @@ public class SwitchExpression extends AbstractExpression {
 
     @Override
     public Expression deepClone(CloneHelper cloneHelper) {
-        List<Branch> res = ListFactory.newList();
+        List<Branch> res = new ObjectArrayList<>();
         for (Branch case1 : cases) {
             res.add(new Branch(cloneHelper.replaceOrClone(case1.cases), cloneHelper.replaceOrClone(case1.value)));
         }

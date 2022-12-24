@@ -3,12 +3,12 @@ package org.benf.cfr.reader.entities.attributes;
 import java.util.Collections;
 import java.util.List;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 import org.benf.cfr.reader.entityfactories.AttributeFactory;
 import org.benf.cfr.reader.entityfactories.ContiguousEntityFactory;
 import org.benf.cfr.reader.util.ClassFileVersion;
 import org.benf.cfr.reader.util.bytestream.ByteData;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 
 public class AttributeRecord extends Attribute {
@@ -34,7 +34,7 @@ public class AttributeRecord extends Attribute {
         int numComponents = raw.getU2At(OFFSET_OF_REMAINDER);
         long offset = OFFSET_OF_REMAINDER + 2;
 
-        componentInfos = ListFactory.newList();
+        componentInfos = new ObjectArrayList<>();
         for (int i = 0; i < numComponents; i++) {
             int nameIndex = raw.getS2At(offset);
             offset += 2;
@@ -47,7 +47,7 @@ public class AttributeRecord extends Attribute {
             int attributesCount = raw.getS2At(offset);
             offset += 2;
 
-            List<Attribute> attributes = ListFactory.newList();
+            List<Attribute> attributes = new ObjectArrayList<>();
             raw = raw.getOffsetData(offset);
             offset = ContiguousEntityFactory.build(raw, attributesCount, attributes,
                     AttributeFactory.getBuilder(cp, classFileVersion));

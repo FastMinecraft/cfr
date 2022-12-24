@@ -1,11 +1,11 @@
 package org.benf.cfr.reader.bytecode.analysis.types;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.types.annotated.JavaAnnotatedTypeInstance;
 import org.benf.cfr.reader.entities.annotations.AnnotationTableTypeEntry;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.DecompilerComments;
 import org.benf.cfr.reader.util.TypeUsageCollectable;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.output.Dumpable;
 import org.benf.cfr.reader.util.output.Dumper;
@@ -50,7 +50,7 @@ public class FormalTypeParameter implements Dumpable, TypeUsageCollectable {
         if (typ instanceof JavaIntersectionTypeInstance) {
             typ = ((JavaIntersectionTypeInstance) typ).withPart(otherTyp);
         } else {
-            typ = new JavaIntersectionTypeInstance(ListFactory.newList(typ, otherTyp));
+            typ = new JavaIntersectionTypeInstance(new ObjectArrayList<JavaTypeInstance>(new JavaTypeInstance[]{ typ, otherTyp }));
         }
         if (classBound != null) {
             classBound = typ;

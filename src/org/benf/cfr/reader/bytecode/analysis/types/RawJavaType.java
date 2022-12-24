@@ -1,11 +1,11 @@
 package org.benf.cfr.reader.bytecode.analysis.types;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.types.annotated.JavaAnnotatedTypeInstance;
 import org.benf.cfr.reader.entities.annotations.AnnotationTableEntry;
 import org.benf.cfr.reader.state.ObfuscationTypeMap;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.state.TypeUsageInformation;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.output.Dumper;
@@ -103,7 +103,7 @@ public enum RawJavaType implements JavaTypeInstance {
     }
 
     private class Annotated implements JavaAnnotatedTypeInstance {
-        private final List<AnnotationTableEntry> entries = ListFactory.newList();
+        private final List<AnnotationTableEntry> entries = new ObjectArrayList<>();
 
         @Override
         public JavaAnnotatedTypeIterator pathIterator() {

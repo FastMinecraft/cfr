@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.types;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.types.annotated.JavaAnnotatedTypeInstance;
 import org.benf.cfr.reader.entities.annotations.AnnotationTableTypeEntry;
 import org.benf.cfr.reader.entities.attributes.AttributeMap;
@@ -9,7 +10,6 @@ import org.benf.cfr.reader.entities.attributes.AttributeTypeAnnotations;
 import org.benf.cfr.reader.entities.attributes.TypeAnnotationEntryValue;
 import org.benf.cfr.reader.entities.attributes.TypePathPart;
 import org.benf.cfr.reader.util.DecompilerComments;
-import org.benf.cfr.reader.util.collections.ListFactory;
 
 import java.util.List;
 
@@ -25,7 +25,7 @@ public class TypeAnnotationHelper {
             AttributeRuntimeVisibleTypeAnnotations.ATTRIBUTE_NAME,
             AttributeRuntimeInvisibleTypeAnnotations.ATTRIBUTE_NAME
         };
-        List<AnnotationTableTypeEntry> res = ListFactory.newList();
+        List<AnnotationTableTypeEntry> res = new ObjectArrayList<>();
         for (String key : keys) {
             AttributeTypeAnnotations ann = map.getByName(key);
             if (ann == null) continue;

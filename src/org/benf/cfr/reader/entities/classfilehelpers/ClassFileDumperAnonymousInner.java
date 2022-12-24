@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.entities.classfilehelpers;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
@@ -7,7 +8,6 @@ import org.benf.cfr.reader.bytecode.analysis.types.MethodPrototype;
 import org.benf.cfr.reader.entities.*;
 import org.benf.cfr.reader.entities.attributes.AttributeCode;
 import org.benf.cfr.reader.state.TypeUsageCollector;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.StringUtils;
 import org.benf.cfr.reader.util.output.Dumper;
 
@@ -21,7 +21,7 @@ public class ClassFileDumperAnonymousInner extends AbstractClassFileDumper {
 
     @Override
     public Dumper dump(ClassFile classFile, InnerClassDumpType innerClass, Dumper d) {
-        return dumpWithArgs(classFile, null, ListFactory.newList(), false, d);
+        return dumpWithArgs(classFile, null, new ObjectArrayList<Expression>(), false, d);
     }
 
     public Dumper dumpWithArgs(ClassFile classFile, MethodPrototype usedMethod, List<Expression> args, boolean isEnum, Dumper d) {

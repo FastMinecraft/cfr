@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.matchutil.*;
@@ -27,7 +28,6 @@ import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.util.CannotLoadClassException;
 import org.benf.cfr.reader.util.ClassFileVersion;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
@@ -399,7 +399,7 @@ public class SwitchEnumRewriter implements Op04Rewriter {
             /*
              * If we can match every one of the ordinals, we replace the statement.
              */
-            LinkedList<Op04StructuredStatement> newBlockContent = ListFactory.newLinkedList();
+            LinkedList<Op04StructuredStatement> newBlockContent = new LinkedList<>();
             InferredJavaType inferredJavaType = enumObject.getInferredJavaType();
             for (Op04StructuredStatement caseOuter : caseStatements) {
                 StructuredStatement caseInner = caseOuter.getStatement();
@@ -407,7 +407,7 @@ public class SwitchEnumRewriter implements Op04Rewriter {
                     return true;
                 }
                 List<Expression> values = caseStmt.getValues();
-                List<Expression> newValues = ListFactory.newList();
+                List<Expression> newValues = new ObjectArrayList<>();
                 for (Expression value : values) {
                     Integer iVal = getIntegerFromLiteralExpression(value);
                     if (iVal == null) {

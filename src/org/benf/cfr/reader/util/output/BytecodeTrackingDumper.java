@@ -1,9 +1,9 @@
 package org.benf.cfr.reader.util.output;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.loc.HasByteCodeLoc;
 import org.benf.cfr.reader.entities.Method;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 
 import java.util.Collection;
@@ -92,7 +92,7 @@ class BytecodeTrackingDumper extends DelegatingDumper {
         /*
          * We need to flush the mappings we have generated to an appropriate consumer.
          */
-        List<BytecodeDumpConsumer.Item> result = ListFactory.newList();
+        List<BytecodeDumpConsumer.Item> result = new ObjectArrayList<>();
         for (Map.Entry<Method, MethodBytecode> entry : perMethod.entrySet()) {
             final TreeMap<Integer, Integer> data = entry.getValue().getFinal();
             final Method method = entry.getKey();

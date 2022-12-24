@@ -1,8 +1,8 @@
 package org.benf.cfr.reader.entities;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.TypeUsageCollectable;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 
 import java.util.List;
@@ -26,7 +26,7 @@ public class FakeMethods implements TypeUsageCollectable {
     }
 
     public List<FakeMethod> getMethods() {
-        return ListFactory.newList(fakes.values());
+        return new ObjectArrayList<>(fakes.values());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.expression;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.PrimitiveBoxingRewriter;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
@@ -14,7 +15,6 @@ import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.RawJavaType;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.state.TypeUsageCollector;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.StringUtils;
 import org.benf.cfr.reader.util.output.Dumper;
 
@@ -32,7 +32,7 @@ public class NewAnonymousArray extends AbstractNewArray implements BoxingProcess
 
     public NewAnonymousArray(BytecodeLoc loc, InferredJavaType type, int numDims, List<Expression> values, boolean isCompletelyAnonymous) {
         super(loc, type);
-        this.values = ListFactory.newList();
+        this.values = new ObjectArrayList<>();
         this.numDims = numDims;
         this.allocatedType = type.getJavaTypeInstance().getArrayStrippedType();
         if (allocatedType instanceof RawJavaType) {

@@ -1,10 +1,10 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.utils.finalhelp;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.TryStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
@@ -45,7 +45,7 @@ public class PeerTries {
 
     private final Set<Op03SimpleStatement> seenEver = SetFactory.newOrderedSet();
 
-    private final LinkedList<Op03SimpleStatement> toProcess = ListFactory.newLinkedList();
+    private final LinkedList<Op03SimpleStatement> toProcess = new LinkedList<>();
     private int nextIdx;
 
     /*
@@ -109,7 +109,7 @@ public class PeerTries {
     }
 
     List<PeerTrySet> getPeerTryGroups() {
-        return ListFactory.newList(triesByLevel.values());
+        return new ObjectArrayList<>(triesByLevel.values());
     }
 
     public static final class PeerTrySet {

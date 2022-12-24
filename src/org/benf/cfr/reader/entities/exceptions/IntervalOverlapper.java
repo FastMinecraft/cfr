@@ -1,6 +1,6 @@
 package org.benf.cfr.reader.entities.exceptions;
 
-import org.benf.cfr.reader.util.collections.ListFactory;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
@@ -65,7 +65,7 @@ public class IntervalOverlapper {
         int currentTo;
         int remainingBlockStart = from;
         int remainingBlockTo = to;
-        List<ExceptionTableEntry> output = ListFactory.newList();
+        List<ExceptionTableEntry> output = new ObjectArrayList<>();
         // by definition, startsbefore and endsafter won't overlap.
         if (!overlapStartsBefore.isEmpty()) {
             Set<Integer> blockEnds = new TreeSet<>();
@@ -104,7 +104,7 @@ public class IntervalOverlapper {
                 starts.get(e2.getBytecodeIndexFrom()).remove(e2);
                 ends.get(e2.getBytecodeIndexTo()).remove(e2);
             }
-            List<Integer> revBlockStarts = ListFactory.newList(blockStarts);
+            List<Integer> revBlockStarts = new ObjectArrayList<>(blockStarts);
             currentTo = to;
             for (int x = revBlockStarts.size() - 1; x >= 0; --x) {
                 Integer start = revBlockStarts.get(x);
@@ -149,6 +149,6 @@ public class IntervalOverlapper {
     }
 
     public List<ExceptionTableEntry> getExceptions() {
-        return ListFactory.newList(razeValues(starts));
+        return new ObjectArrayList<>(razeValues(starts));
     }
 }

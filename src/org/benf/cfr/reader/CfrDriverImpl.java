@@ -1,5 +1,6 @@
 package org.benf.cfr.reader;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.api.CfrDriver;
 import org.benf.cfr.reader.api.ClassFileSource;
 import org.benf.cfr.reader.api.OutputSinkFactory;
@@ -9,17 +10,13 @@ import org.benf.cfr.reader.state.ClassFileSourceImpl;
 import org.benf.cfr.reader.state.ClassFileSourceWrapper;
 import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.util.AnalysisType;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.DumperFactory;
 import org.benf.cfr.reader.util.output.InternalDumperFactoryImpl;
 import org.benf.cfr.reader.util.output.SinkDumperFactory;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class CfrDriverImpl implements CfrDriver {
     private final Options options;
@@ -55,7 +52,7 @@ public class CfrDriverImpl implements CfrDriver {
         boolean skipInnerClass = toAnalyse.size() > 1 && options.getOption(OptionsImpl.SKIP_BATCH_INNER_CLASSES);
 
         // Can't sort a 1.6 singleton list.
-        toAnalyse = ListFactory.newList(toAnalyse);
+        toAnalyse = new ObjectArrayList<>(toAnalyse);
         Collections.sort(toAnalyse);
         for (String path : toAnalyse) {
             // TODO : We shouldn't have to discard state here.  But we do, because

@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.entities.exceptions;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op01WithProcessedDataAndByteJumps;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifierFactory;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockType;
@@ -8,7 +9,6 @@ import org.benf.cfr.reader.bytecode.opcode.JVMInstr;
 import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 import org.benf.cfr.reader.util.*;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import java.util.function.Predicate;
 
@@ -19,7 +19,7 @@ import java.util.*;
 
 public class ExceptionAggregator {
 
-    private final List<ExceptionGroup> exceptionsByRange = ListFactory.newList();
+    private final List<ExceptionGroup> exceptionsByRange = new ObjectArrayList<>();
     private final Map<Integer, Integer> lutByOffset;
     private final List<Op01WithProcessedDataAndByteJumps> instrs;
     private final boolean aggressiveAggregate;
@@ -48,7 +48,7 @@ public class ExceptionAggregator {
             /* If two entries are contiguous, they can be merged 
              * If they're 'almost' contiguous, but point to the same range? ........ don't know.
              */
-            List<ExceptionTableEntry> res = ListFactory.newList();
+            List<ExceptionTableEntry> res = new ObjectArrayList<>();
             ExceptionTableEntry held = null;
             for (ExceptionTableEntry entry : this.entries) {
                 if (held == null) {
@@ -196,7 +196,7 @@ public class ExceptionAggregator {
          * Extend an exception which terminates at a return.
          * Remember exception tables are half closed [0,1) == just covers 0.
          */
-        List<ExceptionTableEntry> extended = ListFactory.newList();
+        List<ExceptionTableEntry> extended = new ObjectArrayList<>();
         for (ExceptionTableEntry exceptionTableEntry : rawExceptions) {
 
             ExceptionTableEntry exceptionTableEntryOrig;
@@ -246,7 +246,7 @@ public class ExceptionAggregator {
             ExceptionTableEntry::getCatchType
         );
 
-        List<ExceptionTableEntry> processedExceptions = ListFactory.newList(rawExceptions.size());
+        List<ExceptionTableEntry> processedExceptions = new ObjectArrayList<>(rawExceptions.size());
         for (List<ExceptionTableEntry> list : grouped.values()) {
             IntervalCount intervalCount = new IntervalCount();
             for (ExceptionTableEntry e : list) {
@@ -266,7 +266,7 @@ public class ExceptionAggregator {
             ByTarget::new
         );
 
-        rawExceptions = ListFactory.newList();
+        rawExceptions = new ObjectArrayList<>();
 
         /*
          * If there are two exceptions which both vector to the same target,
@@ -307,7 +307,7 @@ public class ExceptionAggregator {
         CompareExceptionTablesByRange compareExceptionTablesByStart = new CompareExceptionTablesByRange();
         ExceptionTableEntry prev = null;
         ExceptionGroup currentGroup = null;
-        List<ExceptionGroup> rawExceptionsByRange = ListFactory.newList();
+        List<ExceptionGroup> rawExceptionsByRange = new ObjectArrayList<>();
         for (ExceptionTableEntry e : rawExceptions) {
             if (prev == null || compareExceptionTablesByStart.compare(e, prev) != 0) {
                 currentGroup = new ExceptionGroup(e.getBytecodeIndexFrom(), blockIdentifierFactory.getNextBlockIdentifier(BlockType.TRYBLOCK), cp);

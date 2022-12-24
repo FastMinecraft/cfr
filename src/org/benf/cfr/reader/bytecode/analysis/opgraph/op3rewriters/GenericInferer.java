@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
@@ -96,7 +97,7 @@ public class GenericInferer {
 
     public static void inferGenericObjectInfoFromCalls(List<Op03SimpleStatement> statements) {
         // memberFunctionInvokations will either be wrapped in ExpressionStatement or SimpleAssignment.
-        List<MemberFunctionInvokation> memberFunctionInvokations = ListFactory.newList();
+        List<MemberFunctionInvokation> memberFunctionInvokations = new ObjectArrayList<>();
         for (Op03SimpleStatement statement : statements) {
             Statement contained = statement.getStatement();
             if (contained instanceof ExpressionStatement) {

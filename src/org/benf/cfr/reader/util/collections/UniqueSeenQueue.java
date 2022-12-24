@@ -13,7 +13,7 @@ public class UniqueSeenQueue<T> {
     // Items in c should be unique.
     public UniqueSeenQueue(Collection<? extends T> c) {
         this.llItems = SetFactory.newSet();
-        this.ll = ListFactory.newLinkedList();
+        this.ll = new LinkedList<>();
         this.seen = SetFactory.newSet();
         ll.addAll(c);
         llItems.addAll(c);

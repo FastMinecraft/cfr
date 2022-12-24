@@ -1,15 +1,16 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.JumpingStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.WhileStatement;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -51,7 +52,7 @@ public class Cleaner {
         );
         gv.process();
 
-        List<Op03SimpleStatement> result = ListFactory.newList();
+        List<Op03SimpleStatement> result = new ObjectArrayList<>();
         for (Op03SimpleStatement statement : statements) {
             if (reachable.contains(statement)) {
                 result.add(statement);
@@ -59,7 +60,8 @@ public class Cleaner {
         }
         // Too expensive....
         for (Op03SimpleStatement res1 : result) {
-            List<Op03SimpleStatement> sources = ListFactory.newList(res1.getSources());
+            Collection<Op03SimpleStatement> original = res1.getSources();
+            List<Op03SimpleStatement> sources = new ObjectArrayList<>(original);
             for (Op03SimpleStatement source : sources) {
                 if (!reachable.contains(source)) {
                     res1.removeSource(source);
@@ -74,7 +76,7 @@ public class Cleaner {
 */
     public static List<Op03SimpleStatement> sortAndRenumber(List<Op03SimpleStatement> statements) {
         boolean nonNopSeen = false;
-        List<Op03SimpleStatement> result = ListFactory.newList();
+        List<Op03SimpleStatement> result = new ObjectArrayList<>();
         for (Op03SimpleStatement statement : statements) {
             boolean thisIsNop = statement.isAgreedNop();
             if (!nonNopSeen) {

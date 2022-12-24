@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.entities.exceptions;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op01WithProcessedDataAndByteJumps;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.ComparableUnderEC;
@@ -8,7 +9,6 @@ import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.TypeConstants;
 import org.benf.cfr.reader.bytecode.opcode.JVMInstr;
 import org.benf.cfr.reader.entities.constantpool.ConstantPool;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.StringUtils;
 
 import java.util.List;
@@ -20,7 +20,7 @@ public class ExceptionGroup {
     private final int bytecodeIndexFrom;        // [ a
     private int bytecodeIndexTo;          // ) b    st a <= x < b
     private int minHandlerStart = Short.MAX_VALUE;
-    private final List<Entry> entries = ListFactory.newList();
+    private final List<Entry> entries = new ObjectArrayList<>();
     private final BlockIdentifier tryBlockIdentifier;
     private final ConstantPool cp;
 

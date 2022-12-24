@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.expression;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.StatementContainer;
@@ -19,7 +20,6 @@ import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.MiscConstants;
 import org.benf.cfr.reader.util.StringUtils;
 import org.benf.cfr.reader.util.Troolean;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.List;
@@ -141,7 +141,7 @@ public class LambdaExpressionFallback extends AbstractExpression implements Lamb
             if (multi) {
                 d.separator("(");
             }
-            List<String> args = ListFactory.newList(n);
+            List<String> args = new ObjectArrayList<>(n);
             for (int x = 0; x < n; ++x) {
                 if (x > 0) d.separator(", ");
                 String arg = "arg_" + x;

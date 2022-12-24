@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.types;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.types.annotated.JavaAnnotatedTypeInstance;
 import org.benf.cfr.reader.entities.annotations.AnnotationTableEntry;
 import org.benf.cfr.reader.entities.constantpool.ConstantPool;
@@ -7,7 +8,6 @@ import org.benf.cfr.reader.state.ObfuscationTypeMap;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.state.TypeUsageInformation;
 import org.benf.cfr.reader.util.DecompilerComments;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 import org.benf.cfr.reader.util.output.IllegalIdentifierDump;
 import org.benf.cfr.reader.util.output.ToStringDumper;
@@ -41,7 +41,7 @@ public class JavaWildcardTypeInstance implements JavaGenericBaseInstance {
     }
 
     private class Annotated implements JavaAnnotatedTypeInstance {
-        private final List<AnnotationTableEntry> entries = ListFactory.newList();
+        private final List<AnnotationTableEntry> entries = new ObjectArrayList<>();
         private final JavaAnnotatedTypeInstance underlyingAnnotated;
 
         private Annotated() {
@@ -132,7 +132,7 @@ public class JavaWildcardTypeInstance implements JavaGenericBaseInstance {
         if (underlyingType instanceof JavaGenericBaseInstance) {
             return ((JavaGenericBaseInstance) underlyingType).getGenericTypes();
         }
-        return ListFactory.newList();
+        return new ObjectArrayList<>();
     }
 
     @Override

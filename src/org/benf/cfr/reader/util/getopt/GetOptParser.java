@@ -1,7 +1,7 @@
 package org.benf.cfr.reader.util.getopt;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.CfrVersionInfo;
 
@@ -141,7 +141,7 @@ public class GetOptParser {
     private Pair<List<String>, Map<String, String>> process(String[] in, PermittedOptionProvider optionProvider) {
         Map<String, OptData> optTypeMap = buildOptTypeMap(optionProvider);
         Map<String, String> res = MapFactory.newMap();
-        List<String> positional = ListFactory.newList();
+        List<String> positional = new ObjectArrayList<>();
         Options optionsSample = new OptionsImpl(res);
         for (int x = 0; x < in.length; ++x) {
             if (in[x].startsWith(argPrefix)) {

@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.utils.finalhelp;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
@@ -114,7 +115,8 @@ public class FinalAnalyzer {
         /*
          * Looking at the ORIGINAL try block, find the last catch block for it.
          */
-        List<Op03SimpleStatement> originalTryTargets = ListFactory.newList(SetFactory.newOrderedSet(in.getTargets()));
+        Collection<Op03SimpleStatement> original3 = SetFactory.newOrderedSet(in.getTargets());
+        List<Op03SimpleStatement> originalTryTargets = new ObjectArrayList<>(original3);
         originalTryTargets.sort(new CompareByIndex());
         Op03SimpleStatement lastCatch = originalTryTargets.get(originalTryTargets.size() - 1);
         if (!(lastCatch.getStatement() instanceof CatchStatement)) {
@@ -163,7 +165,8 @@ public class FinalAnalyzer {
                  * Decide whether this try really is artificial.
                  * If it's got a target which is other than the outer throwable, then
                  */
-                List<Op03SimpleStatement> handlers = ListFactory.newList(peerTry.getTargets());
+                Collection<Op03SimpleStatement> original = peerTry.getTargets();
+                List<Op03SimpleStatement> handlers = new ObjectArrayList<>(original);
 //                if (firstTryInBlock) {
 //                    firstTryInBlock = false;
 //                    Set<Op03SimpleStatement> inHandlers = SetFactory.newSet(originalTryTargets);
@@ -284,9 +287,10 @@ public class FinalAnalyzer {
 //        Op03SimpleStatement afterLast = found+1 >= allStatements.size() ? null : allStatements.get(found+1);
 
         Result cloneThis = results.iterator().next();
-        List<Op03SimpleStatement> oldFinallyBody = ListFactory.newList(cloneThis.getToRemove());
+        Collection<Op03SimpleStatement> original2 = cloneThis.getToRemove();
+        List<Op03SimpleStatement> oldFinallyBody = new ObjectArrayList<>(original2);
         oldFinallyBody.sort(new CompareByIndex());
-        List<Op03SimpleStatement> newFinallyBody = ListFactory.newList();
+        List<Op03SimpleStatement> newFinallyBody = new ObjectArrayList<>();
         Set<BlockIdentifier> oldStartBlocks = SetFactory.newOrderedSet(oldFinallyBody.get(0).getBlockIdentifiers());
 
         /*
@@ -404,7 +408,8 @@ public class FinalAnalyzer {
             Set<Op03SimpleStatement> toRemove = result.getToRemove();
             Op03SimpleStatement afterEnd = result.getAfterEnd();
 
-            List<Op03SimpleStatement> startSources = ListFactory.newList(start.getSources());
+            Collection<Op03SimpleStatement> original1 = start.getSources();
+            List<Op03SimpleStatement> startSources = new ObjectArrayList<>(original1);
             for (Op03SimpleStatement source : startSources) {
                 if (!toRemove.contains(source)) {
                     if (afterEnd != null) {
@@ -517,7 +522,8 @@ public class FinalAnalyzer {
             }
 
             if (afterEnd != null) {
-                List<Op03SimpleStatement> endSources = ListFactory.newList(afterEnd.getSources());
+                Collection<Op03SimpleStatement> original = afterEnd.getSources();
+                List<Op03SimpleStatement> endSources = new ObjectArrayList<>(original);
                 for (Op03SimpleStatement source : endSources) {
                     if (toRemove.contains(source)) {
                         afterEnd.removeSource(source);
@@ -822,7 +828,7 @@ public class FinalAnalyzer {
         Op03SimpleStatement firstStatementInCatch = in.getTargets().get(0);
 
         // Not neccessarily in order.
-        final List<Op03SimpleStatement> statementsInCatch = ListFactory.newList();
+        final List<Op03SimpleStatement> statementsInCatch = new ObjectArrayList<>();
 
         final Set<Op03SimpleStatement> targetsOutsideCatch = SetFactory.newOrderedSet();
         final Set<Op03SimpleStatement> directExitsFromCatch = SetFactory.newOrderedSet();
@@ -875,7 +881,7 @@ public class FinalAnalyzer {
             in1 -> in1.getStatement().getClass() == finallyStartStatement.getClass()
         );
 
-        List<Result> possibleFinallyBlocks = ListFactory.newList();
+        List<Result> possibleFinallyBlocks = new ObjectArrayList<>();
         for (Op03SimpleStatement possibleFinallyStart : possibleFinalStarts) {
             Result res = finallyGraphHelper.match(possibleFinallyStart);
             if (!res.isFail()) {
@@ -961,7 +967,7 @@ public class FinalAnalyzer {
         /*
          * This is a hack.
          */
-        List<Op03SimpleStatement> tmp = ListFactory.newList(possibleCatches);
+        List<Op03SimpleStatement> tmp = new ObjectArrayList<>(possibleCatches);
         tmp.sort(new CompareByIndex());
         return tmp.get(tmp.size() - 1);
     }

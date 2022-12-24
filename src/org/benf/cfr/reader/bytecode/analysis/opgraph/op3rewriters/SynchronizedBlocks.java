@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
@@ -7,7 +8,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.expression.CastExpression;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.*;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.collections.SetUtil;
@@ -160,7 +160,7 @@ public class SynchronizedBlocks {
             final Op03SimpleStatement foundExit = foundExitIter.next();
             final Set<BlockIdentifier> exitBlocks = SetFactory.newSet(foundExit.getBlockIdentifiers());
             exitBlocks.removeAll(start.getBlockIdentifiers());
-            final List<Op03SimpleStatement> added = ListFactory.newList();
+            final List<Op03SimpleStatement> added = new ObjectArrayList<>();
             GraphVisitor<Op03SimpleStatement> additional = new GraphVisitorDFS<>(
                 foundExit,
                 (arg1, arg2) -> {

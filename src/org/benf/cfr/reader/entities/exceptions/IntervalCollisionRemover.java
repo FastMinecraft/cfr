@@ -1,6 +1,6 @@
 package org.benf.cfr.reader.entities.exceptions;
 
-import org.benf.cfr.reader.util.collections.ListFactory;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.util.List;
 import java.util.Map;
@@ -17,7 +17,7 @@ public class IntervalCollisionRemover {
     private final TreeMap<Integer, Boolean> covered = new TreeMap<>();
 
     public List<ClosedIdxExceptionEntry> removeIllegals(ClosedIdxExceptionEntry e) {
-        List<ClosedIdxExceptionEntry> res = ListFactory.newList();
+        List<ClosedIdxExceptionEntry> res = new ObjectArrayList<>();
 
         int start = e.start();
         int end = e.end();

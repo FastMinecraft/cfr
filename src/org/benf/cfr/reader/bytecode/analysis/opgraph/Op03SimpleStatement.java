@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters.Cleaner;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters.CompareByIndex;
@@ -28,7 +29,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.SSAIdentifiers;
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.collections.UniqueSeenQueue;
@@ -44,8 +44,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, Dumpable, StatementContainer<Statement>, IndexedStatement {
-    private final List<Op03SimpleStatement> sources = ListFactory.newList();
-    private final List<Op03SimpleStatement> targets = ListFactory.newList();
+    private final List<Op03SimpleStatement> sources = new ObjectArrayList<>();
+    private final List<Op03SimpleStatement> targets = new ObjectArrayList<>();
 
     private Op03SimpleStatement linearlyPrevious;
     private Op03SimpleStatement linearlyNext;
@@ -518,7 +518,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
     @Override
     public Dumper dump(Dumper dumper) {
         dumper.print("**********").newln();
-        List<Op03SimpleStatement> reachableNodes = ListFactory.newList();
+        List<Op03SimpleStatement> reachableNodes = new ObjectArrayList<>();
         GraphVisitorCallee graphVisitorCallee = new GraphVisitorCallee(reachableNodes);
         GraphVisitor<Op03SimpleStatement> visitor = new GraphVisitorDFS<>(this, graphVisitorCallee);
         visitor.process();
@@ -547,7 +547,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
     }
 
     public List<Op03SimpleStatement> splitCompound() {
-        List<Op03SimpleStatement> result = ListFactory.newList();
+        List<Op03SimpleStatement> result = new ObjectArrayList<>();
         List<Statement> innerStatements = containedStatement.getCompoundParts();
         InstrIndex nextIndex = index.justAfter();
         for (Statement statement : innerStatements) {
@@ -590,7 +590,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
 
     public static void noteInterestingLifetimes(List<Op03SimpleStatement> statements) {
 
-        List<Op03SimpleStatement> wantsHint = ListFactory.newList();
+        List<Op03SimpleStatement> wantsHint = new ObjectArrayList<>();
 
         Set<LValue> wanted = SetFactory.newSet();
         for (Op03SimpleStatement stm : statements) {
@@ -709,7 +709,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
 
     public static Op04StructuredStatement createInitialStructuredBlock(List<Op03SimpleStatement> statements) {
         final GraphConversionHelper<Op03SimpleStatement, Op04StructuredStatement> conversionHelper = new GraphConversionHelper<>();
-        List<Op04StructuredStatement> containers = ListFactory.newList();
+        List<Op04StructuredStatement> containers = new ObjectArrayList<>();
         for (Op03SimpleStatement statement : statements) {
             Op04StructuredStatement unstructuredStatement = statement.getStructuredStatementPlaceHolder();
             containers.add(unstructuredStatement);

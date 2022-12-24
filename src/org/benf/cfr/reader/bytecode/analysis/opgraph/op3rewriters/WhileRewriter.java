@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
@@ -12,11 +13,11 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.*;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.Troolean;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -208,8 +209,8 @@ class WhileRewriter {
         AssignmentSimple initalAssignmentSimple = null;
 
 
-        List<AbstractAssignmentExpression> postUpdates = ListFactory.newList();
-        List<List<Op03SimpleStatement>> usedMutatedPossibilities = ListFactory.newList();
+        List<AbstractAssignmentExpression> postUpdates = new ObjectArrayList<>();
+        List<List<Op03SimpleStatement>> usedMutatedPossibilities = new ObjectArrayList<>();
         boolean usesLoopVar = false;
         for (LValue otherMutant : reverseOrderedMutatedPossibilities) {
             List<Op03SimpleStatement> othermutations = getMutations(backSources, otherMutant, whileBlockIdentifier);
@@ -251,7 +252,8 @@ class WhileRewriter {
                 /*
                  * Loop at anything which jumps directly to here.
                  */
-                List<Op03SimpleStatement> ssources = ListFactory.newList(source.getSources());
+                Collection<Op03SimpleStatement> original = source.getSources();
+                List<Op03SimpleStatement> ssources = new ObjectArrayList<>(original);
                 for (Op03SimpleStatement ssource : ssources) {
                     if (ssource.getBlockIdentifiers().contains(whileBlockIdentifier)) {
                         Statement sstatement = ssource.getStatement();
@@ -321,7 +323,7 @@ class WhileRewriter {
         /*
          * Now, go back and get the list of mutations.  Make sure they're all equivalent, then nop them out.
          */
-        List<Op03SimpleStatement> mutations = ListFactory.newList();
+        List<Op03SimpleStatement> mutations = new ObjectArrayList<>();
         for (Op03SimpleStatement source : backSources) {
             Op03SimpleStatement incrStatement = getForInvariant(source, loopVariable, whileBlockIdentifier);
             mutations.add(incrStatement);

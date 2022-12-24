@@ -1,11 +1,11 @@
 package org.benf.cfr.reader.util.output;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.state.OsInfo;
 import org.benf.cfr.reader.state.TypeUsageInformation;
 import org.benf.cfr.reader.util.*;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
@@ -122,7 +122,7 @@ public class InternalDumperFactoryImpl implements DumperFactory {
         @Override
         public List<DecompilerComment> getComments() {
             if (seenCaseDupe) {
-                List<DecompilerComment> res = ListFactory.newList();
+                List<DecompilerComment> res = new ObjectArrayList<>();
                 res.add(DecompilerComment.CASE_CLASH_FS);
                 return res;
             }

@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.structured.statement;
 
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.matchutil.MatchIterator;
@@ -23,7 +24,7 @@ import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.RawJavaType;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.StringUtils;
-import org.benf.cfr.reader.util.collections.ListFactory;
+
 import java.util.function.Predicate;
 import org.benf.cfr.reader.util.output.Dumper;
 
@@ -159,7 +160,7 @@ public class StructuredFor extends AbstractStructuredBlockStatement {
         LValue created = initial.getCreatedLValue();
         if (!(created instanceof LocalVariable)) return null;
 
-        return ListFactory.newImmutableList(created);
+        return ObjectList.of(new LValue[]{ created });
     }
 
     @Override

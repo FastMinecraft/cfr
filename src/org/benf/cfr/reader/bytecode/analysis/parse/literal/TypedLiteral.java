@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.literal;
 
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.QuotingUtils;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaGenericRefTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
@@ -22,7 +23,6 @@ import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryUTF8;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.TypeUsageCollectable;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.output.Dumpable;
 import org.benf.cfr.reader.util.output.Dumper;
 import org.benf.cfr.reader.util.output.ToStringDumper;
@@ -289,7 +289,9 @@ public class TypedLiteral implements TypeUsageCollectable, Dumpable {
     }
 
     public static TypedLiteral getClass(JavaTypeInstance v) {
-        JavaTypeInstance tgt = new JavaGenericRefTypeInstance(TypeConstants.CLASS, ListFactory.newImmutableList(v));
+        JavaTypeInstance tgt = new JavaGenericRefTypeInstance(TypeConstants.CLASS,
+            ObjectList.of(new JavaTypeInstance[]{ v })
+        );
         return new TypedLiteral(LiteralType.Class, new InferredJavaType(tgt, InferredJavaType.Source.LITERAL), v);
     }
 

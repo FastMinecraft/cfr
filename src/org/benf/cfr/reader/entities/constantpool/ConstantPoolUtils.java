@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.entities.constantpool;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.analysis.stack.StackDelta;
 import org.benf.cfr.reader.bytecode.analysis.stack.StackDeltaImpl;
@@ -11,7 +12,6 @@ import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.MalformedPrototypeException;
 import org.benf.cfr.reader.util.MiscConstants;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 
 import java.util.Collections;
@@ -230,7 +230,7 @@ public class ConstantPoolUtils {
         curridx += superClassSignatureTok.length();
         JavaTypeInstance superClassSignature = decodeTypeTok(superClassSignatureTok, cp);
 
-        List<JavaTypeInstance> interfaceClassSignatures = ListFactory.newList();
+        List<JavaTypeInstance> interfaceClassSignatures = new ObjectArrayList<>();
         while (curridx < sig.length()) {
             String interfaceSignatureTok = getNextTypeTok(sig, curridx);
             curridx += interfaceSignatureTok.length();
@@ -244,7 +244,7 @@ public class ConstantPoolUtils {
         List<FormalTypeParameter> formalTypeParameters = null;
         FormalTypeParameter last = null;
         if (proto.charAt(curridx) == '<') {
-            formalTypeParameters = ListFactory.newList();
+            formalTypeParameters = new ObjectArrayList<>();
             curridx++;
             while (proto.charAt(curridx) != '>') {
                 String formalTypeTok = getNextFormalTypeTok(proto, curridx);
@@ -287,7 +287,7 @@ public class ConstantPoolUtils {
 
             if (proto.charAt(curridx) != '(') throw new ConfusedCFRException("Prototype " + proto + " is invalid");
             curridx++;
-            List<JavaTypeInstance> args = ListFactory.newList();
+            List<JavaTypeInstance> args = new ObjectArrayList<>();
             // could use parseTypeList below.
             while (proto.charAt(curridx) != ')') {
                 curridx = processTypeEntry(cp, proto, curridx, ftpMap, args);
@@ -304,7 +304,7 @@ public class ConstantPoolUtils {
             // And process any exceptions....
             List<JavaTypeInstance> exceptions = Collections.emptyList();
             if (curridx < proto.length()) {
-                exceptions = ListFactory.newList();
+                exceptions = new ObjectArrayList<>();
                 while (curridx < proto.length() && proto.charAt(curridx) == '^') {
                     curridx++;
                     curridx = processTypeEntry(cp, proto, curridx, ftpMap, exceptions);
@@ -330,7 +330,7 @@ public class ConstantPoolUtils {
     private static Pair<List<JavaTypeInstance>, Integer> parseTypeList(String proto, ConstantPool cp) {
         int curridx = 0;
         int len = proto.length();
-        List<JavaTypeInstance> res = ListFactory.newList();
+        List<JavaTypeInstance> res = new ObjectArrayList<>();
         while (curridx < len && proto.charAt(curridx) != '>') {
             String typeTok = getNextTypeTok(proto, curridx);
             res.add(decodeTypeTok(typeTok, cp));

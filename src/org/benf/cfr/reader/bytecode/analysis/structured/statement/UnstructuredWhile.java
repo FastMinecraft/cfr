@@ -6,7 +6,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.expression.ConditionalExpress
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import org.benf.cfr.reader.state.TypeUsageCollector;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.LinkedList;
@@ -90,7 +89,7 @@ public class UnstructuredWhile extends AbstractUnStructuredStatement {
         }
 
         /* We have subsumed a break to an outer loop. :P */
-        LinkedList<Op04StructuredStatement> lst = ListFactory.newLinkedList();
+        LinkedList<Op04StructuredStatement> lst = new LinkedList<>();
         lst.add(new Op04StructuredStatement(whileLoop));
         lst.add(new Op04StructuredStatement(new StructuredBreak(BytecodeLoc.TODO, externalBreak, false)));
         return new Block(

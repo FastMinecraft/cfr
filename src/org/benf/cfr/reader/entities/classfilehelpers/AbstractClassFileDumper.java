@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.entities.classfilehelpers;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.types.ClassSignature;
 import org.benf.cfr.reader.bytecode.analysis.types.InnerClassInfoUtils;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
@@ -19,7 +20,6 @@ import org.benf.cfr.reader.util.CfrVersionInfo;
 import org.benf.cfr.reader.util.DecompilerComments;
 import org.benf.cfr.reader.util.MiscConstants;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.Dumper;
@@ -59,7 +59,7 @@ abstract class AbstractClassFileDumper implements ClassFileDumper {
         d.print(header).newln();
         if (options.getOption(OptionsImpl.DECOMPILER_COMMENTS)) {
             TypeUsageInformation typeUsageInformation = d.getTypeUsageInformation();
-            List<JavaTypeInstance> couldNotLoad = ListFactory.newList();
+            List<JavaTypeInstance> couldNotLoad = new ObjectArrayList<>();
             for (JavaTypeInstance type : typeUsageInformation.getUsedClassTypes()) {
                 if (type instanceof JavaRefTypeInstance) {
                     ClassFile loadedClass = null;

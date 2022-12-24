@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.state;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.analysis.types.InnerClassInfo;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
@@ -7,7 +8,6 @@ import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.util.MiscUtils;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
@@ -26,7 +26,7 @@ public class TypeUsageInformationImpl implements TypeUsageInformation {
     private final Set<JavaRefTypeInstance> shortenedRefTypes = SetFactory.newOrderedSet();
     private final Set<JavaRefTypeInstance> usedLocalInnerTypes = SetFactory.newOrderedSet();
     private final Map<JavaRefTypeInstance, String> displayName = MapFactory.newMap();
-    private final Map<String, LinkedList<JavaRefTypeInstance>> shortNames = MapFactory.newLazyMap(arg -> ListFactory.newLinkedList());
+    private final Map<String, LinkedList<JavaRefTypeInstance>> shortNames = MapFactory.newLazyMap(arg -> new LinkedList<>());
     private final Predicate<String> allowShorten;
     private final Map<String, Boolean> clashNames = MapFactory.newLazyMap(this::fieldClash);
 
@@ -62,7 +62,7 @@ public class TypeUsageInformationImpl implements TypeUsageInformation {
     }
 
     private void initialiseFrom(Set<JavaRefTypeInstance> usedRefTypes) {
-        List<JavaRefTypeInstance> usedRefs = ListFactory.newList(usedRefTypes);
+        List<JavaRefTypeInstance> usedRefs = new ObjectArrayList<>(usedRefTypes);
         usedRefs.sort((a, b) -> a.getRawName(iid).compareTo(b.getRawName(iid)));
         this.usedRefTypes.addAll(usedRefs);
 

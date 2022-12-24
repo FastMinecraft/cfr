@@ -5,7 +5,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.TryStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -21,7 +20,7 @@ public class RedundantTries {
          */
         boolean effect = false;
         Collections.reverse(tryStarts);
-        LinkedList<Op03SimpleStatement> starts = ListFactory.newLinkedList();
+        LinkedList<Op03SimpleStatement> starts = new LinkedList<>();
         starts.addAll(tryStarts);
         while (!starts.isEmpty()) {
             Op03SimpleStatement trys = starts.removeFirst();

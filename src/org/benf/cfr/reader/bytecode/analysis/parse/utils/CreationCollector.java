@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.utils;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.AnonymousClassUsage;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
@@ -24,7 +25,6 @@ import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.util.CannotLoadClassException;
 import org.benf.cfr.reader.util.ClassFileVersion;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 
 import java.util.List;
@@ -39,8 +39,8 @@ public class CreationCollector {
     private record StatementPair<X>(X value, StatementContainer location) {
     }
 
-    private final List<Pair<LValue, StatementPair<MemberFunctionInvokation>>> collectedConstructions = ListFactory.newList();
-    private final Map<LValue, List<StatementContainer>> collectedCreations = MapFactory.newLazyMap(arg -> ListFactory.newList());
+    private final List<Pair<LValue, StatementPair<MemberFunctionInvokation>>> collectedConstructions = new ObjectArrayList<>();
+    private final Map<LValue, List<StatementContainer>> collectedCreations = MapFactory.newLazyMap(arg -> new ObjectArrayList<>());
 
     private final AnonymousClassUsage anonymousClassUsage;
 

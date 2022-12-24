@@ -1,11 +1,11 @@
 package org.benf.cfr.reader.entities.attributes;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.entities.annotations.AnnotationTableTypeEntry;
 import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.bytestream.ByteData;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 
@@ -29,7 +29,7 @@ public abstract class AttributeTypeAnnotations extends Attribute {
         long offset = OFFSET_OF_ANNOTATION_TABLE;
 
         Map<TypeAnnotationEntryValue, List<AnnotationTableTypeEntry>> entryData = MapFactory.newLazyMap(annotationTableEntryData,
-            arg -> ListFactory.newList()
+            arg -> new ObjectArrayList<>()
         );
 
         for (int x = 0; x < numAnnotations; ++x) {
@@ -78,7 +78,7 @@ public abstract class AttributeTypeAnnotations extends Attribute {
                 res = items;
                 orig = false;
             } else {
-                res = ListFactory.newList(res);
+                res = new ObjectArrayList<>(res);
                 res.addAll(items);
             }
         }

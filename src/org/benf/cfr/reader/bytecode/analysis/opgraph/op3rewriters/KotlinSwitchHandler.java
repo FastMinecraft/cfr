@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.BytecodeMeta;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
@@ -18,7 +19,6 @@ import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.bytecode.opcode.DecodedSwitch;
 import org.benf.cfr.reader.bytecode.opcode.DecodedSwitchEntry;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
@@ -138,8 +138,8 @@ public class KotlinSwitchHandler {
             reTargetSet.add(arg);
             return new DistinctSwitchTarget(reTargetSet.size());
         });
-        List<List<OriginalSwitchLookupInfo>> matchesFound = ListFactory.newList();
-        List<Pair<Op03SimpleStatement, Op03SimpleStatement>> transitiveDefaultSources = ListFactory.newList();
+        List<List<OriginalSwitchLookupInfo>> matchesFound = new ObjectArrayList<>();
+        List<Pair<Op03SimpleStatement, Op03SimpleStatement>> transitiveDefaultSources = new ObjectArrayList<>();
         for (int x=0;x<jumpTargets.size();++x) {
             Op03SimpleStatement caseStart = targets.get(x);
             DecodedSwitchEntry switchEntry = jumpTargets.get(x);
@@ -150,7 +150,7 @@ public class KotlinSwitchHandler {
             }
 
             Op03SimpleStatement currentCaseLoc = caseStart;
-            List<OriginalSwitchLookupInfo> found = ListFactory.newList();
+            List<OriginalSwitchLookupInfo> found = new ObjectArrayList<>();
             do {
                 Op03SimpleStatement nextCaseLoc = null;
 
@@ -262,7 +262,7 @@ public class KotlinSwitchHandler {
             }
         }
 
-        List<Op03SimpleStatement> secondSwitchTargets = ListFactory.newList(reTargets.keySet());
+        List<Op03SimpleStatement> secondSwitchTargets = new ObjectArrayList<>(reTargets.keySet());
         secondSwitchTargets.sort(new CompareByIndex());
         List<Op03SimpleStatement> fwds = Functional.filter(secondSwitchTargets,
             in1 -> in1.getIndex().isBackJumpTo(swatch)
@@ -390,10 +390,10 @@ public class KotlinSwitchHandler {
         /*
          * Build a new switch entry for each of the remapped one.
          */
-        List<DecodedSwitchEntry> switchTargets = ListFactory.newList();
+        List<DecodedSwitchEntry> switchTargets = new ObjectArrayList<>();
         for (Op03SimpleStatement target : secondSwitchTargets) {
             DistinctSwitchTarget distinctSwitchTarget = reTargets.get(target);
-            List<Integer> tmp2 = ListFactory.newList();
+            List<Integer> tmp2 = new ObjectArrayList<>();
             tmp2.add(distinctSwitchTarget.idx);
             DecodedSwitchEntry entry = new DecodedSwitchEntry(tmp2,-1);
             switchTargets.add(entry);
@@ -413,7 +413,7 @@ public class KotlinSwitchHandler {
             defaultSource.removeGotoTarget(localTarget);
         }
 
-        List<Integer> defaultSecondary = ListFactory.newList();
+        List<Integer> defaultSecondary = new ObjectArrayList<>();
         defaultSecondary.add(null);
         switchTargets.add(new DecodedSwitchEntry(defaultSecondary, -1));
         DecodedSwitch info = new FakeSwitch(switchTargets);
@@ -478,7 +478,7 @@ public class KotlinSwitchHandler {
     }
 
     private static class DistinctSwitchTarget {
-        final List<OriginalSwitchLookupInfo> entries = ListFactory.newList();
+        final List<OriginalSwitchLookupInfo> entries = new ObjectArrayList<>();
         final int idx;
 
         private DistinctSwitchTarget(int idx) {

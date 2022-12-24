@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.structured.statement;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
@@ -17,7 +18,6 @@ import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers.S
 import org.benf.cfr.reader.bytecode.analysis.structured.statement.placeholder.BeginBlock;
 import org.benf.cfr.reader.bytecode.analysis.structured.statement.placeholder.EndBlock;
 import org.benf.cfr.reader.state.TypeUsageCollector;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.Optional;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.output.Dumper;
@@ -87,7 +87,7 @@ public class Block extends AbstractStructuredStatement {
     }
 
     public static Block getBlockFor(boolean indenting, StructuredStatement... statements) {
-        LinkedList<Op04StructuredStatement> tmp = ListFactory.newLinkedList();
+        LinkedList<Op04StructuredStatement> tmp = new LinkedList<>();
         for (StructuredStatement statement : statements) {
             tmp.add(new Op04StructuredStatement(statement));
         }
@@ -173,7 +173,7 @@ public class Block extends AbstractStructuredStatement {
     }
 
     public List<Op04StructuredStatement> getFilteredBlockStatements() {
-        List<Op04StructuredStatement> res = ListFactory.newList();
+        List<Op04StructuredStatement> res = new ObjectArrayList<>();
         for (Op04StructuredStatement statement : containedStatements) {
             if (!(statement.getStatement() instanceof StructuredComment)) {
                 res.add(statement);
@@ -211,7 +211,7 @@ public class Block extends AbstractStructuredStatement {
             }
         }
         if (!inline) return;
-        LinkedList<Op04StructuredStatement> newContained = ListFactory.newLinkedList();
+        LinkedList<Op04StructuredStatement> newContained = new LinkedList<>();
         for (Op04StructuredStatement in : containedStatements) {
             StructuredStatement s = in.getStatement();
             if (s.inlineable()) {
@@ -242,7 +242,7 @@ public class Block extends AbstractStructuredStatement {
 
     public void extractLabelledBlocks() {
         Iterator<Op04StructuredStatement> iterator = containedStatements.descendingIterator();
-        List<Op04StructuredStatement> newEntries = ListFactory.newList();
+        List<Op04StructuredStatement> newEntries = new ObjectArrayList<>();
         while (iterator.hasNext()) {
             Op04StructuredStatement stm = iterator.next();
             StructuredStatement statement = stm.getStatement();
@@ -252,7 +252,7 @@ public class Block extends AbstractStructuredStatement {
                 /*
                  *
                  */
-                LinkedList<Op04StructuredStatement> inner = ListFactory.newLinkedList();
+                LinkedList<Op04StructuredStatement> inner = new LinkedList<>();
                 iterator.remove();
                 while (iterator.hasNext()) {
                     inner.addFirst(iterator.next());

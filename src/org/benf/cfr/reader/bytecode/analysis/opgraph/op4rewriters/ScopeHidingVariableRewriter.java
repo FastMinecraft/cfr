@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers.VariableNameTidier;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.util.MiscStatementTools;
@@ -10,7 +11,6 @@ import org.benf.cfr.reader.bytecode.analysis.types.MethodPrototype;
 import org.benf.cfr.reader.entities.ClassFileField;
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.state.ClassCache;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.List;
@@ -37,7 +37,7 @@ public class ScopeHidingVariableRewriter implements Op04Rewriter {
     /*
      * Collect collisions in a first pass, so that we can avoid uneccesarily
      */
-    private final List<LocalVariable> collisions = ListFactory.newList();
+    private final List<LocalVariable> collisions = new ObjectArrayList<>();
 
     public ScopeHidingVariableRewriter(List<ClassFileField> fieldVariables, Method method, ClassCache classCache) {
         this.method = method;

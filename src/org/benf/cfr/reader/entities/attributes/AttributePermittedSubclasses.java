@@ -1,10 +1,10 @@
 package org.benf.cfr.reader.entities.attributes;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryClass;
 import org.benf.cfr.reader.util.bytestream.ByteData;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.List;
@@ -23,7 +23,7 @@ public class AttributePermittedSubclasses extends Attribute {
     public AttributePermittedSubclasses(ByteData raw, ConstantPool cp) {
         this.length = raw.getS4At(OFFSET_OF_ATTRIBUTE_LENGTH);
         int numEntries = raw.getU2At(OFFSET_OF_ENTRY_COUNT);
-        this.entries = ListFactory.newList();
+        this.entries = new ObjectArrayList<>();
         long offset = OFFSET_OF_ENTRIES;
         for (int x = 0; x < numEntries; ++x) {
             int entryIdx = raw.getU2At(offset);

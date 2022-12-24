@@ -1,11 +1,11 @@
 package org.benf.cfr.reader.bytecode.analysis.types;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.types.annotated.JavaAnnotatedTypeInstance;
 import org.benf.cfr.reader.state.ObfuscationTypeMap;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.state.TypeUsageInformation;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 import org.benf.cfr.reader.util.output.IllegalIdentifierDump;
 import org.benf.cfr.reader.util.output.TypeContext;
@@ -24,7 +24,7 @@ public class JavaIntersectionTypeInstance implements JavaTypeInstance {
     }
 
     JavaIntersectionTypeInstance withPart(JavaTypeInstance part) {
-        List<JavaTypeInstance> newParts = ListFactory.newList(parts);
+        List<JavaTypeInstance> newParts = new ObjectArrayList<>(parts);
         newParts.add(part);
         return new JavaIntersectionTypeInstance(newParts);
     }

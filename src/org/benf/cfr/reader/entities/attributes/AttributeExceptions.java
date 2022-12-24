@@ -1,9 +1,9 @@
 package org.benf.cfr.reader.entities.attributes;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryClass;
 import org.benf.cfr.reader.state.TypeUsageCollector;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.output.Dumper;
 
@@ -16,7 +16,7 @@ public class AttributeExceptions extends Attribute {
     private static final long OFFSET_OF_NUMBER_OF_EXCEPTIONS = 6;
     private static final long OFFSET_OF_EXCEPTION_TABLE = 8;
     private static final long OFFSET_OF_REMAINDER = 6;
-    private final List<ConstantPoolEntryClass> exceptionClassList = ListFactory.newList();
+    private final List<ConstantPoolEntryClass> exceptionClassList = new ObjectArrayList<>();
 
     private final int length;
 

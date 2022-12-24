@@ -1,5 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.structured.statement;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.matchutil.MatchIterator;
@@ -16,7 +18,6 @@ import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers.StructuredStatementTransformer;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
 import org.benf.cfr.reader.state.TypeUsageCollector;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.Optional;
 import org.benf.cfr.reader.util.output.Dumper;
 
@@ -33,7 +34,7 @@ public class StructuredCatch extends AbstractStructuredStatement {
 
     public StructuredCatch(Collection<JavaRefTypeInstance> catchTypes, Op04StructuredStatement catchBlock, LValue catching, Set<BlockIdentifier> possibleTryBlocks) {
         super(BytecodeLoc.NONE);
-        this.catchTypes = catchTypes == null ? null : ListFactory.newList(catchTypes);
+        this.catchTypes = catchTypes == null ? null : new ObjectArrayList<>(catchTypes);
         this.catchBlock = catchBlock;
         this.catching = catching;
         this.possibleTryBlocks = possibleTryBlocks;
@@ -124,7 +125,7 @@ public class StructuredCatch extends AbstractStructuredStatement {
 
     @Override
     public List<LValue> findCreatedHere() {
-        return ListFactory.newImmutableList(catching);
+        return ObjectList.of(new LValue[]{ catching });
     }
 
     @Override

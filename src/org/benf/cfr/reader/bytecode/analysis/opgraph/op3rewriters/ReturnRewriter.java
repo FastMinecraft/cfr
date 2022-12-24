@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
 import org.benf.cfr.reader.bytecode.analysis.parse.rewriters.CloneHelper;
@@ -7,7 +8,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.statement.*;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
 import java.util.List;
@@ -73,7 +73,7 @@ class ReturnRewriter {
     private static boolean pushReturnBack(final Op03SimpleStatement returnStm) {
 
         ReturnStatement returnStatement = (ReturnStatement) returnStm.getStatement();
-        final List<Op03SimpleStatement> replaceWithReturn = ListFactory.newList();
+        final List<Op03SimpleStatement> replaceWithReturn = new ObjectArrayList<>();
 
         new GraphVisitorDFS<Op03SimpleStatement>(returnStm.getSources(), (arg1, arg2) -> {
             Class<?> clazz = arg1.getStatement().getClass();

@@ -1,6 +1,6 @@
 package org.benf.cfr.reader.entities.attributes;
 
-import org.benf.cfr.reader.util.collections.ListFactory;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.output.Dumper;
 
@@ -13,7 +13,7 @@ public class AttributeLocalVariableTable extends Attribute {
     private static final long OFFSET_OF_ENTRY_COUNT = 6;
     private static final long OFFSET_OF_ENTRIES = 8;
     private static final long OFFSET_OF_REMAINDER = 6;
-    private final List<LocalVariableEntry> localVariableEntryList = ListFactory.newList();
+    private final List<LocalVariableEntry> localVariableEntryList = new ObjectArrayList<>();
 
     private final int length;
 

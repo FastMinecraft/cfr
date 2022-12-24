@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.relationship;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.types.*;
 import org.benf.cfr.reader.entities.AccessFlagMethod;
 import org.benf.cfr.reader.entities.ClassFile;
@@ -54,7 +55,7 @@ public class MemberNameResolver {
     }
 
     private void initialise(Collection<? extends JavaTypeInstance> types) {
-        List<ClassFile> classFiles = ListFactory.newList();
+        List<ClassFile> classFiles = new ObjectArrayList<>();
         for (JavaTypeInstance type : types) {
             try {
                 classFiles.add(dcCommonState.getClassFile(type));

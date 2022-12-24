@@ -1,7 +1,7 @@
 package org.benf.cfr.reader.entities.attributes;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 
 import java.util.List;
@@ -140,7 +140,7 @@ public interface TypeAnnotationTargetInfo {
         static Pair<Long, TypeAnnotationTargetInfo> Read(ByteData raw, long offset) {
             int count = raw.getU2At(offset);
             offset += 2;
-            List<LocalVarTarget> targetList = ListFactory.newList();
+            List<LocalVarTarget> targetList = new ObjectArrayList<>();
             for (int x=0;x<count;++x) {
                 int start = raw.getU2At(offset);
                 offset += 2;

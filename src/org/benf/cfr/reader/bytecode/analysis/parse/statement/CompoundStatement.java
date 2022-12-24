@@ -1,5 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.statement;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
@@ -9,7 +11,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.rewriters.ExpressionRewriter;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.*;
 import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import org.benf.cfr.reader.util.ConfusedCFRException;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public class CompoundStatement extends AbstractStatement {
 
     public CompoundStatement(BytecodeLoc loc, Statement... statements) {
         super(loc);
-        this.statements = ListFactory.newImmutableList(statements);
+        this.statements = ObjectList.of(statements);
     }
 
     @Override
@@ -48,7 +49,7 @@ public class CompoundStatement extends AbstractStatement {
 
     @Override
     public Statement deepClone(CloneHelper cloneHelper) {
-        List<Statement> res = ListFactory.newList();
+        List<Statement> res = new ObjectArrayList<>();
         for (Statement stm : statements) {
             res.add(stm.deepClone(cloneHelper));
         }

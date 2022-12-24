@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.types;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.ComparableUnderEC;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.DefaultEquivalenceConstraint;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.EquivalenceConstraint;
@@ -11,7 +12,6 @@ import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.state.TypeUsageInformation;
 import org.benf.cfr.reader.util.DecompilerComments;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.MiscConstants;
 import org.benf.cfr.reader.util.StringUtils;
 import org.benf.cfr.reader.util.output.Dumper;
@@ -58,7 +58,7 @@ public class JavaGenericRefTypeInstance implements JavaGenericBaseInstance, Comp
     @Override
     public JavaAnnotatedTypeInstance getAnnotatedInstance() {
         JavaAnnotatedTypeInstance typeAnnotated = typeInstance.getAnnotatedInstance();
-        List<JavaAnnotatedTypeInstance> genericTypeAnnotated = ListFactory.newList();
+        List<JavaAnnotatedTypeInstance> genericTypeAnnotated = new ObjectArrayList<>();
         for (JavaTypeInstance genericType : genericTypes) {
             genericTypeAnnotated.add(genericType.getAnnotatedInstance());
         }
@@ -148,7 +148,7 @@ public class JavaGenericRefTypeInstance implements JavaGenericBaseInstance, Comp
 
     @Override
     public JavaTypeInstance getWithoutL01Wildcard() {
-        List<JavaTypeInstance> unwildCarded = ListFactory.newList();
+        List<JavaTypeInstance> unwildCarded = new ObjectArrayList<>();
         for (JavaTypeInstance type : genericTypes) {
             if (type instanceof JavaWildcardTypeInstance) type = ((JavaWildcardTypeInstance) type).getWithoutL01Wildcard();
             unwildCarded.add(type);
@@ -161,7 +161,7 @@ public class JavaGenericRefTypeInstance implements JavaGenericBaseInstance, Comp
         if (genericTypeBinder == null) {
             return this;
         }
-        List<JavaTypeInstance> res = ListFactory.newList();
+        List<JavaTypeInstance> res = new ObjectArrayList<>();
         for (JavaTypeInstance genericType : genericTypes) {
             res.add(genericTypeBinder.getBindingFor(genericType));
         }

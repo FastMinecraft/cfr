@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.matchutil.*;
@@ -26,7 +27,6 @@ import org.benf.cfr.reader.bytecode.analysis.types.RawJavaType;
 import org.benf.cfr.reader.bytecode.analysis.types.TypeConstants;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.entities.*;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
@@ -407,7 +407,7 @@ public class AssertRewriter {
             block.setIndenting(true);
             block.getBlockStatements().addAll(content.subList(1, content.size()));
             body.replaceStatement(block);
-            return ListFactory.newList(content.get(0));
+            return new ObjectArrayList<>(new Op04StructuredStatement[]{ content.get(0) });
         }
 
         private Pair<Boolean, Expression> getThrowExpression(StructuredStatement throwS) {
@@ -435,7 +435,7 @@ public class AssertRewriter {
             // break immediate -> yield false
             // break outer -> yield true
             // However, the switch could itself have complex content in it.
-            List<SwitchExpression.Branch> branches = ListFactory.newList();
+            List<SwitchExpression.Branch> branches = new ObjectArrayList<>();
             Map<Op04StructuredStatement, StructuredExpressionYield> replacements = MapFactory.newOrderedMap();
             if (!getBranches(outer, swiBlockIdentifier, swBodyBlock, branches, replacements, false)) return null;
 
@@ -515,7 +515,7 @@ public class AssertRewriter {
                 replacements.put(throwStm.getContainer(), new StructuredExpressionYield(BytecodeLoc.TODO, Literal.FALSE));
             }
 
-            List<SwitchExpression.Branch> branches = ListFactory.newList();
+            List<SwitchExpression.Branch> branches = new ObjectArrayList<>();
             if (!getBranches(swiBlockIdentifier, swiBlockIdentifier, swBodyBlock, branches, replacements, true)) return null;
             // And add yield true to the end of every branch that could roll off.
 
@@ -526,7 +526,7 @@ public class AssertRewriter {
     }
 
     static class AssertionTrackingControlFlowSwitchExpressionTransformer extends ControlFlowSwitchExpressionTransformer {
-        final List<StructuredStatement> throwSS = ListFactory.newList();
+        final List<StructuredStatement> throwSS = new ObjectArrayList<>();
 
         AssertionTrackingControlFlowSwitchExpressionTransformer(BlockIdentifier trueBlock, BlockIdentifier falseBlock, Map<Op04StructuredStatement, StructuredExpressionYield> replacements) {
             super(trueBlock, falseBlock, replacements);

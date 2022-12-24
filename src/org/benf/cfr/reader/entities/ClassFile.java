@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.entities;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.CodeAnalyserWholeClass;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.ConstructorInvokationAnonymousInner;
@@ -23,7 +24,6 @@ import org.benf.cfr.reader.state.*;
 import org.benf.cfr.reader.util.*;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
@@ -136,13 +136,13 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         final long OFFSET_OF_FIELDS_COUNT = OFFSET_OF_INTERFACES + 2L * numInterfaces;
         final long OFFSET_OF_FIELDS = OFFSET_OF_FIELDS_COUNT + 2;
         final int numFields = data.getU2At(OFFSET_OF_FIELDS_COUNT);
-        List<Field> tmpFields = ListFactory.newList();
+        List<Field> tmpFields = new ObjectArrayList<>();
         final long fieldsLength = ContiguousEntityFactory.build(data.getOffsetData(OFFSET_OF_FIELDS),
             numFields,
             tmpFields,
             arg -> new Field(arg, constantPool, cfv)
         );
-        this.fields = ListFactory.newList();
+        this.fields = new ObjectArrayList<>();
         LiteralRewriter rewriter = new LiteralRewriter(this.getClassType());
         for (Field tmpField : tmpFields) {
             fields.add(new ClassFileField(tmpField, rewriter));
@@ -403,7 +403,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
     }
 
     public List<JavaTypeInstance> getAllClassTypes() {
-        List<JavaTypeInstance> res = ListFactory.newList();
+        List<JavaTypeInstance> res = new ObjectArrayList<>();
         getAllClassTypes(res);
         return res;
     }
@@ -626,7 +626,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
          */
         final boolean isInstance = prototype.isInstanceMethod();
         final int numArgs = prototype.getArgs().size();
-        List<Method> named = ListFactory.newList();
+        List<Method> named = new ObjectArrayList<>();
         collectMethods(prototype, named, SetFactory.newIdentitySet());
         final boolean isVarArgs = (prototype.isVarArgs());
         named = Functional.filter(named, in -> {
@@ -650,7 +650,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
          *
          * Why does stringBuilder appear to have duplicate methods?
          */
-        List<MethodPrototype> out = ListFactory.newList();
+        List<MethodPrototype> out = new ObjectArrayList<>();
         Set<String> matched = SetFactory.newSet();
         out.add(prototype);
         matched.add(prototype.getComparableString());
@@ -723,7 +723,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
                 List<Method> list = methodsByName.get(method.getName());
                 //noinspection Java8MapApi
                 if (list == null) {
-                    list = ListFactory.newList();
+                    list = new ObjectArrayList<>();
                     methodsByName.put(method.getName(), list);
                 }
                 list.add(method);
@@ -740,7 +740,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
 
 
     public List<Method> getConstructors() {
-        List<Method> res = ListFactory.newList();
+        List<Method> res = new ObjectArrayList<>();
         for (Method method : methods) {
             if (method.isConstructor()) res.add(method);
         }
@@ -943,7 +943,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         try {
             BindingSuperContainer bindingSuperContainer = getBindingSupers();
             Map<JavaRefTypeInstance, JavaGenericRefTypeInstance> boundSupers = bindingSuperContainer.getBoundSuperClasses();
-            List<Triplet<JavaRefTypeInstance, ClassFile, GenericTypeBinder>> bindTesters = ListFactory.newList();
+            List<Triplet<JavaRefTypeInstance, ClassFile, GenericTypeBinder>> bindTesters = new ObjectArrayList<>();
             for (Map.Entry<JavaRefTypeInstance, JavaGenericRefTypeInstance> entry : boundSupers.entrySet()) {
                 JavaRefTypeInstance superC = entry.getKey();
                 if (superC.equals(getClassType())) continue;
@@ -1097,7 +1097,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         }
         // If the class isn't generic (or has had the attribute removed, or corrupted), we have to use the
         // runtime type info.
-        List<JavaTypeInstance> interfaces = ListFactory.newList();
+        List<JavaTypeInstance> interfaces = new ObjectArrayList<>();
         for (ConstantPoolEntryClass rawInterface : rawInterfaces) {
             interfaces.add(rawInterface.getTypeInstance());
         }
@@ -1415,9 +1415,9 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         classFile.getBoundSuperClasses(boundBase, boundSuperCollector, route, seen);
     }
 
-    private final List<ConstructorInvokationAnonymousInner> anonymousUsages = ListFactory.newList();
+    private final List<ConstructorInvokationAnonymousInner> anonymousUsages = new ObjectArrayList<>();
 
-    private final List<ConstructorInvokationSimple> methodUsages = ListFactory.newList();
+    private final List<ConstructorInvokationSimple> methodUsages = new ObjectArrayList<>();
 
     public void noteAnonymousUse(ConstructorInvokationAnonymousInner anoynmousInner) {
         anonymousUsages.add(anoynmousInner);

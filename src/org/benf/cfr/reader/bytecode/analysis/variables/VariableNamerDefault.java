@@ -1,6 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.variables;
 
-import org.benf.cfr.reader.util.collections.ListFactory;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.util.collections.MapFactory;
 
 import java.util.Collection;
@@ -39,7 +39,7 @@ public class VariableNamerDefault implements VariableNamer {
 
     @Override
     public List<NamedVariable> getNamedVariables() {
-        return ListFactory.newList(cached.values());
+        return new ObjectArrayList<>(cached.values());
     }
 
     private final Pattern indexedVarPattern = Pattern.compile("^(.*[^\\d]+)([\\d]+)$");

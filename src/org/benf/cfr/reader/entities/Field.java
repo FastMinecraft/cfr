@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.entities;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.parse.literal.TypedLiteral;
 import org.benf.cfr.reader.bytecode.analysis.types.ClassNameUtils;
 import org.benf.cfr.reader.bytecode.analysis.types.DeclarationAnnotationHelper;
@@ -24,7 +25,6 @@ import org.benf.cfr.reader.util.ClassFileVersion;
 import org.benf.cfr.reader.util.DecompilerComments;
 import org.benf.cfr.reader.util.collections.CollectionUtils;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.KnowsRawSize;
 import org.benf.cfr.reader.util.TypeUsageCollectable;
 import org.benf.cfr.reader.util.bytestream.ByteData;
@@ -209,7 +209,7 @@ public class Field implements KnowsRawSize, TypeUsageCollectable {
             return componentAnnotations;
         } else {
             // Create copy because original list might not be modifiable
-            componentAnnotations = ListFactory.newList(componentAnnotations);
+            componentAnnotations = new ObjectArrayList<>(componentAnnotations);
 
             // First collect the type of all annotations with target RECORD_COMPONENT
             Set<JavaTypeInstance> componentAnnotationTypes = Functional.mapToSet(componentAnnotations,

@@ -1,8 +1,8 @@
 package org.benf.cfr.reader.entities.attributes;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 import org.benf.cfr.reader.util.ClassFileVersion;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.bytestream.OffsettingByteData;
 import org.benf.cfr.reader.util.output.Dumper;
@@ -61,7 +61,7 @@ public class AttributeStackMapTable extends Attribute {
     public AttributeStackMapTable(ByteData raw, ConstantPool cp, ClassFileVersion classFileVersion) {
         this.length = raw.getS4At(OFFSET_OF_ATTRIBUTE_LENGTH);
         int numEntries = raw.getU2At(OFFSET_OF_NUMBER_OF_ENTRIES);
-        List<StackMapFrame> frames = ListFactory.newList();
+        List<StackMapFrame> frames = new ObjectArrayList<>();
         boolean isValid = true;
         OffsettingByteData data = raw.getOffsettingOffsetData(OFFSET_OF_STACK_MAP_FRAMES);
         try {

@@ -1,7 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.types;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.entities.ClassFile;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 
 import java.util.List;
@@ -72,7 +72,7 @@ public class BindingSuperContainer {
      * if first interface is invalid, return first super anyway.
      */
     public JavaTypeInstance getMostLikelyAnonymousType(JavaTypeInstance original) {
-        List<JavaRefTypeInstance> orderedTypes = ListFactory.newList(boundSuperClasses.keySet());
+        List<JavaRefTypeInstance> orderedTypes = new ObjectArrayList<>(boundSuperClasses.keySet());
         if (orderedTypes.isEmpty() || orderedTypes.size() == 1) return original;
         JavaRefTypeInstance candidate = orderedTypes.get(1);
         if (candidate.equals(TypeConstants.OBJECT)) {

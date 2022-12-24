@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
@@ -8,7 +9,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.StatementContainer;
 import org.benf.cfr.reader.bytecode.analysis.parse.lvalue.LocalVariable;
 import org.benf.cfr.reader.bytecode.analysis.parse.lvalue.StackSSALabel;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.*;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 
 import java.util.Collection;
@@ -73,7 +73,7 @@ public class LValuePropSimple {
         }
 
         List<StackSSALabel> getSingleUsages() {
-            List<StackSSALabel> res = ListFactory.newList();
+            List<StackSSALabel> res = new ObjectArrayList<>();
             for (Map.Entry<StackSSALabel, Boolean> entry : singleUsages.entrySet()) {
                 if (entry.getValue() == Boolean.TRUE) res.add(entry.getKey());
             }

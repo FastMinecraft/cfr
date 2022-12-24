@@ -1,10 +1,10 @@
 package org.benf.cfr.reader.entities.attributes;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 import org.benf.cfr.reader.entities.annotations.AnnotationTableEntry;
 import org.benf.cfr.reader.state.TypeUsageCollector;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.TypeUsageCollectable;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.output.Dumper;
@@ -25,9 +25,9 @@ public abstract class AttributeParameterAnnotations extends Attribute implements
         this.length = raw.getS4At(OFFSET_OF_ATTRIBUTE_LENGTH);
         byte numParameters = raw.getS1At(OFFSET_OF_NUMBER_OF_PARAMETERS);
         long offset = OFFSET_OF_ANNOTATION_NAME_TABLE;
-        annotationTableEntryListList = ListFactory.newList();
+        annotationTableEntryListList = new ObjectArrayList<>();
         for (int x = 0; x < numParameters; ++x) {
-            List<AnnotationTableEntry> annotationTableEntryList = ListFactory.newList();
+            List<AnnotationTableEntry> annotationTableEntryList = new ObjectArrayList<>();
 
             int numAnnotations = raw.getU2At(offset);
             offset += 2;

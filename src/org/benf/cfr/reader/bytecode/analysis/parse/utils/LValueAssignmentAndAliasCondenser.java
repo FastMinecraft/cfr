@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.utils;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters.Misc;
@@ -17,7 +18,6 @@ import org.benf.cfr.reader.bytecode.analysis.types.JavaArrayTypeInstance;
 import org.benf.cfr.reader.entities.exceptions.ExceptionCheckSimple;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.MiscUtils;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.collections.SetUtil;
@@ -339,10 +339,10 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
 
     public class AliasRewriter implements LValueRewriter<Statement> {
         private final Map<StackSSALabel, List<StatementContainer<Statement>>> usages = MapFactory.newLazyMap(
-            ignore -> ListFactory.newList()
+            ignore -> new ObjectArrayList<>()
         );
         private final Map<StackSSALabel, List<LValueStatementContainer>> possibleAliases = MapFactory.newLazyMap(
-            ignore -> ListFactory.newList()
+            ignore -> new ObjectArrayList<>()
         );
 
         @Override
@@ -419,7 +419,7 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
             // However, since we're looking at this from the point of view of SSALabels, we don't have that info here
             // so we ban LValues like this, to stop array creation being reordered.
             final LValue returnGuessAlias = guessAlias;
-            List<LValue> checkThese = ListFactory.newList();
+            List<LValue> checkThese = new ObjectArrayList<>();
             if (guessAlias instanceof ArrayVariable arrayVariable) {
                 ArrayIndex arrayIndex = arrayVariable.getArrayIndex();
                 Expression array = arrayIndex.getArray();

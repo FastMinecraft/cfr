@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
@@ -15,13 +16,9 @@ import org.benf.cfr.reader.bytecode.analysis.parse.statement.*;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.LValueUsageCollectorSimple;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.SSAIdentifiers;
 import org.benf.cfr.reader.util.MiscUtils;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /*
  * Multiple stages in the pipeline benefit from having overly aggressive inline assignments...
@@ -51,7 +48,7 @@ public class InlineDeAssigner {
         final Set<LValue> read = SetFactory.newSet();
         final Set<LValue> write = SetFactory.newSet();
 
-        final List<AssignmentExpression> extracted = ListFactory.newList();
+        final List<AssignmentExpression> extracted = new ObjectArrayList<>();
 
         boolean noFurther = false;
 
@@ -147,7 +144,8 @@ public class InlineDeAssigner {
         Collections.reverse(assignmentExpressions);
         InstrIndex index = container.getIndex();
         Op03SimpleStatement last = container;
-        List<Op03SimpleStatement> sources = ListFactory.newList(container.getSources());
+        Collection<Op03SimpleStatement> original = container.getSources();
+        List<Op03SimpleStatement> sources = new ObjectArrayList<>(original);
         container.getSources().clear();
         for (AssignmentExpression expression : assignmentExpressions) {
             index = index.justBefore();
@@ -173,7 +171,7 @@ public class InlineDeAssigner {
         Expression rhs = assignmentSimple.getRValue();
         if (rhs instanceof LValueExpression || rhs instanceof Literal) return;
         Deassigner deassigner = new Deassigner();
-        LinkedList<LValue> lValues = ListFactory.newLinkedList();
+        LinkedList<LValue> lValues = new LinkedList<>();
         while (rhs instanceof AssignmentExpression assignmentExpression) {
             lValues.addFirst(assignmentExpression.getlValue());
             rhs = assignmentExpression.getrValue();
@@ -196,7 +194,7 @@ public class InlineDeAssigner {
 
     public static void extractAssignments(List<Op03SimpleStatement> statements) {
         InlineDeAssigner inlineDeAssigner = new InlineDeAssigner();
-        List<Op03SimpleStatement> newStatements = ListFactory.newList();
+        List<Op03SimpleStatement> newStatements = new ObjectArrayList<>();
         for (Op03SimpleStatement statement : statements) {
             if (statement.getSources().size() != 1) continue;
             Statement stmt = statement.getStatement();

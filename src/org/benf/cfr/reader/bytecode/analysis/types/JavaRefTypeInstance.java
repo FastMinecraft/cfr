@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.types;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.analysis.types.annotated.JavaAnnotatedTypeInstance;
 import org.benf.cfr.reader.entities.AccessFlag;
@@ -11,7 +12,6 @@ import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.state.TypeUsageInformation;
 import org.benf.cfr.reader.util.*;
 import org.benf.cfr.reader.util.annotation.Nullable;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 import org.benf.cfr.reader.util.output.IllegalIdentifierDump;
@@ -119,7 +119,7 @@ public class JavaRefTypeInstance implements JavaTypeInstance {
     }
 
     private static class Annotated implements JavaAnnotatedTypeInstance {
-        private final List<AnnotationTableEntry> entries = ListFactory.newList();
+        private final List<AnnotationTableEntry> entries = new ObjectArrayList<>();
         private final Annotated inner;
         private final JavaRefTypeInstance outerThis;
         private DecompilerComment nullableComment = null;

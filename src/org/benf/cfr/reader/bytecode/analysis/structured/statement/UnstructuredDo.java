@@ -6,7 +6,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.expression.ConditionalExpress
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import org.benf.cfr.reader.state.TypeUsageCollector;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.Optional;
 import org.benf.cfr.reader.util.output.Dumper;
 
@@ -66,7 +65,7 @@ public class UnstructuredDo extends AbstractUnStructuredStatement {
 
         StructuredStatement inner = innerBlock.getStatement();
         if (!(inner instanceof Block)) {
-            LinkedList<Op04StructuredStatement> blockContent = ListFactory.newLinkedList();
+            LinkedList<Op04StructuredStatement> blockContent = new LinkedList<>();
             blockContent.add(new Op04StructuredStatement(inner));
             inner = new Block(blockContent, true);
             innerBlock.replaceStatement(inner);

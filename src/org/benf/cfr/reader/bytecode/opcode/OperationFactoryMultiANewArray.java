@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.opcode;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op01WithProcessedDataAndByteJumps;
 import org.benf.cfr.reader.bytecode.analysis.stack.StackDelta;
 import org.benf.cfr.reader.bytecode.analysis.stack.StackDeltaImpl;
@@ -10,7 +11,6 @@ import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntry;
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.util.ConfusedCFRException;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 
 import java.util.List;
@@ -34,7 +34,7 @@ public class OperationFactoryMultiANewArray extends OperationFactoryDefault {
             throw new ConfusedCFRException("NYI : Unsupported num of dims, should be using a short not a byte.");
         }
 
-        List<StackType> stackTypeList = ListFactory.newList();
+        List<StackType> stackTypeList = new ObjectArrayList<>();
         for (int x = 0; x < numDims; ++x) {
             stackTypeList.add(StackType.INT);
         }

@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.CatchStatement;
@@ -18,7 +19,7 @@ import java.util.Set;
 
 class ClassifyGotos {
     static void classifyGotos(List<Op03SimpleStatement> in) {
-        List<Pair<Op03SimpleStatement, Integer>> gotos = ListFactory.newList();
+        List<Pair<Op03SimpleStatement, Integer>> gotos = new ObjectArrayList<>();
         Map<BlockIdentifier, Op03SimpleStatement> tryStatementsByBlock = MapFactory.newMap();
         Map<BlockIdentifier, List<BlockIdentifier>> catchStatementsByBlock = MapFactory.newMap();
         Map<BlockIdentifier, Set<BlockIdentifier>> catchToTries = MapFactory.newLazyMap(arg -> SetFactory.newOrderedSet());
@@ -31,7 +32,7 @@ class ClassifyGotos {
                 BlockIdentifier tryBlockIdent = tryStatement.getBlockIdentifier();
                 tryStatementsByBlock.put(tryBlockIdent, stm);
                 List<Op03SimpleStatement> targets = stm.getTargets();
-                List<BlockIdentifier> catchBlocks = ListFactory.newList();
+                List<BlockIdentifier> catchBlocks = new ObjectArrayList<>();
                 catchStatementsByBlock.put(tryStatement.getBlockIdentifier(), catchBlocks);
                 for (int y = 1, len2 = targets.size(); y < len2; ++y) {
                     Statement statement2 = targets.get(y).getStatement();

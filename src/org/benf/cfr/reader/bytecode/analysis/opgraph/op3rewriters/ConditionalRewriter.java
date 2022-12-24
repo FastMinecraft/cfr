@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
@@ -162,7 +163,7 @@ public class ConditionalRewriter {
         ifTargets.set(1, tgtA);
         innerIfStatement.setCondition(innerIfStatement.getCondition().getNegated().simplify());
 
-        List<Op03SimpleStatement> acopy = ListFactory.newList(alist);
+        List<Op03SimpleStatement> acopy = new ObjectArrayList<>(alist);
         blist.addAll(acopy);
         alist = statements.subList(aidx, bidx);
         alist.clear();
@@ -360,7 +361,7 @@ lbl10: // 1 sources:
         boolean maybeSimpleIfElse = false;
         GotoStatement leaveIfBranchGoto = null;
         Op03SimpleStatement leaveIfBranchHolder = null;
-        List<Op03SimpleStatement> ifBranch = ListFactory.newList();
+        List<Op03SimpleStatement> ifBranch = new ObjectArrayList<>();
         List<Op03SimpleStatement> elseBranch = null;
         // Consider the try blocks we're in at this point.  (the ifStatemenet).
         // If we leave any of them, we've left the if.
@@ -550,7 +551,7 @@ lbl10: // 1 sources:
         boolean reducedScope = false;
         if (maybeSimpleIfElse) {
             // If there is a NO JUMP path between takenTarget and maybeElseEnd, then that's the ELSE block
-            elseBranch = ListFactory.newList();
+            elseBranch = new ObjectArrayList<>();
             idxCurrent = idxTaken;
 
             if (reduceSimpleScope) {

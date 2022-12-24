@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.mapping;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaArrayTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
@@ -9,7 +10,6 @@ import org.benf.cfr.reader.state.ClassCache;
 import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.MiscConstants;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
@@ -43,7 +43,7 @@ public class MappingFactory {
 
     private Mapping createFromPath(String path) {
         FileInputStream is;
-        List<ClassMapping> classMappings = ListFactory.newList();
+        List<ClassMapping> classMappings = new ObjectArrayList<>();
         try {
             is = new FileInputStream(path);
             BufferedReader isr = new BufferedReader(new InputStreamReader(is));
@@ -90,7 +90,7 @@ public class MappingFactory {
             String real = classMapping.getRealClass().getRawName();
             byRealName.put(real, classMapping);
         }
-        Map<JavaTypeInstance, List<JavaTypeInstance>> children = MapFactory.newLazyMap(arg -> ListFactory.newList());
+        Map<JavaTypeInstance, List<JavaTypeInstance>> children = MapFactory.newLazyMap(arg -> new ObjectArrayList<>());
         for (ClassMapping classMapping : classMappings) {
             String real = classMapping.getRealClass().getRawName();
             int idx = real.lastIndexOf(MiscConstants.INNER_CLASS_SEP_CHAR);
@@ -109,7 +109,7 @@ public class MappingFactory {
         }
         Map<JavaTypeInstance, List<InnerClassAttributeInfo>> res = MapFactory.newMap();
         Map<JavaTypeInstance, List<InnerClassAttributeInfo>> lazyRes = MapFactory.newLazyMap(res,
-            arg -> ListFactory.newList()
+            arg -> new ObjectArrayList<>()
         );
         for (Map.Entry<JavaTypeInstance, List<JavaTypeInstance>> entry : children.entrySet()) {
             JavaTypeInstance parent = entry.getKey();
@@ -151,7 +151,7 @@ public class MappingFactory {
         if (args.isEmpty()) {
             argTypes = Collections.emptyList();
         } else {
-            argTypes = ListFactory.newList();
+            argTypes = new ObjectArrayList<>();
             for (String arg : args.split(",")) {
                 arg = arg.trim();
                 if (arg.isEmpty()) continue;

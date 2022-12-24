@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.matchutil.*;
@@ -26,7 +27,6 @@ import org.benf.cfr.reader.entities.classfilehelpers.ClassFileDumperEnum;
 import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.util.*;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
@@ -144,7 +144,7 @@ public class EnumClassRewriter {
             enumSuperRewriter.rewrite(constructor.getAnalysis());
         }
 
-        List<Pair<StaticVariable, AbstractConstructorInvokation>> entries = ListFactory.newList();
+        List<Pair<StaticVariable, AbstractConstructorInvokation>> entries = new ObjectArrayList<>();
         for (Map.Entry<StaticVariable, MatchedEnumEntry> entry : entryMap.entrySet()) {
             entries.add(Pair.make(entry.getKey(), entry.getValue().data()));
         }
@@ -162,7 +162,7 @@ public class EnumClassRewriter {
                 ClassFileField::getFieldName
             ));
 
-            List<Pair<StaticVariable, String>> renames = ListFactory.newList();
+            List<Pair<StaticVariable, String>> renames = new ObjectArrayList<>();
 
             for (Pair<StaticVariable, AbstractConstructorInvokation> entry : entries) {
                 StaticVariable sv = entry.getFirst();
@@ -211,7 +211,7 @@ public class EnumClassRewriter {
      * NOT attempt to deal with obfuscation.
      */
     private EnumInitMatchCollector analyseStaticMethod(Op04StructuredStatement statement) {
-        List<StructuredStatement> statements = ListFactory.newList();
+        List<StructuredStatement> statements = new ObjectArrayList<>();
         statement.linearizeStatementsInto(statements);
 
         // Filter out the comments.
@@ -261,7 +261,7 @@ public class EnumClassRewriter {
         private final WildcardMatch wcm;
         private final Map<StaticVariable, MatchedEnumEntry> entryMap = MapFactory.newOrderedMap();
         private MatchedArrayData matchedArray;
-        private final List<ClassFileField> matchedHideTheseFields = ListFactory.newList();
+        private final List<ClassFileField> matchedHideTheseFields = new ObjectArrayList<>();
 
         private EnumInitMatchCollector(WildcardMatch wcm) {
             this.wcm = wcm;

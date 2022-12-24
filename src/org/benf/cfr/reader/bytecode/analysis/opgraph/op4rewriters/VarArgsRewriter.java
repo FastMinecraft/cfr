@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.util.MiscStatementTools;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
@@ -17,7 +18,6 @@ import org.benf.cfr.reader.bytecode.analysis.types.GenericTypeBinder;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaArrayTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.MethodPrototype;
 import org.benf.cfr.reader.entities.classfilehelpers.OverloadMethodSet;
-import org.benf.cfr.reader.util.collections.ListFactory;
 
 import java.util.List;
 
@@ -90,7 +90,7 @@ public class VarArgsRewriter implements Op04Rewriter, ExpressionRewriter {
         int last = args.size() - 1;
         Expression lastArg = args.get(args.size() - 1);
         if (!(lastArg instanceof NewAnonymousArray newAnonymousArray)) return;
-        List<Expression> args2 = ListFactory.newList(args);
+        List<Expression> args2 = new ObjectArrayList<>(args);
         args2.remove(last);
 
         /*

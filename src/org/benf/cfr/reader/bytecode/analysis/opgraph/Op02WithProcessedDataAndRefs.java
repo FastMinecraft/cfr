@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.BytecodeMeta;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op2rewriters.TypeHintRecovery;
@@ -60,19 +61,19 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
     private final BytecodeLoc loc;
     private final byte[] rawData;
 
-    private List<BlockIdentifier> containedInTheseBlocks = ListFactory.newList();
-    private List<ExceptionGroup> exceptionGroups = ListFactory.newList();
-    private List<ExceptionGroup.Entry> catchExceptionGroups = ListFactory.newList();
+    private List<BlockIdentifier> containedInTheseBlocks = new ObjectArrayList<>();
+    private List<ExceptionGroup> exceptionGroups = new ObjectArrayList<>();
+    private List<ExceptionGroup.Entry> catchExceptionGroups = new ObjectArrayList<>();
 
-    private final List<Op02WithProcessedDataAndRefs> targets = ListFactory.newList();
-    private final List<Op02WithProcessedDataAndRefs> sources = ListFactory.newList();
+    private final List<Op02WithProcessedDataAndRefs> targets = new ObjectArrayList<>();
+    private final List<Op02WithProcessedDataAndRefs> sources = new ObjectArrayList<>();
     private final ConstantPool cp;
     private final ConstantPoolEntry[] cpEntries;
     private long stackDepthBeforeExecution = -1;
     @SuppressWarnings("unused")
     private long stackDepthAfterExecution;
-    private final List<StackEntryHolder> stackConsumed = ListFactory.newList();
-    private final List<StackEntryHolder> stackProduced = ListFactory.newList();
+    private final List<StackEntryHolder> stackConsumed = new ObjectArrayList<>();
+    private final List<StackEntryHolder> stackProduced = new ObjectArrayList<>();
     private StackSim unconsumedJoinedStack = null;
     private boolean hasCatchParent = false;
 
@@ -203,8 +204,8 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
                 throw new ConfusedCFRException("Invalid stack depths @ " + this + " : trying to set " + stackSim.getDepth() + " previously set to " + stackDepthBeforeExecution);
             }
 
-            List<StackEntryHolder> alsoConsumed = ListFactory.newList();
-            List<StackEntryHolder> alsoProduced = ListFactory.newList();
+            List<StackEntryHolder> alsoConsumed = new ObjectArrayList<>();
+            List<StackEntryHolder> alsoProduced = new ObjectArrayList<>();
             StackSim newStackSim = stackSim.getChange(stackDelta, alsoConsumed, alsoProduced, this);
             if (alsoConsumed.size() != stackConsumed.size()) {
                 throw new ConfusedCFRException("Unexpected stack sizes on merge");
@@ -291,7 +292,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
     }
 
     private static List<Boolean> getNullsByType(List<Expression> expressions) {
-        List<Boolean> res = ListFactory.newList(expressions.size());
+        List<Boolean> res = new ObjectArrayList<>(expressions.size());
         for (Expression e : expressions) {
             res.add(e.getInferredJavaType().getJavaTypeInstance() == RawJavaType.NULL);
         }
@@ -399,7 +400,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
 
         DynamicInvokeType dynamicInvokeType = DynamicInvokeType.lookup(methodName);
 
-        List<JavaTypeInstance> markerTypes = ListFactory.newList();
+        List<JavaTypeInstance> markerTypes = new ObjectArrayList<>();
         List<Expression> callargs;
         switch (dynamicInvokeType) {
             case UNKNOWN, BOOTSTRAP -> {
@@ -570,7 +571,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             throw new IllegalStateException("Dynamic invoke arg count mismatch ");
         }
 
-        List<Expression> callargs = ListFactory.newList();
+        List<Expression> callargs = new ObjectArrayList<>();
         Expression nullExp = new Literal(TypedLiteral.getNull());
         callargs.add(nullExp);
         callargs.add(nullExp);
@@ -641,7 +642,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             comments.addComment(DecompilerComment.DYNAMIC_SIGNATURE_MISMATCH);
         }
 
-        List<Expression> callargs = ListFactory.newList();
+        List<Expression> callargs = new ObjectArrayList<>();
 
         // We're trying to show the boilerplate arguments.  This will never work,
         // but will hopefully point readers in the right direction.
@@ -667,14 +668,14 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
     }
 
     private List<Expression> getVarArgs(JavaTypeInstance last, ConstantPoolEntry[] bootstrapArguments) {
-        List<Expression> content = ListFactory.newList();
+        List<Expression> content = new ObjectArrayList<>();
         for (int i=0;i<bootstrapArguments.length;++i) {
             TypedLiteral typedLiteral = getBootstrapArg(bootstrapArguments, i, cp);
             content.add(new Literal(typedLiteral));
         }
         InferredJavaType arrayType = new InferredJavaType(last.getArrayStrippedType(), InferredJavaType.Source.UNKNOWN);
         Expression res = new NewAnonymousArray(loc, arrayType, 1, content, false);
-        List<Expression> callargs = ListFactory.newList();
+        List<Expression> callargs = new ObjectArrayList<>();
         callargs.add(res);
         return callargs;
     }
@@ -699,7 +700,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             throw new IllegalStateException("Dynamic invoke arg count mismatch " + bootstrapArguments.length + "(+3) vs " + argTypes.size());
         }
 
-        List<Expression> callargs = ListFactory.newList();
+        List<Expression> callargs = new ObjectArrayList<>();
         Expression nullExp = new Literal(TypedLiteral.getNull());
         callargs.add(nullExp);
         callargs.add(nullExp);
@@ -880,7 +881,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
                 );
             }
             case ANEWARRAY -> {
-                List<Expression> tmp = ListFactory.newList();
+                List<Expression> tmp = new ObjectArrayList<>();
                 tmp.add(getStackRValue(0));
                 // Type of cpEntries[0] will be the type of the array slice being allocated.
                 // i.e. for A a[][] = new A[2][] it will be [LA
@@ -1394,7 +1395,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
     }
 
     private List<Expression> getNStackRValuesAsExpressions(int count) {
-        List<Expression> res = ListFactory.newList();
+        List<Expression> res = new ObjectArrayList<>();
         for (int i = count - 1; i >= 0; --i) {
             res.add(getStackRValue(i));
         }
@@ -1415,7 +1416,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         }
 
         // This dump block only exists because we're debugging bad stack size calcuations.
-        LinkedList<Pair<StackSim, Op02WithProcessedDataAndRefs>> toProcess = ListFactory.newLinkedList();
+        LinkedList<Pair<StackSim, Op02WithProcessedDataAndRefs>> toProcess = new LinkedList<>();
         toProcess.add(Pair.make(new StackSim(), op2list.get(0)));
         try {
             while (!toProcess.isEmpty()) {
@@ -1613,7 +1614,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
      */
     @SuppressWarnings("unused")
     private static void removeUnusedSSAIdentifiers(SSAIdentifierFactory<Slot, StackType> ssaIdentifierFactory, Method method, List<Op02WithProcessedDataAndRefs> op2list) {
-        final List<Op02WithProcessedDataAndRefs> endPoints = ListFactory.newList();
+        final List<Op02WithProcessedDataAndRefs> endPoints = new ObjectArrayList<>();
         GraphVisitor<Op02WithProcessedDataAndRefs> gv = new GraphVisitorDFS<>(
             op2list.get(0),
             (arg1, arg2) -> {
@@ -1632,7 +1633,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
 
         SSAIdentifiers<Slot> initial = new SSAIdentifiers<>(op2list.get(0).ssaIdentifiers);
 
-        List<Op02WithProcessedDataAndRefs> storeWithoutRead = ListFactory.newList();
+        List<Op02WithProcessedDataAndRefs> storeWithoutRead = new ObjectArrayList<>();
         while (!toProcess.isEmpty()) {
             Op02WithProcessedDataAndRefs node = toProcess.removeFirst();
 
@@ -1888,7 +1889,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
                                                               final TypeHintRecovery typeHintRecovery) {
 
 
-        final List<Op03SimpleStatement> op03SimpleParseNodesTmp = ListFactory.newList();
+        final List<Op03SimpleStatement> op03SimpleParseNodesTmp = new ObjectArrayList<>();
         // Convert the op2s into a simple set of statements.
         // Do these need to be processed in a sensible order?  Could just iterate?
 
@@ -2062,7 +2063,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         if (exceptions.getExceptionsGroups().isEmpty()) return op2list;
 
         Map<InstrIndex, List<ExceptionTempStatement>> insertions = MapFactory.newLazyMap(
-            ignore -> ListFactory.newList());
+            ignore -> new ObjectArrayList<>());
 
 //        Iterator<ExceptionGroup> iter = exceptions.getExceptionsGroups().iterator();
 //        while (iter.hasNext()) {
@@ -2100,7 +2101,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             Op02WithProcessedDataAndRefs lastTryInstruction = op2list.get(inclusiveLastIndex);
 
 
-            List<Pair<Op02WithProcessedDataAndRefs, ExceptionGroup.Entry>> handlerTargets = ListFactory.newList();
+            List<Pair<Op02WithProcessedDataAndRefs, ExceptionGroup.Entry>> handlerTargets = new ObjectArrayList<>();
             for (ExceptionGroup.Entry exceptionEntry : rawes) {
                 int handler = exceptionEntry.getBytecodeIndexHandler();
                 int handlerIndex = lutByOffset.get(handler);
@@ -2128,7 +2129,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
 //            if (startInstruction.getSources().isEmpty()) {
 //                throw new ConfusedCFRException("Can't install exception handler infront of nothing");
 //            }
-            List<Op02WithProcessedDataAndRefs> removeThese = ListFactory.newList();
+            List<Op02WithProcessedDataAndRefs> removeThese = new ObjectArrayList<>();
             for (Op02WithProcessedDataAndRefs source : startInstruction.getSources()) {
                 // If it's a back jump from WITHIN the try block, we don't want to repoint at 'try'.
                 // However, we haven't yet 'splayed' the try block out to cover extra instructions, so we might
@@ -2421,7 +2422,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             if (sources == null || sources.size() > 1) continue;
 
             // Process everything, but no longer abort if we cycle, just don't retrace.
-            final List<Op02WithProcessedDataAndRefs> rets = ListFactory.newList();
+            final List<Op02WithProcessedDataAndRefs> rets = new ObjectArrayList<>();
             GraphVisitor<Op02WithProcessedDataAndRefs> gv = new GraphVisitorDFS<Op02WithProcessedDataAndRefs>(target.getTargets(),
                 (arg1, arg2) -> {
                     if (isRET(arg1)) {
@@ -2473,7 +2474,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         Op02WithProcessedDataAndRefs currInstr = start;
         Stack<Op02WithProcessedDataAndRefs> stackJumpLocs = StackFactory.newStack();
         Map<Integer, Op02WithProcessedDataAndRefs> stackJumpLocLocals = MapFactory.newMap();
-        List<Op02WithProcessedDataAndRefs> processed = ListFactory.newList();
+        List<Op02WithProcessedDataAndRefs> processed = new ObjectArrayList<>();
         Op02WithProcessedDataAndRefs afterThis = null;
         // ShitSim(TM)(C)(R).
         // We're never going to be able to generally model this, but we can catch some cases.
@@ -2559,7 +2560,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             // Check that if we're visiting any JSRS in order, they're the same order as those left on the stack.
             // we can ignore any not on the stack, and nop them (as gotos).
             int remainIdx = 0;
-            List<Op02WithProcessedDataAndRefs> canGoto = ListFactory.newList();
+            List<Op02WithProcessedDataAndRefs> canGoto = new ObjectArrayList<>();
             // (skipping one we want to remove).
             for (int x=1, len=processed.size();x<len;++x) {
                 Op02WithProcessedDataAndRefs node = processed.get(x);
@@ -2615,11 +2616,12 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
 
     private static void inlineJSR(Op02WithProcessedDataAndRefs start, Set<Op02WithProcessedDataAndRefs> nodes,
                                   List<Op02WithProcessedDataAndRefs> ops) {
-        List<Op02WithProcessedDataAndRefs> instrs = ListFactory.newList(nodes);
+        List<Op02WithProcessedDataAndRefs> instrs = new ObjectArrayList<>(nodes);
         instrs.sort(Comparator.comparing(Op02WithProcessedDataAndRefs::getIndex));
         ops.removeAll(instrs);
         // Take a copy, as we're going to be hacking this....
-        List<Op02WithProcessedDataAndRefs> sources = ListFactory.newList(start.getSources());
+        Collection<Op02WithProcessedDataAndRefs> original = start.getSources();
+        List<Op02WithProcessedDataAndRefs> sources = new ObjectArrayList<>(original);
         //
         // Now, insert an ACONST_NULL infront of the first instruction, to fake production of the original
         // stack value (this avoids us having inconsistent local usage, alternately we could simply pretend it
@@ -2670,7 +2672,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
     }
 
     private static List<Op02WithProcessedDataAndRefs> copyBlock(List<Op02WithProcessedDataAndRefs> orig, InstrIndex afterThis) {
-        List<Op02WithProcessedDataAndRefs> output = ListFactory.newList(orig.size());
+        List<Op02WithProcessedDataAndRefs> output = new ObjectArrayList<>(orig.size());
         Map<Op02WithProcessedDataAndRefs, Op02WithProcessedDataAndRefs> fromTo = MapFactory.newMap();
         for (Op02WithProcessedDataAndRefs in : orig) {
             Op02WithProcessedDataAndRefs copy = new Op02WithProcessedDataAndRefs(in);
@@ -2682,9 +2684,9 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         for (int x = 0, len = orig.size(); x < len; ++x) {
             Op02WithProcessedDataAndRefs in = orig.get(x);
             Op02WithProcessedDataAndRefs copy = output.get(x);
-            copy.exceptionGroups = ListFactory.newList(in.exceptionGroups);
-            copy.containedInTheseBlocks = ListFactory.newList(in.containedInTheseBlocks);
-            copy.catchExceptionGroups = ListFactory.newList(in.catchExceptionGroups);
+            copy.exceptionGroups = new ObjectArrayList<>(in.exceptionGroups);
+            copy.containedInTheseBlocks = new ObjectArrayList<>(in.containedInTheseBlocks);
+            copy.catchExceptionGroups = new ObjectArrayList<>(in.catchExceptionGroups);
 
             // Now, create copies of the sources and targets.
             tieUpRelations(copy.getSources(), in.getSources(), fromTo);

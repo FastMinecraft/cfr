@@ -18,7 +18,6 @@ import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers.StructuredStatementTransformer;
 import org.benf.cfr.reader.bytecode.analysis.structured.statement.placeholder.ElseBlock;
 import org.benf.cfr.reader.state.TypeUsageCollector;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.LinkedList;
@@ -175,7 +174,7 @@ public class StructuredIf extends AbstractStructuredStatement implements CanRemo
         /* For some reason, we've created an assert with an else block
          * (a different optimisation must have thought it made sense!)
          */
-        LinkedList<Op04StructuredStatement> list = ListFactory.newLinkedList();
+        LinkedList<Op04StructuredStatement> list = new LinkedList<>();
         list.add(new Op04StructuredStatement(structuredAssert));
         list.add(elseBlock);
         return new Block(list, false);

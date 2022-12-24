@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
@@ -13,7 +14,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.lvalue.StaticVariable;
 import org.benf.cfr.reader.bytecode.analysis.structured.StructuredScope;
 import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredIf;
-import org.benf.cfr.reader.util.collections.ListFactory;
 
 import java.util.List;
 
@@ -81,7 +81,7 @@ public class PreconditionAssertRewriter implements StructuredStatementTransforme
     }
 
     private List<ConditionalExpression> getFlattenedCNF(ConditionalExpression ce) {
-        List<ConditionalExpression> accum = ListFactory.newList();
+        List<ConditionalExpression> accum = new ObjectArrayList<>();
         getFlattenedCNF(ce, accum);
         return accum;
     }

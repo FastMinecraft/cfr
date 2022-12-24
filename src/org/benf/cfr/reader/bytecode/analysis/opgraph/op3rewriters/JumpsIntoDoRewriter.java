@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
@@ -24,9 +25,9 @@ import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.bytecode.analysis.variables.VariableFactory;
 import org.benf.cfr.reader.util.DecompilerComment;
 import org.benf.cfr.reader.util.DecompilerComments;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -122,7 +123,8 @@ public class JumpsIntoDoRewriter {
                 Set<BlockIdentifier> newBlocks = SetFactory.newSet(doS.getBlockIdentifiers());
                 newBlocks.add(doBlockIdentifier);
                 Op03SimpleStatement newStm = new Op03SimpleStatement(newBlocks, newIf, doId, doS.getIndex().justAfter());
-                for (Op03SimpleStatement prevSource : ListFactory.newList(afterDo.getSources())) {
+                Collection<Op03SimpleStatement> original = afterDo.getSources();
+                for (Op03SimpleStatement prevSource : new ObjectArrayList<>(original)) {
                     prevSource.replaceTarget(afterDo, newStm);
                     newStm.addSource(prevSource);
                 }
@@ -163,7 +165,7 @@ public class JumpsIntoDoRewriter {
                     }
                 }
                 if (!externals.isEmpty()) {
-                    List<Op03SimpleStatement> extList = ListFactory.newList(externals);
+                    List<Op03SimpleStatement> extList = new ObjectArrayList<>(externals);
                     extList.sort(new CompareByIndex());
                     if (extList.size() == 1) {
                         if (maybeRewriteImmediate(op03SimpleParseNodes, idx)) continue;
@@ -189,7 +191,8 @@ public class JumpsIntoDoRewriter {
                     }
                     LValue loopControl = vf.tempVariable(new InferredJavaType(RawJavaType.BOOLEAN, InferredJavaType.Source.TRANSFORM, true));
                     Op03SimpleStatement preDo = new Op03SimpleStatement(originalDoIdentifiers, new AssignmentSimple(BytecodeLoc.TODO, loopControl, Literal.TRUE), first.getSSAIdentifiers(), newDo.getIndex().justBefore());
-                    for (Op03SimpleStatement doSource : ListFactory.newList(stm.getSources())) {
+                    Collection<Op03SimpleStatement> original = stm.getSources();
+                    for (Op03SimpleStatement doSource : new ObjectArrayList<>(original)) {
                         if (!candidates.contains(doSource)) {
                             doSource.replaceTarget(stm, newDo);
                             stm.removeSource(doSource);

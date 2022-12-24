@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
@@ -48,7 +49,7 @@ public class LoopIdentifier {
         Map<BlockIdentifier, Op03SimpleStatement> blockEndsCache = MapFactory.newMap();
         starts.sort(new CompareByIndex());
 
-        List<LoopResult> loopResults = ListFactory.newList();
+        List<LoopResult> loopResults = new ObjectArrayList<>();
         Set<BlockIdentifier> relevantBlocks = SetFactory.newSet();
         for (Op03SimpleStatement start : starts) {
             BlockIdentifier blockIdentifier = considerAsWhileLoopStart(method, start, statements, blockIdentifierFactory, blockEndsCache);
@@ -79,7 +80,7 @@ public class LoopIdentifier {
      */
     private static void fixLoopOverlaps(List<Op03SimpleStatement> statements, List<LoopResult> loopResults, Set<BlockIdentifier> relevantBlocks) {
 
-        Map<BlockIdentifier, List<BlockIdentifier>> requiredExtents = MapFactory.newLazyMap(arg -> ListFactory.newList());
+        Map<BlockIdentifier, List<BlockIdentifier>> requiredExtents = MapFactory.newLazyMap(arg -> new ObjectArrayList<>());
 
         Map<BlockIdentifier, Op03SimpleStatement> lastForBlock = MapFactory.newMap();
 
@@ -116,7 +117,7 @@ public class LoopIdentifier {
         if (requiredExtents.isEmpty()) return;
 
         // RequiredExtents[key] should be extended to the last of VALUE.
-        List<BlockIdentifier> extendBlocks = ListFactory.newList(requiredExtents.keySet());
+        List<BlockIdentifier> extendBlocks = new ObjectArrayList<>(requiredExtents.keySet());
         extendBlocks.sort(Comparator.comparingInt(BlockIdentifier::getIndex));
 
         Comparator<Op03SimpleStatement> comparator = new CompareByIndex();
@@ -127,7 +128,7 @@ public class LoopIdentifier {
             if (possibleEnds.isEmpty()) continue;
             // Find last block.
             // We re-fetch because we might have updated the possibleEndOps.
-            List<Op03SimpleStatement> possibleEndOps = ListFactory.newList();
+            List<Op03SimpleStatement> possibleEndOps = new ObjectArrayList<>();
             for (BlockIdentifier end : possibleEnds) {
                 possibleEndOps.add(lastForBlock.get(end));
             }
@@ -275,7 +276,8 @@ public class LoopIdentifier {
         doStatement.getBlockIdentifiers().remove(blockIdentifier);
         // we need to link the do statement in between all the sources of start WHICH
         // are NOT in blockIdentifier.
-        List<Op03SimpleStatement> startSources = ListFactory.newList(start.getSources());
+        Collection<Op03SimpleStatement> original = start.getSources();
+        List<Op03SimpleStatement> startSources = new ObjectArrayList<>(original);
         for (Op03SimpleStatement source : startSources) {
             if (!source.getBlockIdentifiers().contains(blockIdentifier)) {
                 source.replaceTarget(start, doStatement);

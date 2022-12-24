@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.AnonymousClassUsage;
 import org.benf.cfr.reader.bytecode.BytecodeMeta;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
@@ -48,8 +49,8 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
     private static final Logger logger = LoggerFactory.create(Op04StructuredStatement.class);
     private final InstrIndex instrIndex;
     // Should we be bothering with sources and targets?  Not once we're "Properly" structured...
-    private List<Op04StructuredStatement> sources = ListFactory.newList();
-    private List<Op04StructuredStatement> targets = ListFactory.newList();
+    private List<Op04StructuredStatement> sources = new ObjectArrayList<>();
+    private List<Op04StructuredStatement> targets = new ObjectArrayList<>();
     private StructuredStatement structuredStatement;
 
     private final Set<BlockIdentifier> blockMembership;
@@ -247,7 +248,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
 
     // Look, this is a bit hideous.  But it doesn't seem worth extending the interfaces / visiting.
     public boolean isEmptyInitialiser() {
-        List<StructuredStatement> stms = ListFactory.newList();
+        List<StructuredStatement> stms = new ObjectArrayList<>();
         this.linearizeStatementsInto(stms);
         for (StructuredStatement stm : stms) {
             if (stm instanceof BeginBlock) continue;
@@ -303,7 +304,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
             source.replaceTarget(original, replacement);
         }
         replacement.setSources(original.getSources());
-        original.setSources(ListFactory.newList());
+        original.setSources(new ObjectArrayList<Op04StructuredStatement>());
     }
 
     public static void replaceInTargets(Op04StructuredStatement original, Op04StructuredStatement replacement) {
@@ -311,7 +312,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
             target.replaceSource(original, replacement);
         }
         replacement.setTargets(original.getTargets());
-        original.setTargets(ListFactory.newList());
+        original.setTargets(new ObjectArrayList<Op04StructuredStatement>());
     }
 
     /*
@@ -411,7 +412,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
 
     private static class MutableProcessingBlockState {
         BlockIdentifier currentBlockIdentifier = null;
-        LinkedList<Op04StructuredStatement> currentBlock = ListFactory.newLinkedList();
+        LinkedList<Op04StructuredStatement> currentBlock = new LinkedList<>();
     }
 
     private static void processEndingBlocks(
@@ -459,7 +460,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
          * This is ugly, could keep track of this more cleanly.
          */
         Stack<BlockIdentifier> blocksCurrentlyIn = StackFactory.newStack();
-        LinkedList<Op04StructuredStatement> outerBlock = ListFactory.newLinkedList();
+        LinkedList<Op04StructuredStatement> outerBlock = new LinkedList<>();
         Stack<StackedBlock> stackedBlocks = StackFactory.newStack();
 
         MutableProcessingBlockState mutableProcessingBlockState = new MutableProcessingBlockState();
@@ -489,7 +490,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
                 Op04StructuredStatement blockClaimer = mutableProcessingBlockState.currentBlock.getLast();
 
                 stackedBlocks.push(new StackedBlock(mutableProcessingBlockState.currentBlockIdentifier, mutableProcessingBlockState.currentBlock, blockClaimer));
-                mutableProcessingBlockState.currentBlock = ListFactory.newLinkedList();
+                mutableProcessingBlockState.currentBlock = new LinkedList<>();
                 mutableProcessingBlockState.currentBlockIdentifier = startsThisBlock;
                 blocksCurrentlyIn.push(mutableProcessingBlockState.currentBlockIdentifier);
             }

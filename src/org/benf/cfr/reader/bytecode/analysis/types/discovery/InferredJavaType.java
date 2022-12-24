@@ -1,11 +1,11 @@
 package org.benf.cfr.reader.bytecode.analysis.types.discovery;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.ArithOp;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.analysis.types.*;
 import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.util.*;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
@@ -118,11 +118,12 @@ public class InferredJavaType {
 
         private IJTInternal_Clash(Collection<IJTInternal> clashes) {
             this.id = global_id++;
-            this.clashes = ListFactory.newList(SetFactory.newOrderedSet(clashes));
+            Collection<IJTInternal> original = SetFactory.newOrderedSet(clashes);
+            this.clashes = new ObjectArrayList<>(original);
         }
 
         private static Map<JavaTypeInstance, JavaGenericRefTypeInstance> getClashMatches(List<IJTInternal> clashes) {
-            List<JavaTypeInstance> clashTypes = ListFactory.newList();
+            List<JavaTypeInstance> clashTypes = new ObjectArrayList<>();
             for (IJTInternal clash : clashes) {
                 clashTypes.add(clash.getJavaTypeInstance());
             }
@@ -143,7 +144,7 @@ public class InferredJavaType {
                         return matches;
                     }
                     if (clashType instanceof JavaArrayTypeInstance) {
-                        matches.keySet().retainAll(ListFactory.newList(clashType, TypeConstants.OBJECT));
+                        matches.keySet().retainAll(new ObjectArrayList<JavaTypeInstance>(new JavaTypeInstance[]{ clashType, TypeConstants.OBJECT }));
                     }
                     continue;
                 }
@@ -154,7 +155,7 @@ public class InferredJavaType {
         }
 
         private static IJTInternal mkClash(IJTInternal delegate1, IJTInternal delegate2) {
-            List<IJTInternal> clashes = ListFactory.newList();
+            List<IJTInternal> clashes = new ObjectArrayList<>();
             if (delegate1 instanceof IJTInternal_Clash) {
                 clashes.addAll(((IJTInternal_Clash) delegate1).clashes);
             } else {
@@ -203,7 +204,7 @@ public class InferredJavaType {
         private void collapseTypeClash(boolean force) {
             if (resolved) return;
 
-            List<JavaTypeInstance> clashTypes = ListFactory.newList();
+            List<JavaTypeInstance> clashTypes = new ObjectArrayList<>();
             int arraySize = clashes.get(0).getJavaTypeInstance().getNumArrayDimensions();
             for (IJTInternal clash : clashes) {
                 JavaTypeInstance clashType = clash.getJavaTypeInstance();
@@ -245,7 +246,7 @@ public class InferredJavaType {
             Map<? extends JavaTypeInstance, BindingSuperContainer.Route> routes = oneClash.getBindingSupers().getBoundSuperRoute();
             if (poss.isEmpty()) {
                 // If we ended up with nothing, we've been stupidly aggressive.  Take a guess.
-                poss = ListFactory.newList(matches.keySet());
+                poss = new ObjectArrayList<>(matches.keySet());
             }
             for (JavaTypeInstance pos : poss) {
                 if (BindingSuperContainer.Route.EXTENSION == routes.get(pos)) {
@@ -260,9 +261,9 @@ public class InferredJavaType {
                 JavaTypeInstance bindingFor = GenericTypeBinder.extractBindings(rhs, oneClash).getBindingFor(rhs);
                 if (bindingFor != null) {
                     if (bindingFor instanceof JavaGenericRefTypeInstance genericBindingFor) {
-                        List<List<JavaTypeInstance>> clashSubs = ListFactory.newList();
+                        List<List<JavaTypeInstance>> clashSubs = new ObjectArrayList<>();
                         for (JavaTypeInstance typ : genericBindingFor.getGenericTypes()) {
-                            clashSubs.add(ListFactory.newList(typ));
+                            clashSubs.add(new ObjectArrayList<JavaTypeInstance>(new JavaTypeInstance[]{ typ }));
                         }
                         for (int i = 1; i < clashes.size(); ++i) {
                             JavaTypeInstance bindingFor2 = GenericTypeBinder.extractBindings(rhs, clashes.get(i)).getBindingFor(rhs);
@@ -280,7 +281,7 @@ public class InferredJavaType {
                                 }
                             }
                         }
-                        List<JavaTypeInstance> resolvedSubs = ListFactory.newList();
+                        List<JavaTypeInstance> resolvedSubs = new ObjectArrayList<>();
                         //noinspection ForLoopReplaceableByForEach
                         for (int i = 0;i < clashSubs.size();++i) {
                             List<JavaTypeInstance> posSub = clashSubs.get(i);
@@ -415,7 +416,7 @@ public class InferredJavaType {
     }
 
     private static List<JavaTypeInstance> getMostDerivedType(Set<JavaTypeInstance> types) {
-        List<JavaTypeInstance> poss = ListFactory.newList(types);
+        List<JavaTypeInstance> poss = new ObjectArrayList<>(types);
         boolean effect;
         do {
             effect = false;
@@ -654,7 +655,7 @@ public class InferredJavaType {
     }
 
     public static InferredJavaType mkClash(JavaTypeInstance... types) {
-        List<IJTInternal> ints = ListFactory.newList();
+        List<IJTInternal> ints = new ObjectArrayList<>();
         for (JavaTypeInstance type : types) {
             ints.add(new IJTInternal_Impl(type, Source.UNKNOWN, false));
         }

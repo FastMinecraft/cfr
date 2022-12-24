@@ -1,10 +1,10 @@
 package org.benf.cfr.reader.entities.attributes;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntry;
 import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryMethodHandle;
 import org.benf.cfr.reader.entities.bootstrap.BootstrapMethodInfo;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.output.Dumper;
 
@@ -35,7 +35,7 @@ public class AttributeBootstrapMethods extends Attribute {
 
     private static List<BootstrapMethodInfo> decodeMethods(ByteData raw, ConstantPool cp) {
 
-        List<BootstrapMethodInfo> res = ListFactory.newList();
+        List<BootstrapMethodInfo> res = new ObjectArrayList<>();
         int numMethods = raw.getU2At(OFFSET_OF_NUM_METHODS);
         long offset = OFFSET_OF_NUM_METHODS + 2;
         for (int x = 0; x < numMethods; ++x) {

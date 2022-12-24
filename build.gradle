@@ -24,6 +24,14 @@ java {
     withSourcesJar()
 }
 
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'it.unimi.dsi:fastutil:8.5.11'
+}
+
 jar {
     manifest {
         attributes 'Main-Class': 'org.benf.cfr.reader.Main'

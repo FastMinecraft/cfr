@@ -1,12 +1,12 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.CastExpression;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.LValueExpression;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.SuperFunctionInvokation;
 import org.benf.cfr.reader.bytecode.analysis.parse.wildcard.WildcardMatch;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.Set;
 public class EnumSuperRewriter extends RedundantSuperRewriter {
     @Override
     protected List<Expression> getSuperArgs(WildcardMatch wcm) {
-        List<Expression> res = ListFactory.newList();
+        List<Expression> res = new ObjectArrayList<>();
         res.add(wcm.getExpressionWildCard("enum_a"));
         res.add(wcm.getExpressionWildCard("enum_b"));
         return res;

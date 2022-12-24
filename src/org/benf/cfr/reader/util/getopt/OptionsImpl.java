@@ -1,11 +1,11 @@
 package org.benf.cfr.reader.util.getopt;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.state.OsInfo;
 import org.benf.cfr.reader.util.AnalysisType;
 import org.benf.cfr.reader.util.ClassFileVersion;
 import org.benf.cfr.reader.util.StringUtils;
 import org.benf.cfr.reader.util.Troolean;
-import org.benf.cfr.reader.util.collections.ListFactory;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -240,8 +240,8 @@ public class OptionsImpl implements Options {
     private static final String CFR_WEBSITE = "https://benf.org/other/cfr/";
 
     // Look, I don't like reflection.  ;)
-    private static final List<PermittedOptionProvider.ArgumentParam<?,?>> all = ListFactory.newList();
-    
+    private static final List<PermittedOptionProvider.ArgumentParam<?,?>> all = new ObjectArrayList<>();
+
     private static <T extends PermittedOptionProvider.ArgumentParam<?, ?>> T register(T in) {
         all.add(in);
         return in;
@@ -699,7 +699,7 @@ public class OptionsImpl implements Options {
     private static class CFRFactory implements GetOptSinkFactory<Options> {
         @Override
         public List<String> getFlags() {
-            return ListFactory.newList();
+            return new ObjectArrayList<>();
         }
 
         @Override

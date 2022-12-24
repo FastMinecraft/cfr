@@ -1,11 +1,11 @@
 package org.benf.cfr.reader.bytecode.analysis.stack;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.parse.lvalue.StackSSALabel;
 import org.benf.cfr.reader.bytecode.analysis.types.StackType;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.DecompilerComment;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.List;
@@ -70,7 +70,7 @@ public class StackEntry {
     }
 
     public List<Long> getSources() {
-        return ListFactory.newList(ids);
+        return new ObjectArrayList<>(ids);
     }
 
     public void removeSource(long x) {

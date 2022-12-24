@@ -1,20 +1,17 @@
 package org.benf.cfr.reader.util.graph;
 
-import org.benf.cfr.reader.util.collections.ListFactory;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import java.util.function.BiConsumer;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.*;
+import java.util.function.BiConsumer;
 
 public class GraphVisitorDFS<T> implements GraphVisitor<T> {
     private final Collection<? extends T> start;
     private final Set<T> visited = SetFactory.newSet();
     private final BiConsumer<T, GraphVisitor<T>> callee;
-    private final LinkedList<T> pending = ListFactory.newLinkedList();
-    private final LinkedList<T> enqueued = ListFactory.newLinkedList();
+    private final LinkedList<T> pending = new LinkedList<>();
+    private final LinkedList<T> enqueued = new LinkedList<>();
     private boolean aborted = false;
 
     public GraphVisitorDFS(T first, BiConsumer<T, GraphVisitor<T>> callee) {
@@ -23,7 +20,7 @@ public class GraphVisitorDFS<T> implements GraphVisitor<T> {
     }
 
     public GraphVisitorDFS(Collection<? extends T> first, BiConsumer<T, GraphVisitor<T>> callee) {
-        this.start = ListFactory.newList(first);
+        this.start = new ObjectArrayList<>(first);
         this.callee = callee;
     }
 

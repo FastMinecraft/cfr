@@ -1,12 +1,12 @@
 package org.benf.cfr.reader.entities.constantpool;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.state.ClassCache;
 import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.bytestream.OffsettingByteData;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.output.LoggerFactory;
 
@@ -59,7 +59,7 @@ public class ConstantPool {
     }
 
     private RawTmp processRaw(ByteData raw, int count) {
-        List<ConstantPoolEntry> tgt = ListFactory.newList(count);
+        List<ConstantPoolEntry> tgt = new ObjectArrayList<>(count);
         OffsettingByteData data = raw.getOffsettingOffsetData(0);
         boolean dynamicConstant = false;
         logger.info("Processing " + count + " constpool entries.");

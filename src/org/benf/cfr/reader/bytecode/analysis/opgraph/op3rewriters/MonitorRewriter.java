@@ -1,13 +1,14 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.CommentStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.MonitorStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -31,7 +32,8 @@ public class MonitorRewriter {
             Set<BlockIdentifier> monitorLast = SetFactory.newSet(monitor.getBlockIdentifiers());
             monitorLast.removeAll(target.getBlockIdentifiers());
             if (monitorLast.isEmpty()) continue;
-            for (Op03SimpleStatement source : ListFactory.newList(monitor.getSources())) {
+            Collection<Op03SimpleStatement> original = monitor.getSources();
+            for (Op03SimpleStatement source : new ObjectArrayList<>(original)) {
                 Set<BlockIdentifier> sourceBlocks = source.getBlockIdentifiers();
                 if (!sourceBlocks.containsAll(monitorLast)) {
                     /*

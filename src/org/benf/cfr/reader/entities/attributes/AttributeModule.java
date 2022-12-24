@@ -1,10 +1,10 @@
 package org.benf.cfr.reader.entities.attributes;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryModuleInfo;
 import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryUTF8;
 import org.benf.cfr.reader.util.bytestream.ByteData;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.List;
@@ -240,11 +240,11 @@ public class AttributeModule extends Attribute {
         this.flags = raw.getU2At(OFFSET_OF_MODULE_FLAGS);
         this.versionIdx = raw.getU2At(OFFSET_OF_MODULE_VERSION);
         long offset = OFFSET_OF_DYNAMIC_INFO;
-        this.requires = ListFactory.newList();
-        this.exports = ListFactory.newList();
-        this.opens = ListFactory.newList();
-        this.uses = ListFactory.newList();
-        this.provides = ListFactory.newList();
+        this.requires = new ObjectArrayList<>();
+        this.exports = new ObjectArrayList<>();
+        this.opens = new ObjectArrayList<>();
+        this.uses = new ObjectArrayList<>();
+        this.provides = new ObjectArrayList<>();
         offset = Require.read(raw, offset, this.requires);
         offset = ExportOpen.read(raw, offset, this.exports);
         offset = ExportOpen.read(raw, offset, this.opens);

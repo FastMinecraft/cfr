@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
@@ -14,7 +15,6 @@ import org.benf.cfr.reader.bytecode.analysis.types.RawJavaType;
 import org.benf.cfr.reader.bytecode.analysis.types.TypeConstants;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.util.ClassFileVersion;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
@@ -57,11 +57,12 @@ public class StringBuilderRewriter implements ExpressionRewriter {
     }
 
     private Expression extractStringConcatSimple(StaticFunctionInvokation staticFunctionInvokation) {
-        List<Expression> args = ListFactory.newList(staticFunctionInvokation.getArgs());
+        Collection<Expression> original = staticFunctionInvokation.getArgs();
+        List<Expression> args = new ObjectArrayList<>(original);
         args.remove(0);
         // Amazingly, "" + foo generates a stringconcat, even though it's a 1 arg one!
         if (args.size() < 1) return null;
-        List<Expression> tmp = ListFactory.newList(args);
+        List<Expression> tmp = new ObjectArrayList<>(args);
         Collections.reverse(tmp);
         tmp.replaceAll(CastExpression::tryRemoveCast);
         Expression res = genStringConcat(tmp);
@@ -136,7 +137,7 @@ public class StringBuilderRewriter implements ExpressionRewriter {
     }
 
     private Expression testAppendChain(Expression lhs) {
-        List<Expression> reverseAppendChain = ListFactory.newList();
+        List<Expression> reverseAppendChain = new ObjectArrayList<>();
         do {
             if (lhs instanceof MemberFunctionInvokation memberFunctionInvokation) {
                 if (memberFunctionInvokation.getName().equals("append") &&

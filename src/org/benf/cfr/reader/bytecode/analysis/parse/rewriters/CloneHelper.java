@@ -1,8 +1,8 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 
 import java.util.List;
@@ -29,7 +29,7 @@ public class CloneHelper {
     }
 
     public <X extends DeepCloneable<X>> List<X> replaceOrClone(List<X> in) {
-        List<X> res = ListFactory.newList();
+        List<X> res = new ObjectArrayList<>();
         for (X i : in) {
             res.add(i.outerDeepClone(this));
         }

@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.entities.classfilehelpers;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.Literal;
 import org.benf.cfr.reader.bytecode.analysis.parse.literal.TypedLiteral;
@@ -8,10 +9,7 @@ import org.benf.cfr.reader.bytecode.analysis.types.*;
 import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.util.collections.*;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -119,7 +117,7 @@ public class OverloadMethodSet {
     }
 
     public List<JavaTypeInstance> getPossibleArgTypes(int idx, JavaTypeInstance used) {
-        List<JavaTypeInstance> res = ListFactory.newList();
+        List<JavaTypeInstance> res = new ObjectArrayList<>();
         for (MethodData proto : allPrototypes) {
             res.add(proto.getArgType(idx, used));
         }
@@ -216,7 +214,7 @@ public class OverloadMethodSet {
         }
 
         if (possibleMatches.size() > 1) {
-            List<MethodData> remaining = ListFactory.newList(possibleMatches);
+            List<MethodData> remaining = new ObjectArrayList<>(possibleMatches);
             // Otherwise - if one of them is the most specific type....
             // Doesn't work if unrelated. (see JLS 15.12.2)
             for (int x=0, len=args.size();x<len;++x) {
@@ -332,7 +330,7 @@ public class OverloadMethodSet {
     }
 
     private boolean callsCorrectApproxRawMethod(JavaTypeInstance actual, int idx, GenericTypeBinder gtb) {
-        List<MethodData> matches = ListFactory.newList();
+        List<MethodData> matches = new ObjectArrayList<>();
         for (MethodData prototype : allPrototypes) {
             JavaTypeInstance arg = prototype.getArgType(idx, actual);
             // If it was equal, it would have been satisfied previously.
@@ -377,7 +375,7 @@ public class OverloadMethodSet {
     }
 
     private boolean callsCorrectApproxObjMethod(Expression newArg, final JavaTypeInstance actual, final int idx, GenericTypeBinder gtb) {
-        List<MethodData> matches = ListFactory.newList();
+        List<MethodData> matches = new ObjectArrayList<>();
         boolean podMatchExists = false;
         boolean nonPodMatchExists = false;
         for (MethodData prototype : allPrototypes) {

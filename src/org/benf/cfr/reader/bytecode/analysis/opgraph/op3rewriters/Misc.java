@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.ExpressionReplacingRewriter;
@@ -13,7 +14,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.graph.GraphVisitor;
@@ -29,7 +29,7 @@ import java.util.function.Predicate;
 
 public class Misc {
     public static void flattenCompoundStatements(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> newStatements = ListFactory.newList();
+        List<Op03SimpleStatement> newStatements = new ObjectArrayList<>();
         for (Op03SimpleStatement statement : statements) {
             if (statement.isCompound()) {
                 newStatements.addAll(statement.splitCompound());
@@ -39,7 +39,7 @@ public class Misc {
     }
 
     public static Op03SimpleStatement getLastInRangeByIndex(Set<Op03SimpleStatement> stms) {
-        List<Op03SimpleStatement> lst = ListFactory.newList(stms);
+        List<Op03SimpleStatement> lst = new ObjectArrayList<>(stms);
         lst.sort(new CompareByIndex(false));
         return lst.get(0);
     }

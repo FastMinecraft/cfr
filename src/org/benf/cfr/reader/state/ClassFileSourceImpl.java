@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.state;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.apiunreleased.ClassFileSource2;
 import org.benf.cfr.reader.apiunreleased.JarContent;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
@@ -7,7 +8,6 @@ import org.benf.cfr.reader.util.AnalysisType;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.MiscConstants;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
@@ -267,7 +267,7 @@ public class ClassFileSourceImpl implements ClassFileSource2 {
             addToRelativeClassPath(file, jarClassPath);
         }
 
-        List < String > output = ListFactory.newList();
+        List < String > output = new ObjectArrayList<>();
         for (String classPath : jarContent.getClassFiles()) {
             if (classPath.toLowerCase().endsWith(".class")) {
                 // nb : entry.value will always be the jar here, but ....
@@ -380,7 +380,7 @@ public class ClassFileSourceImpl implements ClassFileSource2 {
     }
 
     private JarContent processClassPathFile(final File file, boolean dump, AnalysisType analysisType) {
-        List<String> content = ListFactory.newList();
+        List<String> content = new ObjectArrayList<>();
         Map<String, String> manifest;
         try {
             ZipFile zipFile = new ZipFile(file, ZipFile.OPEN_READ);

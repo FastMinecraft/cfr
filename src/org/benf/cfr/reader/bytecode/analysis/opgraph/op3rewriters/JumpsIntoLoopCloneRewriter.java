@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
@@ -16,7 +17,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.statement.WhileStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.util.DecompilerComment;
 import org.benf.cfr.reader.util.DecompilerComments;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
@@ -55,7 +55,7 @@ public class JumpsIntoLoopCloneRewriter {
      */
     public void rewrite(List<Op03SimpleStatement> op03SimpleParseNodes, DecompilerComments comments) {
 
-        List<Op03SimpleStatement> addThese = ListFactory.newList();
+        List<Op03SimpleStatement> addThese = new ObjectArrayList<>();
         for (Op03SimpleStatement stm : op03SimpleParseNodes) {
             Statement statement = stm.getStatement();
             if (statement instanceof DoStatement) {
@@ -340,7 +340,7 @@ public class JumpsIntoLoopCloneRewriter {
                                                 Set<Op03SimpleStatement> addSources,
                                                 final Map<Op03SimpleStatement, Op03SimpleStatement> orig2copy
     ) {
-        final List<Op03SimpleStatement> copyThese = ListFactory.newList();
+        final List<Op03SimpleStatement> copyThese = new ObjectArrayList<>();
         final boolean[] failed = { false };
         GraphVisitor<Op03SimpleStatement> gv = new GraphVisitorDFS<>(start, (arg1, arg2) -> {
             if (orig2copy.containsKey(arg1)) return;
@@ -358,7 +358,7 @@ public class JumpsIntoLoopCloneRewriter {
             return null;
         }
         copyThese.sort(new CompareByIndex());
-        List<Op03SimpleStatement> copies = ListFactory.newList();
+        List<Op03SimpleStatement> copies = new ObjectArrayList<>();
         // Note - the expected blocks means that we do NOT currently allow jumping into nested structures.
         Set<BlockIdentifier> expectedBlocks = end.getBlockIdentifiers();
 
@@ -402,7 +402,7 @@ public class JumpsIntoLoopCloneRewriter {
     }
 
     private List<Op03SimpleStatement> copyST(List<Op03SimpleStatement> original, Map<Op03SimpleStatement, Op03SimpleStatement> replacements, boolean failIfMissing) {
-        List<Op03SimpleStatement> res = ListFactory.newList();
+        List<Op03SimpleStatement> res = new ObjectArrayList<>();
         for (Op03SimpleStatement st : original) {
             Op03SimpleStatement repl = replacements.get(st);
             if (repl == null) {

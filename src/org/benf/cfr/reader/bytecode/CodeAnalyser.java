@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLocFactory;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLocFactoryImpl;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLocFactoryStub;
@@ -65,7 +66,6 @@ import org.benf.cfr.reader.util.Troolean;
 import org.benf.cfr.reader.util.UnverifiableJumpException;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.bytestream.OffsettingByteData;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.Dumper;
@@ -315,8 +315,8 @@ public class CodeAnalyser {
         lutByIdx.put(0, -1);
         lutByOffset.put(-1, 0);
 
-        List<Op01WithProcessedDataAndByteJumps> op1list = ListFactory.newList();
-        List<Op02WithProcessedDataAndRefs> op2list = ListFactory.newList();
+        List<Op01WithProcessedDataAndByteJumps> op1list = new ObjectArrayList<>();
+        List<Op02WithProcessedDataAndRefs> op2list = new ObjectArrayList<>();
         // Now walk the indexed ops
         BytecodeLocFactory locFactory = options.getOption(OptionsImpl.TRACK_BYTECODE_LOC) ? BytecodeLocFactoryImpl.INSTANCE : BytecodeLocFactoryStub.INSTANCE;
         for (int x = 0; x < instrs.size(); ++x) {
@@ -362,7 +362,7 @@ public class CodeAnalyser {
         // These are 'processed' exceptions, which we can use to lay out code.
         List<ExceptionTableEntry> exceptionTableEntries = originalCodeAttribute.getExceptionTableEntries();
         if (options.getOption(OptionsImpl.IGNORE_EXCEPTIONS_ALWAYS)) {
-            exceptionTableEntries = ListFactory.newList();
+            exceptionTableEntries = new ObjectArrayList<>();
         }
 
         ExceptionAggregator exceptions = new ExceptionAggregator(exceptionTableEntries, blockIdentifierFactory, lutByOffset, instrs, options, cp, comments);

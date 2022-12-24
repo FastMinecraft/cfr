@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers.ExpressionRewriterTransformer;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
@@ -17,7 +18,6 @@ import org.benf.cfr.reader.bytecode.analysis.structured.StructuredScope;
 import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredAssignment;
 import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredDefinition;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
@@ -72,7 +72,7 @@ public class InstanceofMatchTidyingRewriter {
         List<StructuredStatement> defl = definitions.get(lvalue);
         //noinspection Java8MapApi
         if (defl == null) {
-            defl = ListFactory.newList();
+            defl = new ObjectArrayList<>();
             definitions.put(lvalue, defl);
         }
         defl.add(in);

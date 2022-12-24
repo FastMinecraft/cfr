@@ -1,8 +1,9 @@
 package org.benf.cfr.reader.bytecode;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.util.DecompilerComment;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.getopt.MutableOptions;
 import org.benf.cfr.reader.util.getopt.Options;
 
@@ -12,12 +13,12 @@ public class RecoveryOptions {
     private final List<RecoveryOption<?>> recoveryOptions;
 
     public RecoveryOptions(RecoveryOption<?>... recoveryOptions) {
-        this.recoveryOptions = ListFactory.newImmutableList(recoveryOptions);
+        this.recoveryOptions = ObjectList.of(recoveryOptions);
     }
 
     public RecoveryOptions(RecoveryOptions prev, RecoveryOption<?>... recoveryOptions) {
-        List<RecoveryOption<?>> recoveryOptionList = ListFactory.newImmutableList(recoveryOptions);
-        this.recoveryOptions = ListFactory.newList();
+        List<RecoveryOption<?>> recoveryOptionList = ObjectList.of(recoveryOptions);
+        this.recoveryOptions = new ObjectArrayList<>();
         this.recoveryOptions.addAll(prev.recoveryOptions);
         this.recoveryOptions.addAll(recoveryOptionList);
     }
@@ -27,7 +28,7 @@ public class RecoveryOptions {
 
     public Applied apply(DCCommonState commonState, Options originalOptions, BytecodeMeta bytecodeMeta) {
         MutableOptions mutableOptions = new MutableOptions(originalOptions);
-        List<DecompilerComment> appliedComments = ListFactory.newList();
+        List<DecompilerComment> appliedComments = new ObjectArrayList<>();
         boolean hadEffect = false;
         for (RecoveryOption<?> option : recoveryOptions) {
             if (option.apply(mutableOptions, appliedComments, bytecodeMeta)) hadEffect = true;

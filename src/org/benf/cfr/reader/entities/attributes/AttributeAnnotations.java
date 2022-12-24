@@ -1,12 +1,12 @@
 package org.benf.cfr.reader.entities.attributes;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.entities.annotations.*;
 import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.TypeUsageCollectable;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.output.Dumper;
@@ -21,7 +21,7 @@ public abstract class AttributeAnnotations extends Attribute implements TypeUsag
     private static final long OFFSET_OF_NUMBER_OF_ANNOTATIONS = 6;
     private static final long OFFSET_OF_ANNOTATION_TABLE = 8;
 
-    private final List<AnnotationTableEntry> annotationTableEntryList = ListFactory.newList();
+    private final List<AnnotationTableEntry> annotationTableEntryList = new ObjectArrayList<>();
 
     private final int length;
 

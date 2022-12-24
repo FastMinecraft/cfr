@@ -1,19 +1,21 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op02obf;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op02WithProcessedDataAndRefs;
 import org.benf.cfr.reader.bytecode.opcode.JVMInstr;
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.entities.exceptions.ExceptionAggregator;
 import org.benf.cfr.reader.entities.exceptions.ExceptionGroup;
-import org.benf.cfr.reader.util.collections.ListFactory;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.SortedMap;
 
 public abstract class SimpleControlFlowBase {
 
     public void process(Method method, ExceptionAggregator exceptions, List<Op02WithProcessedDataAndRefs> op2list, SortedMap<Integer, Integer> lutByOffset) {
-        List<ExceptionGroup> groups = ListFactory.newList(exceptions.getExceptionsGroups());
+        Collection<ExceptionGroup> original = exceptions.getExceptionsGroups();
+        List<ExceptionGroup> groups = new ObjectArrayList<>(original);
         for (ExceptionGroup group : groups) {
             Op02WithProcessedDataAndRefs handlerJmp = checkHandler(group, op2list, lutByOffset);
             if (handlerJmp == null) continue;

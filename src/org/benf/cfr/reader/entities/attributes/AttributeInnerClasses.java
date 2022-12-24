@@ -1,12 +1,12 @@
 package org.benf.cfr.reader.entities.attributes;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.entities.AccessFlag;
 import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryClass;
 import org.benf.cfr.reader.entities.innerclass.InnerClassAttributeInfo;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.Dumper;
@@ -23,7 +23,7 @@ public class AttributeInnerClasses extends Attribute {
 
 
     private final int length;
-    private final List<InnerClassAttributeInfo> innerClassAttributeInfoList = ListFactory.newList();
+    private final List<InnerClassAttributeInfo> innerClassAttributeInfoList = new ObjectArrayList<>();
 
     private static JavaTypeInstance getOptClass(int idx, ConstantPool cp) {
         if (idx == 0) {

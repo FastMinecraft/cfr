@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers.StructuredStatementTransformer;
@@ -13,7 +14,6 @@ import org.benf.cfr.reader.bytecode.analysis.structured.statement.Block;
 import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredAssignment;
 import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredComment;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
-import org.benf.cfr.reader.util.collections.ListFactory;
 
 import java.util.List;
 import java.util.Set;
@@ -58,8 +58,8 @@ public class ClashDeclarationReducer extends AbstractExpressionRewriter implemen
                 if (lv instanceof LocalVariable) {
                     int slot = ((LocalVariable) lv).getIdx();
                     if (clashes.contains(slot)) {
-                        List<LValue> replaceThese = ListFactory.newList();
-                        List<Op04StructuredStatement> inThese = ListFactory.newList();
+                        List<LValue> replaceThese = new ObjectArrayList<>();
+                        List<Op04StructuredStatement> inThese = new ObjectArrayList<>();
                         inThese.add(stm);
                         x = 1+goBack(x-1, statements, lv.getInferredJavaType().getJavaTypeInstance(), slot, replaceThese, inThese);
                         if (!replaceThese.isEmpty()) {

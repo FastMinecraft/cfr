@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
@@ -23,7 +24,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.wildcard.WildcardMatch;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.RawJavaType;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
-import org.benf.cfr.reader.util.collections.ListFactory;
 
 import java.util.List;
 
@@ -96,7 +96,7 @@ public class InstanceOfAssignRewriter {
         // Simple conditional tests.
         // a instanceof Foo && (x = (Foo)a) == a
         // --> a instanceof Foo x
-        tests = ListFactory.newList();
+        tests = new ObjectArrayList<>();
         ConditionalExpression cPos1 = new BooleanOperation(BytecodeLoc.NONE,
                 new BooleanExpression(new InstanceOfExpression(BytecodeLoc.NONE, ijtBool, obj, target)),
                 new ComparisonOperation(BytecodeLoc.NONE, new AssignmentExpression(BytecodeLoc.NONE, scopedEntity, castObj), castObj, CompOp.EQ),

@@ -7,7 +7,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.statement.CatchStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.Nop;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.ThrowStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.LinkedList;
@@ -36,7 +35,7 @@ public class FinallyCatchBody {
         }
         if (!(catchStart.getStatement() instanceof CatchStatement catchStatement)) return null;
         final BlockIdentifier catchBlockIdentifier = catchStatement.getCatchBlockIdent();
-        final LinkedList<Op03SimpleStatement> catchBody = ListFactory.newLinkedList();
+        final LinkedList<Op03SimpleStatement> catchBody = new LinkedList<>();
         /*
          * Could do a graph search and a sort.....
          */

@@ -1,10 +1,10 @@
 package org.benf.cfr.reader.bytecode;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.ConstructorInvokationAnonymousInner;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.ConstructorInvokationSimple;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.entities.ClassFile;
-import org.benf.cfr.reader.util.collections.ListFactory;
 
 import java.util.List;
 
@@ -14,8 +14,8 @@ import java.util.List;
  * times (inside a recovery).
  */
 public class AnonymousClassUsage {
-    private final List<Pair<ClassFile, ConstructorInvokationAnonymousInner>> noted = ListFactory.newList();
-    private final List<Pair<ClassFile, ConstructorInvokationSimple>> localNoted = ListFactory.newList();
+    private final List<Pair<ClassFile, ConstructorInvokationAnonymousInner>> noted = new ObjectArrayList<>();
+    private final List<Pair<ClassFile, ConstructorInvokationSimple>> localNoted = new ObjectArrayList<>();
 
     public void note(ClassFile classFile, ConstructorInvokationAnonymousInner constructorInvokationAnonymousInner) {
         noted.add(Pair.make(classFile, constructorInvokationAnonymousInner));

@@ -1,9 +1,9 @@
 package org.benf.cfr.reader.bytecode.analysis.structured;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.bytecode.analysis.structured.statement.Block;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.LinkedList;
@@ -12,7 +12,7 @@ import java.util.Set;
 
 public class StructuredScope {
 
-    private final LinkedList<AtLevel> scope = ListFactory.newLinkedList();
+    private final LinkedList<AtLevel> scope = new LinkedList<>();
 
     public void add(StructuredStatement statement) {
         scope.addFirst(new AtLevel(statement));
@@ -34,7 +34,7 @@ public class StructuredScope {
             int start = Math.max(end - back, 0);
             return block.getBlockStatements().subList(start, end);
         }
-        return ListFactory.newList();
+        return new ObjectArrayList<>();
     }
 
     public StructuredStatement get(int skipN) {
@@ -43,7 +43,7 @@ public class StructuredScope {
     }
 
     public List<StructuredStatement> getAll() {
-        List<StructuredStatement> ret = ListFactory.newList();
+        List<StructuredStatement> ret = new ObjectArrayList<>();
         for (AtLevel atLevel : scope) {
             ret.add(atLevel.statement);
         }

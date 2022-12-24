@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
@@ -17,7 +18,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockType;
 import org.benf.cfr.reader.bytecode.analysis.parse.wildcard.WildcardMatch;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
@@ -113,7 +113,7 @@ public class ExceptionRewriters {
          * (this is different to tentative marking, as there we're examining nodes
          * which are reachable from something we're not sure is actually in the block
          */
-        LinkedList<Op03SimpleStatement> pendingPossibilities = ListFactory.newLinkedList();
+        LinkedList<Op03SimpleStatement> pendingPossibilities = new LinkedList<>();
         if (start.getTargets().size() != 1) {
             throw new ConfusedCFRException("Catch statement with multiple targets");
         }
@@ -187,12 +187,12 @@ public class ExceptionRewriters {
          *
          * Sort knownMembers
          */
-        List<Op03SimpleStatement> knownMemberList = ListFactory.newList(knownMembers);
+        List<Op03SimpleStatement> knownMemberList = new ObjectArrayList<>(knownMembers);
         knownMemberList.sort(new CompareByIndex());
 
-        List<Op03SimpleStatement> truncatedKnownMembers = ListFactory.newList();
+        List<Op03SimpleStatement> truncatedKnownMembers = new ObjectArrayList<>();
         int x = statements.indexOf(knownMemberList.get(0));
-        List<Op03SimpleStatement> flushNops = ListFactory.newList();
+        List<Op03SimpleStatement> flushNops = new ObjectArrayList<>();
         for (int l = statements.size(); x < l; ++x) {
             Op03SimpleStatement statement = statements.get(x);
             if (statement.isAgreedNop()) {
@@ -256,7 +256,7 @@ public class ExceptionRewriters {
         ));
         if (tryBlocks.isEmpty()) return;
 
-        List<Op03SimpleStatement> orderedStatements = ListFactory.newList(allStatements);
+        List<Op03SimpleStatement> orderedStatements = new ObjectArrayList<>(allStatements);
         orderedStatements.sort(new CompareByIndex(false));
 
         for (Op03SimpleStatement statement : orderedStatements) {
@@ -427,7 +427,7 @@ public class ExceptionRewriters {
          * and that the blockset of the START of the try block is present the whole time.
          */
         Set<Op03SimpleStatement> middle = SetFactory.newSet();
-        List<Op03SimpleStatement> toMove = ListFactory.newList();
+        List<Op03SimpleStatement> toMove = new ObjectArrayList<>();
         for (int x=tryBlock.getIdxLast()+1;x<catchBlock.getIdxFirst();++x) {
             Op03SimpleStatement stm = statements.get(x);
             middle.add(stm);

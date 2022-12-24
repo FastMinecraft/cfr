@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers.ExpressionRewriterTransformer;
@@ -25,7 +26,6 @@ import org.benf.cfr.reader.bytecode.analysis.structured.statement.*;
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.util.DecompilerComment;
 import org.benf.cfr.reader.util.DecompilerComments;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
@@ -96,7 +96,7 @@ public class SwitchExpressionRewriter extends AbstractExpressionRewriter impleme
                     List<Op04StructuredStatement> targetPairs = blockSwitches.get(parent);
                     //noinspection Java8MapApi
                     if (targetPairs == null) {
-                        targetPairs = ListFactory.newList();
+                        targetPairs = new ObjectArrayList<>();
                         blockSwitches.put(parent, targetPairs);
                     }
                     targetPairs.add(switchStatementContainer);
@@ -200,8 +200,8 @@ public class SwitchExpressionRewriter extends AbstractExpressionRewriter impleme
         }
         List<Op04StructuredStatement> content = b.getBlockStatements();
         int size = content.size();
-        List<Pair<StructuredCase, Expression>> extracted = ListFactory.newList();
-        List<Pair<Op04StructuredStatement, StructuredStatement>> replacements = ListFactory.newList();
+        List<Pair<StructuredCase, Expression>> extracted = new ObjectArrayList<>();
+        List<Pair<Op04StructuredStatement, StructuredStatement>> replacements = new ObjectArrayList<>();
         LValue target = null;
         for (int itm = 0; itm < size && target == null; ++itm) {
             target = extractSwitchLValue(swatch.getBlockIdentifier(), content.get(itm), itm == size - 1);
@@ -252,7 +252,7 @@ public class SwitchExpressionRewriter extends AbstractExpressionRewriter impleme
         for (Pair<Op04StructuredStatement, StructuredStatement> replacement : replacements) {
             replacement.getFirst().replaceStatement(replacement.getSecond());
         }
-        List<SwitchExpression.Branch> items = ListFactory.newList();
+        List<SwitchExpression.Branch> items = new ObjectArrayList<>();
         for (Pair<StructuredCase, Expression> e : extracted) {
             items.add(new SwitchExpression.Branch(e.getFirst().getValues(), e.getSecond()));
         }
@@ -557,9 +557,9 @@ public class SwitchExpressionRewriter extends AbstractExpressionRewriter impleme
         StructuredStatement s = body.getStatement();
         if (!(s instanceof Block b)) return new RollState();
 
-        List<Op04StructuredStatement> prequel = ListFactory.newList();
-        LinkedList<ClassifiedStm> tt = ListFactory.newLinkedList();
-        List<Op04StructuredStatement> others = ListFactory.newList();
+        List<Op04StructuredStatement> prequel = new ObjectArrayList<>();
+        LinkedList<ClassifiedStm> tt = new LinkedList<>();
+        List<Op04StructuredStatement> others = new ObjectArrayList<>();
         Iterator<Op04StructuredStatement> it = b.getBlockStatements().iterator();
         Set<Expression> directs = SetFactory.newSet();
         boolean found = false;
@@ -771,7 +771,7 @@ public class SwitchExpressionRewriter extends AbstractExpressionRewriter impleme
         StructuredAssignment assignment = (StructuredAssignment)switchExpression.stm.getStatement();
         LValue lv = assignment.getLvalue();
         Expression se = assignment.getRvalue();
-        LinkedList<Op04StructuredStatement> newBlockContent = ListFactory.newLinkedList();
+        LinkedList<Op04StructuredStatement> newBlockContent = new LinkedList<>();
         LValue tmp = new LocalVariable("cfr_switch_hack", lv.getInferredJavaType());
         newBlockContent.add(new Op04StructuredStatement(new StructuredAssignment(BytecodeLoc.TODO, tmp, se, true)));
         newBlockContent.add(other.stm);
@@ -833,7 +833,7 @@ public class SwitchExpressionRewriter extends AbstractExpressionRewriter impleme
 
     private boolean rollUpEmptySwitches(RollState rollState) {
         LinkedList<ClassifiedStm> tt = rollState.switchdata;
-        List<ClassifiedStm> lt = ListFactory.newList(tt);
+        List<ClassifiedStm> lt = new ObjectArrayList<>(tt);
 
         boolean doneWork = false;
         for (int x=lt.size()-2;x>=0;--x) {

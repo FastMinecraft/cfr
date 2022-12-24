@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.BytecodeMeta;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
@@ -38,7 +39,6 @@ import org.benf.cfr.reader.bytecode.analysis.types.TypeConstants;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.util.ClassFileVersion;
 import org.benf.cfr.reader.util.MiscConstants;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
@@ -223,7 +223,7 @@ public class SwitchStringRewriter implements Op04Rewriter {
 
         Map<Integer, List<String>> replacements = matchResultCollector.getValidatedHashes();
         List<Op04StructuredStatement> caseStatements = block.getBlockStatements();
-        LinkedList<Op04StructuredStatement> tgt = ListFactory.newLinkedList();
+        LinkedList<Op04StructuredStatement> tgt = new LinkedList<>();
 
         InferredJavaType typeOfSwitch = matchResultCollector.getStringExpression().getInferredJavaType();
         for (Op04StructuredStatement op04StructuredStatement : caseStatements) {
@@ -232,7 +232,7 @@ public class SwitchStringRewriter implements Op04Rewriter {
                 throw new FailedRewriteException("Block member is not a case, it's a " + inner.getClass());
             }
             List<Expression> values = structuredCase.getValues();
-            List<Expression> transformedValues = ListFactory.newList();
+            List<Expression> transformedValues = new ObjectArrayList<>();
 
             for (Expression value : values) {
                 Integer i = getInt(value);
@@ -318,8 +318,8 @@ public class SwitchStringRewriter implements Op04Rewriter {
         private final WildcardMatch hashCollision; // inner collision protection
 
         private Expression stringExpression = null;
-        private final List<Pair<String, Integer>> pendingHashCode = ListFactory.newList();
-        private final Map<Integer, List<String>> validatedHashes = MapFactory.newLazyMap(arg -> ListFactory.newList());
+        private final List<Pair<String, Integer>> pendingHashCode = new ObjectArrayList<>();
+        private final Map<Integer, List<String>> validatedHashes = MapFactory.newLazyMap(arg -> new ObjectArrayList<>());
         private final Map<String, StructuredStatement> collectedStatements = MapFactory.newMap();
         private Expression verify;
         private LValue lvalue;

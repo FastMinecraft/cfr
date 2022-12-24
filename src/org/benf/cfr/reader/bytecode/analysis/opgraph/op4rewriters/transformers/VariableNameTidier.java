@@ -25,7 +25,6 @@ import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.state.ClassCache;
 import org.benf.cfr.reader.util.*;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
@@ -206,7 +205,7 @@ public class VariableNameTidier implements StructuredStatementTransformer {
 
 
     private class StructuredScopeWithVars extends StructuredScope {
-        private final LinkedList<AtLevel> scope = ListFactory.newLinkedList();
+        private final LinkedList<AtLevel> scope = new LinkedList<>();
         private final Map<String, Integer> nextPostFixed = MapFactory.newLazyMap(arg -> 2);
 
         public void remove(StructuredStatement statement) {

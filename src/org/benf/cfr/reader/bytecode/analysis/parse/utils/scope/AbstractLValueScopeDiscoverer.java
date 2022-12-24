@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.utils.scope;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
@@ -22,7 +23,6 @@ import org.benf.cfr.reader.bytecode.analysis.variables.NamedVariable;
 import org.benf.cfr.reader.bytecode.analysis.variables.VariableFactory;
 import org.benf.cfr.reader.util.MiscConstants;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
@@ -41,7 +41,7 @@ public abstract class AbstractLValueScopeDiscoverer implements LValueScopeDiscov
 
     final Stack<StatementContainer<StructuredStatement>> currentBlock = new Stack<>();
 
-    final List<ScopeDefinition> discoveredCreations = ListFactory.newList();
+    final List<ScopeDefinition> discoveredCreations = new ObjectArrayList<>();
     final VariableFactory variableFactory;
     StatementContainer<StructuredStatement> currentMark = null;
     final Options options;
@@ -275,7 +275,7 @@ public abstract class AbstractLValueScopeDiscoverer implements LValueScopeDiscov
     private boolean defineInsideSwitchContent(LValue scopedEntity, List<ScopeDefinition> definitions, List<StatementContainer<StructuredStatement>> commonScope) {
         int commonScopeSize = commonScope.size();
         Set<StatementContainer<StructuredStatement>> usedPoints = SetFactory.newIdentitySet();
-        List<ScopeDefinition> foundPoints = ListFactory.newList();
+        List<ScopeDefinition> foundPoints = new ObjectArrayList<>();
         for (ScopeDefinition def : definitions) {
             if (def.nestedScope.size() <= commonScopeSize) return false;
             StatementContainer<StructuredStatement> innerDef = def.nestedScope.get(commonScopeSize);
@@ -363,7 +363,7 @@ public abstract class AbstractLValueScopeDiscoverer implements LValueScopeDiscov
                                      Collection<StatementContainer<StructuredStatement>> nestedScope,
                                      StatementContainer<StructuredStatement> exactStatement) {
             if (nestedScope == null) return Pair.make(null, exactStatement);
-            List<StatementContainer<StructuredStatement>> scope = ListFactory.newList(nestedScope);
+            List<StatementContainer<StructuredStatement>> scope = new ObjectArrayList<>(nestedScope);
             if (exactStatement != null && exactStatement.getStatement().alwaysDefines(lValue)) return Pair.make(scope, exactStatement);
             if (scope.isEmpty()) return Pair.make(scope, exactStatement);
             for (int x=scope.size()-1;x>=0;--x) {

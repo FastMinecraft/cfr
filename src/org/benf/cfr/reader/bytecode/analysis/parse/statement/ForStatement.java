@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.statement;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.AbstractAssignmentExpression;
@@ -11,7 +12,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.*;
 import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.structured.statement.UnstructuredFor;
 import org.benf.cfr.reader.util.StringUtils;
-import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.List;
@@ -32,7 +32,7 @@ public class ForStatement extends AbstractStatement {
 
     @Override
     public Statement deepClone(CloneHelper cloneHelper) {
-        List<AbstractAssignmentExpression> assigns = ListFactory.newList();
+        List<AbstractAssignmentExpression> assigns = new ObjectArrayList<>();
         for (AbstractAssignmentExpression ae : assignments) {
             assigns.add((AbstractAssignmentExpression)cloneHelper.replaceOrClone(ae));
         }
