@@ -2,6 +2,8 @@ package org.benf.cfr.reader.bytecode.analysis.stack;
 
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.parse.lvalue.StackSSALabel;
 import org.benf.cfr.reader.bytecode.analysis.types.StackType;
@@ -19,7 +21,7 @@ public class StackEntry {
     private final static AtomicLong sid = new AtomicLong(0);
 
     private final long id0;
-    private final ObjectSet<Long> ids = new ObjectOpenHashSet<>();
+    private final LongSet ids = new LongOpenHashSet();
     private int artificalSourceCount = 0;
     private final StackSSALabel lValue;
     private long usageCount = 0;
