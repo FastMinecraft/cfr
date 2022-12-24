@@ -1,7 +1,9 @@
 package org.benf.cfr.reader.relationship;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.types.*;
 import org.benf.cfr.reader.entities.AccessFlagMethod;
 import org.benf.cfr.reader.entities.ClassFile;
@@ -37,7 +39,7 @@ public class MemberNameResolver {
     }
 
     private final DCCommonState dcCommonState;
-    private transient final Function<ClassFile, Set<ClassFile>> mapFactory = arg -> SetFactory.newOrderedSet();
+    private transient final Function<ClassFile, Set<ClassFile>> mapFactory = arg -> new ObjectLinkedOpenHashSet<>();
     private final Map<ClassFile, Set<ClassFile>> childToParent = MapFactory.newLazyMap(mapFactory);
     private final Map<ClassFile, Set<ClassFile>> parentToChild = MapFactory.newLazyMap(mapFactory);
     private final Map<ClassFile, MemberInfo> infoMap = MapFactory.newIdentityMap();
@@ -176,7 +178,7 @@ public class MemberNameResolver {
      */
     private void rePushBadNames(ClassFile c) {
         Stack<ClassFile> parents = StackFactory.newStack();
-        Set<MethodKey> clashes = SetFactory.newSet();
+        Set<MethodKey> clashes = new ObjectOpenHashSet<>();
         rePushBadNames(c, clashes, parents);
     }
 
@@ -185,7 +187,7 @@ public class MemberNameResolver {
         if (memberInfo != null) {
             memberInfo.addClashes(clashes);
             if (!memberInfo.getClashes().isEmpty()) {
-                clashes = SetFactory.newSet(clashes);
+                clashes = new ObjectOpenHashSet<>(clashes);
                 clashes.addAll(memberInfo.getClashes());
             }
         }
@@ -225,8 +227,8 @@ public class MemberNameResolver {
         private final ClassFile classFile;
 
         private final Map<MethodKey, Map<JavaTypeInstance, Collection<Method>>> knownMethods = MapFactory.newLazyMap(arg -> MapFactory.newLazyMap(
-            arg1 -> SetFactory.newOrderedSet()));
-        private final Set<MethodKey> clashes = SetFactory.newSet();
+            arg1 -> new ObjectLinkedOpenHashSet<>()));
+        private final Set<MethodKey> clashes = new ObjectOpenHashSet<>();
 
         private MemberInfo(ClassFile classFile) {
             this.classFile = classFile;

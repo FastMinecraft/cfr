@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.statement;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
@@ -9,7 +10,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.rewriters.ExpressionRewriter;
 import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.structured.statement.UnstructuredTry;
 import org.benf.cfr.reader.entities.exceptions.ExceptionGroup;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -19,7 +19,7 @@ public class TryStatement extends AbstractStatement {
     private final ExceptionGroup exceptionGroup;
     // This is a hack. :(
     // We keep track of what mutexes this finally leaves.
-    private final Set<Expression> monitors = SetFactory.newSet();
+    private final Set<Expression> monitors = new ObjectOpenHashSet<>();
 
     public TryStatement(BytecodeLoc loc, ExceptionGroup exceptionGroup) {
         super(loc);

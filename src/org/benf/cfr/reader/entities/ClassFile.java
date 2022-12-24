@@ -2,6 +2,8 @@ package org.benf.cfr.reader.entities;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import org.benf.cfr.reader.bytecode.CodeAnalyserWholeClass;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.ConstructorInvokationAnonymousInner;
@@ -26,7 +28,6 @@ import org.benf.cfr.reader.util.*;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.Dumpable;
@@ -627,7 +628,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         final boolean isInstance = prototype.isInstanceMethod();
         final int numArgs = prototype.getArgs().size();
         ObjectList<Method> named = new ObjectArrayList<>();
-        collectMethods(prototype, named, SetFactory.newIdentitySet());
+        collectMethods(prototype, named, new ReferenceOpenHashSet<JavaTypeInstance>());
         final boolean isVarArgs = (prototype.isVarArgs());
         named = Functional.filter(named, in -> {
             MethodPrototype other = in.getMethodPrototype();
@@ -651,7 +652,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
          * Why does stringBuilder appear to have duplicate methods?
          */
         ObjectList<MethodPrototype> out = new ObjectArrayList<>();
-        Set<String> matched = SetFactory.newSet();
+        Set<String> matched = new ObjectOpenHashSet<>();
         out.add(prototype);
         matched.add(prototype.getComparableString());
         for (MethodPrototype other : prototypes) {
@@ -1297,7 +1298,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
             genericTypeBinder,
             boundSuperCollector,
             BindingSuperContainer.Route.EXTENSION,
-            SetFactory.newSet()
+            new ObjectOpenHashSet<JavaTypeInstance>()
         );
         for (JavaTypeInstance interfaceBase : classSignature.interfaces()) {
             getBoundSuperClasses2(
@@ -1305,7 +1306,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
                 genericTypeBinder,
                 boundSuperCollector,
                 BindingSuperContainer.Route.INTERFACE,
-                SetFactory.newSet()
+                new ObjectOpenHashSet<JavaTypeInstance>()
             );
         }
 
@@ -1353,14 +1354,16 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
          */
         JavaTypeInstance base = classSignature.superClass();
         if (base == null) return;
-        getBoundSuperClasses2(base, genericTypeBinder, boundSuperCollector, route, SetFactory.newSet(seen));
+        getBoundSuperClasses2(base, genericTypeBinder, boundSuperCollector, route,
+            new ObjectOpenHashSet<JavaTypeInstance>(seen)
+        );
         for (JavaTypeInstance interfaceBase : classSignature.interfaces()) {
             getBoundSuperClasses2(
                 interfaceBase,
                 genericTypeBinder,
                 boundSuperCollector,
                 BindingSuperContainer.Route.INTERFACE,
-                SetFactory.newSet(seen)
+                new ObjectOpenHashSet<JavaTypeInstance>(seen)
             );
         }
     }

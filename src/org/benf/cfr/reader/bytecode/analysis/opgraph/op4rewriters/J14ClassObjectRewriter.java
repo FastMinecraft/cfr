@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.matchutil.MatchIterator;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.matchutil.MatchSequence;
@@ -34,9 +35,7 @@ import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.entities.ClassFileField;
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.state.DCCommonState;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 /**
@@ -119,7 +118,7 @@ public class J14ClassObjectRewriter {
                         ),
                 staticExpression);
 
-        final Set<Pair<String, JavaTypeInstance>> hideThese = SetFactory.newSet();
+        final Set<Pair<String, JavaTypeInstance>> hideThese = new ObjectOpenHashSet<>();
         ExpressionRewriter expressionRewriter = new ExpressionWildcardReplacingRewriter(wcm, test, () -> {
             Expression string = wcm.getExpressionWildCard("classString").getMatch();
             if (!(string instanceof Literal)) return null;

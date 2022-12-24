@@ -1,10 +1,10 @@
 package org.benf.cfr.reader.bytecode.analysis.structured;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.bytecode.analysis.structured.statement.Block;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.LinkedList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -74,7 +74,7 @@ public class StructuredScope {
 
     public Set<Op04StructuredStatement> getNextFallThrough(StructuredStatement structuredStatement) {
         Op04StructuredStatement current = structuredStatement.getContainer();
-        Set<Op04StructuredStatement> res = SetFactory.newSet();
+        Set<Op04StructuredStatement> res = new ObjectOpenHashSet<>();
         int idx = -1;
         for (AtLevel atLevel : scope) {
             idx++;
@@ -104,7 +104,7 @@ public class StructuredScope {
                 return (((Block) atLevel.statement).getNextAfter(atLevel.next, false));
             }
         }
-        return SetFactory.newSet();
+        return new ObjectOpenHashSet<>();
     }
 
     // Check if, in the enclosing scope, this statement is the last one (i.e. can a break be dropped)?

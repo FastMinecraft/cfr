@@ -1,11 +1,11 @@
 package org.benf.cfr.reader.state;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.analysis.types.ClassNameUtils;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.TypeConstants;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.Collection;
 import java.util.Map;
@@ -16,7 +16,7 @@ public class ClassCache {
     private final Map<String, JavaRefTypeInstance> refClassTypeCache = MapFactory.newMap();
     // We want to avoid generating names which collide with classes.
     // This is a nice simple check.
-    private final Set<String> simpleClassNamesSeen = SetFactory.newSet();
+    private final Set<String> simpleClassNamesSeen = new ObjectOpenHashSet<>();
     private final Map<String, String> renamedClasses = MapFactory.newMap();
 
     private final DCCommonState dcCommonState;

@@ -1,5 +1,7 @@
 package org.benf.cfr.reader.util.collections;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Set;
@@ -12,9 +14,9 @@ public class UniqueSeenQueue<T> {
 
     // Items in c should be unique.
     public UniqueSeenQueue(Collection<? extends T> c) {
-        this.llItems = SetFactory.newSet();
+        this.llItems = new ObjectOpenHashSet<>();
         this.ll = new LinkedList<>();
-        this.seen = SetFactory.newSet();
+        this.seen = new ObjectOpenHashSet<>();
         ll.addAll(c);
         llItems.addAll(c);
         seen.addAll(c);

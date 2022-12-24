@@ -2,6 +2,7 @@ package org.benf.cfr.reader.bytecode.analysis.opgraph;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.AnonymousClassUsage;
 import org.benf.cfr.reader.bytecode.BytecodeMeta;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
@@ -59,11 +60,11 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
 //    private static int id = 0;
 //    private final int idx = id++;
 
-    private static final Set<BlockIdentifier> EMPTY_BLOCKSET = SetFactory.newSet();
+    private static final Set<BlockIdentifier> EMPTY_BLOCKSET = new ObjectOpenHashSet<>();
 
     private static Set<BlockIdentifier> blockSet(Collection<BlockIdentifier> in) {
         if (in == null || in.isEmpty()) return EMPTY_BLOCKSET;
-        return SetFactory.newSet(in);
+        return new ObjectOpenHashSet<>(in);
     }
 
     public Op04StructuredStatement(
@@ -391,7 +392,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
      * This is pretty inefficient....
      */
     private static Set<BlockIdentifier> getEndingBlocks(Stack<BlockIdentifier> wasIn, Set<BlockIdentifier> nowIn) {
-        Set<BlockIdentifier> wasCopy = SetFactory.newSet(wasIn);
+        Set<BlockIdentifier> wasCopy = new ObjectOpenHashSet<>(wasIn);
         wasCopy.removeAll(nowIn);
         return wasCopy;
     }
@@ -402,7 +403,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
          * So we're only entering a new block if |nowIn|>|wasIn|.
          */
         if (nowIn.size() <= wasIn.size()) return null;
-        Set<BlockIdentifier> nowCopy = SetFactory.newSet(nowIn);
+        Set<BlockIdentifier> nowCopy = new ObjectOpenHashSet<>(nowIn);
         wasIn.forEach(nowCopy::remove);
         if (nowCopy.size() != 1) {
 //            logger.warning("From " + wasIn + " to " + nowIn + " = " + nowCopy);
@@ -505,7 +506,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
          * End any blocks we're still in.
          */
         if (!stackedBlocks.isEmpty()) {
-            processEndingBlocks(SetFactory.newSet(blocksCurrentlyIn), blocksCurrentlyIn, stackedBlocks, mutableProcessingBlockState);
+            processEndingBlocks(new ObjectOpenHashSet<BlockIdentifier>(blocksCurrentlyIn), blocksCurrentlyIn, stackedBlocks, mutableProcessingBlockState);
         }
         Block result = new Block(outerBlock, true);
         return new Op04StructuredStatement(result);

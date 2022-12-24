@@ -2,6 +2,7 @@ package org.benf.cfr.reader.bytecode.analysis.parse.utils.scope;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
@@ -25,7 +26,6 @@ import org.benf.cfr.reader.bytecode.analysis.variables.VariableFactory;
 import org.benf.cfr.reader.util.MiscConstants;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 
 import java.util.*;
@@ -275,7 +275,7 @@ public abstract class AbstractLValueScopeDiscoverer implements LValueScopeDiscov
 
     private boolean defineInsideSwitchContent(LValue scopedEntity, ObjectList<ScopeDefinition> definitions, ObjectList<StatementContainer<StructuredStatement>> commonScope) {
         int commonScopeSize = commonScope.size();
-        Set<StatementContainer<StructuredStatement>> usedPoints = SetFactory.newIdentitySet();
+        Set<StatementContainer<StructuredStatement>> usedPoints = new ReferenceOpenHashSet<>();
         ObjectList<ScopeDefinition> foundPoints = new ObjectArrayList<>();
         for (ScopeDefinition def : definitions) {
             if (def.nestedScope.size() <= commonScopeSize) return false;

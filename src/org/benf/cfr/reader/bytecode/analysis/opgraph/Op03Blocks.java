@@ -1,7 +1,9 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters.Cleaner;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters.ExactTypeFilter;
@@ -161,7 +163,7 @@ public class Op03Blocks {
     }
 
     private static void removeAliases(Set<BlockIdentifier> in, Map<BlockIdentifier, BlockIdentifier> aliases) {
-        Set<BlockIdentifier> toRemove = SetFactory.newSet();
+        Set<BlockIdentifier> toRemove = new ObjectOpenHashSet<>();
         for (BlockIdentifier i : in) {
             BlockIdentifier alias = aliases.get(i);
             if (alias != null) {
@@ -377,7 +379,7 @@ public class Op03Blocks {
         BlockIdentifierFactory blockIdentifierFactory = new BlockIdentifierFactory();
         ObjectList<Set<BlockIdentifier>> blockMembers = new ObjectArrayList<>();
         for (int i = 0, len = blocks.size(); i < len; ++i) {
-            blockMembers.add(SetFactory.newOrderedSet());
+            blockMembers.add(new ObjectLinkedOpenHashSet<BlockIdentifier>());
         }
         Map<BlockIdentifier, Block3> firstByBlock = MapFactory.newMap();
         Map<BlockIdentifier, Block3> lastByBlock = MapFactory.newMap();
@@ -417,7 +419,7 @@ public class Op03Blocks {
     //                        }
                             // Unless block is the BEGINNING of the missing one, make block depend on the END
                             // of the loops which have been jumped into.
-                            Set<BlockIdentifier> tmp = SetFactory.newSet(inThese);
+                            Set<BlockIdentifier> tmp = new ObjectOpenHashSet<>(inThese);
                             tmp.removeAll(sourceInThese);
                             ObjectList<Block3> newSources = new ObjectArrayList<>();
                             for (BlockIdentifier jumpedInto : tmp) {
@@ -451,7 +453,7 @@ public class Op03Blocks {
                     if (!blockMembers.get(idxLut.get(blktgt)).contains(ident)) continue;
                     if (lastByBlock.get(ident) == blktgt) continue;
 
-                    Set<Block3> origSources = SetFactory.newOrderedSet(blktgt.originalSources);
+                    Set<Block3> origSources = new ObjectLinkedOpenHashSet<>(blktgt.originalSources);
                     origSources.remove(block);
                     for (Block3 src : origSources) {
                         if ((blockMembers.get(idxLut.get(src)).contains(ident) && src.startIndex.isBackJumpFrom(blktgt.startIndex)) ||
@@ -476,8 +478,8 @@ public class Op03Blocks {
 
     private static void stripTryBlockAliases(ObjectList<Op03SimpleStatement> out, Map<BlockIdentifier, BlockIdentifier> tryBlockAliases) {
         Map<BlockIdentifier, Op03SimpleStatement> tries = MapFactory.newMap();
-        Set<Op03SimpleStatement> remove = SetFactory.newOrderedSet();
-        Set<BlockIdentifier> blocksToRemove = SetFactory.newOrderedSet();
+        Set<Op03SimpleStatement> remove = new ObjectLinkedOpenHashSet<>();
+        Set<BlockIdentifier> blocksToRemove = new ObjectLinkedOpenHashSet<>();
         blocksToRemove.addAll(tryBlockAliases.keySet());
 
         for (int x = 1, len = out.size(); x < len; ++x) {
@@ -1013,7 +1015,7 @@ public class Op03Blocks {
             Op03SimpleStatement ostm = block.getStart();
             Set<BlockIdentifier> idents = ostm.getBlockIdentifiers();
             if (ostm.getStatement() instanceof CatchStatement) {
-                idents = SetFactory.newSet(idents);
+                idents = new ObjectOpenHashSet<>(idents);
                 idents.add(((CatchStatement)ostm.getStatement()).getCatchBlockIdent());
             }
             identifiersByBlock.add(idents);
@@ -1023,7 +1025,7 @@ public class Op03Blocks {
             Block3 block = blocks.get(x);
             if (block.getEnd().getStatement() instanceof TryStatement tryStm) {
                 BlockIdentifier tryBlockIdent = tryStm.getBlockIdentifier();
-                Set<BlockIdentifier> catchBlockIdents = SetFactory.newSet();
+                Set<BlockIdentifier> catchBlockIdents = new ObjectOpenHashSet<>();
                 for (Op03SimpleStatement target : block.getEnd().getTargets()) {
                     if (target.getStatement() instanceof CatchStatement) {
                         catchBlockIdents.add(((CatchStatement)target.getStatement()).getCatchBlockIdent());
@@ -1038,7 +1040,7 @@ public class Op03Blocks {
                     if (thisIdx == null) continue outer;
                     idx = Math.max(idx, thisIdx);
                 }
-                Set<BlockIdentifier> allBlockIdents = SetFactory.newSet(catchBlockIdents);
+                Set<BlockIdentifier> allBlockIdents = new ObjectOpenHashSet<>(catchBlockIdents);
                 allBlockIdents.add(tryBlockIdent);
                 Block3 last = blocks.get(idx);
                 // Now walk until we come to last Idx
@@ -1149,10 +1151,10 @@ public class Op03Blocks {
     private static class Block3 implements Comparable<Block3> {
         InstrIndex startIndex;
         final ObjectList<Op03SimpleStatement> content = new ObjectArrayList<>();
-        final Set<Block3> sources = SetFactory.newOrderedSet();
+        final Set<Block3> sources = new ObjectLinkedOpenHashSet<>();
         // This seems redundant? - verify need.
-        final Set<Block3> originalSources = SetFactory.newOrderedSet();
-        final Set<Block3> targets = SetFactory.newOrderedSet();
+        final Set<Block3> originalSources = new ObjectLinkedOpenHashSet<>();
+        final Set<Block3> targets = new ObjectLinkedOpenHashSet<>();
 
         Block3(Op03SimpleStatement s) {
             startIndex = s.getIndex();

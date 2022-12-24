@@ -2,6 +2,7 @@ package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
@@ -20,7 +21,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.wildcard.WildcardMatch;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.*;
 
@@ -94,8 +94,8 @@ public class ExceptionRewriters {
      * Could be refactored out as uniquelyReachableFrom....
      */
     private static void identifyCatchBlock(Op03SimpleStatement start, BlockIdentifier blockIdentifier, ObjectList<Op03SimpleStatement> statements) {
-        Set<Op03SimpleStatement> knownMembers = SetFactory.newSet();
-        Set<Op03SimpleStatement> seen = SetFactory.newSet();
+        Set<Op03SimpleStatement> knownMembers = new ObjectOpenHashSet<>();
+        Set<Op03SimpleStatement> seen = new ObjectOpenHashSet<>();
         seen.add(start);
         knownMembers.add(start);
 
@@ -123,7 +123,7 @@ public class ExceptionRewriters {
             seen.add(target);
         }
 
-        Map<Op03SimpleStatement, Set<Op03SimpleStatement>> allows = MapFactory.newLazyMap(ignore -> SetFactory.newSet());
+        Map<Op03SimpleStatement, Set<Op03SimpleStatement>> allows = MapFactory.newLazyMap(ignore -> new ObjectOpenHashSet<>());
         int sinceDefinite = 0;
         while (!pendingPossibilities.isEmpty() && sinceDefinite <= pendingPossibilities.size()) {
             Op03SimpleStatement maybe = pendingPossibilities.removeFirst();
@@ -234,7 +234,7 @@ public class ExceptionRewriters {
 
 
     private static void combineTryCatchBlocks(final Op03SimpleStatement tryStatement) {
-        Set<Op03SimpleStatement> allStatements = SetFactory.newSet();
+        Set<Op03SimpleStatement> allStatements = new ObjectOpenHashSet<>();
         TryStatement innerTryStatement = (TryStatement) tryStatement.getStatement();
 
         allStatements.addAll(Misc.GraphVisitorBlockReachable.getBlockReachable(tryStatement, innerTryStatement.getBlockIdentifier()));
@@ -252,9 +252,10 @@ public class ExceptionRewriters {
         /* See Tock test for why we should only extend try/catch.
          */
         Set<BlockIdentifier> tryBlocks = tryStatement.getBlockIdentifiers();
-        tryBlocks = SetFactory.newSet(Functional.filter(tryBlocks,
+        Collection<BlockIdentifier> content = Functional.filter(tryBlocks,
             in -> in.getBlockType() == BlockType.TRYBLOCK || in.getBlockType() == BlockType.CATCHBLOCK
-        ));
+        );
+        tryBlocks = new ObjectOpenHashSet<>(content);
         if (tryBlocks.isEmpty()) return;
 
         ObjectList<Op03SimpleStatement> orderedStatements = new ObjectArrayList<>(allStatements);
@@ -427,7 +428,7 @@ public class ExceptionRewriters {
          * this intermediate code other than from the try or catch block, (or blocks in this range)
          * and that the blockset of the START of the try block is present the whole time.
          */
-        Set<Op03SimpleStatement> middle = SetFactory.newSet();
+        Set<Op03SimpleStatement> middle = new ObjectOpenHashSet<>();
         ObjectList<Op03SimpleStatement> toMove = new ObjectArrayList<>();
         for (int x=tryBlock.getIdxLast()+1;x<catchBlock.getIdxFirst();++x) {
             Op03SimpleStatement stm = statements.get(x);
@@ -517,7 +518,7 @@ public class ExceptionRewriters {
     }
 
     private static LinearScannedBlock getLinearScannedBlock(ObjectList<Op03SimpleStatement> statements, int idx, Op03SimpleStatement stm, BlockIdentifier blockIdentifier, boolean prefix) {
-        Set<Op03SimpleStatement> found = SetFactory.newSet();
+        Set<Op03SimpleStatement> found = new ObjectOpenHashSet<>();
         int nextIdx = idx+(prefix?1:0);
         if (prefix) found.add(stm);
         int cnt = statements.size();

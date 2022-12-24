@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
@@ -13,7 +14,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.*;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.Troolean;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
@@ -119,7 +119,7 @@ class WhileRewriter {
     }
 
     private static Set<LValue> findForInvariants(Op03SimpleStatement start, BlockIdentifier whileLoop) {
-        Set<LValue> res = SetFactory.newOrderedSet();
+        Set<LValue> res = new ObjectLinkedOpenHashSet<>();
         Op03SimpleStatement current = start;
         while (current.getBlockIdentifiers().contains(whileLoop)) {
             /* Note that here we're checking for assignments to determine what is suitable for lifting into a

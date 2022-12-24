@@ -1,7 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.utils;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.Map;
 import java.util.Set;
@@ -159,7 +159,7 @@ public class SSAIdentifiers<KEYTYPE> {
     }
 
     Set<KEYTYPE> getChanges() {
-        Set<KEYTYPE> result = SetFactory.newSet();
+        Set<KEYTYPE> result = new ObjectOpenHashSet<>();
         for (Map.Entry<KEYTYPE, SSAIdent> entry : knownIdentifiersOnEntry.entrySet()) {
             SSAIdent after = knownIdentifiersOnExit.get(entry.getKey());
             if (after != null && !after.equals(entry.getValue())) {

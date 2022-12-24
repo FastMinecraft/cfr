@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.expression;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.PrimitiveBoxingRewriter;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
@@ -20,7 +21,6 @@ import org.benf.cfr.reader.entities.exceptions.ExceptionCheck;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.Troolean;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.Map;
@@ -179,7 +179,7 @@ public class ComparisonOperation extends AbstractExpression implements Condition
 
     @Override
     public Set<LValue> getLoopLValues() {
-        Set<LValue> res = SetFactory.newSet();
+        Set<LValue> res = new ObjectOpenHashSet<>();
         addIfLValue(lhs, res);
         addIfLValue(rhs, res);
         return res;

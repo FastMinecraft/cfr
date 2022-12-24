@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
@@ -7,7 +8,8 @@ import org.benf.cfr.reader.bytecode.analysis.parse.statement.*;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockType;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.SetFactory;
+
+import java.util.Collection;
 import java.util.function.Predicate;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -85,8 +87,10 @@ public class PushThroughGoto {
             }
         }
         IsLoopBlock isLoopBlock = new IsLoopBlock();
-        Set<BlockIdentifier> beforeLoopBlocks = SetFactory.newSet(Functional.filterSet(before.getBlockIdentifiers(), isLoopBlock));
-        Set<BlockIdentifier> tgtLoopBlocks = SetFactory.newSet(Functional.filterSet(tgt.getBlockIdentifiers(), isLoopBlock));
+        Collection<BlockIdentifier> content3 = Functional.filterSet(before.getBlockIdentifiers(), isLoopBlock);
+        Set<BlockIdentifier> beforeLoopBlocks = new ObjectOpenHashSet<>(content3);
+        Collection<BlockIdentifier> content2 = Functional.filterSet(tgt.getBlockIdentifiers(), isLoopBlock);
+        Set<BlockIdentifier> tgtLoopBlocks = new ObjectOpenHashSet<>(content2);
         if (!beforeLoopBlocks.equals(tgtLoopBlocks)) return false;
 
         class IsExceptionBlock implements Predicate<BlockIdentifier> {
@@ -101,11 +105,12 @@ public class PushThroughGoto {
         }
         Predicate<BlockIdentifier> exceptionFilter = new IsExceptionBlock();
 
-        Set<BlockIdentifier> exceptionBlocks = SetFactory.newSet(Functional.filterSet(tgt.getBlockIdentifiers(), exceptionFilter));
+        Collection<BlockIdentifier> content1 = Functional.filterSet(tgt.getBlockIdentifiers(), exceptionFilter);
+        Set<BlockIdentifier> exceptionBlocks = new ObjectOpenHashSet<>(content1);
         int nextCandidateIdx = statements.indexOf(forwardGoto) - 1;
 
         Op03SimpleStatement lastTarget = tgt;
-        Set<Op03SimpleStatement> seen = SetFactory.newSet();
+        Set<Op03SimpleStatement> seen = new ObjectOpenHashSet<>();
         boolean success = false;
         while (true) {
             Op03SimpleStatement tryMoveThis = forwardGoto.getSources().get(0);
@@ -118,7 +123,8 @@ public class PushThroughGoto {
             // If sources > 1, we can't continue processing after this one, but we can do this one.
             boolean abortNext = (tryMoveThis.getSources().size() != 1);
             // Is it in the same exception blocks?
-            Set<BlockIdentifier> moveEB = SetFactory.newSet(Functional.filterSet(tryMoveThis.getBlockIdentifiers(), exceptionFilter));
+            Collection<BlockIdentifier> content = Functional.filterSet(tryMoveThis.getBlockIdentifiers(), exceptionFilter);
+            Set<BlockIdentifier> moveEB = new ObjectOpenHashSet<>(content);
             if (!moveEB.equals(exceptionBlocks)) return success;
             /* Move this instruction through the goto
              */

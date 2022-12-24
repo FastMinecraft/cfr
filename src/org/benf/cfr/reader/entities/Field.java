@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.entities;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.parse.literal.TypedLiteral;
 import org.benf.cfr.reader.bytecode.analysis.types.ClassNameUtils;
 import org.benf.cfr.reader.bytecode.analysis.types.DeclarationAnnotationHelper;
@@ -28,12 +29,11 @@ import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.KnowsRawSize;
 import org.benf.cfr.reader.util.TypeUsageCollectable;
 import org.benf.cfr.reader.util.bytestream.ByteData;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.ArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+
 import java.util.Set;
 
 
@@ -267,7 +267,7 @@ public class Field implements KnowsRawSize, TypeUsageCollectable {
         if (!asRecordField) {
             Set<AccessFlag> accessFlagsLocal = accessFlags;
             if (cp.getDCCommonState().getOptions().getOption(OptionsImpl.ATTRIBUTE_OBF)) {
-                accessFlagsLocal = SetFactory.newSet(accessFlagsLocal);
+                accessFlagsLocal = new ObjectOpenHashSet<>(accessFlagsLocal);
                 accessFlagsLocal.remove(AccessFlag.ACC_ENUM);
                 accessFlagsLocal.remove(AccessFlag.ACC_SYNTHETIC);
             }

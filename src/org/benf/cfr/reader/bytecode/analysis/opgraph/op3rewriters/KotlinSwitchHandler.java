@@ -1,6 +1,8 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import org.benf.cfr.reader.bytecode.BytecodeMeta;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
@@ -20,7 +22,6 @@ import org.benf.cfr.reader.bytecode.opcode.DecodedSwitch;
 import org.benf.cfr.reader.bytecode.opcode.DecodedSwitchEntry;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
@@ -87,7 +88,7 @@ public class KotlinSwitchHandler {
          *
          * Go back and gather immediate aliases.
          */
-        Set<Expression> aliases = SetFactory.newSet();
+        Set<Expression> aliases = new ObjectOpenHashSet<>();
         aliases.add(obj);
         if (swatch.getSources().size() == 1) {
             Op03SimpleStatement backptr = swatch;
@@ -133,7 +134,7 @@ public class KotlinSwitchHandler {
         );
         IfStatement testIf = new IfStatement(BytecodeLoc.NONE,new ComparisonOperation(BytecodeLoc.NONE, eqFn, Literal.FALSE, CompOp.EQ));
         IfStatement testNotIf = new IfStatement(BytecodeLoc.NONE,new ComparisonOperation(BytecodeLoc.NONE, eqFn, Literal.FALSE, CompOp.NE));
-        final Set<Op03SimpleStatement> reTargetSet = SetFactory.newIdentitySet();
+        final Set<Op03SimpleStatement> reTargetSet = new ReferenceOpenHashSet<>();
         final Map<Op03SimpleStatement, DistinctSwitchTarget> reTargets = MapFactory.newIdentityLazyMap(arg -> {
             reTargetSet.add(arg);
             return new DistinctSwitchTarget(reTargetSet.size());

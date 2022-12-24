@@ -1,8 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectLists;
+import it.unimi.dsi.fastutil.objects.*;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers.ExpressionRewriterTransformer;
@@ -29,7 +27,6 @@ import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.util.DecompilerComment;
 import org.benf.cfr.reader.util.DecompilerComments;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
 import java.util.*;
@@ -40,7 +37,7 @@ public class SwitchExpressionRewriter extends AbstractExpressionRewriter impleme
     private final boolean experimental;
     private final Method method;
     private final DecompilerComments comments;
-    private final Set<StructuredStatement> classifiedEmpty = SetFactory.newIdentitySet();
+    private final Set<StructuredStatement> classifiedEmpty = new ReferenceOpenHashSet<>();
 
     public SwitchExpressionRewriter(DecompilerComments comments, Method method) {
         this.comments = comments;
@@ -121,7 +118,7 @@ public class SwitchExpressionRewriter extends AbstractExpressionRewriter impleme
 
         if (bsd.blockSwitches.isEmpty()) return;
 
-        Set<StatementContainer> creators = SetFactory.newSet();
+        Set<StatementContainer> creators = new ObjectOpenHashSet<>();
         for (ObjectList<Op04StructuredStatement> list : bsd.blockSwitches.values()) {
             creators.addAll(list);
         }
@@ -135,8 +132,8 @@ public class SwitchExpressionRewriter extends AbstractExpressionRewriter impleme
 
             List<Op04StructuredStatement> statements = ((Block) stm).getBlockStatements();
 
-            Set<Op04StructuredStatement> usages = SetFactory.newOrderedSet();
-            Set<Op04StructuredStatement> swtchSet = SetFactory.newSet();
+            Set<Op04StructuredStatement> usages = new ObjectLinkedOpenHashSet<>();
+            Set<Op04StructuredStatement> swtchSet = new ObjectOpenHashSet<>();
             for (Op04StructuredStatement swtch : switches) {
                 if (!(swtch.getStatement() instanceof StructuredAssignment sa)) continue;
                 if (!sa.isCreator(sa.getLvalue())) continue;
@@ -612,7 +609,7 @@ public class SwitchExpressionRewriter extends AbstractExpressionRewriter impleme
         LinkedList<ClassifiedStm> tt = new LinkedList<>();
         ObjectList<Op04StructuredStatement> others = new ObjectArrayList<>();
         Iterator<Op04StructuredStatement> it = b.getBlockStatements().iterator();
-        Set<Expression> directs = SetFactory.newSet();
+        Set<Expression> directs = new ObjectOpenHashSet<>();
         boolean found = false;
         boolean inPrequel = method.getClassFile().isInnerClass();
         while (it.hasNext()) {

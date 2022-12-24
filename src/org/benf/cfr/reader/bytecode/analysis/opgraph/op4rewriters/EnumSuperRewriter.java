@@ -1,13 +1,13 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.CastExpression;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.LValueExpression;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.SuperFunctionInvokation;
 import org.benf.cfr.reader.bytecode.analysis.parse.wildcard.WildcardMatch;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
@@ -33,7 +33,7 @@ public class EnumSuperRewriter extends RedundantSuperRewriter {
     }
 
     protected Set<LValue> getDeclarationsToNop(WildcardMatch wcm) {
-        Set<LValue> res = SetFactory.newSet();
+        Set<LValue> res = new ObjectOpenHashSet<>();
         res.add(getLValue(wcm, "enum_a"));
         res.add(getLValue(wcm, "enum_b"));
         return res;

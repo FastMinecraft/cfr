@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.util.ConstructorUtils;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.util.MiscStatementTools;
@@ -23,7 +24,6 @@ import org.benf.cfr.reader.entities.*;
 import org.benf.cfr.reader.util.*;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.LinkedList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -109,7 +109,7 @@ public class NonStaticLifter {
         int numConstructors = constructorCodeList.size();
         final List<Op04StructuredStatement> constructorCode = constructorCodeList.get(0);
         if (constructorCode.isEmpty()) return; // can't happen.
-        Set<Expression> usedFvs = SetFactory.newSet();
+        Set<Expression> usedFvs = new ObjectOpenHashSet<>();
         int maxFieldIdx = -1;
         for (int x = 0; x < minSize; ++x) {
             StructuredStatement s1 = constructorCode.get(x).getStatement();

@@ -1,10 +1,10 @@
 package org.benf.cfr.reader.state;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.output.IllegalIdentifierDump;
 import org.benf.cfr.reader.util.output.TypeContext;
 
@@ -20,8 +20,8 @@ public class InnerClassTypeUsageInformation implements TypeUsageInformation {
     private final TypeUsageInformation delegate;
     private final JavaRefTypeInstance analysisInnerClass;
     private final Map<JavaRefTypeInstance, String> localTypeNames = MapFactory.newMap();
-    private final Set<String> usedLocalTypeNames = SetFactory.newSet();
-    private final Set<JavaRefTypeInstance> usedInnerClassTypes = SetFactory.newSet();
+    private final Set<String> usedLocalTypeNames = new ObjectOpenHashSet<>();
+    private final Set<JavaRefTypeInstance> usedInnerClassTypes = new ObjectOpenHashSet<>();
 
     public InnerClassTypeUsageInformation(TypeUsageInformation delegate, JavaRefTypeInstance analysisInnerClass) {
         this.delegate = delegate;

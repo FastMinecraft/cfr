@@ -1,6 +1,8 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters.Cleaner;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters.CompareByIndex;
@@ -30,8 +32,9 @@ import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.collections.UniqueSeenQueue;
+
+import java.util.Collection;
 import java.util.function.BiConsumer;
 
 import org.benf.cfr.reader.util.graph.GraphVisitor;
@@ -65,7 +68,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
     //
     // This statement is CONTAINED in the following blocks.
     //
-    private final Set<BlockIdentifier> containedInBlocks = SetFactory.newSet();
+    private final Set<BlockIdentifier> containedInBlocks = new ObjectOpenHashSet<>();
 
     public Op03SimpleStatement(Op02WithProcessedDataAndRefs original, Statement statement) {
         this.containedStatement = statement;
@@ -261,8 +264,9 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
      */
     @Override
     public Set<BlockIdentifier> getBlocksEnded() {
-        if (linearlyPrevious == null) return SetFactory.newSet();
-        Set<BlockIdentifier> in = SetFactory.newSet(linearlyPrevious.getBlockIdentifiers());
+        if (linearlyPrevious == null) return new ObjectOpenHashSet<>();
+        Collection<BlockIdentifier> content = linearlyPrevious.getBlockIdentifiers();
+        Set<BlockIdentifier> in = new ObjectOpenHashSet<>(content);
         in.removeAll(getBlockIdentifiers());
         in.removeIf(blockIdentifier -> !blockIdentifier.getBlockType().isBreakable());
         return in;
@@ -410,7 +414,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
                     }
                 }
                 if (pullOutJump) {
-                    Set<BlockIdentifier> backJumpContainedIn = SetFactory.newSet(containedInBlocks);
+                    Set<BlockIdentifier> backJumpContainedIn = new ObjectOpenHashSet<>(containedInBlocks);
                     backJumpContainedIn.remove(blockIdentifier);
                     Op03SimpleStatement backJump = new Op03SimpleStatement(
                         backJumpContainedIn,
@@ -592,7 +596,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
 
         ObjectList<Op03SimpleStatement> wantsHint = new ObjectArrayList<>();
 
-        Set<LValue> wanted = SetFactory.newSet();
+        Set<LValue> wanted = new ObjectOpenHashSet<>();
         for (Op03SimpleStatement stm : statements) {
             Set<LValue> hints = stm.getStatement().wantsLifetimeHint();
             if (hints == null) continue;
@@ -636,7 +640,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
         while (!toProcess.isEmpty()) {
             Op03SimpleStatement node = toProcess.removeFirst();
             RemoveState r = state.get(node);
-            Set<LValue> tmp = SetFactory.newSet();
+            Set<LValue> tmp = new ObjectOpenHashSet<>();
             // Strictly speaking, all exception handlers that can see this are 'targets'.
             // However, this doesn't break any current usages ;)
             for (Op03SimpleStatement target : node.targets) {
@@ -733,7 +737,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
     private Set<BlockIdentifier> possibleExitsFor = null;
 
     public void addPossibleExitFor(BlockIdentifier ident) {
-        if (possibleExitsFor == null) possibleExitsFor = SetFactory.newOrderedSet();
+        if (possibleExitsFor == null) possibleExitsFor = new ObjectLinkedOpenHashSet<>();
         possibleExitsFor.add(ident);
     }
 
@@ -801,7 +805,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
     public String toString() {
         BytecodeLoc loc = getStatement().getCombinedLoc();
 
-        Set<Integer> blockIds = SetFactory.newSet();
+        Set<Integer> blockIds = new ObjectOpenHashSet<>();
         for (BlockIdentifier b : containedInBlocks) {
             blockIds.add(b.getIndex());
         }

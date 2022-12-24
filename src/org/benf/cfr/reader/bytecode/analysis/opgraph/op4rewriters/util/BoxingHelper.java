@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.util;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.MemberFunctionInvokation;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.StaticFunctionInvokation;
@@ -8,35 +9,39 @@ import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.RawJavaType;
 import org.benf.cfr.reader.bytecode.analysis.types.TypeConstants;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.Map;
 import java.util.Set;
 
 public class BoxingHelper {
     @SuppressWarnings("unchecked")
-    private static final Set<Pair<String, String>> unboxing = SetFactory.newSet(
-            Pair.make(TypeConstants.boxingNameInt, "intValue"),
-            Pair.make(TypeConstants.boxingNameLong, "longValue"),
-            Pair.make(TypeConstants.boxingNameDouble, "doubleValue"),
-            Pair.make(TypeConstants.boxingNameShort, "shortValue"),
-            Pair.make(TypeConstants.boxingNameByte, "byteValue"),
-            Pair.make(TypeConstants.boxingNameBoolean, "booleanValue")
-    );
+    private static final Set<Pair<String, String>> unboxing = new ObjectOpenHashSet<>((Pair<String, String>[]) new Pair[]{ Pair.make(
+        TypeConstants.boxingNameInt,
+        "intValue"
+    ), Pair.make(TypeConstants.boxingNameLong, "longValue"), Pair.make(
+        TypeConstants.boxingNameDouble,
+        "doubleValue"
+    ), Pair.make(TypeConstants.boxingNameShort, "shortValue"), Pair.make(
+        TypeConstants.boxingNameByte,
+        "byteValue"
+    ), Pair.make(TypeConstants.boxingNameBoolean, "booleanValue") });
 
     private static final Map<String, String> unboxingByRawName;
 
     @SuppressWarnings("unchecked")
-    private static final Set<Pair<String, String>> boxing = SetFactory.newSet(
-            Pair.make(TypeConstants.boxingNameInt, "valueOf"),
-            Pair.make(TypeConstants.boxingNameLong, "valueOf"),
-            Pair.make(TypeConstants.boxingNameDouble, "valueOf"),
-            Pair.make(TypeConstants.boxingNameShort, "valueOf"),
-            Pair.make(TypeConstants.boxingNameByte, "valueOf"),
-            Pair.make(TypeConstants.boxingNameBoolean, "valueOf")
-    );
+    private static final Set<Pair<String, String>> boxing;
 
     static {
+        boxing = new ObjectOpenHashSet<>((Pair<String, String>[]) new Pair[]{ Pair.make(
+            TypeConstants.boxingNameInt,
+            "valueOf"
+        ), Pair.make(TypeConstants.boxingNameLong, "valueOf"), Pair.make(
+            TypeConstants.boxingNameDouble,
+            "valueOf"
+        ), Pair.make(TypeConstants.boxingNameShort, "valueOf"), Pair.make(
+            TypeConstants.boxingNameByte,
+            "valueOf"
+        ), Pair.make(TypeConstants.boxingNameBoolean, "valueOf") });
         unboxingByRawName = MapFactory.newMap();
         for (Pair<String, String> pair : unboxing) {
             unboxingByRawName.put(pair.getFirst(), pair.getSecond());

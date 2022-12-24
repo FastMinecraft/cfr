@@ -1,6 +1,8 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectRBTreeSet;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.ExpressionReplacingRewriter;
@@ -15,7 +17,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
@@ -143,7 +144,7 @@ public class Misc {
             instrToIdx.put(statement, x);
         }
 
-        Set<Integer> reachableNodes = SetFactory.newSortedSet();
+        Set<Integer> reachableNodes = new ObjectRBTreeSet<>();
         GraphVisitorReachableInThese graphVisitorCallee = new GraphVisitorReachableInThese(reachableNodes, instrToIdx);
         GraphVisitor<Op03SimpleStatement> visitor = new GraphVisitorDFS<>(statements.get(start), graphVisitorCallee);
         visitor.process();
@@ -172,7 +173,7 @@ public class Misc {
 
     static Set<Op03SimpleStatement> followNopGotoBackwards(Op03SimpleStatement eventualtarget) {
 
-        final Set<Op03SimpleStatement> result = SetFactory.newSet();
+        final Set<Op03SimpleStatement> result = new ObjectOpenHashSet<>();
 
         new GraphVisitorDFS<>(eventualtarget, (arg1, arg2) -> {
             for (Op03SimpleStatement source : arg1.getSources()) {
@@ -232,7 +233,7 @@ public class Misc {
         boolean skipLabels
     ) {
         if (in == null) return null;
-        Set<Op03SimpleStatement> seen = SetFactory.newSet();
+        Set<Op03SimpleStatement> seen = new ObjectOpenHashSet<>();
         if (until != null) {
             seen.add(until);
         }
@@ -304,8 +305,8 @@ public class Misc {
 
         private final Op03SimpleStatement start;
         private final BlockIdentifier blockIdentifier;
-        private final Set<Op03SimpleStatement> found = SetFactory.newSet();
-        private final Set<Op03SimpleStatement> exits = SetFactory.newSet();
+        private final Set<Op03SimpleStatement> found = new ObjectOpenHashSet<>();
+        private final Set<Op03SimpleStatement> exits = new ObjectOpenHashSet<>();
 
         private GraphVisitorBlockReachable(Op03SimpleStatement start, BlockIdentifier blockIdentifier) {
             this.start = start;
@@ -355,7 +356,7 @@ public class Misc {
     }
 
     static Set<Op03SimpleStatement> collectAllSources(Collection<Op03SimpleStatement> statements) {
-        Set<Op03SimpleStatement> result = SetFactory.newSet();
+        Set<Op03SimpleStatement> result = new ObjectOpenHashSet<>();
         for (Op03SimpleStatement statement : statements) {
             result.addAll(statement.getSources());
         }

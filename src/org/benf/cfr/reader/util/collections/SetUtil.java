@@ -4,6 +4,8 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.util.Collection;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+
 import java.util.Set;
 
 public class SetUtil {
@@ -40,7 +42,7 @@ public class SetUtil {
         Set<X> res = null;
         for (X x : a) {
             if (b.contains(x)) {
-                if (res == null) res = SetFactory.newSet();
+                if (res == null) res = new ObjectOpenHashSet<>();
                 res.add(x);
             }
         }
@@ -48,7 +50,7 @@ public class SetUtil {
     }
 
     public static <X> Set<X> difference(Set<? extends X> a, Set<? extends X> b) {
-        Set<X> res = SetFactory.newSet();
+        Set<X> res = new ObjectOpenHashSet<>();
         for (X a1 : a) {
             if (!b.contains(a1)) res.add(a1);
         }

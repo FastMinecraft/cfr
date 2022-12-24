@@ -1,6 +1,8 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.utils;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters.Misc;
@@ -19,7 +21,6 @@ import org.benf.cfr.reader.entities.exceptions.ExceptionCheckSimple;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.MiscUtils;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.collections.SetUtil;
 
 import java.util.Collection;
@@ -59,8 +60,8 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
 
     public LValueAssignmentAndAliasCondenser() {
         found = MapFactory.newOrderedMap();
-        blacklisted = SetFactory.newOrderedSet();
-        keepConstant = SetFactory.newSet();
+        blacklisted = new ObjectLinkedOpenHashSet<>();
+        keepConstant = new ObjectOpenHashSet<>();
         aliasReplacements = MapFactory.newMap();
         multiFound = MapFactory.newMap();
         mutableFound = MapFactory.newMap();
@@ -103,7 +104,7 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
 
     private Set<LValue> findAssignees(Statement s) {
         if (!(s instanceof AssignmentSimple assignmentSimple)) return null;
-        Set<LValue> res = SetFactory.newSet();
+        Set<LValue> res = new ObjectOpenHashSet<>();
         res.add(assignmentSimple.getCreatedLValue());
         Expression rvalue = assignmentSimple.getRValue();
         while (rvalue instanceof AssignmentExpression assignmentExpression) {
@@ -120,7 +121,9 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
 
     @Override
     public LValueRewriter<Statement> keepConstant(Collection<LValue> usedLValues) {
-        return new LValueAssignmentAndAliasCondenser(this, SetFactory.newSet(keepConstant, usedLValues));
+        ObjectOpenHashSet<LValue> res = new ObjectOpenHashSet<>(keepConstant);
+        res.addAll(usedLValues);
+        return new LValueAssignmentAndAliasCondenser(this, res);
     }
 
     public void reset() {
@@ -492,7 +495,7 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
 
     public class MutationRewriterFirstPass implements LValueRewriter<Statement> {
 
-        private final Map<VersionedLValue, Set<StatementContainer>> mutableUseFound = MapFactory.newLazyMap(arg -> SetFactory.newSet());
+        private final Map<VersionedLValue, Set<StatementContainer>> mutableUseFound = MapFactory.newLazyMap(arg -> new ObjectOpenHashSet<>());
 
         /* Bit cheeky, we'll never actually replace here, but use this pass to collect info. */
         @Override
@@ -579,7 +582,7 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
         }
     }
 
-    private static final Set<SSAIdent> emptyFixed = SetFactory.newSet();
+    private static final Set<SSAIdent> emptyFixed = new ObjectOpenHashSet<>();
 
     public class MutationRewriterSecondPass implements LValueRewriter<Statement> {
         private final Set<SSAIdent> fixed;
@@ -648,7 +651,9 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
 
         @Override
         public LValueRewriter getWithFixed(Set<SSAIdent> fixed) {
-            return new MutationRewriterSecondPass(this.mutableReplacable, SetFactory.newSet(this.fixed, fixed));
+            ObjectOpenHashSet<SSAIdent> res = new ObjectOpenHashSet<>(this.fixed);
+            res.addAll(fixed);
+            return new MutationRewriterSecondPass(this.mutableReplacable, res);
         }
 
         @Override

@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
@@ -9,7 +10,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.statement.AssignmentSimple;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.ExpressionStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.Nop;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
@@ -21,7 +21,7 @@ class IsolatedStackValue {
         // We can nop both the assignment and the consumption if the consumption is
         // an expression statement.
 
-        Set<StackSSALabel> blackList = SetFactory.newSet();
+        Set<StackSSALabel> blackList = new ObjectOpenHashSet<>();
         Map<StackSSALabel, Op03SimpleStatement> consumptions = MapFactory.newMap();
         Map<StackSSALabel, Op03SimpleStatement> assignments = MapFactory.newMap();
 

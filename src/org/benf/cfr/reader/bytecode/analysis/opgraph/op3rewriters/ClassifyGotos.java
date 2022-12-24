@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.CatchStatement;
@@ -22,7 +23,7 @@ class ClassifyGotos {
         ObjectList<Pair<Op03SimpleStatement, Integer>> gotos = new ObjectArrayList<>();
         Map<BlockIdentifier, Op03SimpleStatement> tryStatementsByBlock = MapFactory.newMap();
         Map<BlockIdentifier, ObjectList<BlockIdentifier>> catchStatementsByBlock = MapFactory.newMap();
-        Map<BlockIdentifier, Set<BlockIdentifier>> catchToTries = MapFactory.newLazyMap(arg -> SetFactory.newOrderedSet());
+        Map<BlockIdentifier, Set<BlockIdentifier>> catchToTries = MapFactory.newLazyMap(arg -> new ObjectLinkedOpenHashSet<>());
         for (int x = 0, len = in.size(); x < len; ++x) {
             Op03SimpleStatement stm = in.get(x);
             Statement statement = stm.getStatement();
@@ -75,7 +76,7 @@ class ClassifyGotos {
         /*
          * Map blocks to the union of the TRY blocks we're in catch blocks of.
          */
-        Set<BlockIdentifier> blocks = SetFactory.newOrderedSet();
+        Set<BlockIdentifier> blocks = new ObjectLinkedOpenHashSet<>();
         for (BlockIdentifier block : inBlocks) {
             //
             // In case it's a lazy map, 2 stage lookup and fetch.

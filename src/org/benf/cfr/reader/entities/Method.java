@@ -30,7 +30,6 @@ import org.benf.cfr.reader.util.collections.CollectionUtils;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.Dumper;
@@ -454,7 +453,7 @@ public class Method implements KnowsRawSize, TypeUsageCollectable {
         boolean usesAdmissibleType = !annotationsInfo.requiresNonAdmissibleType();
         dumpMethodAnnotations(d, annotationsInfo.getDeclarationAnnotations(usesAdmissibleType));
 
-        EnumSet<AccessFlagMethod> localAccessFlags = SetFactory.newSet(accessFlags);
+        EnumSet<AccessFlagMethod> localAccessFlags = EnumSet.copyOf(accessFlags);
         if (!asClass) {
             if (codeAttribute != null && !accessFlags.contains(AccessFlagMethod.ACC_STATIC)
                     && !accessFlags.contains(AccessFlagMethod.ACC_PRIVATE)) {

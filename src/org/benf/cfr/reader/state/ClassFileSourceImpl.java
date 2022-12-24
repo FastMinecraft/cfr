@@ -2,6 +2,7 @@ package org.benf.cfr.reader.state;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.apiunreleased.ClassFileSource2;
 import org.benf.cfr.reader.apiunreleased.JarContent;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
@@ -10,7 +11,6 @@ import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.MiscConstants;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
@@ -30,7 +30,7 @@ import java.util.zip.ZipFile;
 import static org.benf.cfr.reader.bytecode.analysis.types.ClassNameUtils.getPackageAndClassNames;
 
 public class ClassFileSourceImpl implements ClassFileSource2 {
-    private final Set<String> explicitJars = SetFactory.newSet();
+    private final Set<String> explicitJars = new ObjectOpenHashSet<>();
     private Map<String, JarSourceEntry> classToPathMap;
     private final Options options;
     private ClassRenamer classRenamer;

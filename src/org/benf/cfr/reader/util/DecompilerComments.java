@@ -1,6 +1,6 @@
 package org.benf.cfr.reader.util;
 
-import org.benf.cfr.reader.util.collections.SetFactory;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import org.benf.cfr.reader.util.output.Dumpable;
 import org.benf.cfr.reader.util.output.Dumper;
 
@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.Set;
 
 public class DecompilerComments implements Dumpable {
-    private final Set<DecompilerComment> comments = SetFactory.newOrderedSet();
+    private final Set<DecompilerComment> comments = new ObjectLinkedOpenHashSet<>();
 
     public DecompilerComments() {
     }

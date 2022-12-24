@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.util.output;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.api.OutputSinkFactory;
 import org.benf.cfr.reader.api.SinkReturns;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
@@ -11,7 +12,6 @@ import org.benf.cfr.reader.mapping.NullMapping;
 import org.benf.cfr.reader.mapping.ObfuscationMapping;
 import org.benf.cfr.reader.state.TypeUsageInformation;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 
 import java.io.BufferedOutputStream;
@@ -39,7 +39,7 @@ public class TokenStreamDumper extends AbstractDumper {
         arg -> new Object()
     );
 
-    private final Set<JavaTypeInstance> emitted = SetFactory.newSet();
+    private final Set<JavaTypeInstance> emitted = new ObjectOpenHashSet<>();
 
     TokenStreamDumper(OutputSinkFactory.Sink<SinkReturns.Token> sink, int version, JavaTypeInstance classType, MethodErrorCollector methodErrorCollector, TypeUsageInformation typeUsageInformation, Options options, IllegalIdentifierDump illegalIdentifierDump, MovableDumperContext context) {
         super(context);
@@ -106,7 +106,7 @@ public class TokenStreamDumper extends AbstractDumper {
         }
 
         Token(SinkReturns.TokenType type, String value, SinkReturns.TokenTypeFlags... flags) {
-            this(type, value, null, SetFactory.newSet(flags));
+            this(type, value, null, new ObjectOpenHashSet<SinkReturns.TokenTypeFlags>(flags));
         }
 
         private Token(SinkReturns.TokenType type, String value, Object raw, Set<SinkReturns.TokenTypeFlags> flags) {

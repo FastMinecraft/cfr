@@ -1,9 +1,9 @@
 package org.benf.cfr.reader.entities.exceptions;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.*;
 
@@ -26,7 +26,7 @@ public class IntervalOverlapper {
 
     //Apache Harmony throws an NPE when calling methods on value set of a blank map
     private static <X> Set<X> razeValues(NavigableMap<?, Set<X>> map) {
-        Set<X> res = SetFactory.newOrderedSet();
+        Set<X> res = new ObjectLinkedOpenHashSet<>();
         if (map.isEmpty()) return res;
         for (Set<X> i : map.values()) {
             res.addAll(i);
@@ -143,7 +143,7 @@ public class IntervalOverlapper {
         Set<B> b = m.get(k);
         //noinspection Java8MapApi
         if (b == null) {
-            b = SetFactory.newOrderedSet();
+            b = new ObjectLinkedOpenHashSet<>();
             m.put(k, b);
         }
         b.add(v);

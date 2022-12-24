@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.structured.statement;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
@@ -9,7 +10,6 @@ import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
 import org.benf.cfr.reader.entities.exceptions.ExceptionGroup;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -52,7 +52,7 @@ public class UnstructuredCatch extends AbstractUnStructuredStatement {
          * Get the unique set of exception types.
          */
         Map<String, JavaRefTypeInstance> catchTypes = MapFactory.newTreeMap();
-        Set<BlockIdentifier> possibleTryBlocks = SetFactory.newSet();
+        Set<BlockIdentifier> possibleTryBlocks = new ObjectOpenHashSet<>();
         for (ExceptionGroup.Entry entry : exceptions) {
             JavaRefTypeInstance typ = entry.getCatchType();
             catchTypes.put(typ.getRawName(), typ);

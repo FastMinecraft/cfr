@@ -2,6 +2,7 @@ package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.matchutil.*;
@@ -32,7 +33,6 @@ import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.collections.SetUtil;
 
 import java.util.Map;
@@ -112,10 +112,10 @@ public class SyntheticAccessorRewriter extends AbstractExpressionRewriter implem
     private static final String SUPER_RETINVOKE = "superretinv";
 
     private static boolean validRelationship(JavaTypeInstance type1, JavaTypeInstance type2) {
-        Set<JavaTypeInstance> parents1 = SetFactory.newSet();
+        Set<JavaTypeInstance> parents1 = new ObjectOpenHashSet<>();
         type1.getInnerClassHereInfo().collectTransitiveDegenericParents(parents1);
         parents1.add(type1);
-        Set<JavaTypeInstance> parents2 = SetFactory.newSet();
+        Set<JavaTypeInstance> parents2 = new ObjectOpenHashSet<>();
         type2.getInnerClassHereInfo().collectTransitiveDegenericParents(parents2);
         parents2.add(type2);
         return SetUtil.hasIntersection(parents1, parents2);

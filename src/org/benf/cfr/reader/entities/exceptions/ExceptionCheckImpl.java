@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.entities.exceptions;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.AbstractMemberFunctionInvokation;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.ConstructorInvokationSimple;
@@ -8,7 +9,6 @@ import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.util.CannotLoadClassException;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.collections.SetUtil;
 
 import java.util.Collection;
@@ -16,8 +16,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class ExceptionCheckImpl implements ExceptionCheck {
-    private final Set<JavaRefTypeInstance> caughtChecked = SetFactory.newSet();
-    private final Set<JavaRefTypeInstance> caughtUnchecked = SetFactory.newSet();
+    private final Set<JavaRefTypeInstance> caughtChecked = new ObjectOpenHashSet<>();
+    private final Set<JavaRefTypeInstance> caughtUnchecked = new ObjectOpenHashSet<>();
     private final boolean mightUseUnchecked;
     private final boolean missingInfo;
     private final DCCommonState dcCommonState;

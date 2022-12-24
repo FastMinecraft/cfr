@@ -1,7 +1,9 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.utils.finalhelp;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.MemberFunctionInvokation;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.*;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
@@ -15,7 +17,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.lvalue.StackSSALabel;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.*;
 import org.benf.cfr.reader.entities.exceptions.ExceptionTableEntry;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.*;
 
@@ -43,11 +44,12 @@ public record FinallyGraphHelper(FinallyCatchBody finallyCatchBody) {
     }
 
     public Result match(Op03SimpleStatement test) {
-        Set<BlockIdentifier> minBlockSet = SetFactory.newOrderedSet(test.getBlockIdentifiers());
+        Collection<BlockIdentifier> content = test.getBlockIdentifiers();
+        Set<BlockIdentifier> minBlockSet = new ObjectLinkedOpenHashSet<>(content);
         Op03SimpleStatement finalThrowProxy = null;
         Op03SimpleStatement finalThrow = finallyCatchBody.getThrowOp();
         Map<Op03SimpleStatement, Op03SimpleStatement> matched = new IdentityHashMap<>();
-        Set<Op03SimpleStatement> toRemove = SetFactory.newOrderedSet();
+        Set<Op03SimpleStatement> toRemove = new ObjectLinkedOpenHashSet<>();
         LinkedList<Pair<Op03SimpleStatement, Op03SimpleStatement>> pending = new LinkedList<>();
         if (finallyCatchBody.isEmpty()) {
             return new Result(toRemove, null, null);
@@ -58,7 +60,7 @@ public record FinallyGraphHelper(FinallyCatchBody finallyCatchBody) {
 
         final FinallyEquivalenceConstraint equivalenceConstraint = new FinallyEquivalenceConstraint();
 
-        Set<Op03SimpleStatement> finalThrowProxySources = SetFactory.newOrderedSet();
+        Set<Op03SimpleStatement> finalThrowProxySources = new ObjectLinkedOpenHashSet<>();
         while (!pending.isEmpty()) {
             Pair<Op03SimpleStatement, Op03SimpleStatement> p = pending.removeFirst();
             Op03SimpleStatement a = p.getFirst();
@@ -184,8 +186,8 @@ public record FinallyGraphHelper(FinallyCatchBody finallyCatchBody) {
          */
         private final Map<StackSSALabel, StackSSALabel> rhsToLhsMap = MapFactory.newMap();
         private final Map<LocalVariable, LocalVariable> rhsToLhsLVMap = MapFactory.newMap();
-        private final Set<StackSSALabel> validSSA = SetFactory.newSet();
-        private final Set<LocalVariable> validLocal = SetFactory.newSet();
+        private final Set<StackSSALabel> validSSA = new ObjectOpenHashSet<>();
+        private final Set<LocalVariable> validLocal = new ObjectOpenHashSet<>();
 
         private StackSSALabel mapSSALabel(StackSSALabel s1, StackSSALabel s2) {
             StackSSALabel r1 = rhsToLhsMap.get(s2);

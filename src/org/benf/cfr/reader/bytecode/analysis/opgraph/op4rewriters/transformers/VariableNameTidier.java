@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.BytecodeMeta;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
@@ -27,7 +28,6 @@ import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.state.ClassCache;
 import org.benf.cfr.reader.util.*;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.*;
 
@@ -72,8 +72,8 @@ public class VariableNameTidier implements StructuredStatementTransformer {
      * for (int a=0;a<10;++a); // shouldn't rename BADNAME -> a.
      */
     public static class NameDiscoverer extends AbstractExpressionRewriter implements StructuredStatementTransformer {
-        private final Set<String> usedNames = SetFactory.newSet();
-        private static final Set<String> EMPTY = SetFactory.newSet();
+        private final Set<String> usedNames = new ObjectOpenHashSet<>();
+        private static final Set<String> EMPTY = new ObjectOpenHashSet<>();
 
         private NameDiscoverer() {
         }
@@ -342,7 +342,7 @@ public class VariableNameTidier implements StructuredStatementTransformer {
 
         protected class AtLevel {
             final StructuredStatement statement;
-            final Set<String> definedHere = SetFactory.newSet();
+            final Set<String> definedHere = new ObjectOpenHashSet<>();
             final int next;
 
             private AtLevel(StructuredStatement statement) {

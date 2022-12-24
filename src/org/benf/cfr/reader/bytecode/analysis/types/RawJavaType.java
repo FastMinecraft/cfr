@@ -1,13 +1,13 @@
 package org.benf.cfr.reader.bytecode.analysis.types;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.types.annotated.JavaAnnotatedTypeInstance;
 import org.benf.cfr.reader.entities.annotations.AnnotationTableEntry;
 import org.benf.cfr.reader.state.ObfuscationTypeMap;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.state.TypeUsageInformation;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 import org.benf.cfr.reader.util.output.IllegalIdentifierDump;
 import org.benf.cfr.reader.util.output.TypeContext;
@@ -46,12 +46,14 @@ public enum RawJavaType implements JavaTypeInstance {
     private static final Map<String, RawJavaType> podLookup = MapFactory.newMap();
 
     static {
-        implicitCasts.put(FLOAT, SetFactory.newSet(DOUBLE));
-        implicitCasts.put(LONG, SetFactory.newSet(FLOAT, DOUBLE));
-        implicitCasts.put(INT, SetFactory.newSet(LONG, FLOAT, DOUBLE));
-        implicitCasts.put(CHAR, SetFactory.newSet(INT, LONG, FLOAT, DOUBLE));
-        implicitCasts.put(SHORT, SetFactory.newSet(INT, LONG, FLOAT, DOUBLE));
-        implicitCasts.put(BYTE, SetFactory.newSet(SHORT, INT, LONG, FLOAT, DOUBLE));
+        implicitCasts.put(FLOAT, new ObjectOpenHashSet<RawJavaType>(new RawJavaType[]{ DOUBLE }));
+        implicitCasts.put(LONG, new ObjectOpenHashSet<RawJavaType>(new RawJavaType[]{ FLOAT, DOUBLE }));
+        implicitCasts.put(INT, new ObjectOpenHashSet<RawJavaType>(new RawJavaType[]{ LONG, FLOAT, DOUBLE }));
+        implicitCasts.put(CHAR, new ObjectOpenHashSet<RawJavaType>(new RawJavaType[]{ INT, LONG, FLOAT, DOUBLE }));
+        implicitCasts.put(SHORT, new ObjectOpenHashSet<RawJavaType>(new RawJavaType[]{ INT, LONG, FLOAT, DOUBLE }));
+        implicitCasts.put(BYTE,
+            new ObjectOpenHashSet<RawJavaType>(new RawJavaType[]{ SHORT, INT, LONG, FLOAT, DOUBLE })
+        );
         for (RawJavaType type : values()) {
             if (type.boxedName != null) {
                 boxingTypes.put(type.boxedName, type);

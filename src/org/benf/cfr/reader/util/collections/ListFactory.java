@@ -3,7 +3,8 @@ package org.benf.cfr.reader.util.collections;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.util.Collection;
-import java.util.Collections;
+
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
 
@@ -11,7 +12,7 @@ import java.util.Set;
 
 public class ListFactory {
     public static <X> ObjectList<X> uniqueList(Collection<X> list) {
-        return new ObjectArrayList<>(SetFactory.newOrderedSet(list));
+        return new ObjectArrayList<>((Set<X>) new ObjectLinkedOpenHashSet<X>(list));
     }
 
     /** Note that you can't expect to mutate the result. */

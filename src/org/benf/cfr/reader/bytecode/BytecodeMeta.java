@@ -1,11 +1,11 @@
 package org.benf.cfr.reader.bytecode;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op01WithProcessedDataAndByteJumps;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.entities.attributes.AttributeCode;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.PermittedOptionProvider;
 
@@ -31,7 +31,7 @@ public class BytecodeMeta {
 
     private final EnumSet<CodeInfoFlag> flags = EnumSet.noneOf(CodeInfoFlag.class);
 
-    private final Set<Integer> livenessClashes = SetFactory.newSet();
+    private final Set<Integer> livenessClashes = new ObjectOpenHashSet<>();
     private final Map<Integer, JavaTypeInstance> iteratedTypeHints = MapFactory.newMap();
     private final Options options;
 

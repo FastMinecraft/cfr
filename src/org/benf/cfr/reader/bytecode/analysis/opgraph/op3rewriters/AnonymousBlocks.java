@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
@@ -11,7 +12,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifierFactory;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockType;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.JumpType;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.Collection;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -30,7 +30,7 @@ public class AnonymousBlocks {
         /*
          * Collect the unique set of targets for the anonymous breaks.
          */
-        Set<Op03SimpleStatement> targets = SetFactory.newOrderedSet();
+        Set<Op03SimpleStatement> targets = new ObjectLinkedOpenHashSet<>();
         for (Op03SimpleStatement anonBreak : anonBreaks) {
             JumpingStatement jumpingStatement = (JumpingStatement) anonBreak.getStatement();
             Op03SimpleStatement anonBreakTarget = (Op03SimpleStatement) jumpingStatement.getJumpTarget().getContainer();

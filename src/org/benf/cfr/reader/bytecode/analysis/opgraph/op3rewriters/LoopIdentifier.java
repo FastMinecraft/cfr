@@ -1,7 +1,9 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
@@ -51,7 +53,7 @@ public class LoopIdentifier {
         starts.sort(new CompareByIndex());
 
         ObjectList<LoopResult> loopResults = new ObjectArrayList<>();
-        Set<BlockIdentifier> relevantBlocks = SetFactory.newSet();
+        Set<BlockIdentifier> relevantBlocks = new ObjectOpenHashSet<>();
         for (Op03SimpleStatement start : starts) {
             BlockIdentifier blockIdentifier = considerAsWhileLoopStart(method, start, statements, blockIdentifierFactory, blockEndsCache);
             if (blockIdentifier == null) {
@@ -107,7 +109,7 @@ public class LoopIdentifier {
             if (backIn == null) continue;
             if (!backIn.containsAll(startIn)) {
                 // NB Not ordered - will this bite me?  Shouldn't.
-                Set<BlockIdentifier> startMissing = SetFactory.newSet(startIn);
+                Set<BlockIdentifier> startMissing = new ObjectOpenHashSet<>(startIn);
                 startMissing.removeAll(backIn);
                 for (BlockIdentifier missing : startMissing) {
                     requiredExtents.get(missing).add(testBlockIdentifier);
@@ -335,7 +337,7 @@ public class LoopIdentifier {
             int newIdx = statements.indexOf(lastJump) + 1;
 
             if (newIdx >= statements.size()) {
-                postBlock = new Op03SimpleStatement(SetFactory.newSet(), new ReturnNothingStatement(BytecodeLoc.TODO), lastJump.getIndex().justAfter());
+                postBlock = new Op03SimpleStatement(new ObjectOpenHashSet<BlockIdentifier>(), new ReturnNothingStatement(BytecodeLoc.TODO), lastJump.getIndex().justAfter());
                 statements.add(postBlock);
 
 //                return false;
@@ -370,11 +372,13 @@ public class LoopIdentifier {
          */
         shuntLoop:
         if (!conditional) {
-            Set<BlockIdentifier> lastContent = SetFactory.newSet(lastJump.getBlockIdentifiers());
+            Collection<BlockIdentifier> content = lastJump.getBlockIdentifiers();
+            Set<BlockIdentifier> lastContent = new ObjectOpenHashSet<>(content);
             lastContent.removeAll(start.getBlockIdentifiers());
-            Set<BlockIdentifier> internalTryBlocks = SetFactory.newOrderedSet(Functional.filterSet(lastContent,
+            Collection<BlockIdentifier> content1 = Functional.filterSet(lastContent,
                 in -> in.getBlockType() == BlockType.TRYBLOCK
-            ));
+            );
+            Set<BlockIdentifier> internalTryBlocks = new ObjectLinkedOpenHashSet<>(content1);
             // internalTryBlocks represents try blocks which started AFTER the loop did.
             if (internalTryBlocks.isEmpty()) break shuntLoop;
 
@@ -411,7 +415,7 @@ public class LoopIdentifier {
                     // a synthetic lastJump.  The previous lastJump should now jump to our synthetic
                     // We can insert a BACK jump to lastJump's target
                     //
-                    newBackJump = new Op03SimpleStatement(SetFactory.newSet(), new GotoStatement(BytecodeLoc.TODO), beforeNewJump.getIndex().justAfter());
+                    newBackJump = new Op03SimpleStatement(new ObjectOpenHashSet<BlockIdentifier>(), new GotoStatement(BytecodeLoc.TODO), beforeNewJump.getIndex().justAfter());
                 } else {
                     afterNewJump = statements.get(lastPostBlock);
                     // Find after statement.  Insert a jump forward (out) here, and then insert
@@ -663,7 +667,7 @@ public class LoopIdentifier {
 
 
     private static Op03SimpleStatement findFirstConditional(Op03SimpleStatement start) {
-        Set<Op03SimpleStatement> visited = SetFactory.newSet();
+        Set<Op03SimpleStatement> visited = new ObjectOpenHashSet<>();
         do {
             Statement innerStatement = start.getStatement();
             if (innerStatement instanceof IfStatement) {
@@ -693,14 +697,16 @@ public class LoopIdentifier {
          * and change it to a while (false).
          */
         Op03SimpleStatement discoveredLast = statements.get(last);
-        Set<BlockIdentifier> lastBlocks = SetFactory.newSet(discoveredLast.getBlockIdentifiers());
+        Collection<BlockIdentifier> content1 = discoveredLast.getBlockIdentifiers();
+        Set<BlockIdentifier> lastBlocks = new ObjectOpenHashSet<>(content1);
         lastBlocks.removeAll(start.getBlockIdentifiers());
-        Set<BlockIdentifier> catches = SetFactory.newSet(Functional.filterSet(lastBlocks, in -> {
+        Collection<BlockIdentifier> content = Functional.filterSet(lastBlocks, in -> {
             BlockType type = in.getBlockType();
             return type == BlockType.CATCHBLOCK ||
                    type == BlockType.SWITCH;
-        }));
-        Set<BlockIdentifier> originalCatches = SetFactory.newSet(catches);
+        });
+        Set<BlockIdentifier> catches = new ObjectOpenHashSet<>(content);
+        Set<BlockIdentifier> originalCatches = new ObjectOpenHashSet<>(catches);
         int newlast = last;
         do {
             while (!catches.isEmpty()) {

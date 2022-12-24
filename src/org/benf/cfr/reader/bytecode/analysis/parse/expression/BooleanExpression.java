@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.expression;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
@@ -12,7 +13,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.*;
 import org.benf.cfr.reader.bytecode.analysis.types.RawJavaType;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.state.TypeUsageCollector;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.Map;
@@ -106,7 +106,7 @@ public class BooleanExpression extends AbstractExpression implements Conditional
 
     @Override
     public Set<LValue> getLoopLValues() {
-        Set<LValue> res = SetFactory.newSet();
+        Set<LValue> res = new ObjectOpenHashSet<>();
         addIfLValue(inner, res);
         return res;
     }

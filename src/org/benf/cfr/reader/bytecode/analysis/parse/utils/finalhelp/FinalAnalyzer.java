@@ -1,7 +1,9 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.utils.finalhelp;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
@@ -48,7 +50,7 @@ public class FinalAnalyzer {
          */
         final ObjectList<Op03SimpleStatement> targets = in.getTargets();
         ObjectList<Op03SimpleStatement> catchStarts = Functional.filter(targets, new TypeFilter<>(CatchStatement.class));
-        Set<Op03SimpleStatement> possibleCatches = SetFactory.newOrderedSet();
+        Set<Op03SimpleStatement> possibleCatches = new ObjectLinkedOpenHashSet<>();
         for (Op03SimpleStatement catchS : catchStarts) {
             CatchStatement catchStatement = (CatchStatement) catchS.getStatement();
             ObjectList<ExceptionGroup.Entry> exceptions = catchStatement.getExceptions();
@@ -91,8 +93,8 @@ public class FinalAnalyzer {
          */
 
         peerTries.add(in);
-        Set<Result> results = SetFactory.newOrderedSet();
-        Set<Op03SimpleStatement> peerTrySeen = SetFactory.newOrderedSet();
+        Set<Result> results = new ObjectLinkedOpenHashSet<>();
+        Set<Op03SimpleStatement> peerTrySeen = new ObjectLinkedOpenHashSet<>();
         while (peerTries.hasNext()) {
             Op03SimpleStatement tryS = peerTries.removeNext();
             if (!peerTrySeen.add(tryS)) {
@@ -116,7 +118,8 @@ public class FinalAnalyzer {
         /*
          * Looking at the ORIGINAL try block, find the last catch block for it.
          */
-        Collection<Op03SimpleStatement> original3 = SetFactory.newOrderedSet(in.getTargets());
+        Collection<Op03SimpleStatement> content3 = in.getTargets();
+        Collection<Op03SimpleStatement> original3 = new ObjectLinkedOpenHashSet<>(content3);
         ObjectList<Op03SimpleStatement> originalTryTargets = new ObjectArrayList<>(original3);
         originalTryTargets.sort(new CompareByIndex());
         Op03SimpleStatement lastCatch = originalTryTargets.get(originalTryTargets.size() - 1);
@@ -132,11 +135,11 @@ public class FinalAnalyzer {
          */
         ObjectList<PeerTries.PeerTrySet> triesByLevel = peerTries.getPeerTryGroups();
 
-        Set<Op03SimpleStatement> catchBlocksToNop = SetFactory.newOrderedSet();
+        Set<Op03SimpleStatement> catchBlocksToNop = new ObjectLinkedOpenHashSet<>();
 
-        Set<BlockIdentifier> blocksToRemoveCompletely = SetFactory.newSet();
+        Set<BlockIdentifier> blocksToRemoveCompletely = new ObjectOpenHashSet<>();
 
-        Set<Op03SimpleStatement> protectedStatements = SetFactory.newSet();
+        Set<Op03SimpleStatement> protectedStatements = new ObjectOpenHashSet<>();
         for (Result result : results) {
             protectedStatements.add(result.getAfterEnd());
             protectedStatements.add(result.getStart());
@@ -196,7 +199,7 @@ public class FinalAnalyzer {
                      * any removed inner.
                      */
                     ObjectList<Op03SimpleStatement> catchSources = tgt.getSources();
-                    final Set<BlockIdentifier> unionBlocks = SetFactory.newOrderedSet();
+                    final Set<BlockIdentifier> unionBlocks = new ObjectLinkedOpenHashSet<>();
                     for (Op03SimpleStatement catchSource : catchSources) {
                         unionBlocks.addAll(catchSource.getBlockIdentifiers());
                     }
@@ -204,7 +207,8 @@ public class FinalAnalyzer {
                      * Now, find the blocks that tgt THINKS it's in which are not in this, and remove them from tgt,
                      * AND from every statement that belongs to tgt.
                      */
-                    final Set<BlockIdentifier> previousTgtBlocks = SetFactory.newOrderedSet(tgt.getBlockIdentifiers());
+                    Collection<BlockIdentifier> content = tgt.getBlockIdentifiers();
+                    final Set<BlockIdentifier> previousTgtBlocks = new ObjectLinkedOpenHashSet<>(content);
                     previousTgtBlocks.removeAll(unionBlocks);
                     /*
                      * The remainder are the blocks we SHOULD NO LONGER be in.
@@ -292,12 +296,14 @@ public class FinalAnalyzer {
         ObjectList<Op03SimpleStatement> oldFinallyBody = new ObjectArrayList<>(original2);
         oldFinallyBody.sort(new CompareByIndex());
         ObjectList<Op03SimpleStatement> newFinallyBody = new ObjectArrayList<>();
-        Set<BlockIdentifier> oldStartBlocks = SetFactory.newOrderedSet(oldFinallyBody.get(0).getBlockIdentifiers());
+        Collection<BlockIdentifier> content2 = oldFinallyBody.get(0).getBlockIdentifiers();
+        Set<BlockIdentifier> oldStartBlocks = new ObjectLinkedOpenHashSet<>(content2);
 
         /*
          * AND ADD ALL THE BLOCKS IT SHOULD BE IN!
          */
-        Set<BlockIdentifier> extraBlocks = SetFactory.newOrderedSet(in.getBlockIdentifiers());
+        Collection<BlockIdentifier> content1 = in.getBlockIdentifiers();
+        Set<BlockIdentifier> extraBlocks = new ObjectLinkedOpenHashSet<>(content1);
 
 
         // TODO : BlockType.finally?
@@ -311,7 +317,8 @@ public class FinalAnalyzer {
         Map<Op03SimpleStatement, Op03SimpleStatement> old2new = MapFactory.newOrderedMap();
         for (Op03SimpleStatement old : oldFinallyBody) {
             Statement statement = old.getStatement();
-            Set<BlockIdentifier> newblocks = SetFactory.newOrderedSet(old.getBlockIdentifiers());
+            Collection<BlockIdentifier> content = old.getBlockIdentifiers();
+            Set<BlockIdentifier> newblocks = new ObjectLinkedOpenHashSet<>(content);
             newblocks.removeAll(oldStartBlocks);
             newblocks.addAll(extraBlocks);
             Op03SimpleStatement newOp = new Op03SimpleStatement(newblocks, statement, old.getSSAIdentifiers(), newIdx);
@@ -483,7 +490,7 @@ public class FinalAnalyzer {
                 }
 
             }
-            Set<Op03SimpleStatement> checkSources = SetFactory.newOrderedSet();
+            Set<Op03SimpleStatement> checkSources = new ObjectLinkedOpenHashSet<>();
 
             for (Op03SimpleStatement remove : toRemove) {
                 for (Op03SimpleStatement source : remove.getSources()) {
@@ -511,7 +518,7 @@ public class FinalAnalyzer {
                  */
                 Set<BlockIdentifier> blockIdentifiers = source.getBlockIdentifiers();
                 if (source.getStatement() instanceof CatchStatement) {
-                    blockIdentifiers = SetFactory.newSet(blockIdentifiers);
+                    blockIdentifiers = new ObjectOpenHashSet<>(blockIdentifiers);
                     blockIdentifiers.add(((CatchStatement)source.getStatement()).getCatchBlockIdent());
                 }
                 Op03SimpleStatement tmpJump = new Op03SimpleStatement(blockIdentifiers, new GotoStatement(BytecodeLoc.TODO), source.getIndex().justAfter());
@@ -551,7 +558,7 @@ public class FinalAnalyzer {
 
             final BlockIdentifier topTryIdent = topTryStatement.getBlockIdentifier();
 
-            final Set<Op03SimpleStatement> peerTryExits = SetFactory.newOrderedSet();
+            final Set<Op03SimpleStatement> peerTryExits = new ObjectLinkedOpenHashSet<>();
 
             GraphVisitor<Op03SimpleStatement> gv2 = new GraphVisitorDFS<>(
                 topTry.getTargets().get(0),
@@ -624,8 +631,8 @@ public class FinalAnalyzer {
          */
         ObjectList<Op03SimpleStatement> targets = in.getTargets();
         ObjectList<Op03SimpleStatement> catchStarts = Functional.filter(targets, new TypeFilter<>(CatchStatement.class));
-        Set<Op03SimpleStatement> possibleCatches = SetFactory.newOrderedSet();
-        Set<Op03SimpleStatement> recTries = SetFactory.newOrderedSet();
+        Set<Op03SimpleStatement> possibleCatches = new ObjectLinkedOpenHashSet<>();
+        Set<Op03SimpleStatement> recTries = new ObjectLinkedOpenHashSet<>();
         for (Op03SimpleStatement catchS : catchStarts) {
             CatchStatement catchStatement = (CatchStatement) catchS.getStatement();
             ObjectList<ExceptionGroup.Entry> exceptions = catchStatement.getExceptions();
@@ -662,7 +669,7 @@ public class FinalAnalyzer {
          */
         // Note attempts - this is a terrible heuristic - try once without checking 'isPossibleExitFor',
         // but fall back.
-        final Set<Op03SimpleStatement> exitPaths = SetFactory.newOrderedSet();
+        final Set<Op03SimpleStatement> exitPaths = new ObjectLinkedOpenHashSet<>();
         for (int attempt = 0;attempt < 2;++attempt) {
             final int attemptCopy = attempt;
             GraphVisitor<Op03SimpleStatement> gv = new GraphVisitorDFS<>(
@@ -735,7 +742,7 @@ public class FinalAnalyzer {
 
                 boolean ok = false;
                 boolean allowDirect = !legitExitStart.getStatement().canThrow(ExceptionCheckSimple.INSTANCE);
-                Set<Op03SimpleStatement> addPeerTries = SetFactory.newOrderedSet();
+                Set<Op03SimpleStatement> addPeerTries = new ObjectLinkedOpenHashSet<>();
                 if (allowDirect) {
                     ok = true;
                     for (Op03SimpleStatement target : legitExitStart.getTargets()) {
@@ -786,7 +793,7 @@ public class FinalAnalyzer {
     }
 
     private static void addPeerTries(Collection<Op03SimpleStatement> possibleFinally, PeerTries peerTries) { // , Set<Op03SimpleStatement> possibleCatches) {
-        Set<Op03SimpleStatement> res = SetFactory.newOrderedSet();
+        Set<Op03SimpleStatement> res = new ObjectLinkedOpenHashSet<>();
         for (Op03SimpleStatement possible : possibleFinally) {
             if (possible.getStatement() instanceof TryStatement) {
                 // Todo : Should this be 'only the finally catch' ?
@@ -831,9 +838,9 @@ public class FinalAnalyzer {
         // Not neccessarily in order.
         final ObjectList<Op03SimpleStatement> statementsInCatch = new ObjectArrayList<>();
 
-        final Set<Op03SimpleStatement> targetsOutsideCatch = SetFactory.newOrderedSet();
-        final Set<Op03SimpleStatement> directExitsFromCatch = SetFactory.newOrderedSet();
-        final Map<Op03SimpleStatement, Set<Op03SimpleStatement>> exitParents = MapFactory.newLazyMap(arg -> SetFactory.newOrderedSet());
+        final Set<Op03SimpleStatement> targetsOutsideCatch = new ObjectLinkedOpenHashSet<>();
+        final Set<Op03SimpleStatement> directExitsFromCatch = new ObjectLinkedOpenHashSet<>();
+        final Map<Op03SimpleStatement, Set<Op03SimpleStatement>> exitParents = MapFactory.newLazyMap(arg -> new ObjectLinkedOpenHashSet<>());
         GraphVisitor<Op03SimpleStatement> gv = new GraphVisitorDFS<>(
             firstStatementInCatch,
             (arg1, arg2) -> {

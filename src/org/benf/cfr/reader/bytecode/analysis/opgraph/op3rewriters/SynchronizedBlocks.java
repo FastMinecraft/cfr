@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
@@ -9,11 +10,11 @@ import org.benf.cfr.reader.bytecode.analysis.parse.statement.*;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.collections.SetUtil;
 import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
+import java.util.Collection;
 import java.util.Iterator;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
@@ -51,10 +52,10 @@ public class SynchronizedBlocks {
 
     private static void findSynchronizedRange(final Op03SimpleStatement start, final Expression monitorEnterExpression) {
         final Expression monitor = removeCasts(monitorEnterExpression);
-        final Set<Op03SimpleStatement> addToBlock = SetFactory.newSet();
+        final Set<Op03SimpleStatement> addToBlock = new ObjectOpenHashSet<>();
 
         final Map<Op03SimpleStatement, MonitorExitStatement> foundExits = MapFactory.newOrderedMap();
-        final Set<Op03SimpleStatement> extraNodes = SetFactory.newSet();
+        final Set<Op03SimpleStatement> extraNodes = new ObjectOpenHashSet<>();
         /* Process all the parents until we find the monitorExit.
          * Note that this does NOT find statements which are 'orphaned', i.e.
          *
@@ -70,7 +71,7 @@ public class SynchronizedBlocks {
          * }
          */
 
-        final Set<BlockIdentifier> leaveExitsMutex = SetFactory.newSet();
+        final Set<BlockIdentifier> leaveExitsMutex = new ObjectOpenHashSet<>();
 
         GraphVisitor<Op03SimpleStatement> marker = new GraphVisitorDFS<Op03SimpleStatement>(
             start.getTargets(),
@@ -154,11 +155,12 @@ public class SynchronizedBlocks {
         /*
          * find entries with same-block targets which are NOT in addToBlock, add them.
          */
-        Set<Op03SimpleStatement> requiredComments = SetFactory.newSet();
+        Set<Op03SimpleStatement> requiredComments = new ObjectOpenHashSet<>();
         Iterator<Op03SimpleStatement> foundExitIter = foundExits.keySet().iterator();
         while (foundExitIter.hasNext()) {
             final Op03SimpleStatement foundExit = foundExitIter.next();
-            final Set<BlockIdentifier> exitBlocks = SetFactory.newSet(foundExit.getBlockIdentifiers());
+            Collection<BlockIdentifier> content = foundExit.getBlockIdentifiers();
+            final Set<BlockIdentifier> exitBlocks = new ObjectOpenHashSet<>(content);
             exitBlocks.removeAll(start.getBlockIdentifiers());
             final ObjectList<Op03SimpleStatement> added = new ObjectArrayList<>();
             GraphVisitor<Op03SimpleStatement> additional = new GraphVisitorDFS<>(

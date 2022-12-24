@@ -2,6 +2,7 @@ package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers.ExpressionRewriterTransformer;
@@ -44,18 +45,16 @@ import org.benf.cfr.reader.util.MiscConstants;
 import org.benf.cfr.reader.util.MiscUtils;
 import org.benf.cfr.reader.util.Optional;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.List;
 import java.util.function.Predicate;
 
-import java.util.Collections;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 public class RecordRewriter {
-    private static final Set<AccessFlag> recordFieldFlags = SetFactory.newSet(AccessFlag.ACC_FINAL, AccessFlag.ACC_PRIVATE);
-    private static final Set<AccessFlagMethod> recordGetterFlags = SetFactory.newSet(AccessFlagMethod.ACC_PUBLIC);
+    private static final Set<AccessFlag> recordFieldFlags = new ObjectOpenHashSet<>(new AccessFlag[]{ AccessFlag.ACC_FINAL, AccessFlag.ACC_PRIVATE });
+    private static final Set<AccessFlagMethod> recordGetterFlags = new ObjectOpenHashSet<>(new AccessFlagMethod[]{ AccessFlagMethod.ACC_PUBLIC });
 
     public static void rewrite(ClassFile classFile, DCCommonState state) {
         if (!TypeConstants.RECORD.equals(classFile.getBaseClassType())) return;

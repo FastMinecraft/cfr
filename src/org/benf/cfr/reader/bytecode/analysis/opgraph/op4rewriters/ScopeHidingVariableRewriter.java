@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers.VariableNameTidier;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.util.MiscStatementTools;
@@ -11,7 +12,6 @@ import org.benf.cfr.reader.bytecode.analysis.types.MethodPrototype;
 import org.benf.cfr.reader.entities.ClassFileField;
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.state.ClassCache;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
@@ -32,8 +32,8 @@ public class ScopeHidingVariableRewriter implements Op04Rewriter {
     private final Method method;
     private final ClassCache classCache;
 
-    private final Set<String> outerNames = SetFactory.newSet();
-    private final Set<String> usedNames = SetFactory.newSet();
+    private final Set<String> outerNames = new ObjectOpenHashSet<>();
+    private final Set<String> usedNames = new ObjectOpenHashSet<>();
     /*
      * Collect collisions in a first pass, so that we can avoid uneccesarily
      */

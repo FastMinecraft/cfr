@@ -1,9 +1,9 @@
 package org.benf.cfr.reader.state;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.output.IllegalIdentifierDump;
 import org.benf.cfr.reader.util.output.TypeContext;
 
@@ -20,7 +20,7 @@ public class LocalClassAwareTypeUsageInformation implements TypeUsageInformation
         this.delegate = delegate;
         Map<String, Integer> lastClassByName = MapFactory.newLazyMap(arg -> 0);
         localTypeNames = MapFactory.newMap();
-        usedLocalTypeNames = SetFactory.newSet();
+        usedLocalTypeNames = new ObjectOpenHashSet<>();
         for (Map.Entry<JavaRefTypeInstance, String> entry : localClassTypes.entrySet()) {
             JavaRefTypeInstance localType = entry.getKey();
             String suggestedName = entry.getValue();

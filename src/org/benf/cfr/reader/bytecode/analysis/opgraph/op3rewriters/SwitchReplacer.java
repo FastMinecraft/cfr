@@ -2,6 +2,8 @@ package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectRBTreeSet;
 import org.benf.cfr.reader.bytecode.BytecodeMeta;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
@@ -43,7 +45,6 @@ import org.benf.cfr.reader.util.DecompilerComments;
 import org.benf.cfr.reader.util.Troolean;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.collections.SetUtil;
 
 import java.util.*;
@@ -192,7 +193,8 @@ public class SwitchReplacer {
                     expression.add(new Literal(TypedLiteral.getInt(val)));
                 }
             }
-            Set<BlockIdentifier> blocks = SetFactory.newSet(target.getBlockIdentifiers());
+            Collection<BlockIdentifier> content = target.getBlockIdentifiers();
+            Set<BlockIdentifier> blocks = new ObjectOpenHashSet<>(content);
             blocks.add(switchBlockIdentifier);
             BlockIdentifier caseIdentifier = blockIdentifierFactory.getNextBlockIdentifier(BlockType.CASE);
             Op03SimpleStatement caseStatement = new Op03SimpleStatement(blocks, new CaseStatement(BytecodeLoc.TODO, expression, caseType, switchBlockIdentifier, caseIdentifier), target.getIndex().justBefore());
@@ -267,7 +269,7 @@ public class SwitchReplacer {
     private static void buildSwitchCases(final Op03SimpleStatement swatch, ObjectList<Op03SimpleStatement> targets, BlockIdentifier switchBlockIdentifier, ObjectList<Op03SimpleStatement> in, boolean forcedOrder) {
         targets = new ObjectArrayList<>(targets);
         targets.sort(new CompareByIndex());
-        Set<BlockIdentifier> caseIdentifiers = SetFactory.newSet();
+        Set<BlockIdentifier> caseIdentifiers = new ObjectOpenHashSet<>();
         /*
          * For each of the case statements - find which is reachable from the others WITHOUT going through
          * the switch again.  Then we might have to move a whole block... (!).
@@ -275,7 +277,7 @@ public class SwitchReplacer {
          * If this is the case, we then figure out which order the switch blocks depend on each other, and perform a code
          * reordering walk through the case statements in new order (and re-write the order of the targets.
          */
-        Set<Op03SimpleStatement> caseTargets = SetFactory.newSet(targets);
+        Set<Op03SimpleStatement> caseTargets = new ObjectOpenHashSet<>((Collection<Op03SimpleStatement>) targets);
         /*
          * For the START of each block, find if it's reachable from the start of the others, without going through
          * switch.
@@ -382,7 +384,7 @@ public class SwitchReplacer {
                 }
             }
 
-            Set<BlockIdentifier> allBlocks = SetFactory.newSet();
+            Set<BlockIdentifier> allBlocks = new ObjectOpenHashSet<>();
             allBlocks.add(switchBlock);
             for (Op03SimpleStatement target : switchStatement.getTargets()) {
                 Statement stmTgt = target.getStatement();
@@ -424,7 +426,7 @@ public class SwitchReplacer {
     private static Op03SimpleStatement examineSwitchContiguity(Op03SimpleStatement switchStatement, ObjectList<Op03SimpleStatement> statements,
                                                                boolean pullCodeIntoCase, boolean allowMalformedSwitch, DecompilerComments comments,
                                                                BytecodeMeta bytecodeMeta) {
-        Set<Op03SimpleStatement> forwardTargets = SetFactory.newSet();
+        Set<Op03SimpleStatement> forwardTargets = new ObjectOpenHashSet<>();
 
         // Create a copy of the targets.  We're going to have to copy because we want to sort.
         Collection<Op03SimpleStatement> original = switchStatement.getTargets();
@@ -497,7 +499,7 @@ public class SwitchReplacer {
                  * being cautious.
                  */
                 if (lastStatement.getStatement().getClass() == GotoStatement.class) {
-                    Set<BlockIdentifier> others = SetFactory.newSet(caseBlock, switchBlock);
+                    Set<BlockIdentifier> others = new ObjectOpenHashSet<>(new BlockIdentifier[]{ caseBlock, switchBlock });
                     Op03SimpleStatement last = lastStatement;
                     Op03SimpleStatement tgt = last.getTargets().get(0);
                     InstrIndex moveTo = last.getIndex().justAfter();
@@ -646,7 +648,8 @@ public class SwitchReplacer {
             Op03SimpleStatement lastInThis = statements.get(indexLastInThis);
             if (lastInThis.getStatement().getClass() == GotoStatement.class) {
                 // Add another goto, after lastIn this.  Last in this becomes a break to that.
-                Set<BlockIdentifier> blockIdentifiers = SetFactory.newSet(lastInThis.getBlockIdentifiers());
+                Collection<BlockIdentifier> content = lastInThis.getBlockIdentifiers();
+                Set<BlockIdentifier> blockIdentifiers = new ObjectOpenHashSet<>(content);
                 blockIdentifiers.remove(caseBlock);
                 blockIdentifiers.remove(switchBlock);
                 Op03SimpleStatement retie = new Op03SimpleStatement(blockIdentifiers, new GotoStatement(BytecodeLoc.TODO), lastInThis.getIndex().justAfter());
@@ -917,7 +920,7 @@ public class SwitchReplacer {
         private final Op03SimpleStatement start;
         private final boolean forcedOrder;
         private final ObjectList<Op03SimpleStatement> reaches = new ObjectArrayList<>();
-        private final Set<Op03SimpleStatement> inBlock = SetFactory.newSet();
+        private final Set<Op03SimpleStatement> inBlock = new ObjectOpenHashSet<>();
 
         private NodeReachable(Set<Op03SimpleStatement> otherCases, Op03SimpleStatement start, Op03SimpleStatement switchStatement, boolean forcedOrder) {
             this.otherCases = otherCases;
@@ -951,7 +954,7 @@ public class SwitchReplacer {
         private boolean found = false;
         private boolean hitBanned = false;
 
-        private final Set<Op03SimpleStatement> reaches = SetFactory.newSet();
+        private final Set<Op03SimpleStatement> reaches = new ObjectOpenHashSet<>();
 
         private NodesReachedUntil(Op03SimpleStatement start, Op03SimpleStatement target, Set<Op03SimpleStatement> banned) {
             this.start = start;
@@ -1012,7 +1015,7 @@ public class SwitchReplacer {
          * For each of the cases ( including default ), ensure that they join up at ultTarget, *without intersecting*
          * and without changing block content.
          */
-        Set<Op03SimpleStatement> seen = SetFactory.newSet(switchStatement);
+        Set<Op03SimpleStatement> seen = new ObjectOpenHashSet<>(new Op03SimpleStatement[]{ switchStatement });
         ObjectList<NodesReachedUntil> reachedUntils = new ObjectArrayList<>();
         for (Op03SimpleStatement target : switchStatement.getTargets()) {
             NodesReachedUntil nodesReachedUntil = new NodesReachedUntil(target, ultTarget, seen);
@@ -1137,7 +1140,7 @@ public class SwitchReplacer {
         // add an additional control
         LValue intermed = vf.tempVariable(new InferredJavaType(RawJavaType.INT, InferredJavaType.Source.TRANSFORM));
         // We need to find a value which ISN'T a valid source.
-        Set<Integer> iVals = SetFactory.newSortedSet();
+        Set<Integer> iVals = new ObjectRBTreeSet<>();
         for (Op03SimpleStatement cas : targets) {
             // This can only have legitimate sources of the preceeding switch block (linearly preceeding),
             // the switch statements itself, or (in theory) another statement in the same block.

@@ -1,13 +1,13 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.utils;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.Collection;
 import java.util.Set;
 
 public class LValueUsageCollectorSimple implements LValueUsageCollector {
-    private final Set<LValue> used = SetFactory.newSet();
+    private final Set<LValue> used = new ObjectOpenHashSet<>();
 
     @Override
     public void collect(LValue lValue, ReadWrite rw) {

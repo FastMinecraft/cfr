@@ -1,12 +1,12 @@
 package org.benf.cfr.reader.util.output;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.state.OsInfo;
 import org.benf.cfr.reader.state.TypeUsageInformation;
 import org.benf.cfr.reader.util.*;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class InternalDumperFactoryImpl implements DumperFactory {
     private final boolean checkDupes;
-    private final Set<String> seen = SetFactory.newSet();
+    private final Set<String> seen = new ObjectOpenHashSet<>();
     private boolean seenCaseDupe = false;
     private final Options options;
     private final ProgressDumper progressDumper;

@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
@@ -20,7 +21,6 @@ import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.Troolean;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.collections.SetUtil;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
@@ -48,7 +48,7 @@ public class ConditionalRewriter {
         Options options
     ) {
         boolean success;
-        Set<Op03SimpleStatement> ignoreTheseJumps = SetFactory.newSet();
+        Set<Op03SimpleStatement> ignoreTheseJumps = new ObjectOpenHashSet<>();
         boolean reduceSimpleScope = options.getOption(OptionsImpl.REDUCE_COND_SCOPE) == Troolean.TRUE;
         do {
             success = false;
@@ -139,7 +139,7 @@ public class ConditionalRewriter {
 
         if (didx <= cidx) return false;
 
-        Set<Op03SimpleStatement> permittedSources = SetFactory.newSet(ifStatement);
+        Set<Op03SimpleStatement> permittedSources = new ObjectOpenHashSet<>(new Op03SimpleStatement[]{ ifStatement });
         if (!isRangeOnlyReachable(aidx, bidx, cidx, statements, permittedSources)) return false;
         if (!isRangeOnlyReachable(bidx, cidx, didx, statements, permittedSources)) return false;
 
@@ -215,7 +215,7 @@ public class ConditionalRewriter {
         Set<Op03SimpleStatement> permittedSources
     ) {
 
-        Set<Op03SimpleStatement> reachable = SetFactory.newSet();
+        Set<Op03SimpleStatement> reachable = new ObjectOpenHashSet<>();
         final Op03SimpleStatement startStatement = statements.get(startIdx);
         final Op03SimpleStatement endStatement = statements.get(endIdx);
         final Op03SimpleStatement tgtStatement = statements.get(tgtIdx);
@@ -348,7 +348,7 @@ lbl10: // 1 sources:
         int idxNotTaken = statements.indexOf(notTakenTarget);
         IfStatement innerIfStatement = (IfStatement) ifStatement.getStatement();
 
-        Set<Op03SimpleStatement> ignoreLocally = SetFactory.newSet();
+        Set<Op03SimpleStatement> ignoreLocally = new ObjectOpenHashSet<>();
 
         boolean takenAction = false;
 
@@ -392,7 +392,7 @@ lbl10: // 1 sources:
             innerIfStatement.setJumpType(JumpType.GOTO_OUT_OF_IF);
             return true;
         }
-        Set<Op03SimpleStatement> validForwardParents = SetFactory.newSet();
+        Set<Op03SimpleStatement> validForwardParents = new ObjectOpenHashSet<>();
         validForwardParents.add(ifStatement);
         /*
          * Find the (possible) end of the if block, which is a forward unconditional jump.

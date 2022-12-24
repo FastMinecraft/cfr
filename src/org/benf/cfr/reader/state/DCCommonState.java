@@ -2,6 +2,7 @@ package org.benf.cfr.reader.state;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.apiunreleased.ClassFileSource2;
 import org.benf.cfr.reader.apiunreleased.JarContent;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
@@ -18,7 +19,6 @@ import org.benf.cfr.reader.util.MiscConstants;
 import org.benf.cfr.reader.util.bytestream.BaseByteData;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 
 import java.io.File;
@@ -46,10 +46,10 @@ public class DCCommonState {
         this.classFileSource = classFileSource;
         this.classCache = new ClassCache(this);
         this.classFileCache = MapFactory.newExceptionRetainingLazyMap(this::loadClassFileAtPath);
-        this.versionCollisions = SetFactory.newSet();
+        this.versionCollisions = new ObjectOpenHashSet<>();
         this.obfuscationMapping = NullMapping.INSTANCE;
         this.overloadMethodSetCache = new OverloadMethodSetCache();
-        this.permittedSealed = SetFactory.newSet();
+        this.permittedSealed = new ObjectOpenHashSet<>();
     }
 
     public DCCommonState(DCCommonState dcCommonState, final BiFunction<String, DCCommonState, ClassFile> cacheAccess) {

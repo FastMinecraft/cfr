@@ -1,12 +1,12 @@
 package org.benf.cfr.reader.bytecode.analysis.stack;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.parse.lvalue.StackSSALabel;
 import org.benf.cfr.reader.bytecode.analysis.types.StackType;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.DecompilerComment;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
@@ -19,7 +19,7 @@ public class StackEntry {
     private final static AtomicLong sid = new AtomicLong(0);
 
     private final long id0;
-    private final Set<Long> ids = SetFactory.newSet();
+    private final Set<Long> ids = new ObjectOpenHashSet<>();
     private int artificalSourceCount = 0;
     private final StackSSALabel lValue;
     private long usageCount = 0;

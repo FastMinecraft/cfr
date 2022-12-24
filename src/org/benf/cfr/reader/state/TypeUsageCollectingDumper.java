@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.state;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.HasByteCodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
@@ -10,7 +11,6 @@ import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.mapping.NullMapping;
 import org.benf.cfr.reader.mapping.ObfuscationMapping;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.output.Dumpable;
 import org.benf.cfr.reader.util.output.Dumper;
@@ -23,9 +23,9 @@ public class TypeUsageCollectingDumper implements Dumper {
 
     private final Options options;
     private final JavaRefTypeInstance analysisType;
-    private final Set<JavaRefTypeInstance> refTypeInstanceSet = SetFactory.newSet();
-    private final Set<JavaTypeInstance> emitted = SetFactory.newSet();
-    private final Set<DetectedStaticImport> staticImports = SetFactory.newSet();
+    private final Set<JavaRefTypeInstance> refTypeInstanceSet = new ObjectOpenHashSet<>();
+    private final Set<JavaTypeInstance> emitted = new ObjectOpenHashSet<>();
+    private final Set<DetectedStaticImport> staticImports = new ObjectOpenHashSet<>();
 
     public void addStaticUsage(JavaRefTypeInstance clazz, String name) {
         staticImports.add(new DetectedStaticImport(clazz, name));

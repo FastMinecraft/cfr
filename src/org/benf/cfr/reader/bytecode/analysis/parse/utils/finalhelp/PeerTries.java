@@ -1,13 +1,13 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.utils.finalhelp;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.TryStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.*;
 
@@ -44,7 +44,7 @@ import java.util.*;
 public class PeerTries {
     private final Op03SimpleStatement possibleFinallyCatch;
 
-    private final Set<Op03SimpleStatement> seenEver = SetFactory.newOrderedSet();
+    private final Set<Op03SimpleStatement> seenEver = new ObjectLinkedOpenHashSet<>();
 
     private final LinkedList<Op03SimpleStatement> toProcess = new LinkedList<>();
     private int nextIdx;
@@ -52,9 +52,9 @@ public class PeerTries {
     /*
      * Best guess using reverse information from the catch block.
      */
-    private final Set<BlockIdentifier> guessPeerTryBlocks = SetFactory.newOrderedSet();
+    private final Set<BlockIdentifier> guessPeerTryBlocks = new ObjectLinkedOpenHashSet<>();
     private final Map<BlockIdentifier, Op03SimpleStatement> guessPeerTryMap = MapFactory.newOrderedMap();
-    private final Set<Op03SimpleStatement> guessPeerTryStarts = SetFactory.newOrderedSet();
+    private final Set<Op03SimpleStatement> guessPeerTryStarts = new ObjectLinkedOpenHashSet<>();
 
     private final Map<CompositeBlockIdentifierKey, PeerTrySet> triesByLevel = MapFactory.newLazyMap(
         new TreeMap<>(),
@@ -114,7 +114,7 @@ public class PeerTries {
     }
 
     public static final class PeerTrySet {
-        private final Set<Op03SimpleStatement> content = SetFactory.newOrderedSet();
+        private final Set<Op03SimpleStatement> content = new ObjectLinkedOpenHashSet<>();
         private final int idx;
 
         private PeerTrySet(int idx) {

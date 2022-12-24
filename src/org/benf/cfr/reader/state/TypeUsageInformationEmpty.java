@@ -1,8 +1,8 @@
 package org.benf.cfr.reader.state;
 
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.output.IllegalIdentifierDump;
 import org.benf.cfr.reader.util.output.TypeContext;
 
@@ -34,17 +34,17 @@ public class TypeUsageInformationEmpty implements TypeUsageInformation {
 
     @Override
     public Set<JavaRefTypeInstance> getUsedClassTypes() {
-        return SetFactory.newOrderedSet();
+        return new ObjectLinkedOpenHashSet<>();
     }
 
     @Override
     public Set<JavaRefTypeInstance> getUsedInnerClassTypes() {
-        return SetFactory.newOrderedSet();
+        return new ObjectLinkedOpenHashSet<>();
     }
 
     @Override
     public Set<JavaRefTypeInstance> getShortenedClassTypes() {
-        return SetFactory.newOrderedSet();
+        return new ObjectLinkedOpenHashSet<>();
     }
 
     @Override

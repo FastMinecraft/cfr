@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.state;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.analysis.types.InnerClassInfo;
@@ -10,7 +11,6 @@ import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.util.MiscUtils;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.IllegalIdentifierDump;
@@ -23,9 +23,9 @@ public class TypeUsageInformationImpl implements TypeUsageInformation {
     private final IllegalIdentifierDump iid;
     private final Set<DetectedStaticImport> staticImports;
     private final JavaRefTypeInstance analysisType;
-    private final Set<JavaRefTypeInstance> usedRefTypes = SetFactory.newOrderedSet();
-    private final Set<JavaRefTypeInstance> shortenedRefTypes = SetFactory.newOrderedSet();
-    private final Set<JavaRefTypeInstance> usedLocalInnerTypes = SetFactory.newOrderedSet();
+    private final Set<JavaRefTypeInstance> usedRefTypes = new ObjectLinkedOpenHashSet<>();
+    private final Set<JavaRefTypeInstance> shortenedRefTypes = new ObjectLinkedOpenHashSet<>();
+    private final Set<JavaRefTypeInstance> usedLocalInnerTypes = new ObjectLinkedOpenHashSet<>();
     private final Map<JavaRefTypeInstance, String> displayName = MapFactory.newMap();
     private final Map<String, LinkedList<JavaRefTypeInstance>> shortNames = MapFactory.newLazyMap(arg -> new LinkedList<>());
     private final Predicate<String> allowShorten;

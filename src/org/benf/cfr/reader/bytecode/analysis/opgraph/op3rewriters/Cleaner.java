@@ -1,12 +1,12 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.JumpingStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.WhileStatement;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
@@ -16,7 +16,7 @@ import java.util.Set;
 
 public class Cleaner {
     public static ObjectList<Op03SimpleStatement> removeUnreachableCode(final ObjectList<Op03SimpleStatement> statements, final boolean checkBackJumps) {
-        final Set<Op03SimpleStatement> reachable = SetFactory.newSet();
+        final Set<Op03SimpleStatement> reachable = new ObjectOpenHashSet<>();
         reachable.add(statements.get(0));
         GraphVisitor<Op03SimpleStatement> gv = new GraphVisitorDFS<>(
             statements.get(0),

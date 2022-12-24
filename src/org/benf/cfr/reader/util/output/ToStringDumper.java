@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.util.output;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.MethodPrototype;
@@ -9,7 +10,6 @@ import org.benf.cfr.reader.mapping.NullMapping;
 import org.benf.cfr.reader.mapping.ObfuscationMapping;
 import org.benf.cfr.reader.state.TypeUsageInformation;
 import org.benf.cfr.reader.state.TypeUsageInformationEmpty;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.io.BufferedOutputStream;
 import java.util.Set;
@@ -17,7 +17,7 @@ import java.util.Set;
 public class ToStringDumper extends AbstractDumper {
     private final StringBuilder sb = new StringBuilder();
     private final TypeUsageInformation typeUsageInformation = new TypeUsageInformationEmpty();
-    private final Set<JavaTypeInstance> emitted = SetFactory.newSet();
+    private final Set<JavaTypeInstance> emitted = new ObjectOpenHashSet<>();
 
     public static String toString(Dumpable d) {
         // TODO: By using a new context here, we explicitly reset tab etc.

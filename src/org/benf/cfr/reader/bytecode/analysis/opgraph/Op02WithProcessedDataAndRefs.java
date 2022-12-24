@@ -1,8 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectLists;
+import it.unimi.dsi.fastutil.objects.*;
 import org.benf.cfr.reader.bytecode.BytecodeMeta;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op2rewriters.TypeHintRecovery;
@@ -1557,7 +1555,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
 
 
     public static DecompilerComment populateStackInfo(ObjectList<Op02WithProcessedDataAndRefs> op2list, Method method) {
-        Set<DecompilerComment> comments = SetFactory.newSet();
+        Set<DecompilerComment> comments = new ObjectOpenHashSet<>();
         // We might have two passes if there are JSRS.  Reset.
         for (Op02WithProcessedDataAndRefs op : op2list) {
             op.resetStackInfo();
@@ -1588,7 +1586,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
 
     public static void unlinkUnreachable(ObjectList<Op02WithProcessedDataAndRefs> op2list) {
 
-        final Set<Op02WithProcessedDataAndRefs> reached = SetFactory.newSet();
+        final Set<Op02WithProcessedDataAndRefs> reached = new ObjectOpenHashSet<>();
         GraphVisitor<Op02WithProcessedDataAndRefs> reachableVisitor =
             new GraphVisitorDFS<>(
                 op2list.get(0),
@@ -1913,11 +1911,11 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         // If the target's ident is a superset of the source's, then copy the target into the source.
         // (of course we don't want to rewind every time, or we'll be n^2).
         Map<Slot, Map<SSAIdent, Set<SSAIdent>>> identChain = MapFactory.newLinkedLazyMap(
-            arg -> MapFactory.newLinkedLazyMap(arg12 -> SetFactory.newOrderedSet()));
+            arg -> MapFactory.newLinkedLazyMap(arg12 -> new ObjectLinkedOpenHashSet<>()));
         // We have to poison some idents, as we don't want them to be used.
         // (eg anything that is caught cannot have been merged)
         Map<Slot, Set<SSAIdent>> poisoned = MapFactory.newLazyMap(
-            arg -> SetFactory.newSet()
+            arg -> new ObjectOpenHashSet<>()
         );
 
         final Set<Integer> livenessClashes = bytecodeMeta.getLivenessClashes();
@@ -1980,7 +1978,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             // walk both.
             final Map<SSAIdent, Set<SSAIdent>> downMap = entry.getValue();
             final Map<SSAIdent, Set<SSAIdent>> upMap = createReverseMap(downMap);
-            Set<SSAIdent> keys = SetFactory.newOrderedSet();
+            Set<SSAIdent> keys = new ObjectLinkedOpenHashSet<>();
             keys.addAll(downMap.keySet());
             keys.addAll(upMap.keySet());  // this is probably not necessary.....
             // Remember that this represents MULTIPLE maps, all usages of this slot superimposed.
@@ -2059,7 +2057,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
     }
 
     private static Map<SSAIdent, Set<SSAIdent>> createReverseMap(Map<SSAIdent, Set<SSAIdent>> downMap) {
-        Map<SSAIdent, Set<SSAIdent>> res = MapFactory.newLinkedLazyMap(arg -> SetFactory.newOrderedSet());
+        Map<SSAIdent, Set<SSAIdent>> res = MapFactory.newLinkedLazyMap(arg -> new ObjectLinkedOpenHashSet<>());
         for (Map.Entry<SSAIdent, Set<SSAIdent>> entry : downMap.entrySet()) {
             SSAIdent revValue = entry.getKey();
             Set<SSAIdent> revKeys = entry.getValue();
@@ -2454,14 +2452,14 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             ) - 1;
 
             Op02WithProcessedDataAndRefs lastStatement = op2list.get(beforeLastIndex);
-            Set<BlockIdentifier> blocks = SetFactory.newSet(lastStatement.containedInTheseBlocks);
+            Set<BlockIdentifier> blocks = new ObjectOpenHashSet<>((Collection<BlockIdentifier>) lastStatement.containedInTheseBlocks);
             int x = beforeLastIndex + 1;
             if (lastStatement.targets.size() == 1 && op2list.get(x) == lastStatement.targets.get(0)) {
                 Op02WithProcessedDataAndRefs next = op2list.get(x);
                 boolean bOk = true;
                 if (next.sources.size() > 1) {
                     for (Op02WithProcessedDataAndRefs source : next.sources) {
-                        Set<BlockIdentifier> blocks2 = SetFactory.newSet(source.containedInTheseBlocks);
+                        Set<BlockIdentifier> blocks2 = new ObjectOpenHashSet<>((Collection<BlockIdentifier>) source.containedInTheseBlocks);
                         if (!blocks.equals(blocks2)) {
                             bOk = false;
                             break;
@@ -2469,12 +2467,12 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
                     }
                 }
                 // If all sources are in same block....
-                Set<BlockIdentifier> blocksWithoutTry = SetFactory.newSet(blocks);
+                Set<BlockIdentifier> blocksWithoutTry = new ObjectOpenHashSet<>(blocks);
                 blocksWithoutTry.remove(tryBlockIdentifier);
                 if (bOk) {
                     switch (next.instr) {
                         case GOTO, GOTO_W, RETURN, ARETURN, IRETURN, LRETURN, DRETURN, FRETURN -> {
-                            Set<BlockIdentifier> blocks2 = SetFactory.newSet(next.containedInTheseBlocks);
+                            Set<BlockIdentifier> blocks2 = new ObjectOpenHashSet<>((Collection<BlockIdentifier>) next.containedInTheseBlocks);
                             if (blocksWithoutTry.equals(blocks2)) {
                                 next.containedInTheseBlocks.add(tryBlockIdentifier);
                             }
@@ -2536,7 +2534,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
     }
 
     private static Op02WithProcessedDataAndRefs followNopGoto(Op02WithProcessedDataAndRefs op) {
-        Set<Op02WithProcessedDataAndRefs> seen = SetFactory.newIdentitySet();
+        Set<Op02WithProcessedDataAndRefs> seen = new ReferenceOpenHashSet<>();
         do {
             if (op.getTargets().size() != 1) return op;
             JVMInstr instr = op.getInstr();
@@ -2608,7 +2606,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         // RETTING.  If that's the case, the JSR has been used as a loop, and we need to treat it as if it's just a
         // fancy (albeit confusing) GOTO.
         targets = getJsrsWithCommonTarget(jsrs);
-        Set<Op02WithProcessedDataAndRefs> inlineCandidates = SetFactory.newSet();
+        Set<Op02WithProcessedDataAndRefs> inlineCandidates = new ObjectOpenHashSet<>();
         for (final Op02WithProcessedDataAndRefs target : targets.keySet()) {
             GraphVisitor<Op02WithProcessedDataAndRefs> gv = new GraphVisitorDFS<Op02WithProcessedDataAndRefs>(
                 target.getTargets(),
@@ -2626,7 +2624,8 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             gv.process();
             if (gv.wasAborted()) continue;
             // Otherwise, this set of nodes is in the subroutine.
-            Set<Op02WithProcessedDataAndRefs> nodes = SetFactory.newSet(gv.getVisitedNodes());
+            Collection<Op02WithProcessedDataAndRefs> content = gv.getVisitedNodes();
+            Set<Op02WithProcessedDataAndRefs> nodes = new ObjectOpenHashSet<>(content);
             // explicitly add the JSR start to the nodes.
             nodes.add(target);
             // Have any of these nodes already been marked as candidates?

@@ -2,6 +2,7 @@ package org.benf.cfr.reader.bytecode.analysis.types;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.CastExpression;
@@ -24,7 +25,6 @@ import org.benf.cfr.reader.util.*;
 import org.benf.cfr.reader.util.annotation.Nullable;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.Dumper;
 
@@ -65,7 +65,7 @@ public class MethodPrototype implements TypeUsageCollectable {
     private final ObjectList<FormalTypeParameter> formalTypeParameters;
     private final ObjectList<JavaTypeInstance> args;
     private final ObjectList<JavaTypeInstance> exceptionTypes;
-    private final Set<Integer> hidden = SetFactory.newSet();
+    private final Set<Integer> hidden = new ObjectOpenHashSet<>();
     private boolean innerOuterThis = false;
     private JavaTypeInstance result;
     private final VariableNamer variableNamer;

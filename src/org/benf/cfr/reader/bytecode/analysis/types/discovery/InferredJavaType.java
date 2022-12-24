@@ -1,14 +1,15 @@
 package org.benf.cfr.reader.bytecode.analysis.types.discovery;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.ArithOp;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.analysis.types.*;
 import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.util.*;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.*;
 
@@ -119,7 +120,7 @@ public class InferredJavaType {
 
         private IJTInternal_Clash(Collection<IJTInternal> clashes) {
             this.id = global_id++;
-            Collection<IJTInternal> original = SetFactory.newOrderedSet(clashes);
+            Collection<IJTInternal> original = new ObjectLinkedOpenHashSet<>(clashes);
             this.clashes = new ObjectArrayList<>(original);
         }
 
@@ -424,7 +425,7 @@ public class InferredJavaType {
             for (JavaTypeInstance pos : poss) {
                 BindingSuperContainer superContainer = pos.getBindingSupers();
                 if (superContainer == null) continue;
-                Set<? extends JavaTypeInstance> supers = SetFactory.newSet(superContainer.getBoundSuperClasses().keySet());
+                Set<? extends JavaTypeInstance> supers = new ObjectOpenHashSet<>(superContainer.getBoundSuperClasses().keySet());
                 // but don't remove the actual type.
                 supers.remove(pos);
                 if (poss.removeAll(supers)) {

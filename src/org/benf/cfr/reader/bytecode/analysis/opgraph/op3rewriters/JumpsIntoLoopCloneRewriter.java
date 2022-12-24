@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
@@ -18,12 +19,12 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.util.DecompilerComment;
 import org.benf.cfr.reader.util.DecompilerComments;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
+import java.util.Collection;
 import java.util.IdentityHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
@@ -113,7 +114,8 @@ public class JumpsIntoLoopCloneRewriter {
         Op03SimpleStatement afterWhile = possLast.getTargets().get(0);
         final Map<Op03SimpleStatement, Op03SimpleStatement> candidates = MapFactory.newOrderedMap();
         GraphVisitor<Op03SimpleStatement> gv = visitCandidates(ident, possLast, candidates);
-        Set<Op03SimpleStatement> visited = SetFactory.newSet(gv.getVisitedNodes());
+        Collection<Op03SimpleStatement> content = gv.getVisitedNodes();
+        Set<Op03SimpleStatement> visited = new ObjectOpenHashSet<>(content);
         for (Map.Entry<Op03SimpleStatement, Op03SimpleStatement> candidate : candidates.entrySet()) {
             Op03SimpleStatement caller = candidate.getKey();
             if (caller == stm) continue;
@@ -144,7 +146,7 @@ public class JumpsIntoLoopCloneRewriter {
             Op03SimpleStatement jumpToAfterWhile = new Op03SimpleStatement(caller.getBlockIdentifiers(), new GotoStatement(BytecodeLoc.TODO), caller.getSSAIdentifiers(), idx);
             copies.put(afterWhile, jumpToAfterWhile);
             copies.put(possLast, newCondition);
-            Set<Op03SimpleStatement> addSources = SetFactory.newSet(newCondition, jumpToAfterWhile);
+            Set<Op03SimpleStatement> addSources = new ObjectOpenHashSet<>(new Op03SimpleStatement[]{ newCondition, jumpToAfterWhile });
             ObjectList<Op03SimpleStatement> copy = copyBlock(stm, caller, target, possLast, visited, ident, addSources, copies);
             if (copy == null || copy.isEmpty()) {
                 return;
@@ -221,7 +223,8 @@ public class JumpsIntoLoopCloneRewriter {
         if (possLast == null) return;
         final Map<Op03SimpleStatement, Op03SimpleStatement> candidates = MapFactory.newOrderedMap();
         GraphVisitor<Op03SimpleStatement> gv = visitCandidates(ident, possLast, candidates);
-        Set<Op03SimpleStatement> visited = SetFactory.newSet(gv.getVisitedNodes());
+        Collection<Op03SimpleStatement> content = gv.getVisitedNodes();
+        Set<Op03SimpleStatement> visited = new ObjectOpenHashSet<>(content);
         for (Map.Entry<Op03SimpleStatement, Op03SimpleStatement> candidate : candidates.entrySet()) {
             Op03SimpleStatement caller = candidate.getKey();
             if (caller == stm) continue;
@@ -240,7 +243,8 @@ public class JumpsIntoLoopCloneRewriter {
              * (strictly speaking, we could handle it, if we leave visited for something OUTSIDE
              * the loop - but I need testcases to prove that first!)
              */
-            ObjectList<Op03SimpleStatement> copy = copyBlock(stm, caller, target, possLast, visited, ident, SetFactory.newSet(), copies);
+            ObjectList<Op03SimpleStatement> copy = copyBlock(stm, caller, target, possLast, visited, ident,
+                                                             new ObjectOpenHashSet<Op03SimpleStatement>(), copies);
             if (copy == null || copy.isEmpty()) {
                 return;
             }

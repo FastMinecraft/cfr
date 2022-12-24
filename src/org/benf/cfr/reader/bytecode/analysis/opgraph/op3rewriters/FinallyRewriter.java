@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.CatchStatement;
@@ -10,7 +11,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifierFactory;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.finalhelp.FinalAnalyzer;
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
@@ -24,7 +24,7 @@ public class FinallyRewriter {
          * a common block of code (either before a throw, return or goto.)
          * Be careful, if a finally block contains a throw, this will mess up...
          */
-        final Set<Op03SimpleStatement> analysedTries = SetFactory.newSet();
+        final Set<Op03SimpleStatement> analysedTries = new ObjectOpenHashSet<>();
         boolean continueLoop;
         do {
             ObjectList<Op03SimpleStatement> tryStarts = Functional.filter(in, in1 -> in1.getStatement() instanceof TryStatement && !analysedTries.contains(in1));
@@ -39,10 +39,10 @@ public class FinallyRewriter {
     }
 
     static Set<BlockIdentifier> getBlocksAffectedByFinally(ObjectList<Op03SimpleStatement> statements) {
-        Set<BlockIdentifier> res = SetFactory.newSet();
+        Set<BlockIdentifier> res = new ObjectOpenHashSet<>();
         for (Op03SimpleStatement stm : statements) {
             if (stm.getStatement() instanceof TryStatement tryStatement) {
-                Set<BlockIdentifier> newBlocks = SetFactory.newSet();
+                Set<BlockIdentifier> newBlocks = new ObjectOpenHashSet<>();
                 boolean found = false;
                 newBlocks.add(tryStatement.getBlockIdentifier());
                 for (Op03SimpleStatement tgt : stm.getTargets()) {

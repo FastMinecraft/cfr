@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.mapping;
 
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.types.BindingSuperContainer;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
@@ -7,7 +8,6 @@ import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.util.MiscConstants;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -149,7 +149,7 @@ public class ClassMapping {
     private String getFieldNameOrNull(String name, JavaTypeInstance type, Dumper d, Mapping mapping) {
         if (name.endsWith(MiscConstants.DOT_THIS)) {
             String preName = name.substring(0, name.length() - MiscConstants.DOT_THIS.length());
-            Set<JavaTypeInstance> parents = SetFactory.newOrderedSet();
+            Set<JavaTypeInstance> parents = new ObjectLinkedOpenHashSet<>();
             type.getInnerClassHereInfo().collectTransitiveDegenericParents(parents);
             for (JavaTypeInstance parent : parents) {
                 if (((JavaRefTypeInstance)parent).getRawShortName().equals(preName)) {

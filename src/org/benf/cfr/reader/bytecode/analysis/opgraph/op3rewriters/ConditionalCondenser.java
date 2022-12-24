@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
@@ -16,12 +17,13 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.LValueUsageCollectorSim
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.SSAIdentifiers;
 import org.benf.cfr.reader.util.ClassFileVersion;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.collections.SetUtil;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
+
+import java.util.Collection;
 import java.util.Set;
 
 public class ConditionalCondenser {
@@ -121,7 +123,7 @@ public class ConditionalCondenser {
         boolean eclipseHeuristic = testEclipse && ifStatement.getTargets().get(1).getIndex().isBackJumpFrom(ifStatement);
         if (!eclipseHeuristic) {
             Op03SimpleStatement statement = ifStatement;
-            Set<Op03SimpleStatement> visited = SetFactory.newSet();
+            Set<Op03SimpleStatement> visited = new ObjectOpenHashSet<>();
             verify:
             do {
                 if (statement.getSources().size() > 1) {
@@ -171,9 +173,11 @@ public class ConditionalCondenser {
             AbstractAssignmentExpression assignmentExpression = assignment.getInliningExpression();
             LValueUsageCollectorSimple assignmentLVC = new LValueUsageCollectorSimple();
             assignmentExpression.collectUsedLValues(assignmentLVC);
-            Set<LValue> used = SetFactory.newSet(assignmentLVC.getUsedLValues());
+            Collection<LValue> content1 = assignmentLVC.getUsedLValues();
+            Set<LValue> used = new ObjectOpenHashSet<>(content1);
             used.remove(lValue);
-            Set<LValue> usedComparison = SetFactory.newSet(lvc.getUsedLValues());
+            Collection<LValue> content = lvc.getUsedLValues();
+            Set<LValue> usedComparison = new ObjectOpenHashSet<>(content);
 
             // Avoid situation where we have
             // a = x

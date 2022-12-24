@@ -2,6 +2,7 @@ package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.matchutil.*;
@@ -29,12 +30,12 @@ import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.util.*;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.IllegalIdentifierReplacement;
 
-import java.util.Collections;
+import java.util.Collection;
+
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.Set;
@@ -159,9 +160,10 @@ public class EnumClassRewriter {
 
         if (rename_members) {
 
-            Set<String> fieldNames = SetFactory.newSet(Functional.map(classFile.getFields(),
+            Collection<String> content = Functional.map(classFile.getFields(),
                 ClassFileField::getFieldName
-            ));
+            );
+            Set<String> fieldNames = new ObjectOpenHashSet<>(content);
 
             ObjectList<Pair<StaticVariable, String>> renames = new ObjectArrayList<>();
 

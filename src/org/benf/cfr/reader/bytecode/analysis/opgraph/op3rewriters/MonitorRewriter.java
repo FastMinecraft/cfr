@@ -1,12 +1,12 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.CommentStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.MonitorStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.Collection;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -29,7 +29,8 @@ public class MonitorRewriter {
              * Is monitor (as was) the last statement in a block.
              */
             Op03SimpleStatement target = monitor.getTargets().get(0);
-            Set<BlockIdentifier> monitorLast = SetFactory.newSet(monitor.getBlockIdentifiers());
+            Collection<BlockIdentifier> content = monitor.getBlockIdentifiers();
+            Set<BlockIdentifier> monitorLast = new ObjectOpenHashSet<>(content);
             monitorLast.removeAll(target.getBlockIdentifiers());
             if (monitorLast.isEmpty()) continue;
             Collection<Op03SimpleStatement> original = monitor.getSources();

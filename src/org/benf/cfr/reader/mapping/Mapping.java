@@ -1,5 +1,7 @@
 package org.benf.cfr.reader.mapping;
 
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaArrayTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
@@ -10,7 +12,6 @@ import org.benf.cfr.reader.state.TypeUsageInformation;
 import org.benf.cfr.reader.state.TypeUsageInformationImpl;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.output.DelegatingDumper;
 import org.benf.cfr.reader.util.output.Dumper;
@@ -18,6 +19,8 @@ import org.benf.cfr.reader.util.output.IllegalIdentifierDump;
 import org.benf.cfr.reader.util.output.TypeContext;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
+
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -170,11 +173,14 @@ public class Mapping implements ObfuscationMapping {
         public TypeUsageInformation getTypeUsageInformation() {
             if (mappingTypeUsage == null) {
                 TypeUsageInformation dti = delegate.getTypeUsageInformation();
+                Collection<JavaRefTypeInstance> content = Functional.map(dti.getUsedClassTypes(),
+arg -> (JavaRefTypeInstance)get(arg)
+);
                 TypeUsageInformation dtr = new TypeUsageInformationImpl(options,
-                        (JavaRefTypeInstance)get(dti.getAnalysisType()),
-                        SetFactory.newOrderedSet(Functional.map(dti.getUsedClassTypes(),
-                            arg -> (JavaRefTypeInstance)get(arg)
-                        )), SetFactory.newSet());
+                                                                        (JavaRefTypeInstance)get(dti.getAnalysisType()),
+                                                                        new ObjectLinkedOpenHashSet<JavaRefTypeInstance>(
+                                                                            content), new ObjectOpenHashSet<DetectedStaticImport>()
+                );
                 mappingTypeUsage = new MappingTypeUsage(dtr, dti);
             }
             return mappingTypeUsage;

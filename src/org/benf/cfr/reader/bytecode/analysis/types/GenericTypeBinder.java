@@ -1,11 +1,12 @@
 package org.benf.cfr.reader.bytecode.analysis.types;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
+
 import java.util.Map;
 import java.util.Set;
 
@@ -212,7 +213,7 @@ public class GenericTypeBinder {
     }
 
     public GenericTypeBinder mergeWith(GenericTypeBinder other, boolean mergeToCommonClass) {
-        Set<String> keys = SetFactory.newSet(nameToBoundType.keySet());
+        Set<String> keys = new ObjectOpenHashSet<>(nameToBoundType.keySet());
         keys.addAll(other.nameToBoundType.keySet());
         Map<String, JavaTypeInstance> res = MapFactory.newMap();
         for (String key : keys) {

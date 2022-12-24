@@ -2,6 +2,7 @@ package org.benf.cfr.reader.bytecode.analysis.structured.statement;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
@@ -20,7 +21,6 @@ import org.benf.cfr.reader.bytecode.analysis.structured.statement.placeholder.Be
 import org.benf.cfr.reader.bytecode.analysis.structured.statement.placeholder.EndBlock;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.Optional;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.*;
@@ -261,7 +261,7 @@ public class Block extends AbstractStructuredStatement {
                 }
                 Block nested = new Block(inner, true, blockIdentifier);
                 Set<BlockIdentifier> outerIdents = getContainer().getBlockIdentifiers();
-                Set<BlockIdentifier> innerIdents = SetFactory.newSet(outerIdents);
+                Set<BlockIdentifier> innerIdents = new ObjectOpenHashSet<>(outerIdents);
                 innerIdents.add(blockIdentifier);
                 InstrIndex newIdx = getContainer().getIndex().justAfter();
                 Op04StructuredStatement newStm = new Op04StructuredStatement(
@@ -307,11 +307,7 @@ public class Block extends AbstractStructuredStatement {
 
     public void combineTryCatch() {
 
-        Set<Class<?>> skipThese = SetFactory.newSet(
-                StructuredCatch.class,
-                StructuredFinally.class,
-                StructuredTry.class,
-                UnstructuredTry.class);
+        Set<Class<?>> skipThese = new ObjectOpenHashSet<>((Class<?>[]) new Class[]{ StructuredCatch.class, StructuredFinally.class, StructuredTry.class, UnstructuredTry.class });
 
         int size = containedStatements.size();
         boolean finished = false;
@@ -429,7 +425,7 @@ public class Block extends AbstractStructuredStatement {
     }
 
     public Set<Op04StructuredStatement> getNextAfter(int x, boolean skipComments) {
-        Set<Op04StructuredStatement> res = SetFactory.newSet();
+        Set<Op04StructuredStatement> res = new ObjectOpenHashSet<>();
         if (x == -1 || x > containedStatements.size()) return res;
         while (x != -1 && x < containedStatements.size()) {
             Op04StructuredStatement next = containedStatements.get(x);

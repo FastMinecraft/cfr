@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
@@ -14,11 +15,10 @@ import org.benf.cfr.reader.entities.exceptions.ExceptionCheckImpl;
 import org.benf.cfr.reader.entities.exceptions.ExceptionGroup;
 import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.collections.SetUtil;
 
 import java.util.Iterator;
-import java.util.LinkedList;
+
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
@@ -54,7 +54,7 @@ class TryRewriter {
          * This allows us to extend exception blocks if they're catching checked exceptions, and we can tell that no
          * checked exceptions could be thrown.
          */
-        Set<JavaRefTypeInstance> caught = SetFactory.newSet();
+        Set<JavaRefTypeInstance> caught = new ObjectOpenHashSet<>();
         ObjectList<Op03SimpleStatement> targets = tryStatement.getTargets();
         for (int i = 1, len = targets.size(); i < len; ++i) {
             Statement statement = targets.get(i).getStatement();
@@ -69,7 +69,7 @@ class TryRewriter {
 
         mainloop:
         while (!currentStatement.getStatement().canThrow(exceptionCheck)) {
-            Set<BlockIdentifier> validBlocks = SetFactory.newSet();
+            Set<BlockIdentifier> validBlocks = new ObjectOpenHashSet<>();
             validBlocks.add(tryBlockIdent);
             for (int i = 1, len = tryStatement.getTargets().size(); i < len; ++i) {
                 Op03SimpleStatement tgt = tryStatement.getTargets().get(i);
@@ -113,7 +113,7 @@ class TryRewriter {
         }
         if (lastStatement != null && lastStatement.getTargets().isEmpty()) {
             // We have opportunity to rescan and see if there is a UNIQUE forward jump out.
-            Set<Op03SimpleStatement> outTargets = SetFactory.newSet();
+            Set<Op03SimpleStatement> outTargets = new ObjectOpenHashSet<>();
             for (Op03SimpleStatement jump : jumps) {
                 JumpingStatement jumpingStatement = (JumpingStatement)jump.getStatement();
                 // This is ugly.  I'm sure I do it elsewhere.   Refactor.
@@ -213,7 +213,7 @@ class TryRewriter {
         target.addSource(proxy);
 
         // Handle duplicates - is there a neater way? (Avoiding filter pass).
-        Set<Op03SimpleStatement> seen = SetFactory.newSet();
+        Set<Op03SimpleStatement> seen = new ObjectOpenHashSet<>();
         for (Op03SimpleStatement last : lastStatements) {
             if (!seen.add(last)) continue;
             GotoStatement gotoStatement = (GotoStatement) last.getStatement();
@@ -254,7 +254,7 @@ class TryRewriter {
          * and that all others are either the same, or do not have a terminal forward jump.
          */
         Op03SimpleStatement uniqueForwardTarget = null;
-        Set<BlockIdentifier> relevantBlocks = SetFactory.newSet();
+        Set<BlockIdentifier> relevantBlocks = new ObjectOpenHashSet<>();
         Op03SimpleStatement lastEnd = null;
         int lpidx = 0;
         for (Op03SimpleStatement tgt : tryTargets) {

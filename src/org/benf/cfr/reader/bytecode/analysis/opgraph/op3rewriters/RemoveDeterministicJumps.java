@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
@@ -15,7 +16,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.LValueUsageCollectorSim
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.collections.SetUtil;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -44,7 +44,7 @@ public class RemoveDeterministicJumps {
     private static boolean propagateLiteralReturn(@SuppressWarnings("unused") Method method,
                                                   Op03SimpleStatement original, Map<LValue, Literal> display) {
         Op03SimpleStatement current = original;
-        Set<Op03SimpleStatement> seen = SetFactory.newSet();
+        Set<Op03SimpleStatement> seen = new ObjectOpenHashSet<>();
         int nAssigns = 0;
 
         boolean adjustedOrig = false;
@@ -209,7 +209,7 @@ public class RemoveDeterministicJumps {
  */
     private static boolean propagateLiteralReturn(@SuppressWarnings("unused") Method method, Op03SimpleStatement original, final Op03SimpleStatement orignext, final LValue originalLValue, final Expression originalRValue, Map<LValue, Literal> display) {
         Op03SimpleStatement current = orignext;
-        Set<Op03SimpleStatement> seen = SetFactory.newSet();
+        Set<Op03SimpleStatement> seen = new ObjectOpenHashSet<>();
         do {
             if (!seen.add(current)) return false;
             Class<?> cls = current.getStatement().getClass();

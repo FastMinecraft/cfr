@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.utils.finalhelp;
 
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.LValueExpression;
@@ -7,7 +8,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.statement.CatchStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.Nop;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.ThrowStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.LinkedList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -27,7 +27,7 @@ public class FinallyCatchBody {
         this.isEmpty = isEmpty;
         this.catchCodeStart = catchCodeStart;
         this.body = body;
-        this.bodySet = SetFactory.newOrderedSet(body);
+        this.bodySet = new ObjectLinkedOpenHashSet<>(body);
     }
 
     public static FinallyCatchBody build(Op03SimpleStatement catchStart, ObjectList<Op03SimpleStatement> allStatements) {

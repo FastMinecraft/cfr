@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
@@ -85,7 +86,7 @@ public class GenericInferer {
                 if (t instanceof JavaGenericPlaceholderTypeInstance placeholder) {
                     JavaTypeInstance t2 = res.getBindingFor(placeholder);
                     if (!t2.equals(placeholder)) continue;
-                    if (nullBindings == null) nullBindings = SetFactory.newSet();
+                    if (nullBindings == null) nullBindings = new ObjectOpenHashSet<>();
                     res.removeBinding(placeholder);
                     nullBindings.add(placeholder);
                 }

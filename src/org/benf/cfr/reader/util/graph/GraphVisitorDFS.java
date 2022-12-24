@@ -2,14 +2,14 @@ package org.benf.cfr.reader.util.graph;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
-import org.benf.cfr.reader.util.collections.SetFactory;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 import java.util.*;
 import java.util.function.BiConsumer;
 
 public class GraphVisitorDFS<T> implements GraphVisitor<T> {
     private final Collection<? extends T> start;
-    private final Set<T> visited = SetFactory.newSet();
+    private final Set<T> visited = new ObjectOpenHashSet<>();
     private final BiConsumer<T, GraphVisitor<T>> callee;
     private final LinkedList<T> pending = new LinkedList<>();
     private final LinkedList<T> enqueued = new LinkedList<>();

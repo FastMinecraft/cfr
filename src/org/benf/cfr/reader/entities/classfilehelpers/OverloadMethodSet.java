@@ -1,7 +1,9 @@
 package org.benf.cfr.reader.entities.classfilehelpers;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.Literal;
 import org.benf.cfr.reader.bytecode.analysis.parse.literal.TypedLiteral;
@@ -130,10 +132,10 @@ public class OverloadMethodSet {
         /*
          * Don't even consider any of the matches which have too many required arguments
          */
-        Set<MethodData> possibleMatches = SetFactory.newOrderedSet(
-                Functional.filter(allPrototypes, in -> in.methodArgs.size() <= argCount));
+        Collection<MethodData> content = Functional.filter(allPrototypes, in -> in.methodArgs.size() <= argCount);
+        Set<MethodData> possibleMatches = new ObjectLinkedOpenHashSet<>(content);
 
-        Map<Integer, Set<MethodData>> weakMatches = MapFactory.newLazyMap(arg -> SetFactory.newSet());
+        Map<Integer, Set<MethodData>> weakMatches = MapFactory.newLazyMap(arg -> new ObjectOpenHashSet<>());
 
         Iterator<MethodData> possiter = possibleMatches.iterator();
         MethodData perfectMatch = null;
@@ -303,7 +305,7 @@ public class OverloadMethodSet {
         /* First pass - find an exact match for the supplied arg - if the target method is ONE of the exact matches
          * for this arg, the we're no more wrong than we could have been... (!).
          */
-        Set<MethodPrototype> exactMatches = SetFactory.newSet();
+        Set<MethodPrototype> exactMatches = new ObjectOpenHashSet<>();
         for (MethodData prototype : allPrototypes) {
             JavaTypeInstance type = prototype.getArgType(idx, newArgType);
 

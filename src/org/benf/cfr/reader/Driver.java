@@ -1,7 +1,9 @@
 package org.benf.cfr.reader;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.types.InnerClassInfo;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
@@ -15,7 +17,6 @@ import org.benf.cfr.reader.state.TypeUsageCollectingDumper;
 import org.benf.cfr.reader.state.TypeUsageInformation;
 import org.benf.cfr.reader.util.*;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -149,8 +150,8 @@ public class Driver {
         for (Map.Entry<Integer, ObjectList<JavaTypeInstance>> entry : clstypes.entrySet()) {
             int version = entry.getKey();
             if (version == 0) continue;
-            Set<JavaTypeInstance> distinct = SetFactory.newOrderedSet(entry.getValue());
-            Set<JavaTypeInstance> toAdd = SetFactory.newOrderedSet();
+            Set<JavaTypeInstance> distinct = new ObjectLinkedOpenHashSet<>((Collection<JavaTypeInstance>) entry.getValue());
+            Set<JavaTypeInstance> toAdd = new ObjectLinkedOpenHashSet<>();
             for (JavaTypeInstance typ : entry.getValue()) {
                 InnerClassInfo ici = typ.getInnerClassHereInfo();
                 while (ici != null && ici.isInnerClass()) {
@@ -167,8 +168,8 @@ public class Driver {
 
     private static Set<JavaTypeInstance> getVersionCollisions(Map<Integer, ObjectList<JavaTypeInstance>> clstypes) {
         if (clstypes.size() <= 1) return Collections.emptySet();
-        Set<JavaTypeInstance> collisions = SetFactory.newOrderedSet();
-        Set<JavaTypeInstance> seen = SetFactory.newSet();
+        Set<JavaTypeInstance> collisions = new ObjectLinkedOpenHashSet<>();
+        Set<JavaTypeInstance> seen = new ObjectOpenHashSet<>();
         for (ObjectList<JavaTypeInstance> types : clstypes.values()) {
             for (JavaTypeInstance type : types) {
                 if (!seen.add(type)) collisions.add(type);

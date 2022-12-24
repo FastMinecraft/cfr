@@ -2,6 +2,7 @@ package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
@@ -17,7 +18,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.statement.*;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.LValueUsageCollectorSimple;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.SSAIdentifiers;
 import org.benf.cfr.reader.util.MiscUtils;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.*;
 
@@ -46,8 +46,8 @@ public class InlineDeAssigner {
 
     private static class Deassigner extends AbstractExpressionRewriter {
 
-        final Set<LValue> read = SetFactory.newSet();
-        final Set<LValue> write = SetFactory.newSet();
+        final Set<LValue> read = new ObjectOpenHashSet<>();
+        final Set<LValue> write = new ObjectOpenHashSet<>();
 
         final ObjectList<AssignmentExpression> extracted = new ObjectArrayList<>();
 

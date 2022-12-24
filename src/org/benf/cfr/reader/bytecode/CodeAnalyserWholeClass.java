@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.*;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.matchutil.DeadMethodRemover;
@@ -19,7 +20,6 @@ import org.benf.cfr.reader.state.TypeUsageCollectingDumper;
 import org.benf.cfr.reader.util.MiscConstants;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
@@ -156,7 +156,7 @@ public class CodeAnalyserWholeClass {
      */
     private static void fixInnerClassConstructorSyntheticOuterArgs(ClassFile classFile) {
         if (classFile.isInnerClass()) {
-            Set<MethodPrototype> processed = SetFactory.newSet();
+            Set<MethodPrototype> processed = new ObjectOpenHashSet<>();
             for (Method method : classFile.getConstructors()) {
                 Op04StructuredStatement.fixInnerClassConstructorSyntheticOuterArgs(
                     classFile,

@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.util.BoxingHelper;
@@ -16,7 +17,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.analysis.parse.wildcard.WildcardMatch;
 import org.benf.cfr.reader.bytecode.analysis.types.*;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
@@ -139,7 +139,8 @@ public class IterLoopRewriter {
                 loopStart.getStatement())) {
             // If the assignment's been pushed down into a conditional, we could have
             // if ((i = a[x]) > 3).  This is why we've avoided pushing that down. :(
-            Set<Expression> poison = SetFactory.newSet(new LValueExpression(originalLoopVariable));
+            Expression[] content = new Expression[]{ new LValueExpression(originalLoopVariable) };
+            Set<Expression> poison = new ObjectOpenHashSet<>(content);
             if (!Misc.findHiddenIter(loopStart.getStatement(), sugariterWC, arrIndex, poison)) {
                 return;
             }
@@ -160,7 +161,7 @@ public class IterLoopRewriter {
          * even USED anywhere else.
          */
         LValueUsageCollectorSimple usageCollector = new LValueUsageCollectorSimple();
-        final Set<LValue> cantUpdate = SetFactory.newSet(originalArray, originalLoopBound, originalLoopVariable);
+        final Set<LValue> cantUpdate = new ObjectOpenHashSet<>(new LValue[]{ originalArray, originalLoopBound, originalLoopVariable });
 
         for (Op03SimpleStatement inBlock : statementsInBlock) {
             if (inBlock == loopStart) continue;
@@ -331,7 +332,8 @@ public class IterLoopRewriter {
             // it's unboxing into the iterator. (See BreakTest4)
         }  else {
             // Try seeing if it's a hidden iter, which has been pushed inside a conditional
-            Set<Expression> poison = SetFactory.newSet(new LValueExpression(iterable));
+            Expression[] content = new Expression[]{ new LValueExpression(iterable) };
+            Set<Expression> poison = new ObjectOpenHashSet<>(content);
             if (!Misc.findHiddenIter(loopStart.getStatement(), sugariterWC, nextCall, poison)) {
                 return;
             }
