@@ -82,10 +82,7 @@ public class LocalClassScopeDiscoverImpl extends AbstractLValueScopeDiscoverer {
 
                 SentinelNV that = (SentinelNV) o;
 
-                if (!Objects.equals(typeInstance, that.typeInstance))
-                    return false;
-
-                return true;
+                return Objects.equals(typeInstance, that.typeInstance);
             }
 
     }
@@ -125,8 +122,7 @@ public class LocalClassScopeDiscoverImpl extends AbstractLValueScopeDiscoverer {
         ScopeDefinition previousDef = earliestDefinition.get(keyName);
         // If it's in scope, no problem.
         if (previousDef != null) {
-            if (previousDef.isImmediate()
-            || !immediate) {
+            if (previousDef.isImmediate() || !immediate) {
                 return;
             }
             if (previousDef.getDepth() < currentDepth) {

@@ -49,9 +49,7 @@ public class NamedVariableDefault implements NamedVariable {
 
         NamedVariableDefault that = (NamedVariableDefault) o;
 
-        if (!name.equals(that.name)) return false;
-
-        return true;
+        return name.equals(that.name);
     }
 
     @Override

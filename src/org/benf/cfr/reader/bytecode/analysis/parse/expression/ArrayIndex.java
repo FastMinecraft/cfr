@@ -80,8 +80,7 @@ public class ArrayIndex extends AbstractExpression implements BoxingProcessor {
         if (replace instanceof StackSSALabel && array instanceof StackValue) {
             StackSSALabel referred = ((StackValue)array).getStackValue();
             if (referred.equals(replace)) {
-                if (with.isSimple()) return false;
-                return true;
+                return !with.isSimple();
             }
         }
         return false;
@@ -128,8 +127,7 @@ public class ArrayIndex extends AbstractExpression implements BoxingProcessor {
         if (o == this) return true;
         if (!(o instanceof ArrayIndex other)) return false;
         if (!constraint.equivalent(array, other.array)) return false;
-        if (!constraint.equivalent(index, other.index)) return false;
-        return true;
+        return constraint.equivalent(index, other.index);
     }
 
     @Override

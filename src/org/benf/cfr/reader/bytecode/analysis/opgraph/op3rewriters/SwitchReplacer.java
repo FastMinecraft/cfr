@@ -51,7 +51,6 @@ import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -156,7 +155,7 @@ public class SwitchReplacer {
             swatch.replaceStatement(switchStatement.getSwitchStatement(switchBlockIdentifier));
             BlockIdentifier defBlock = blockIdentifierFactory.getNextBlockIdentifier(BlockType.CASE);
             Op03SimpleStatement defStm = new Op03SimpleStatement(swatch.getBlockIdentifiers(),
-                    new CaseStatement(BytecodeLoc.TODO, ListFactory.<Expression>newList(), switchStatement.getSwitchOn().getInferredJavaType(), switchBlockIdentifier, defBlock),
+                    new CaseStatement(BytecodeLoc.TODO, ListFactory.newList(), switchStatement.getSwitchOn().getInferredJavaType(), switchBlockIdentifier, defBlock),
                     swatch.getIndex().justAfter()
             );
             swatch.replaceTarget(oneTarget, defStm);
@@ -1147,7 +1146,7 @@ public class SwitchReplacer {
             }
             List<Expression> values = caseStm.getValues();
             for (Expression e : values) {
-                Literal l = e.getComputedLiteral(MapFactory.<LValue, Literal>newMap());
+                Literal l = e.getComputedLiteral(MapFactory.newMap());
                 if (l == null) return false;
                 iVals.add(l.getValue().getIntValue());
             }

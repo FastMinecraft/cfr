@@ -11,7 +11,6 @@ import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.collections.SetUtil;
-import java.util.function.BiConsumer;
 import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
@@ -109,8 +108,7 @@ public class SynchronizedBlocks {
                         if (arg1.getTargets().size() == 1) {
                             arg1 = arg1.getTargets().get(0);
                             Statement targetStatement = arg1.getStatement();
-                            if (targetStatement instanceof ThrowStatement ||
-                                targetStatement instanceof ReturnStatement ||
+                            if (targetStatement instanceof ReturnStatement ||
                                 targetStatement instanceof Nop ||
                                 targetStatement instanceof GotoStatement) {
                                 // TODO : Should perform a block check on targetStatement.
@@ -216,6 +214,7 @@ public class SynchronizedBlocks {
             for (Op03SimpleStatement source : extra.getSources()) {
                 if (!source.getBlockIdentifiers().contains(blockIdentifier)) {
                     allParents = false;
+                    break;
                 }
             }
             if (allParents) {

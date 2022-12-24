@@ -8,7 +8,6 @@ import org.benf.cfr.reader.util.MiscConstants;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.List;
@@ -22,7 +21,7 @@ public class ClassMapping {
     private final Map<String, FieldMapping> fieldMappings = MapFactory.newMap();
 
     private static class MethodData {
-        List<JavaTypeInstance> args;
+        final List<JavaTypeInstance> args;
 
         MethodData(List<JavaTypeInstance> argTypes) {
             if (!argTypes.isEmpty()) {
@@ -172,7 +171,7 @@ public class ClassMapping {
                 if (classFile != null) {
                     JavaTypeInstance baseType = classFile.getBaseClassType().getDeGenerifiedType();
                     String res = getClassFieldNameOrNull(name, d, mapping, baseType);
-                    if (res != null) return res;
+                    return res;
                 }
             }
             return null;
@@ -184,9 +183,7 @@ public class ClassMapping {
         ClassMapping parentCM = mapping.getClassMapping(baseType);
         if (parentCM != null) {
             String res = parentCM.getFieldNameOrNull(name, baseType, d, mapping);
-            if (res != null) {
-                return res;
-            }
+            return res;
         }
         return null;
     }

@@ -35,7 +35,6 @@ import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.NonaryFunction;
 
 import java.util.List;
 import java.util.Set;
@@ -114,7 +113,7 @@ public class J14ClassObjectRewriter {
                                 classType,
                                 TypeConstants.CLASS,
                                 null,
-                                ListFactory.<Expression>newImmutableList(wcm.getExpressionWildCard("classString")))
+                                ListFactory.newImmutableList(wcm.getExpressionWildCard("classString")))
                         ),
                 staticExpression);
 

@@ -132,8 +132,7 @@ public class LValueExpression extends AbstractExpression {
         if (o == this) return true;
         if (getClass() != o.getClass()) return false;
         LValueExpression other = (LValueExpression) o;
-        if (!constraint.equivalent(lValue, other.lValue)) return false;
-        return true;
+        return constraint.equivalent(lValue, other.lValue);
     }
 
     @Override

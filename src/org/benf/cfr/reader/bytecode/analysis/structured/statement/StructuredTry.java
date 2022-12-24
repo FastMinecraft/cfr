@@ -18,7 +18,7 @@ import java.util.List;
 
 public class StructuredTry extends AbstractStructuredStatement {
     private Op04StructuredStatement tryBlock;
-    private List<Op04StructuredStatement> catchBlocks = ListFactory.newList();
+    private final List<Op04StructuredStatement> catchBlocks = ListFactory.newList();
     private Op04StructuredStatement finallyBlock;
     private final BlockIdentifier tryBlockIdentifier;
     private List<Op04StructuredStatement> resourceBlock;
@@ -186,7 +186,7 @@ public class StructuredTry extends AbstractStructuredStatement {
             if (!catchBlock.isFullyStructured()) return false;
         }
         if (finallyBlock != null) {
-            if (!finallyBlock.isFullyStructured()) return false;
+            return finallyBlock.isFullyStructured();
         }
         return true;
     }
@@ -215,8 +215,7 @@ public class StructuredTry extends AbstractStructuredStatement {
         if (!(finallyBlock.getStatement() instanceof StructuredFinally structuredFinally)) return false;
         Op04StructuredStatement finallyCode = structuredFinally.getCatchBlock();
         if (!(finallyCode.getStatement() instanceof Block block)) return false;
-        if (block.isEffectivelyNOP()) return true;
-        return false;
+        return block.isEffectivelyNOP();
     }
 
     private boolean isJustTryCatchThrow() {
@@ -233,11 +232,7 @@ public class StructuredTry extends AbstractStructuredStatement {
     @Override
     public boolean inlineable() {
         // split out for breakpointing.
-        if (isPointlessTry() || isJustTryCatchThrow()) {
-            return true;
-        } else {
-            return false;
-        }
+        return isPointlessTry() || isJustTryCatchThrow();
     }
 
     public BlockIdentifier getTryBlockIdentifier() {

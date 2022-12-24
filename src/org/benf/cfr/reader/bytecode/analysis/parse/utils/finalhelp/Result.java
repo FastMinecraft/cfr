@@ -6,7 +6,7 @@ import java.util.Objects;
 import java.util.Set;
 
 public class Result {
-    public static Result FAIL = new Result();
+    public static final Result FAIL = new Result();
 
     private final boolean res;
     private final Set<Op03SimpleStatement> toRemove;
@@ -39,9 +39,7 @@ public class Result {
         Result result = (Result) o;
 
         if (res != result.res) return false;
-        if (!Objects.equals(start, result.start)) return false;
-
-        return true;
+        return Objects.equals(start, result.start);
     }
 
     @Override

@@ -54,8 +54,7 @@ public class IllegalIdentifierReplacement implements IllegalIdentifierDump {
     public static boolean isIllegal(String identifier) {
         if (!isIllegalIdentifier(identifier)) return false;
         if (identifier.endsWith(MiscConstants.DOT_THIS)) return false;
-        if (known.containsKey(identifier)) return false;
-        return true;
+        return !known.containsKey(identifier);
     }
 
 

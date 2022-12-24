@@ -46,11 +46,6 @@ public class InstrIndex implements Comparable<InstrIndex> {
         return super.equals(o);
     }
 
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
-
     private void mkTempList() {
         if (tempList == null) {
             tempList = new TempRelatives(this);

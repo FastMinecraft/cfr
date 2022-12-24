@@ -49,7 +49,6 @@ public class MiscUtils {
     public static boolean isThis(LValue thisExp, JavaTypeInstance thisType) {
         if (!(thisExp instanceof LocalVariable lv)) return false;
         if (!(lv.getIdx() == 0 && MiscConstants.THIS.equals(lv.getName().getStringName()))) return false;
-        if (!thisType.equals(lv.getInferredJavaType().getJavaTypeInstance())) return false;
-        return true;
+        return thisType.equals(lv.getInferredJavaType().getJavaTypeInstance());
     }
 }

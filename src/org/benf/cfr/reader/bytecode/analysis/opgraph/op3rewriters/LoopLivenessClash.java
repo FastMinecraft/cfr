@@ -36,8 +36,7 @@ public class LoopLivenessClash {
         JavaGenericRefTypeInstance boundIterable = iterType.getBoundInstance(typeBinder);
         List<JavaTypeInstance> iterBindings = boundIterable.getGenericTypes();
         if (iterBindings.size() != 1) return null;
-        JavaTypeInstance iteratedType = iterBindings.get(0);
-        return iteratedType;
+        return iterBindings.get(0);
     }
 
     private static boolean detect(Op03SimpleStatement statement, BytecodeMeta bytecodeMeta) {

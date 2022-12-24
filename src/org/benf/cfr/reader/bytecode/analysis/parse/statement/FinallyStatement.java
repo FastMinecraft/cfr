@@ -11,7 +11,7 @@ import org.benf.cfr.reader.bytecode.analysis.structured.statement.UnstructuredFi
 import org.benf.cfr.reader.util.output.Dumper;
 
 public class FinallyStatement extends AbstractStatement {
-    private BlockIdentifier finallyBlockIdent;
+    private final BlockIdentifier finallyBlockIdent;
 
     public FinallyStatement(BytecodeLoc loc, BlockIdentifier finallyBlockIdent) {
         super(loc);

@@ -145,7 +145,7 @@ public abstract class AbstractFieldVariable extends AbstractLValue {
     @Override
     public SSAIdentifiers<LValue> collectVariableMutation(SSAIdentifierFactory<LValue, ?> ssaIdentifierFactory) {
         //noinspection unchecked
-        return new SSAIdentifiers(this, ssaIdentifierFactory);
+        return new SSAIdentifiers<>(this, ssaIdentifierFactory);
     }
 
     @Override
@@ -160,8 +160,7 @@ public abstract class AbstractFieldVariable extends AbstractLValue {
             ClassFile classFile = ref.getClassFile();
             if (classFile == null) return null;
 
-            ClassFileField field = classFile.getFieldByName(name, fieldRef.getJavaTypeInstance());
-            return field;
+            return classFile.getFieldByName(name, fieldRef.getJavaTypeInstance());
         } catch (NoSuchFieldException | CannotLoadClassException ignore) {
         }
         return null;
@@ -189,8 +188,7 @@ public abstract class AbstractFieldVariable extends AbstractLValue {
         if (!(o instanceof AbstractFieldVariable that)) return false;
 
         if (!getFieldName().equals(that.getFieldName())) return false;
-        if (!Objects.equals(owningClass, that.owningClass)) return false;
-        return true;
+        return Objects.equals(owningClass, that.owningClass);
     }
 
     @Override

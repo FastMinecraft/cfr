@@ -43,11 +43,10 @@ public class Triplet<X, Y, Z> {
             if (!y.equals(other.y)) return false;
         }
         if (z == null) {
-            if (other.z != null) return false;
+            return other.z == null;
         } else {
-            if (!z.equals(other.z)) return false;
+            return z.equals(other.z);
         }
-        return true;
     }
 
     @Override

@@ -73,7 +73,6 @@ public class CreationCollector {
         }
         if (expression instanceof NewObject) {
             markConstruction(null, rValue, container);
-            return;
         }
     }
 

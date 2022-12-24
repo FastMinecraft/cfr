@@ -10,7 +10,6 @@ import org.benf.cfr.reader.state.TypeUsageInformation;
 import org.benf.cfr.reader.util.AnalysisType;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.*;
@@ -26,7 +25,7 @@ public class PluginRunner {
     private final DCCommonState dcCommonState;
 
     public PluginRunner() {
-        this(MapFactory.<String, String>newMap(), null);
+        this(MapFactory.newMap(), null);
     }
 
     public PluginRunner(Map<String, String> options) {
@@ -58,7 +57,7 @@ public class PluginRunner {
         }
     }
 
-    private class PluginDumperFactory implements DumperFactory {
+    private static class PluginDumperFactory implements DumperFactory {
         private final IllegalIdentifierDump illegalIdentifierDump = new IllegalIdentifierDump.Nop();
 
         private final StringBuilder outBuffer;

@@ -24,7 +24,7 @@ import java.util.Objects;
 
 public class LambdaExpression extends AbstractExpression implements LambdaExpressionCommon {
 
-    private List<LValue> args;
+    private final List<LValue> args;
     private List<JavaTypeInstance> explicitArgTypes;
     private Expression result;
 
@@ -157,9 +157,7 @@ public class LambdaExpression extends AbstractExpression implements LambdaExpres
         LambdaExpression that = (LambdaExpression) o;
 
         if (!Objects.equals(args, that.args)) return false;
-        if (!Objects.equals(result, that.result)) return false;
-
-        return true;
+        return Objects.equals(result, that.result);
     }
 
     @Override
@@ -169,8 +167,7 @@ public class LambdaExpression extends AbstractExpression implements LambdaExpres
         if (getClass() != o.getClass()) return false;
         LambdaExpression other = (LambdaExpression) o;
         if (!constraint.equivalent(args, other.args)) return false;
-        if (!constraint.equivalent(result, other.result)) return false;
-        return true;
+        return constraint.equivalent(result, other.result);
     }
 
 }

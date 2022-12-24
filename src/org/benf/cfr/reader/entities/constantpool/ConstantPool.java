@@ -24,7 +24,7 @@ public class ConstantPool {
     private final ClassCache classCache;
     private final ClassFile classFile;
     private String comparisonKey;
-    private boolean isLoaded;
+    private final boolean isLoaded;
     private final int idx = sidx.getAndIncrement();
     private final static AtomicInteger sidx = new AtomicInteger();
     private final boolean dynamicConstants;
@@ -163,9 +163,7 @@ public class ConstantPool {
 
         ConstantPool that = (ConstantPool) o;
 
-        if (!comparisonKey.equals(that.comparisonKey)) return false;
-
-        return true;
+        return comparisonKey.equals(that.comparisonKey);
     }
 
     @Override

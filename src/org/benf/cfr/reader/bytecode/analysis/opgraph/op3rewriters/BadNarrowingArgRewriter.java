@@ -13,7 +13,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.SSAIdentifiers;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 
 public class BadNarrowingArgRewriter extends AbstractExpressionRewriter {
-    private class InternalBadNarrowingRewriter extends AbstractExpressionRewriter {
+    private static class InternalBadNarrowingRewriter extends AbstractExpressionRewriter {
         @Override
         public Expression rewriteExpression(Expression expression, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
             Expression rwExpression = expression;

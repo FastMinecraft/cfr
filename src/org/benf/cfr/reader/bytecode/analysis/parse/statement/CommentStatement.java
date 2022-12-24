@@ -75,25 +75,22 @@ public class CommentStatement extends AbstractStatement {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        return true;
+        return o != null && getClass() == o.getClass();
     }
 
     @Override
     public boolean equivalentUnder(Object o, EquivalenceConstraint constraint) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        return true;
+        return o != null && getClass() == o.getClass();
     }
 
     /*
      * The idea of a statement expression is a bit weird, but
      */
     private static class StatementExpression extends AbstractExpression {
-        private Statement statement;
+        private final Statement statement;
 
-        private static InferredJavaType javaType = new InferredJavaType(RawJavaType.VOID, InferredJavaType.Source.EXPRESSION);
+        private static final InferredJavaType javaType = new InferredJavaType(RawJavaType.VOID, InferredJavaType.Source.EXPRESSION);
 
         private StatementExpression(Statement statement) {
             super(BytecodeLoc.NONE, javaType);

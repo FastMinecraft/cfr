@@ -11,17 +11,16 @@ import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.StringUtils;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 public class ExceptionGroup {
 
-    private int bytecodeIndexFrom;        // [ a
+    private final int bytecodeIndexFrom;        // [ a
     private int bytecodeIndexTo;          // ) b    st a <= x < b
     private int minHandlerStart = Short.MAX_VALUE;
-    private List<Entry> entries = ListFactory.newList();
+    private final List<Entry> entries = ListFactory.newList();
     private final BlockIdentifier tryBlockIdentifier;
     private final ConstantPool cp;
 
@@ -104,8 +103,7 @@ public class ExceptionGroup {
         Integer catchLoad = instrs.get(idx).getALoadIdx();
         if (!catchStore.equals(catchLoad)) return false;
         idx++;
-        if (instrs.get(idx).getJVMInstr() != JVMInstr.ATHROW) return false;
-        return true;
+        return instrs.get(idx).getJVMInstr() == JVMInstr.ATHROW;
     }
 
     @Override
@@ -162,7 +160,7 @@ public class ExceptionGroup {
         @Override
         public String toString() {
             JavaRefTypeInstance name = getCatchType();
-            return ExceptionGroup.this.toString() + " " + name.getRawName();
+            return ExceptionGroup.this + " " + name.getRawName();
         }
 
         @Override
@@ -172,8 +170,7 @@ public class ExceptionGroup {
             if (getClass() != o.getClass()) return false;
             Entry other = (Entry) o;
             if (!constraint.equivalent(entry, other.entry)) return false;
-            if (!constraint.equivalent(refType, other.refType)) return false;
-            return true;
+            return constraint.equivalent(refType, other.refType);
         }
 
         public ExtenderKey getExtenderKey() {
@@ -183,7 +180,7 @@ public class ExceptionGroup {
 
     }
 
-    public class ExtenderKey {
+    public static class ExtenderKey {
         private final JavaRefTypeInstance type;
         private final int handler;
 
@@ -208,9 +205,7 @@ public class ExceptionGroup {
             ExtenderKey that = (ExtenderKey) o;
 
             if (handler != that.handler) return false;
-            if (!Objects.equals(type, that.type)) return false;
-
-            return true;
+            return Objects.equals(type, that.type);
         }
 
         @Override

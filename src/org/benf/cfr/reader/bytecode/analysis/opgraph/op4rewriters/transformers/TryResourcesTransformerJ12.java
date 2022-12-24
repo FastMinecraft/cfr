@@ -15,7 +15,6 @@ import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.TypeConstants;
 import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.util.collections.Functional;
-import java.util.function.Predicate;
 
 import java.util.Collections;
 import java.util.List;
@@ -93,7 +92,7 @@ public class TryResourcesTransformerJ12 extends TryResourcesTransformerBase {
         mi.advance(); // skip structuredCatch
         boolean res = m.match(mi, collector);
         if (!res) return null;
-        return new ResourceMatch(null, collector.resource, collector.throwable, false, Collections.<Op04StructuredStatement>emptyList());
+        return new ResourceMatch(null, collector.resource, collector.throwable, false, Collections.emptyList());
     }
 
     private ResourceMatch getComplexResourceMatch(StructuredTry structuredTry, StructuredScope scope) {

@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 public class VariableNamerDefault implements VariableNamer {
 
-    private Map<Ident, NamedVariable> cached = MapFactory.newMap();
+    private final Map<Ident, NamedVariable> cached = MapFactory.newMap();
 
     public VariableNamerDefault() {
     }

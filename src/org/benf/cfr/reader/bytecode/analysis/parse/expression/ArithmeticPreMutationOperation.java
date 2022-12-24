@@ -104,8 +104,7 @@ public class ArithmeticPreMutationOperation extends AbstractMutatingAssignmentEx
         if (getClass() != o.getClass()) return false;
         ArithmeticPreMutationOperation other = (ArithmeticPreMutationOperation) o;
         if (op != other.op) return false;
-        if (!constraint.equivalent(mutated, other.mutated)) return false;
-        return true;
+        return constraint.equivalent(mutated, other.mutated);
     }
 
 }

@@ -10,9 +10,8 @@ public class BadParametersException extends IllegalArgumentException {
 
     @Override
     public String toString() {
-        String sb = "While processing argument '" + option.getName() + "':\n" +
+        return "While processing argument '" + option.getName() + "':\n" +
                 super.getMessage() + "\n" +
                 "Valid argument range: " + option.getFn().getRangeDescription() + "\n";
-        return sb;
     }
 }

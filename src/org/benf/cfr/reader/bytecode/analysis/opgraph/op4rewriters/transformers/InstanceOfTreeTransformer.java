@@ -31,7 +31,7 @@ public class InstanceOfTreeTransformer implements StructuredStatementTransformer
         return in;
     }
 
-    private class InstanceTreeRewriter extends AbstractExpressionRewriter {
+    private static class InstanceTreeRewriter extends AbstractExpressionRewriter {
         @Override
         public ConditionalExpression rewriteExpression(ConditionalExpression expression, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
             if (expression instanceof BooleanOperation bo) {

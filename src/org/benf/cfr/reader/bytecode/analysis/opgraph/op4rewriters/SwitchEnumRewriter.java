@@ -29,7 +29,6 @@ import org.benf.cfr.reader.util.ClassFileVersion;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import java.util.function.Predicate;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
@@ -150,7 +149,7 @@ public class SwitchEnumRewriter implements Op04Rewriter {
 
     private void tryRewriteEclipse(SwitchEnumMatchResultCollector mrc, StaticFunctionInvokation lookupFn, boolean expression) {
         Expression enumObject = mrc.getEnumObject();
-        Literal lv = enumObject.getComputedLiteral(MapFactory.<LValue, Literal>newMap());
+        Literal lv = enumObject.getComputedLiteral(MapFactory.newMap());
         boolean isNull = Literal.NULL.equals(lv);
 
         if (lookupFn.getClazz() != this.classFile.getClassType()) {

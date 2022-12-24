@@ -53,9 +53,9 @@ public class Op02RedundantStoreRewriter {
      */
     private void removeOverwrittenStores(List<Op02WithProcessedDataAndRefs> instrs, int maxLocals) {
 //        if (instrs.size() < 1000) return;
-        int laststore[] = new int[maxLocals];
-        int lastload[] = new int[maxLocals];
-        int loadsSinceStore[] = new int[maxLocals];
+        int[] laststore = new int[maxLocals];
+        int[] lastload = new int[maxLocals];
+        int[] loadsSinceStore = new int[maxLocals];
         int lastCutOff = 0;
         int nopCount = 0;
         Set<BlockIdentifier> currentBlocks = new HashSet<>();

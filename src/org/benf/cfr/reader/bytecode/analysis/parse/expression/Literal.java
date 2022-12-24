@@ -181,8 +181,7 @@ public class Literal extends AbstractExpression {
         if (o == null) return false;
         if (o == this) return true;
         if (!(o instanceof Literal other)) return false;
-        if (!constraint.equivalent(value, other.value)) return false;
-        return true;
+        return constraint.equivalent(value, other.value);
     }
 
     @Override

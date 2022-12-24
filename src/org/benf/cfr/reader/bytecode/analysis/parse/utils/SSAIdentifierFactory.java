@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class SSAIdentifierFactory<KEYTYPE, CMPTYPE> {
     private final Map<KEYTYPE, Integer> nextIdentFor = MapFactory.newLazyMap(
-            MapFactory.<KEYTYPE, Integer>newOrderedMap(),
+            MapFactory.newOrderedMap(),
         ignore -> 0
     );
 

@@ -1,7 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
-import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
@@ -16,18 +15,19 @@ import org.benf.cfr.reader.bytecode.analysis.parse.statement.*;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.*;
 import org.benf.cfr.reader.bytecode.analysis.stack.StackEntry;
 import org.benf.cfr.reader.bytecode.analysis.types.RawJavaType;
-import org.benf.cfr.reader.util.*;
+import org.benf.cfr.reader.util.ConfusedCFRException;
+import org.benf.cfr.reader.util.Troolean;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.collections.SetUtil;
-import java.util.function.Predicate;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 
 public class ConditionalRewriter {
 
@@ -37,12 +37,15 @@ public class ConditionalRewriter {
         public boolean test(Op03SimpleStatement in) {
             if (!(in.getStatement() instanceof IfStatement ifStatement)) return false;
             if (!ifStatement.getJumpType().isUnknown()) return false;
-            if (in.getTargets().get(1).getIndex().compareTo(in.getIndex()) <= 0) return false;
-            return true;
+            return in.getTargets().get(1).getIndex().compareTo(in.getIndex()) > 0;
         }
     }
 
-    public static void identifyNonjumpingConditionals(List<Op03SimpleStatement> statements, BlockIdentifierFactory blockIdentifierFactory, Options options) {
+    public static void identifyNonjumpingConditionals(
+        List<Op03SimpleStatement> statements,
+        BlockIdentifierFactory blockIdentifierFactory,
+        Options options
+    ) {
         boolean success;
         Set<Op03SimpleStatement> ignoreTheseJumps = SetFactory.newSet();
         boolean reduceSimpleScope = options.getOption(OptionsImpl.REDUCE_COND_SCOPE) == Troolean.TRUE;
@@ -52,8 +55,14 @@ public class ConditionalRewriter {
             Collections.reverse(forwardIfs);
             for (Op03SimpleStatement forwardIf : forwardIfs) {
                 if (considerAsTrivialIf(forwardIf, statements) ||
-                        considerAsSimpleIf(forwardIf, statements, blockIdentifierFactory, ignoreTheseJumps, reduceSimpleScope) ||
-                        considerAsDexIf(forwardIf, statements)) {
+                    considerAsSimpleIf(
+                        forwardIf,
+                        statements,
+                        blockIdentifierFactory,
+                        ignoreTheseJumps,
+                        reduceSimpleScope
+                    ) ||
+                    considerAsDexIf(forwardIf, statements)) {
                     success = true;
                 }
             }
@@ -67,8 +76,8 @@ public class ConditionalRewriter {
         int idxNotTaken = statements.indexOf(notTakenTarget);
         if (idxTaken != idxNotTaken + 1) return false;
         if (!(takenTarget.getStatement().getClass() == GotoStatement.class &&
-                notTakenTarget.getStatement().getClass() == GotoStatement.class &&
-                takenTarget.getTargets().get(0) == notTakenTarget.getTargets().get(0))) {
+            notTakenTarget.getStatement().getClass() == GotoStatement.class &&
+            takenTarget.getTargets().get(0) == notTakenTarget.getTargets().get(0))) {
             return false;
         }
         notTakenTarget.replaceStatement(new CommentStatement("empty if block"));
@@ -78,31 +87,31 @@ public class ConditionalRewriter {
     }
 
     /*
- * Spot a rather perverse structure that only happens with DEX2Jar, as far as I can tell.
- *
- * if (x) goto b
- * (a:)
- * ....[1] [ LINEAR STATEMENTS (* or already discounted) ]
- * goto c
- * b:
- * ....[2] [ LINEAR STATEMENTS (*) ]
- * goto d
- * c:
- * ....[3]
- *
- * Can be replaced with
- *
- * if (!x) goto a
- * b:
- * ...[2]
- * goto d
- * a:
- * ....[1]
- * c:
- * ....[3]
- *
- * Which, in turn, may allow us to make some more interesting choices later.
- */
+     * Spot a rather perverse structure that only happens with DEX2Jar, as far as I can tell.
+     *
+     * if (x) goto b
+     * (a:)
+     * ....[1] [ LINEAR STATEMENTS (* or already discounted) ]
+     * goto c
+     * b:
+     * ....[2] [ LINEAR STATEMENTS (*) ]
+     * goto d
+     * c:
+     * ....[3]
+     *
+     * Can be replaced with
+     *
+     * if (!x) goto a
+     * b:
+     * ...[2]
+     * goto d
+     * a:
+     * ....[1]
+     * c:
+     * ....[3]
+     *
+     * Which, in turn, may allow us to make some more interesting choices later.
+     */
     private static boolean considerAsDexIf(Op03SimpleStatement ifStatement, List<Op03SimpleStatement> statements) {
         Statement innerStatement = ifStatement.getStatement();
         if (innerStatement.getClass() != IfStatement.class) {
@@ -184,8 +193,7 @@ public class ConditionalRewriter {
             return -1;
         }
         if (cStatement == null) return -1;
-        int cidx = statements.indexOf(cStatement);
-        return cidx;
+        return statements.indexOf(cStatement);
     }
 
     /*
@@ -198,7 +206,13 @@ public class ConditionalRewriter {
      *
      * Where the range is self-contained.
      */
-    private static boolean isRangeOnlyReachable(int startIdx, int endIdx, int tgtIdx, List<Op03SimpleStatement> statements, Set<Op03SimpleStatement> permittedSources) {
+    private static boolean isRangeOnlyReachable(
+        int startIdx,
+        int endIdx,
+        int tgtIdx,
+        List<Op03SimpleStatement> statements,
+        Set<Op03SimpleStatement> permittedSources
+    ) {
 
         Set<Op03SimpleStatement> reachable = SetFactory.newSet();
         final Op03SimpleStatement startStatement = statements.get(startIdx);
@@ -263,10 +277,15 @@ lbl10: // 1 sources:
      * can be represented as a break out of an anonymous block covering the early one.  It's a bit messy, but Dex2Jar
      * generates this kind of stuff.
      */
-    private static boolean detectAndRemarkJumpIntoOther(Set<BlockIdentifier> blocksAtStart, Set<BlockIdentifier> blocksAtEnd, Op03SimpleStatement realEnd, Op03SimpleStatement ifStatement) {
+    private static boolean detectAndRemarkJumpIntoOther(
+        Set<BlockIdentifier> blocksAtStart,
+        Set<BlockIdentifier> blocksAtEnd,
+        Op03SimpleStatement realEnd,
+        Op03SimpleStatement ifStatement
+    ) {
         if (blocksAtEnd.size() != blocksAtStart.size() + 1) return false;
 
-        List<BlockIdentifier> diff =  SetUtil.differenceAtakeBtoList(blocksAtEnd, blocksAtStart);
+        List<BlockIdentifier> diff = SetUtil.differenceAtakeBtoList(blocksAtEnd, blocksAtStart);
         BlockIdentifier testBlock = diff.get(0);
         if (testBlock.getBlockType() != BlockType.SIMPLE_IF_TAKEN) return false;
 
@@ -301,21 +320,27 @@ lbl10: // 1 sources:
     }
 
     /*
-    * This is an if statement where both targets are forward.
-    *
-    * it's a 'simple' if, if:
-    *
-    * target[0] reaches (incl) the instruction before target[1] without any jumps (other than continue / break).
-    *
-    * note that the instruction before target[1] doesn't have to have target[1] as a target...
-    * (we might have if (foo) return;)
-    *
-    * If it's a SIMPLE if/else, then the last statement of the if block is a goto, which jumps to after the else
-    * block.  We don't want to keep that goto, as we've inferred structure now.
-    *
-    * We trim that GOTO when we move from an UnstructuredIf to a StructuredIf.
-    */
-    private static boolean considerAsSimpleIf(Op03SimpleStatement ifStatement, List<Op03SimpleStatement> statements, BlockIdentifierFactory blockIdentifierFactory, Set<Op03SimpleStatement> ignoreTheseJumps, boolean reduceSimpleScope) {
+     * This is an if statement where both targets are forward.
+     *
+     * it's a 'simple' if, if:
+     *
+     * target[0] reaches (incl) the instruction before target[1] without any jumps (other than continue / break).
+     *
+     * note that the instruction before target[1] doesn't have to have target[1] as a target...
+     * (we might have if (foo) return;)
+     *
+     * If it's a SIMPLE if/else, then the last statement of the if block is a goto, which jumps to after the else
+     * block.  We don't want to keep that goto, as we've inferred structure now.
+     *
+     * We trim that GOTO when we move from an UnstructuredIf to a StructuredIf.
+     */
+    private static boolean considerAsSimpleIf(
+        Op03SimpleStatement ifStatement,
+        List<Op03SimpleStatement> statements,
+        BlockIdentifierFactory blockIdentifierFactory,
+        Set<Op03SimpleStatement> ignoreTheseJumps,
+        boolean reduceSimpleScope
+    ) {
         Op03SimpleStatement takenTarget = ifStatement.getTargets().get(1);
         Op03SimpleStatement notTakenTarget = ifStatement.getTargets().get(0);
         int idxTaken = statements.indexOf(takenTarget);
@@ -343,7 +368,11 @@ lbl10: // 1 sources:
         if (idxCurrent == idxEnd) {
             // It's a trivial tautology? We can't nop it out unless it's side effect free.
             // Instead insert a comment.
-            Op03SimpleStatement taken = new Op03SimpleStatement(blocksAtStart, new CommentStatement("empty if block"), notTakenTarget.getIndex().justBefore());
+            Op03SimpleStatement taken = new Op03SimpleStatement(
+                blocksAtStart,
+                new CommentStatement("empty if block"),
+                notTakenTarget.getIndex().justBefore()
+            );
             taken.addSource(ifStatement);
             taken.addTarget(notTakenTarget);
             Op03SimpleStatement emptyTarget = ifStatement.getTargets().get(0);
@@ -378,15 +407,19 @@ lbl10: // 1 sources:
 
         Op03SimpleStatement statementStart = statements.get(idxCurrent);
         Predicate<BlockIdentifier> tryBlockFilter = in -> in.getBlockType() == BlockType.TRYBLOCK;
-        Set<BlockIdentifier> startTryBlocks = Functional.filterSet(statementStart.getBlockIdentifiers(), tryBlockFilter);
+        Set<BlockIdentifier> startTryBlocks = Functional.filterSet(
+            statementStart.getBlockIdentifiers(),
+            tryBlockFilter
+        );
 
         Op03SimpleStatement statementPrev = statementStart;
         do {
             Op03SimpleStatement statementCurrent = statements.get(idxCurrent);
             boolean currentParent = false;
             if (idxCurrent > 0) {
-                Op03SimpleStatement currentPrev = statements.get(idxCurrent-1);
-                if (currentPrev.getTargets().contains(statementCurrent) && currentPrev.getStatement().fallsToNext()) currentParent = true;
+                Op03SimpleStatement currentPrev = statements.get(idxCurrent - 1);
+                if (currentPrev.getTargets().contains(statementCurrent) && currentPrev.getStatement().fallsToNext())
+                    currentParent = true;
             }
             /* Consider sources of this which jumped forward to get to it.
              *
@@ -412,11 +445,18 @@ lbl10: // 1 sources:
 
                             // We want to avoid breaking up a try block.
                             if (statementPrev != statementStart &&
-                                    !SetUtil.equals(Functional.filterSet(statementPrev.getBlockIdentifiers(), tryBlockFilter), startTryBlocks)) {
+                                !SetUtil.equals(Functional.filterSet(
+                                    statementPrev.getBlockIdentifiers(),
+                                    tryBlockFilter
+                                ), startTryBlocks)) {
                                 return false;
                             }
 
-                            Op03SimpleStatement newJump = new Op03SimpleStatement(ifStatement.getBlockIdentifiers(), new GotoStatement(BytecodeLoc.TODO), statementCurrent.getIndex().justBefore());
+                            Op03SimpleStatement newJump = new Op03SimpleStatement(
+                                ifStatement.getBlockIdentifiers(),
+                                new GotoStatement(BytecodeLoc.TODO),
+                                statementCurrent.getIndex().justBefore()
+                            );
                             if (statementCurrent != ifStatement.getTargets().get(0)) {
                                 Op03SimpleStatement oldTarget = ifStatement.getTargets().get(1);
                                 newJump.addTarget(oldTarget);
@@ -572,13 +612,14 @@ lbl10: // 1 sources:
         // If we've changed the blocks we're in, that means we've jumped into a block.
         // The only way we can cope with this, is if we're jumping into a block which we subsequently change
         // to be an anonymous escape.
-        mismatchedBlocks : if (!(blocksAtStart.equals(blocksAtEnd))) {
+        mismatchedBlocks:
+        if (!(blocksAtStart.equals(blocksAtEnd))) {
             /*
              * A 'normal' case where we might jump into a different blockset - if we've jumped over
              * the body of a switch block - if this is the case, the only difference will be one case statement,
              * and we'll jump into a case statement - the statement LINEARLY BEFORE that will be in the missing block.
              */
-            if (blocksAtStart.size() == blocksAtEnd.size()+1) {
+            if (blocksAtStart.size() == blocksAtEnd.size() + 1) {
                 List<BlockIdentifier> change = SetUtil.differenceAtakeBtoList(blocksAtStart, blocksAtEnd);
                 // size == 1 already verified, but...
                 if (change.size() == 1 && change.get(0).getBlockType() == BlockType.CASE) {
@@ -590,7 +631,7 @@ lbl10: // 1 sources:
                     }
                     // Ok, but what about SwitchTest38?  Jump if still inside the case, but the last item in the
                     // else block is the end of the case.
-                    Op03SimpleStatement beforeRealEnd = statements.get(idxEnd-1);
+                    Op03SimpleStatement beforeRealEnd = statements.get(idxEnd - 1);
                     if (blocksAtStart.equals(beforeRealEnd.getBlockIdentifiers())) {
                         break mismatchedBlocks;
                     }
@@ -618,16 +659,18 @@ lbl10: // 1 sources:
             // this may come back to bite. (at which point we can inject a (? 1 : 0) ternary...
             ConditionalExpression conditionalExpression = innerIfStatement.getCondition().getNegated().simplify();
             Expression rhs = ternary.isPointlessBoolean() ?
-                    conditionalExpression :
-                    new TernaryExpression(BytecodeLoc.TODO,
-                            conditionalExpression,
-                            ternary.e1, ternary.e2);
+                conditionalExpression :
+                new TernaryExpression(BytecodeLoc.TODO,
+                    conditionalExpression,
+                    ternary.e1, ternary.e2
+                );
 
             ifStatement.replaceStatement(
-                    new AssignmentSimple(BytecodeLoc.TODO,
-                            ternary.lValue,
-                            rhs
-                    )
+                new AssignmentSimple(
+                    BytecodeLoc.TODO,
+                    ternary.lValue,
+                    rhs
+                )
             );
             // Reduce the ternary lValue's created location count, if we can.
             if (ternary.lValue instanceof StackSSALabel stackSSALabel) {
@@ -661,7 +704,8 @@ lbl10: // 1 sources:
             maybeSimpleIfElse = false;
         }
         boolean flipBlocks = false;
-        doneElse : if (maybeSimpleIfElse) {
+        doneElse:
+        if (maybeSimpleIfElse) {
             elseBlockLabel = blockIdentifierFactory.getNextBlockIdentifier(BlockType.SIMPLE_IF_ELSE);
             Misc.markWholeBlock(elseBranch, elseBlockLabel);
             /*
@@ -681,12 +725,15 @@ lbl10: // 1 sources:
              */
             // First - detect if the "if" block-to-be has any foreign sources.
             Set<Op03SimpleStatement> allIfSources = Misc.collectAllSources(ifBranch);
-            allIfSources.removeAll(ifBranch);
+            ifBranch.forEach(allIfSources::remove);
             allIfSources.remove(ifStatement);
             if (allIfSources.isEmpty()) break doneElse;
 
             Op03SimpleStatement elseStart = elseBranch.get(0);
-            Pair<Set<Op03SimpleStatement>, Set<Op03SimpleStatement>> reachinfo = Misc.GraphVisitorBlockReachable.getBlockReachableAndExits(elseStart, elseBlockLabel);
+            Pair<Set<Op03SimpleStatement>, Set<Op03SimpleStatement>> reachinfo = Misc.GraphVisitorBlockReachable.getBlockReachableAndExits(
+                elseStart,
+                elseBlockLabel
+            );
             Set<Op03SimpleStatement> reachableElse = reachinfo.getFirst();
 
             if (!(reachableElse.size() == elseBranch.size() && reachinfo.getSecond().isEmpty())) break doneElse;
@@ -704,10 +751,10 @@ lbl10: // 1 sources:
             List<Op03SimpleStatement> oldIfBranch = ifBranch;
             ifBranch = elseBranch;
             ifBranch.sort(new CompareByIndex());
-            Op03SimpleStatement last = ifBranch.get(ifBranch.size()-1);
+            Op03SimpleStatement last = ifBranch.get(ifBranch.size() - 1);
             InstrIndex fromHere = last.getIndex().justAfter();
             Cleaner.sortAndRenumberFromInPlace(oldIfBranch, fromHere);
-            ignoreLocally.removeAll(oldIfBranch);
+            oldIfBranch.forEach(ignoreLocally::remove);
             flipBlocks = true;
             elseBlockLabel.setBlockType(BlockType.SIMPLE_IF_TAKEN);
         }
@@ -746,7 +793,11 @@ lbl10: // 1 sources:
     }
 
 
-    private static DiscoveredTernary testForTernary(List<Op03SimpleStatement> ifBranch, List<Op03SimpleStatement> elseBranch, Op03SimpleStatement leaveIfBranch) {
+    private static DiscoveredTernary testForTernary(
+        List<Op03SimpleStatement> ifBranch,
+        List<Op03SimpleStatement> elseBranch,
+        Op03SimpleStatement leaveIfBranch
+    ) {
         if (ifBranch == null || elseBranch == null) return null;
         if (leaveIfBranch == null) return null;
         TypeFilter<Nop> notNops = new TypeFilter<>(Nop.class, false);
@@ -785,38 +836,27 @@ lbl10: // 1 sources:
     }
 
 
-
-    private static class DiscoveredTernary {
-        LValue lValue;
-        Expression e1;
-        Expression e2;
-
-        private DiscoveredTernary(LValue lValue, Expression e1, Expression e2) {
-            this.lValue = lValue;
-            this.e1 = e1;
-            this.e2 = e2;
-        }
+    private record DiscoveredTernary(LValue lValue, Expression e1, Expression e2) {
 
         private static Troolean isOneOrZeroLiteral(Expression e) {
-            if (!(e instanceof Literal)) return Troolean.NEITHER;
-            TypedLiteral typedLiteral = ((Literal) e).getValue();
-            Object value = typedLiteral.getValue();
-            if (!(value instanceof Integer)) return Troolean.NEITHER;
-            int iValue = (Integer) value;
-            if (iValue == 1) return Troolean.TRUE;
-            if (iValue == 0) return Troolean.FALSE;
-            return Troolean.NEITHER;
-        }
+                if (!(e instanceof Literal)) return Troolean.NEITHER;
+                TypedLiteral typedLiteral = ((Literal) e).getValue();
+                Object value = typedLiteral.getValue();
+                if (!(value instanceof Integer)) return Troolean.NEITHER;
+                int iValue = (Integer) value;
+                if (iValue == 1) return Troolean.TRUE;
+                if (iValue == 0) return Troolean.FALSE;
+                return Troolean.NEITHER;
+            }
 
-        private boolean isPointlessBoolean() {
-            if (!(e1.getInferredJavaType().getRawType() == RawJavaType.BOOLEAN &&
+            private boolean isPointlessBoolean() {
+                if (!(e1.getInferredJavaType().getRawType() == RawJavaType.BOOLEAN &&
                     e2.getInferredJavaType().getRawType() == RawJavaType.BOOLEAN)) return false;
 
-            if (isOneOrZeroLiteral(e1) != Troolean.TRUE) return false;
-            if (isOneOrZeroLiteral(e2) != Troolean.FALSE) return false;
-            return true;
+                if (isOneOrZeroLiteral(e1) != Troolean.TRUE) return false;
+                return isOneOrZeroLiteral(e2) == Troolean.FALSE;
+            }
         }
-    }
 
 
 }

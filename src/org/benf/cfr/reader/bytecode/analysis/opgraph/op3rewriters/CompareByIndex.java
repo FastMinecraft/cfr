@@ -7,7 +7,7 @@ import java.util.Comparator;
 
 public class CompareByIndex implements Comparator<Op03SimpleStatement> {
 
-    private boolean asc;
+    private final boolean asc;
 
     public CompareByIndex() {
         this(true);

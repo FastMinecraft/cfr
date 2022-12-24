@@ -97,7 +97,7 @@ public class JavaGenericPlaceholderTypeInstance implements JavaGenericBaseInstan
 
     @Override
     public List<JavaTypeInstance> getGenericTypes() {
-        return ListFactory.<JavaTypeInstance>newImmutableList(this);
+        return ListFactory.newImmutableList(this);
     }
 
     @Override

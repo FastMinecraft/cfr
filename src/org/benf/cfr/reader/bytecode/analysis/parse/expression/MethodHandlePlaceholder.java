@@ -34,10 +34,8 @@ import org.benf.cfr.reader.entities.FakeMethod;
 import org.benf.cfr.reader.entities.bootstrap.MethodHandleBehaviour;
 import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryMethodHandle;
 import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryMethodRef;
-import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.DecompilerComments;
 import org.benf.cfr.reader.util.collections.ListFactory;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.Arrays;
@@ -46,7 +44,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 public class MethodHandlePlaceholder extends AbstractExpression {
-    private ConstantPoolEntryMethodHandle handle;
+    private final ConstantPoolEntryMethodHandle handle;
     private FakeMethod fake;
 
     public MethodHandlePlaceholder(BytecodeLoc loc, ConstantPoolEntryMethodHandle handle) {
@@ -138,7 +136,7 @@ public class MethodHandlePlaceholder extends AbstractExpression {
                                 new ConstructorInvokationExplicit(getLoc(),
                                         new InferredJavaType(TypeConstants.ILLEGALARGUMENT_EXCEPTION, InferredJavaType.Source.CONSTRUCTOR),
                                         TypeConstants.ILLEGALARGUMENT_EXCEPTION,
-                                        ListFactory.<Expression>newList(new LValueExpression(caught)))))),
+                                        ListFactory.newList(new LValueExpression(caught)))))),
                 caught,
                 Collections.singleton(identifier)
         );
@@ -156,7 +154,7 @@ public class MethodHandlePlaceholder extends AbstractExpression {
         Expression lookup = new StaticFunctionInvokationExplicit(BytecodeLoc.TODO,
                 new InferredJavaType(
                         TypeConstants.METHOD_HANDLES$LOOKUP, InferredJavaType.Source.EXPRESSION), TypeConstants.METHOD_HANDLES, "lookup",
-                Collections.<Expression>emptyList()
+                Collections.emptyList()
         );
 
         String behaviourName = lookupFunction(cpe.getReferenceKind());

@@ -135,8 +135,7 @@ public class PointlessJumps {
     private static Op03SimpleStatement maybeMoveTarget(Op03SimpleStatement expectedRetarget, Op03SimpleStatement source, List<Op03SimpleStatement> statements) {
         if (expectedRetarget.getBlockIdentifiers().equals(source.getBlockIdentifiers())) return expectedRetarget;
 
-        final int startIdx = statements.indexOf(expectedRetarget);
-        int idx = startIdx;
+        int idx = statements.indexOf(expectedRetarget);
         Op03SimpleStatement maybe = null;
         while (idx > 0 && statements.get(--idx).getStatement() instanceof TryStatement) {
             maybe = statements.get(idx);

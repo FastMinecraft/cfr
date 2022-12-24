@@ -39,7 +39,7 @@ public class AssertRewriter {
     private final ClassFile classFile;
     private StaticVariable assertionStatic = null;
     private final boolean switchExpressions;
-    private InferredJavaType boolIjt = new InferredJavaType(RawJavaType.BOOLEAN, InferredJavaType.Source.EXPRESSION);
+    private final InferredJavaType boolIjt = new InferredJavaType(RawJavaType.BOOLEAN, InferredJavaType.Source.EXPRESSION);
 
     public AssertRewriter(ClassFile classFile, Options options) {
         this.classFile = classFile;
@@ -414,7 +414,7 @@ public class AssertRewriter {
             WildcardMatch wcm2 = new WildcardMatch();
             WildcardMatch.ConstructorInvokationSimpleWildcard constructor = wcm2.getConstructorSimpleWildcard("exception", TypeConstants.ASSERTION_ERROR);
             StructuredStatement test = new StructuredThrow(BytecodeLoc.TODO, constructor);
-            if (!test.equals(throwS)) return Pair.make(false, null);;
+            if (!test.equals(throwS)) return Pair.make(false, null);
             Expression exceptArg = null;
             List<Expression> consArg = constructor.getMatch().getArgs();
             if (consArg.size() == 1) {
@@ -526,7 +526,7 @@ public class AssertRewriter {
     }
 
     static class AssertionTrackingControlFlowSwitchExpressionTransformer extends ControlFlowSwitchExpressionTransformer {
-        List<StructuredStatement> throwSS = ListFactory.newList();
+        final List<StructuredStatement> throwSS = ListFactory.newList();
 
         AssertionTrackingControlFlowSwitchExpressionTransformer(BlockIdentifier trueBlock, BlockIdentifier falseBlock, Map<Op04StructuredStatement, StructuredExpressionYield> replacements) {
             super(trueBlock, falseBlock, replacements);
@@ -543,14 +543,14 @@ public class AssertRewriter {
     }
 
     static class ControlFlowSwitchExpressionTransformer implements StructuredStatementTransformer {
-        private Map<Op04StructuredStatement, StructuredExpressionYield> replacements;
+        private final Map<Op04StructuredStatement, StructuredExpressionYield> replacements;
         protected boolean failed;
         int totalStatements;
         Expression single;
         int trueFound = 0;
         int falseFound = 0;
-        private BlockIdentifier trueBlock;
-        private BlockIdentifier falseBlock;
+        private final BlockIdentifier trueBlock;
+        private final BlockIdentifier falseBlock;
 
         private ControlFlowSwitchExpressionTransformer(BlockIdentifier trueBlock, BlockIdentifier falseBlock, Map<Op04StructuredStatement, StructuredExpressionYield> replacements) {
             this.trueBlock = trueBlock;
@@ -568,7 +568,7 @@ public class AssertRewriter {
             if (in.isEffectivelyNOP()) return in;
 
             if (!(in instanceof Block)) {
-                StructuredExpressionYield y = (StructuredExpressionYield)replacements.get(in.getContainer());
+                StructuredExpressionYield y = replacements.get(in.getContainer());
                 if (y == null) {
                     totalStatements++;
                 } else {
@@ -630,7 +630,7 @@ public class AssertRewriter {
     }
 
 
-    private class AssertUseCollector extends AbstractMatchResultIterator {
+    private static class AssertUseCollector extends AbstractMatchResultIterator {
 
         private StructuredStatement ass2throw;
 

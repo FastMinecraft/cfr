@@ -82,8 +82,7 @@ public class SwitchStatement extends AbstractStatement {
         if (o == this) return true;
         if (getClass() != o.getClass()) return false;
         SwitchStatement other = (SwitchStatement) o;
-        if (!constraint.equivalent(switchOn, other.switchOn)) return false;
-        return true;
+        return constraint.equivalent(switchOn, other.switchOn);
     }
 
     @Override

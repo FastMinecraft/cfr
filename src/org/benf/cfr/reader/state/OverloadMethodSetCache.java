@@ -4,7 +4,6 @@ import org.benf.cfr.reader.bytecode.analysis.types.MethodPrototype;
 import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.entities.classfilehelpers.OverloadMethodSet;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 
 import java.util.Map;
 

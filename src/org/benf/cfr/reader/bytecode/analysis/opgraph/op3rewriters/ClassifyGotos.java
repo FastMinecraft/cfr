@@ -10,10 +10,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockType;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.JumpType;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
-import org.benf.cfr.reader.util.MiscUtils;
 import org.benf.cfr.reader.util.collections.*;
-import java.util.function.Predicate;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 
 import java.util.List;
 import java.util.Map;
@@ -181,8 +178,7 @@ class ClassifyGotos {
                         srcBlocks = Functional.filterSet(srcBlocks, in1 -> {
                             BlockType blockType = in1.getBlockType();
                             if (blockType == BlockType.CASE) return false;
-                            if (blockType == BlockType.SWITCH) return false;
-                            return true;
+                            return blockType != BlockType.SWITCH;
                         });
                         if (targetBlocks.size() < srcBlocks.size() + agressiveOffset && srcBlocks.containsAll(targetBlocks)) {
                             /*

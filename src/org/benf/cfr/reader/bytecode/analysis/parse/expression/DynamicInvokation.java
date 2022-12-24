@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Objects;
 
 public class DynamicInvokation extends AbstractExpression {
-    private Expression innerInvokation;
-    private List<Expression> dynamicArgs;
+    private final Expression innerInvokation;
+    private final List<Expression> dynamicArgs;
 
     public DynamicInvokation(BytecodeLoc loc, InferredJavaType castJavaType, Expression innerInvokation, List<Expression> dynamicArgs) {
         super(loc, castJavaType);
@@ -109,10 +109,7 @@ public class DynamicInvokation extends AbstractExpression {
         DynamicInvokation that = (DynamicInvokation) o;
 
         if (!Objects.equals(dynamicArgs, that.dynamicArgs)) return false;
-        if (!Objects.equals(innerInvokation, that.innerInvokation))
-            return false;
-
-        return true;
+        return Objects.equals(innerInvokation, that.innerInvokation);
     }
 
     @Override
@@ -122,8 +119,7 @@ public class DynamicInvokation extends AbstractExpression {
         if (getClass() != o.getClass()) return false;
         DynamicInvokation other = (DynamicInvokation) o;
         if (!constraint.equivalent(innerInvokation, other.innerInvokation)) return false;
-        if (!constraint.equivalent(dynamicArgs, other.dynamicArgs)) return false;
-        return true;
+        return constraint.equivalent(dynamicArgs, other.dynamicArgs);
     }
 
 }

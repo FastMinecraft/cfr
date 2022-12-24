@@ -8,7 +8,7 @@ public abstract class BytecodeLoc {
     public static final BytecodeLoc NONE = BytecodeLocFactory.NONE;
     public static final BytecodeLoc TODO = BytecodeLocFactory.TODO;
     // NB - this is always a fact impl.  This is a bit gross (!) but allows us to simplify the call site.
-    private static BytecodeLocFactoryImpl fact = BytecodeLocFactoryImpl.INSTANCE;
+    private static final BytecodeLocFactoryImpl fact = BytecodeLocFactoryImpl.INSTANCE;
 
     /*
      * Static methods to avoid explicitly having to refer to factory - the code just gets too verbose...

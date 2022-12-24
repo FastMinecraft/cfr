@@ -14,7 +14,7 @@ import java.util.List;
  * It's not much of an obfuscation, but worth undoing.
  */
 public class ControlFlowNumericObf {
-    public static ControlFlowNumericObf Instance = new ControlFlowNumericObf();
+    public static final ControlFlowNumericObf Instance = new ControlFlowNumericObf();
 
     public void process(Method method, List<Op02WithProcessedDataAndRefs> op2list) {
         for (int idx = 0; idx < op2list.size(); ++idx) {

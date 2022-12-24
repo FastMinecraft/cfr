@@ -1,7 +1,6 @@
 package org.benf.cfr.reader.util.collections;
 
 import java.util.Collection;
-import java.util.Set;
 
 public class CollectionUtils {
     public static String join(Collection<?> in, String sep) {

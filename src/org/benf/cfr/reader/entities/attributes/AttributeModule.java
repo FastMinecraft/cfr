@@ -171,7 +171,7 @@ public class AttributeModule extends Attribute {
     }
 
     public static class Use {
-        int index;
+        final int index;
 
         private Use(int index) {
             this.index = index;
@@ -231,7 +231,7 @@ public class AttributeModule extends Attribute {
     // requires, exports, opens, uses and provides are dynamically sized.
 
     private final int length;
-    private ConstantPool cp;
+    private final ConstantPool cp;
 
     public AttributeModule(ByteData raw, ConstantPool cp) {
         this.length = raw.getS4At(OFFSET_OF_ATTRIBUTE_LENGTH);

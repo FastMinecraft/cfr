@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.Set;
 
 public class DecompilerComments implements Dumpable {
-    private Set<DecompilerComment> comments = SetFactory.newOrderedSet();
+    private final Set<DecompilerComment> comments = SetFactory.newOrderedSet();
 
     public DecompilerComments() {
     }

@@ -14,9 +14,9 @@ import java.util.Set;
 import java.util.Vector;
 
 public class UnstructuredWhile extends AbstractUnStructuredStatement {
-    private ConditionalExpression condition;
-    private BlockIdentifier blockIdentifier;
-    private Set<BlockIdentifier> blocksEndedAfter;
+    private final ConditionalExpression condition;
+    private final BlockIdentifier blockIdentifier;
+    private final Set<BlockIdentifier> blocksEndedAfter;
 
     public UnstructuredWhile(BytecodeLoc loc, ConditionalExpression condition, BlockIdentifier blockIdentifier, Set<BlockIdentifier> blocksEndedAfter) {
         super(loc);
@@ -68,8 +68,7 @@ public class UnstructuredWhile extends AbstractUnStructuredStatement {
 
             if (condition == null) return res;
             // Else we need to make up an if block as well!!
-            StructuredIf fakeIf = new StructuredIf(BytecodeLoc.TODO, condition, new Op04StructuredStatement(res));
-            return fakeIf;
+            return new StructuredIf(BytecodeLoc.TODO, condition, new Op04StructuredStatement(res));
         }
         return null;
     }

@@ -18,7 +18,6 @@ import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.getopt.Options;
 
 import java.io.File;
@@ -33,7 +32,7 @@ public class DCCommonState {
     private final Options options;
     private final Map<String, ClassFile> classFileCache;
     private Set<JavaTypeInstance> versionCollisions;
-    private transient LinkedHashSet<String> couldNotLoadClasses = new LinkedHashSet<>();
+    private final transient LinkedHashSet<String> couldNotLoadClasses = new LinkedHashSet<>();
     private final ObfuscationMapping obfuscationMapping;
     private final OverloadMethodSetCache overloadMethodSetCache;
     private final Set<JavaTypeInstance> permittedSealed;

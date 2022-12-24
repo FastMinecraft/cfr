@@ -18,7 +18,7 @@ import org.benf.cfr.reader.util.output.Dumper;
  * However, it can force the type of the constructed object, which NEW is not capable of doing....
  */
 public class ConstructorStatement extends AbstractStatement {
-    private MemberFunctionInvokation invokation;
+    private final MemberFunctionInvokation invokation;
 
     public ConstructorStatement(BytecodeLoc loc, MemberFunctionInvokation construction) {
         super(loc);
@@ -75,8 +75,7 @@ public class ConstructorStatement extends AbstractStatement {
         if (o == this) return true;
         if (getClass() != o.getClass()) return false;
         ConstructorStatement other = (ConstructorStatement) o;
-        if (!constraint.equivalent(invokation, other.invokation)) return false;
-        return true;
+        return constraint.equivalent(invokation, other.invokation);
     }
 
 }

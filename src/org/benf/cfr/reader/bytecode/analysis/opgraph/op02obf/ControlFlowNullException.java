@@ -1,23 +1,16 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op02obf;
 
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op02WithProcessedDataAndRefs;
-import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
-import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.MethodPrototype;
 import org.benf.cfr.reader.bytecode.analysis.types.TypeConstants;
 import org.benf.cfr.reader.bytecode.opcode.JVMInstr;
-import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryMethodRef;
-import org.benf.cfr.reader.entities.exceptions.ExceptionAggregator;
-import org.benf.cfr.reader.entities.exceptions.ExceptionGroup;
 import org.benf.cfr.reader.util.MiscConstants;
-import org.benf.cfr.reader.util.collections.ListFactory;
 
 import java.util.List;
-import java.util.SortedMap;
 
 public class ControlFlowNullException extends SimpleControlFlowBase {
-    public static ControlFlowNullException Instance = new ControlFlowNullException();
+    public static final ControlFlowNullException Instance = new ControlFlowNullException();
 
     @Override
     protected boolean checkTry(List<Op02WithProcessedDataAndRefs> op2list, int from, int to, Op02WithProcessedDataAndRefs handlerJmp) {

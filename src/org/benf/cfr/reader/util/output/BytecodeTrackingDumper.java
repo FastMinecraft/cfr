@@ -5,7 +5,6 @@ import org.benf.cfr.reader.bytecode.analysis.loc.HasByteCodeLoc;
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 
 import java.util.Collection;
 import java.util.List;
@@ -15,7 +14,7 @@ import java.util.TreeMap;
 
 class BytecodeTrackingDumper extends DelegatingDumper {
 
-    private final Map<Method, MethodBytecode> perMethod = MapFactory.newLazyMap(MapFactory.<Method, MethodBytecode>newIdentityMap(),
+    private final Map<Method, MethodBytecode> perMethod = MapFactory.newLazyMap(MapFactory.newIdentityMap(),
         arg -> new MethodBytecode()
     );
     private final BytecodeDumpConsumer consumer;
@@ -62,7 +61,7 @@ class BytecodeTrackingDumper extends DelegatingDumper {
     }
 
     static class MethodBytecode {
-        Map<Integer, LocAtLine> locAtLineMap = MapFactory.newTreeMap();
+        final Map<Integer, LocAtLine> locAtLineMap = MapFactory.newTreeMap();
 
         public void add(Collection<Integer> offsetsForMethod, int currentDepth, int currentLine) {
             for (Integer offset : offsetsForMethod) {

@@ -2,7 +2,6 @@ package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.util.collections.Functional;
-import java.util.function.Predicate;
 
 import java.util.List;
 

@@ -12,7 +12,7 @@ public class ConstantPoolEntryNameAndType extends AbstractConstantPoolEntry {
 
     private final int nameIndex;
     private final int descriptorIndex;
-    private StackDelta[] stackDelta = new StackDelta[2];
+    private final StackDelta[] stackDelta = new StackDelta[2];
 
     public ConstantPoolEntryNameAndType(ConstantPool cp, ByteData data) {
         super(cp);

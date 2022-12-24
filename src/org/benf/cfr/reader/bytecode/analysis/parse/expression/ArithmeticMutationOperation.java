@@ -132,8 +132,7 @@ public class ArithmeticMutationOperation extends AbstractMutatingAssignmentExpre
         ArithmeticMutationOperation other = (ArithmeticMutationOperation) o;
         if (!constraint.equivalent(op, other.op)) return false;
         if (!constraint.equivalent(mutated, other.mutated)) return false;
-        if (!constraint.equivalent(mutation, other.mutation)) return false;
-        return true;
+        return constraint.equivalent(mutation, other.mutation);
     }
 
 }

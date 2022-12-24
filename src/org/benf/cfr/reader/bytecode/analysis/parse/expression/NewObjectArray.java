@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class NewObjectArray extends AbstractNewArray {
-    private List<Expression> dimSizes;
+    private final List<Expression> dimSizes;
     private final JavaTypeInstance allocatedType;
     private final JavaTypeInstance resultType;
     private final int numDims;
@@ -122,9 +122,7 @@ public class NewObjectArray extends AbstractNewArray {
         if (!Objects.equals(allocatedType, that.allocatedType))
             return false;
         if (!Objects.equals(dimSizes, that.dimSizes)) return false;
-        if (!Objects.equals(resultType, that.resultType)) return false;
-
-        return true;
+        return Objects.equals(resultType, that.resultType);
     }
 
     @Override
@@ -136,8 +134,7 @@ public class NewObjectArray extends AbstractNewArray {
         if (numDims != other.numDims) return false;
         if (!constraint.equivalent(dimSizes, other.dimSizes)) return false;
         if (!constraint.equivalent(allocatedType, other.allocatedType)) return false;
-        if (!constraint.equivalent(resultType, other.resultType)) return false;
-        return true;
+        return constraint.equivalent(resultType, other.resultType);
     }
 
 

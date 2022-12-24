@@ -23,7 +23,7 @@ import org.benf.cfr.reader.util.output.Dumper;
 import java.util.List;
 
 public class StructuredCase extends AbstractStructuredBlockStatement {
-    private List<Expression> values;
+    private final List<Expression> values;
     private final BlockIdentifier blockIdentifier;
     @Nullable
     private final InferredJavaType inferredJavaTypeOfSwitch;

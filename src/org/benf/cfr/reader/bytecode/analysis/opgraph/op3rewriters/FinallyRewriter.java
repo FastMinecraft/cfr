@@ -10,7 +10,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifierFactory;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.finalhelp.FinalAnalyzer;
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.util.collections.Functional;
-import java.util.function.Predicate;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
@@ -28,11 +27,7 @@ public class FinallyRewriter {
         final Set<Op03SimpleStatement> analysedTries = SetFactory.newSet();
         boolean continueLoop;
         do {
-            List<Op03SimpleStatement> tryStarts = Functional.filter(in, in1 -> {
-                if (in1.getStatement() instanceof TryStatement &&
-                        !analysedTries.contains(in1)) return true;
-                return false;
-            });
+            List<Op03SimpleStatement> tryStarts = Functional.filter(in, in1 -> in1.getStatement() instanceof TryStatement && !analysedTries.contains(in1));
             for (Op03SimpleStatement tryS : tryStarts) {
                 FinalAnalyzer.identifyFinally(method, tryS, in, blockIdentifierFactory, analysedTries);
             }

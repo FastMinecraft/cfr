@@ -5,7 +5,6 @@ import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
 import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
-import org.benf.cfr.reader.bytecode.analysis.parse.expression.AbstractMutatingAssignmentExpression;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.ArithmeticOperation;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.AssignmentExpression;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.LValueExpression;
@@ -90,8 +89,7 @@ public class LValueCondense {
 
         Expression newRhs = null;
         if (r1 instanceof ArithmeticOperation ar1 && ((ArithmeticOperation) r1).isMutationOf(l1)) {
-            AbstractMutatingAssignmentExpression me = ar1.getMutationOf(l1);
-            newRhs = me;
+            newRhs = ar1.getMutationOf(l1);
         }
 
         if (newRhs == null) newRhs = new AssignmentExpression(BytecodeLoc.TODO, l1, r1);

@@ -2,7 +2,6 @@ package org.benf.cfr.reader.bytecode.analysis.parse.expression;
 
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
-import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
 import org.benf.cfr.reader.bytecode.analysis.parse.StatementContainer;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.misc.Precedence;
 import org.benf.cfr.reader.bytecode.analysis.parse.rewriters.CloneHelper;
@@ -20,7 +19,7 @@ import org.benf.cfr.reader.util.output.Dumper;
 
 public class InstanceOfExpression extends AbstractExpression {
     private Expression lhs;
-    private JavaTypeInstance typeInstance;
+    private final JavaTypeInstance typeInstance;
 
     public InstanceOfExpression(BytecodeLoc loc, Expression lhs, ConstantPoolEntry cpe) {
         super(loc, new InferredJavaType(RawJavaType.BOOLEAN, InferredJavaType.Source.EXPRESSION));
@@ -95,8 +94,7 @@ public class InstanceOfExpression extends AbstractExpression {
         if (o == this) return true;
         if (!(o instanceof InstanceOfExpression other)) return false;
         if (!lhs.equals(other.lhs)) return false;
-        if (!typeInstance.equals(other.typeInstance)) return false;
-        return true;
+        return typeInstance.equals(other.typeInstance);
     }
 
     @Override
@@ -106,8 +104,7 @@ public class InstanceOfExpression extends AbstractExpression {
         if (getClass() != o.getClass()) return false;
         InstanceOfExpression other = (InstanceOfExpression) o;
         if (!constraint.equivalent(lhs, other.lhs)) return false;
-        if (!constraint.equivalent(typeInstance, other.typeInstance)) return false;
-        return true;
+        return constraint.equivalent(typeInstance, other.typeInstance);
     }
 
 }

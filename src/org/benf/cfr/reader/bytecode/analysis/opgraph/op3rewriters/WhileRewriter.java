@@ -14,7 +14,6 @@ import org.benf.cfr.reader.util.Troolean;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import java.util.function.Predicate;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
@@ -60,7 +59,7 @@ class WhileRewriter {
          * If it's a direct jump, we can just target the while statement.
          */
         if (loopBodyStartStatement.getClass() == IfStatement.class) {
-            return; // Not handled yet.
+            // Not handled yet.
         } else if (loopBodyStartStatement.getClass() == IfExitingStatement.class) {
             IfExitingStatement ifExitingStatement = (IfExitingStatement) loopBodyStartStatement;
             Statement exitStatement = ifExitingStatement.getExitStatement();
@@ -102,9 +101,7 @@ class WhileRewriter {
             loopStart.getSources().clear();
             loopStart.nopOut();
             whileBlockIdentifier.setBlockType(BlockType.WHILELOOP);
-            return;
         } else {
-            return;
         }
     }
 

@@ -7,7 +7,6 @@ import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.StringUtils;
 import org.benf.cfr.reader.util.collections.Functional;
-import java.util.function.Predicate;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.List;

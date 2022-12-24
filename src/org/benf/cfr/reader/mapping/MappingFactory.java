@@ -12,13 +12,11 @@ import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.MiscConstants;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collections;
@@ -118,7 +116,7 @@ public class MappingFactory {
             JavaTypeInstance parent = entry.getKey();
             List<InnerClassAttributeInfo> parentIac = lazyRes.get(parent);
             for (JavaTypeInstance child : entry.getValue()) {
-                InnerClassAttributeInfo iac = new InnerClassAttributeInfo(child, parent, null, Collections.<AccessFlag>emptySet());
+                InnerClassAttributeInfo iac = new InnerClassAttributeInfo(child, parent, null, Collections.emptySet());
                 parentIac.add(iac);
                 lazyRes.get(child).add(iac);
             }

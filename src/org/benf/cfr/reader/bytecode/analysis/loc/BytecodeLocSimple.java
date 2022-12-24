@@ -7,7 +7,7 @@ import java.util.Collections;
 
 class BytecodeLocSimple extends BytecodeLoc {
     private final int offset;
-    private Method method;
+    private final Method method;
 
     /* Lambdas & other helper methods make keeping track of bytecode location much, much
      * more painful.  We inline lambdas, but that's not reasonable to do with bytecode

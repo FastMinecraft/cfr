@@ -111,7 +111,7 @@ public class InferredJavaType {
 
         private boolean resolved = false;
 
-        private List<IJTInternal> clashes;
+        private final List<IJTInternal> clashes;
         private final int id;
 
         private JavaTypeInstance type = null;
@@ -229,7 +229,7 @@ public class InferredJavaType {
         private static Pair<Boolean, JavaTypeInstance> collapseTypeClash2(List<JavaTypeInstance> clashes) {
             Map<JavaTypeInstance, JavaGenericRefTypeInstance> matches = getMatches(clashes);
             if (matches.isEmpty()) {
-                return Pair.<Boolean, JavaTypeInstance>make(false, TypeConstants.OBJECT);
+                return Pair.make(false, TypeConstants.OBJECT);
             }
 
             /*
@@ -640,7 +640,7 @@ public class InferredJavaType {
     }
 
     private static InferredJavaType mkClash(List<JavaTypeInstance> types) {
-        JavaTypeInstance[] arr = types.toArray(new JavaTypeInstance[types.size()]);
+        JavaTypeInstance[] arr = types.toArray(new JavaTypeInstance[0]);
         return mkClash(arr);
     }
 

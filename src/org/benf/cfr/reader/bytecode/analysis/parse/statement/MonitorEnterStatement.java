@@ -70,8 +70,7 @@ public class MonitorEnterStatement extends MonitorStatement {
         if (o == this) return true;
         if (getClass() != o.getClass()) return false;
         MonitorEnterStatement other = (MonitorEnterStatement) o;
-        if (!constraint.equivalent(monitor, other.monitor)) return false;
-        return true;
+        return constraint.equivalent(monitor, other.monitor);
     }
 
 }

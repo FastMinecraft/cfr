@@ -5,7 +5,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.statement.CaseStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockType;
 import org.benf.cfr.reader.util.collections.Functional;
-import java.util.function.Predicate;
 import org.benf.cfr.reader.util.collections.SetUtil;
 
 import java.util.List;

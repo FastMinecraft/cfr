@@ -23,9 +23,7 @@ public class Ident {
         Ident ident = (Ident) o;
 
         if (idx != ident.idx) return false;
-        if (stackpos != ident.stackpos) return false;
-
-        return true;
+        return stackpos == ident.stackpos;
     }
 
     public int getIdx() {

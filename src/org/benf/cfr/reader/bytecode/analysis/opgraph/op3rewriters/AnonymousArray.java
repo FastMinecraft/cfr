@@ -17,7 +17,6 @@ import org.benf.cfr.reader.bytecode.analysis.stack.StackEntry;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
-import java.util.function.Predicate;
 
 import java.util.List;
 
@@ -44,7 +43,6 @@ public class AnonymousArray {
         if (!(arrayLValue instanceof StackSSALabel || arrayLValue instanceof LocalVariable)) {
             return false;
         }
-        LValue array = arrayLValue;
         AbstractNewArray arrayDef = start.getNewArrayWildCard("def").getMatch();
         Expression dimSize0 = arrayDef.getDimSize(0);
         if (!(dimSize0 instanceof Literal lit)) return false;
@@ -58,10 +56,10 @@ public class AnonymousArray {
         List<Expression> anon = ListFactory.newList();
         List<Op03SimpleStatement> anonAssigns = ListFactory.newList();
         Expression arrayExpression;
-        if (array instanceof StackSSALabel) {
-            arrayExpression = new StackValue(stm.getCombinedLoc(), (StackSSALabel) array);
+        if (arrayLValue instanceof StackSSALabel) {
+            arrayExpression = new StackValue(stm.getCombinedLoc(), (StackSSALabel) arrayLValue);
         } else {
-            arrayExpression = new LValueExpression(array);
+            arrayExpression = new LValueExpression(arrayLValue);
         }
         for (int x = 0; x < bound; ++x) {
             if (next.getTargets().size() != 1) {
@@ -82,8 +80,8 @@ public class AnonymousArray {
         }
         AssignmentSimple replacement = new AssignmentSimple(stm.getLoc(), assignmentSimple.getCreatedLValue(), new NewAnonymousArray(stm.getLoc(), arrayDef.getInferredJavaType(), arrayDef.getNumDims(), anon, false));
         newArray.replaceStatement(replacement);
-        if (array instanceof StackSSALabel) {
-            StackEntry arrayStackEntry = ((StackSSALabel) array).getStackEntry();
+        if (arrayLValue instanceof StackSSALabel) {
+            StackEntry arrayStackEntry = ((StackSSALabel) arrayLValue).getStackEntry();
             for (Op03SimpleStatement ignored : anonAssigns) {
                 arrayStackEntry.decrementUsage();
             }

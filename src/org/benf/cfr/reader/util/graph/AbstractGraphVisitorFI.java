@@ -2,7 +2,6 @@ package org.benf.cfr.reader.util.graph;
 
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import java.util.function.BiConsumer;
 
 import java.util.Collection;
 import java.util.LinkedList;

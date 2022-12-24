@@ -152,9 +152,7 @@ public class StructuredCatch extends AbstractStructuredStatement {
 
         StructuredCatch that = (StructuredCatch) o;
 
-        if (!Objects.equals(catching, that.catching)) return false;
-
-        return true;
+        return Objects.equals(catching, that.catching);
     }
 
 }

@@ -17,7 +17,7 @@ import org.benf.cfr.reader.util.output.Dumper;
 
 public class ArrayLength extends AbstractExpression {
     private Expression array;
-    private JavaTypeInstance constructionType;
+    private final JavaTypeInstance constructionType;
 
     public ArrayLength(BytecodeLoc loc, Expression array) {
         super(loc, new InferredJavaType(RawJavaType.INT, InferredJavaType.Source.INSTRUCTION));
@@ -98,8 +98,7 @@ public class ArrayLength extends AbstractExpression {
         if (o == this) return true;
         if (getClass() != o.getClass()) return false;
         ArrayLength other = (ArrayLength) o;
-        if (!constraint.equivalent(array, other.array)) return false;
-        return true;
+        return constraint.equivalent(array, other.array);
     }
 
 }

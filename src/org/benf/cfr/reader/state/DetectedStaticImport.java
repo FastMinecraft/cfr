@@ -27,9 +27,7 @@ public class DetectedStaticImport {
         DetectedStaticImport that = (DetectedStaticImport) o;
 
         if (!clazz.equals(that.clazz)) return false;
-        if (!name.equals(that.name)) return false;
-
-        return true;
+        return name.equals(that.name);
     }
 
     @Override

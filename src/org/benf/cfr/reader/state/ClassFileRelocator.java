@@ -10,7 +10,7 @@ public interface ClassFileRelocator {
     String correctPath(String path);
 
     class NopRelocator implements ClassFileRelocator {
-        public static ClassFileRelocator Instance = new NopRelocator();
+        public static final ClassFileRelocator Instance = new NopRelocator();
 
         @Override
         public String correctPath(String path) {
@@ -43,16 +43,7 @@ public interface ClassFileRelocator {
         private final FileDets classFile;
         private final FileDets file;
 
-        private static class FileDets {
-            String pre;
-            String name;
-            String ext;
-
-            public FileDets(String pre, String name, String ext) {
-                this.pre = pre;
-                this.name = name;
-                this.ext = ext;
-            }
+        private record FileDets(String pre, String name, String ext) {
         }
 
         public RenamingRelocator(ClassFileRelocator base, String classPath, String filePath, String className, String fileName) {

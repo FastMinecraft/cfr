@@ -106,7 +106,6 @@ public class ArithmeticPostMutationOperation extends AbstractMutatingAssignmentE
         if (!(o instanceof ArithmeticPostMutationOperation other)) return false;
 
         if (!constraint.equivalent(mutated, other.mutated)) return false;
-        if (!constraint.equivalent(op, other.op)) return false;
-        return true;
+        return constraint.equivalent(op, other.op);
     }
 }

@@ -22,7 +22,7 @@ import org.benf.cfr.reader.util.output.Dumper;
 
 public class StructuredStatementExpression extends AbstractExpression {
 
-    private StructuredStatement content;
+    private final StructuredStatement content;
 
     public StructuredStatementExpression(InferredJavaType inferredJavaType, StructuredStatement content) {
         super(content.getLoc(), inferredJavaType);
@@ -98,9 +98,7 @@ public class StructuredStatementExpression extends AbstractExpression {
 
         StructuredStatementExpression that = (StructuredStatementExpression) o;
 
-        if (!content.equals(that.content)) return false;
-
-        return true;
+        return content.equals(that.content);
     }
 
     @Override
@@ -109,8 +107,7 @@ public class StructuredStatementExpression extends AbstractExpression {
         if (o == this) return true;
         if (getClass() != o.getClass()) return false;
         StructuredStatementExpression other = (StructuredStatementExpression) o;
-        if (!constraint.equivalent(content, other.content)) return false;
-        return true;
+        return constraint.equivalent(content, other.content);
     }
 
 }

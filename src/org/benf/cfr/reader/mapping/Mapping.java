@@ -1,13 +1,9 @@
 package org.benf.cfr.reader.mapping;
 
-import org.benf.cfr.reader.bytecode.analysis.parse.lvalue.AbstractFieldVariable;
-import org.benf.cfr.reader.bytecode.analysis.parse.lvalue.StaticVariable;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaArrayTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.MethodPrototype;
-import org.benf.cfr.reader.entities.AccessFlag;
-import org.benf.cfr.reader.entities.Field;
 import org.benf.cfr.reader.entities.innerclass.InnerClassAttributeInfo;
 import org.benf.cfr.reader.state.DetectedStaticImport;
 import org.benf.cfr.reader.state.TypeUsageInformation;
@@ -31,8 +27,8 @@ public class Mapping implements ObfuscationMapping {
     // need to reconstruct it.
     private final Map<JavaTypeInstance, ClassMapping> erasedTypeMap = MapFactory.newMap();
     private final UnaryFunction<JavaTypeInstance, JavaTypeInstance> getter = this::get;
-    private Options options;
-    private Map<JavaTypeInstance, List<InnerClassAttributeInfo>> innerInfo;
+    private final Options options;
+    private final Map<JavaTypeInstance, List<InnerClassAttributeInfo>> innerInfo;
 
     Mapping(Options options, List<ClassMapping> classMappings, Map<JavaTypeInstance, List<InnerClassAttributeInfo>> innerInfo) {
         this.options = options;
@@ -178,7 +174,7 @@ public class Mapping implements ObfuscationMapping {
                         (JavaRefTypeInstance)get(dti.getAnalysisType()),
                         SetFactory.newOrderedSet(Functional.map(dti.getUsedClassTypes(),
                             arg -> (JavaRefTypeInstance)get(arg)
-                        )), SetFactory.<DetectedStaticImport>newSet());
+                        )), SetFactory.newSet());
                 mappingTypeUsage = new MappingTypeUsage(dtr, dti);
             }
             return mappingTypeUsage;

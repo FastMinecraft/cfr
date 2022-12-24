@@ -90,10 +90,7 @@ public class GotoStatement extends JumpingStatement {
             BlockIdentifier blockStarted = statement.getContainer().getBlockStarted();
             if (blockStarted != null) {
                 switch (blockStarted.getBlockType()) {
-                    case UNCONDITIONALDOLOOP -> {
-                        return blockStarted;
-                    }
-                    case DOLOOP -> {
+                    case UNCONDITIONALDOLOOP, DOLOOP -> {
                         return blockStarted;
                     }
                 }
@@ -136,9 +133,7 @@ public class GotoStatement extends JumpingStatement {
 
         GotoStatement that = (GotoStatement) o;
 
-        if (jumpType != that.jumpType) return false;
-
-        return true;
+        return jumpType == that.jumpType;
     }
 
     @Override

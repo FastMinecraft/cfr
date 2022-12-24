@@ -28,8 +28,6 @@ import org.benf.cfr.reader.util.*;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import java.util.function.Predicate;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 
 import java.util.*;
 
@@ -236,10 +234,7 @@ public class VariableNameTidier implements StructuredStatementTransformer {
             /*
              * And check that it doesn't collide with any of the known class names!
              */
-            if (checkClassCache && classCache.isClassName(name)) {
-                return true;
-            }
-            return false;
+            return checkClassCache && classCache.isClassName(name);
         }
 
         private String getNext(String base) {
@@ -346,9 +341,9 @@ public class VariableNameTidier implements StructuredStatementTransformer {
         }
 
         protected class AtLevel {
-            StructuredStatement statement;
-            Set<String> definedHere = SetFactory.newSet();
-            int next;
+            final StructuredStatement statement;
+            final Set<String> definedHere = SetFactory.newSet();
+            final int next;
 
             private AtLevel(StructuredStatement statement) {
                 this.statement = statement;

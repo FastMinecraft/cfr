@@ -21,7 +21,7 @@ public class ClassFileDumperAnonymousInner extends AbstractClassFileDumper {
 
     @Override
     public Dumper dump(ClassFile classFile, InnerClassDumpType innerClass, Dumper d) {
-        return dumpWithArgs(classFile, null, ListFactory.<Expression>newList(), false, d);
+        return dumpWithArgs(classFile, null, ListFactory.newList(), false, d);
     }
 
     public Dumper dumpWithArgs(ClassFile classFile, MethodPrototype usedMethod, List<Expression> args, boolean isEnum, Dumper d) {

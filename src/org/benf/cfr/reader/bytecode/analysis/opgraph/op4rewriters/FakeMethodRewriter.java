@@ -26,7 +26,7 @@ public class FakeMethodRewriter {
 
     private static class Rewriter extends AbstractExpressionRewriter {
         private final ClassFile classFile;
-        private TypeUsageCollectingDumper typeUsage;
+        private final TypeUsageCollectingDumper typeUsage;
 
         Rewriter(ClassFile classFile, TypeUsageCollectingDumper typeUsage) {
             this.classFile = classFile;

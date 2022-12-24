@@ -963,7 +963,6 @@ public class FinalAnalyzer {
          */
         List<Op03SimpleStatement> tmp = ListFactory.newList(possibleCatches);
         tmp.sort(new CompareByIndex());
-        Op03SimpleStatement catchS = tmp.get(tmp.size() - 1);
-        return catchS;
+        return tmp.get(tmp.size() - 1);
     }
 }

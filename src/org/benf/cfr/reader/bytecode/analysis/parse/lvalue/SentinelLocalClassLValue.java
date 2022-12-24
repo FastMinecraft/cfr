@@ -104,10 +104,7 @@ public class SentinelLocalClassLValue extends AbstractLValue {
 
         SentinelLocalClassLValue that = (SentinelLocalClassLValue) o;
 
-        if (!Objects.equals(localClassType, that.localClassType))
-            return false;
-
-        return true;
+        return Objects.equals(localClassType, that.localClassType);
     }
 
     @Override

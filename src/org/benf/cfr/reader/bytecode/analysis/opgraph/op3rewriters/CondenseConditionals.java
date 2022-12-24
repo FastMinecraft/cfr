@@ -63,11 +63,10 @@ public class CondenseConditionals {
                 boolean takenJumpBy1 = (x < statements.size() - 2) && statements.get(x+2) == taken;
 
                 if (fallthroughInner instanceof IfStatement) {
-                    Op03SimpleStatement sndIf = fallThrough;
-                    Op03SimpleStatement sndTaken = sndIf.getTargets().get(1);
-                    Op03SimpleStatement sndFallThrough = sndIf.getTargets().get(0);
+                    Op03SimpleStatement sndTaken = fallThrough.getTargets().get(1);
+                    Op03SimpleStatement sndFallThrough = fallThrough.getTargets().get(0);
 
-                    retry = condenseIfs(op03SimpleStatement, sndIf, taken, sndTaken, sndFallThrough, false);
+                    retry = condenseIfs(op03SimpleStatement, fallThrough, taken, sndTaken, sndFallThrough, false);
 
 //                    if (if2.condenseWithPriorIfStatement(if1, false)) {
 //                        retry = true;
@@ -212,8 +211,7 @@ public class CondenseConditionals {
 
      */
     private static boolean condenseConditional2_type3(Op03SimpleStatement ifStatement, List<Op03SimpleStatement> allStatements) {
-        Op03SimpleStatement s1c = ifStatement;
-        Statement s1 = s1c.getStatement();
+        Statement s1 = ifStatement.getStatement();
         if (s1.getClass() != IfStatement.class) return false;
         Op03SimpleStatement s4c = ifStatement.getTargets().get(1);
         Op03SimpleStatement s2c = ifStatement.getTargets().get(0);
@@ -237,9 +235,9 @@ public class CondenseConditionals {
         IfStatement is4 = (IfStatement)s4;
         ConditionalExpression cond = new BooleanExpression(new TernaryExpression(s1.getLoc(), is1.getCondition(), is4.getCondition(), is2.getCondition().getNegated()));
 
-        s1c.replaceStatement(new IfStatement(BytecodeLoc.combineShallow(s1, s2, s3, s4), cond));
-        s1c.replaceTarget(s4c,y);
-        y.replaceSource(s4c, s1c);
+        ifStatement.replaceStatement(new IfStatement(BytecodeLoc.combineShallow(s1, s2, s3, s4), cond));
+        ifStatement.replaceTarget(s4c,y);
+        y.replaceSource(s4c, ifStatement);
 
         // Fix sources / targets.
         s2c.replaceStatement(new GotoStatement(BytecodeLoc.NONE));
@@ -252,14 +250,14 @@ public class CondenseConditionals {
         // S1 to S5.
         // This violates the "next is fallthrough" invariant temporarily, and is only ok because we KNOW
         // we will tidy up immediately.
-        int idx = allStatements.indexOf(s1c);
+        int idx = allStatements.indexOf(ifStatement);
         if (allStatements.size() > idx+5
                 && allStatements.get(idx+1) == s2c
                 && allStatements.get(idx+2) == s3c
                 && allStatements.get(idx+3) == s4c
                 && allStatements.get(idx+4) == s5c) {
-            s5c.replaceSource(s2c, s1c);
-            s1c.replaceTarget(s2c, s5c);
+            s5c.replaceSource(s2c, ifStatement);
+            ifStatement.replaceTarget(s2c, s5c);
             s2c.clear();
         }
 
@@ -340,10 +338,9 @@ public class CondenseConditionals {
 
         final Op03SimpleStatement taken1 = ifStatement.getTargets().get(1);
         final Op03SimpleStatement nottaken1 = ifStatement.getTargets().get(0);
-        if (!(nottaken1.getStatement() instanceof IfStatement)) return false;
-        Op03SimpleStatement ifStatement2 = nottaken1;
-        Op03SimpleStatement taken2 = ifStatement2.getTargets().get(1);
-        Op03SimpleStatement nottaken2 = ifStatement2.getTargets().get(0);
+        if (!(nottaken1.getStatement() instanceof IfStatement if2)) return false;
+        Op03SimpleStatement taken2 = nottaken1.getTargets().get(1);
+        Op03SimpleStatement nottaken2 = nottaken1.getTargets().get(0);
         final Op03SimpleStatement nottaken2Immed = nottaken2;
         if (nottaken2Immed.getSources().size() != 1) return false;
         nottaken2 = Misc.followNopGotoChain(nottaken2, true, false);
@@ -352,12 +349,11 @@ public class CondenseConditionals {
             if (nontaken2rewrite == nottaken2) break;
             nottaken2 = nontaken2rewrite;
         } while (true);
-        if (!(taken1.getStatement() instanceof IfStatement)) return false;
+        if (!(taken1.getStatement() instanceof IfStatement if3)) return false;
         if (taken1.getSources().size() != 1) return false;
-        Op03SimpleStatement ifStatement3 = taken1;
-        Op03SimpleStatement taken3 = ifStatement3.getTargets().get(1);
-        Op03SimpleStatement nottaken3 = ifStatement3.getTargets().get(0);
-        Op03SimpleStatement notTaken3Source = ifStatement3;
+        Op03SimpleStatement taken3 = taken1.getTargets().get(1);
+        Op03SimpleStatement nottaken3 = taken1.getTargets().get(0);
+        Op03SimpleStatement notTaken3Source = taken1;
         do {
             Op03SimpleStatement nontaken3rewrite = Misc.followNopGoto(nottaken3, true, false);
             if (nontaken3rewrite == nottaken3) break;
@@ -384,8 +380,6 @@ public class CondenseConditionals {
          *
          *
          */
-        IfStatement if2 = (IfStatement) ifStatement2.getStatement();
-        IfStatement if3 = (IfStatement) ifStatement3.getStatement();
 
         ConditionalExpression newCond = new BooleanExpression(
                 new TernaryExpression(BytecodeLoc.combineShallow(if1, if2, if3),
@@ -400,20 +394,20 @@ public class CondenseConditionals {
 
         ifStatement.replaceTarget(taken1, taken3);
         taken3.addSource(ifStatement);
-        taken3.removeSource(ifStatement2);
-        taken3.removeSource(ifStatement3);
+        taken3.removeSource(nottaken1);
+        taken3.removeSource(taken1);
 
         nottaken1.getSources().remove(ifStatement);
-        nottaken2Immed.replaceSource(ifStatement2, ifStatement);
+        nottaken2Immed.replaceSource(nottaken1, ifStatement);
         ifStatement.replaceTarget(nottaken1, nottaken2Immed);
 
 //        nottaken3.removeSource(notTaken3Source);
         nottaken3.removeSource(notTaken3Source);
 
-        ifStatement2.replaceStatement(new Nop());
-        ifStatement3.replaceStatement(new Nop());
-        ifStatement2.removeTarget(taken3);
-        ifStatement3.removeTarget(taken3);
+        nottaken1.replaceStatement(new Nop());
+        taken1.replaceStatement(new Nop());
+        nottaken1.removeTarget(taken3);
+        taken1.removeTarget(taken3);
 
         ifStatement.replaceStatement(new IfStatement(BytecodeLoc.NONE, newCond));
 

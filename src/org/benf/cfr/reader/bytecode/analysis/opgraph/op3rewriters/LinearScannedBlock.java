@@ -5,8 +5,8 @@ import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import java.util.List;
 
 public class LinearScannedBlock {
-    private Op03SimpleStatement first;
-    private Op03SimpleStatement last;
+    private final Op03SimpleStatement first;
+    private final Op03SimpleStatement last;
     private int idxFirst;
     private int idxLast;
 

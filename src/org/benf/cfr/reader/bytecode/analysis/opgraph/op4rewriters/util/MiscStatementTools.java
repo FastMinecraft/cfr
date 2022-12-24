@@ -15,8 +15,7 @@ public class MiscStatementTools {
         StructuredStatement topCode = code.getStatement();
         if (!(topCode instanceof Block block)) return null;
 
-        List<Op04StructuredStatement> statements = block.getBlockStatements();
-        return statements;
+        return block.getBlockStatements();
     }
 
     public static boolean isDeadCode(Op04StructuredStatement code) {

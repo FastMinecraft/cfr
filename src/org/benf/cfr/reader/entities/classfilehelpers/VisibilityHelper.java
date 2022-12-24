@@ -14,8 +14,7 @@ public class VisibilityHelper {
          * not.
          */
         if (maybeCaller.getInnerClassHereInfo().isTransitiveInnerClassOf(thisClass)) return true;
-        if (thisClass.getInnerClassHereInfo().isTransitiveInnerClassOf(maybeCaller)) return true;
-        return false;
+        return thisClass.getInnerClassHereInfo().isTransitiveInnerClassOf(maybeCaller);
     }
 
     public static boolean isVisibleTo(JavaRefTypeInstance maybeCaller, ClassFile classFile, boolean accPublic, boolean accPrivate, boolean accProtected) {
@@ -34,7 +33,6 @@ public class VisibilityHelper {
             return isInnerVisibleTo(maybeCaller, classFile);
         }
         // Otherwise, we're left with package visibility.
-        if (maybeCaller.getPackageName().equals(classFile.getRefClassType().getPackageName())) return true;
-        return false;
+        return maybeCaller.getPackageName().equals(classFile.getRefClassType().getPackageName());
     }
 }

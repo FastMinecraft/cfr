@@ -20,8 +20,6 @@ import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import java.util.function.Predicate;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 
 import java.util.*;
 
@@ -376,18 +374,12 @@ public class ExceptionRewriters {
         return res;
     }
 
-    private static class SingleExceptionAddressing {
-        BlockIdentifier tryBlockIdent;
-        BlockIdentifier catchBlockIdent;
-        LinearScannedBlock tryBlock;
-        LinearScannedBlock catchBlock;
-
-        private SingleExceptionAddressing(BlockIdentifier tryBlockIdent, BlockIdentifier catchBlockIdent, LinearScannedBlock tryBlock, LinearScannedBlock catchBlock) {
-            this.tryBlockIdent = tryBlockIdent;
-            this.catchBlockIdent = catchBlockIdent;
-            this.tryBlock = tryBlock;
-            this.catchBlock = catchBlock;
-        }
+    private record SingleExceptionAddressing(
+        BlockIdentifier tryBlockIdent,
+        BlockIdentifier catchBlockIdent,
+        LinearScannedBlock tryBlock,
+        LinearScannedBlock catchBlock
+    ) {
     }
 
     private static SingleExceptionAddressing getSingleTryCatch(Op03SimpleStatement trystm, List<Op03SimpleStatement> statements) {

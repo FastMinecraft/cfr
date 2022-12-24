@@ -165,12 +165,10 @@ public class LocalVariable extends AbstractLValue {
             return false;
         }
         if (ident == null) {
-            if (that.ident != null) return false;
+            return that.ident == null;
         } else {
-            if (!ident.equals(that.ident)) return false;
+            return ident.equals(that.ident);
         }
-
-        return true;
     }
 
     @Override

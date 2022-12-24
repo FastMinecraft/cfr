@@ -24,11 +24,11 @@ public class OsInfo {
             "lpt1", "lpt2", "lpt3", "lpt4", "lpt5", "lpt6", "lpt7", "lpt8", "lpt9",
             "conin$", "conout$"
         )),
-        OSX(true, Collections.<String>emptySet()),
-        OTHER(false, Collections.<String>emptySet()); // I'm assuming other behaves.  If it doesn't, add it.
+        OSX(true, Collections.emptySet()),
+        OTHER(false, Collections.emptySet()); // I'm assuming other behaves.  If it doesn't, add it.
 
-        private boolean caseInsensitive;
-        private Set<String> illegalNames;
+        private final boolean caseInsensitive;
+        private final Set<String> illegalNames;
 
         OS(boolean caseInsensitive, Set<String> illegalNames) {
             this.caseInsensitive = caseInsensitive;

@@ -81,10 +81,10 @@ public class UnreachableStaticRewriter {
     }
 
     private static class Rewriter extends AbstractExpressionRewriter {
-        private JavaRefTypeInstance thisType;
-        private TypeUsageCollectingDumper typeUsageCollector;
+        private final JavaRefTypeInstance thisType;
+        private final TypeUsageCollectingDumper typeUsageCollector;
         private final TypeUsageInformation typeUsageInformation;
-        private Map<JavaTypeInstance, Inaccessible> inaccessibles;
+        private final Map<JavaTypeInstance, Inaccessible> inaccessibles;
 
         private Rewriter(JavaRefTypeInstance thisType, TypeUsageCollectingDumper typeUsage, Map<JavaTypeInstance, Inaccessible> inaccessibles) {
             this.thisType = thisType;
@@ -111,8 +111,7 @@ public class UnreachableStaticRewriter {
         private boolean available(StaticFunctionInvokation sfe, Inaccessible inaccessible) {
             if (defines(thisType, sfe)) return true;
             if (defines(inaccessible.localInner, sfe)) return true;
-            if (defines(inaccessible.fakeFqnInner, sfe)) return true;
-            return false;
+            return defines(inaccessible.fakeFqnInner, sfe);
         }
 
         private boolean defines(JavaRefTypeInstance type, StaticFunctionInvokation sfe) {

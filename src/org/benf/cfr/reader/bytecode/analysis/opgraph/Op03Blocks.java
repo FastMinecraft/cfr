@@ -18,8 +18,6 @@ import org.benf.cfr.reader.util.DecompilerComments;
 import org.benf.cfr.reader.util.MiscUtils;
 import org.benf.cfr.reader.util.Troolean;
 import org.benf.cfr.reader.util.collections.*;
-import java.util.function.BiConsumer;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.graph.GraphVisitor;
@@ -233,8 +231,7 @@ public class Op03Blocks {
             boolean needLinPrev = false;
             prevtest:
             if (linPrev != null && block.sources.contains(linPrev)) {
-                Block3 source = linPrev;
-                Op03SimpleStatement end = source.getEnd();
+                Op03SimpleStatement end = linPrev.getEnd();
                 Set<BlockIdentifier> endIdents = end.getBlockIdentifiers();
                 // If the only difference is case statements, then we allow, unless it's a direct
                 // predecessor
@@ -378,7 +375,7 @@ public class Op03Blocks {
         BlockIdentifierFactory blockIdentifierFactory = new BlockIdentifierFactory();
         List<Set<BlockIdentifier>> blockMembers = ListFactory.newList();
         for (int i = 0, len = blocks.size(); i < len; ++i) {
-            blockMembers.add(SetFactory.<BlockIdentifier>newOrderedSet());
+            blockMembers.add(SetFactory.newOrderedSet());
         }
         Map<BlockIdentifier, Block3> firstByBlock = MapFactory.newMap();
         Map<BlockIdentifier, Block3> lastByBlock = MapFactory.newMap();
@@ -586,7 +583,7 @@ public class Op03Blocks {
             if (stm instanceof CaseStatement) {
                 BlockIdentifier caseBlock = ((CaseStatement) stm).getCaseBlock();
                 List<BlockIdentifier> diff = SetUtil.differenceAtakeBtoList(toBlocks, fromBlocks);
-                if (diff.size() == 1 && diff.get(0) == caseBlock) return true;
+                return diff.size() == 1 && diff.get(0) == caseBlock;
             }
         }
         return false;
@@ -1031,7 +1028,7 @@ public class Op03Blocks {
                     }
                 }
                 Integer lastTry = lastIn.get(tryBlockIdent);
-                if (lastTry == null) continue outer;
+                if (lastTry == null) continue;
                 // Find the last index of any of these blocks.
                 int idx = x;
                 for (BlockIdentifier catchIdent : catchBlockIdents) {
@@ -1149,11 +1146,11 @@ public class Op03Blocks {
 
     private static class Block3 implements Comparable<Block3> {
         InstrIndex startIndex;
-        List<Op03SimpleStatement> content = ListFactory.newList();
-        Set<Block3> sources = SetFactory.newOrderedSet();
+        final List<Op03SimpleStatement> content = ListFactory.newList();
+        final Set<Block3> sources = SetFactory.newOrderedSet();
         // This seems redundant? - verify need.
-        Set<Block3> originalSources = SetFactory.newOrderedSet();
-        Set<Block3> targets = SetFactory.newOrderedSet();
+        final Set<Block3> originalSources = SetFactory.newOrderedSet();
+        final Set<Block3> targets = SetFactory.newOrderedSet();
 
         Block3(Op03SimpleStatement s) {
             startIndex = s.getIndex();

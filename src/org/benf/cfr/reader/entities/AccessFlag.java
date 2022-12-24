@@ -1,7 +1,6 @@
 package org.benf.cfr.reader.entities;
 
 import org.benf.cfr.reader.entities.attributes.AttributeMap;
-import org.benf.cfr.reader.entities.attributes.AttributePermittedSubclasses;
 import org.benf.cfr.reader.entities.attributes.AttributeSynthetic;
 
 import java.util.EnumSet;

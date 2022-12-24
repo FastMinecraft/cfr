@@ -82,7 +82,6 @@ public class InfiniteAssertRewriter implements StructuredStatementTransformer
                 if (match2.equals(ce)) {
                     replaceThrow(next, stm, sw.getBlock(), ce);
                 }
-                continue;
             }
         }
         return in;

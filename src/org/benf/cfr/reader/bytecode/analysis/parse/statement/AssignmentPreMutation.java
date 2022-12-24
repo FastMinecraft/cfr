@@ -142,7 +142,7 @@ public class AssignmentPreMutation extends AbstractAssignment {
         // IS NOT
         // a += (b = (a+=2))
         lvalue = lvalue.replaceSingleUsageLValues(lValueRewriter, ssaIdentifiers, getContainer());
-        Set fixed = getContainer().getSSAIdentifiers().getFixedHere();
+        Set<LValue> fixed = getContainer().getSSAIdentifiers().getFixedHere();
         // anything in fixed CANNOT be assigned to inside rvalue.
         lValueRewriter = lValueRewriter.getWithFixed(fixed);
         rvalue = (AbstractAssignmentExpression) rvalue.replaceSingleUsageLValues(lValueRewriter, ssaIdentifiers, getContainer());
@@ -179,7 +179,6 @@ public class AssignmentPreMutation extends AbstractAssignment {
         if (getClass() != o.getClass()) return false;
         AssignmentPreMutation other = (AssignmentPreMutation) o;
         if (!constraint.equivalent(lvalue, other.lvalue)) return false;
-        if (!constraint.equivalent(rvalue, other.rvalue)) return false;
-        return true;
+        return constraint.equivalent(rvalue, other.rvalue);
     }
 }

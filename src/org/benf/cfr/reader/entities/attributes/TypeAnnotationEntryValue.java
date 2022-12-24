@@ -29,9 +29,9 @@ public enum TypeAnnotationEntryValue {
     type_generic_cons_methodrefnew(0x4a, TypeAnnotationEntryKind.type_argument_target, TypeAnnotationLocation.Code),
     type_generic_methodrefident(0x4b, TypeAnnotationEntryKind.type_argument_target, TypeAnnotationLocation.Code);
 
-    private short value;
-    private TypeAnnotationEntryKind type_parameter_target;
-    private TypeAnnotationLocation location;
+    private final short value;
+    private final TypeAnnotationEntryKind type_parameter_target;
+    private final TypeAnnotationLocation location;
 
     private static final Map<Short, TypeAnnotationEntryValue> lut = MapFactory.newMap();
 

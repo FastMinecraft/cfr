@@ -167,34 +167,29 @@ public class OptionsImpl implements Options {
 
     };
 
-    private static class VersionSpecificDefaulter implements OptionDecoderParam<Boolean, ClassFileVersion> {
-
-        ClassFileVersion versionGreaterThanOrEqual;
-        boolean resultIfGreaterThanOrEqual;
-
-        private VersionSpecificDefaulter(ClassFileVersion versionGreaterThanOrEqual, boolean resultIfGreaterThanOrEqual) {
-            this.versionGreaterThanOrEqual = versionGreaterThanOrEqual;
-            this.resultIfGreaterThanOrEqual = resultIfGreaterThanOrEqual;
-        }
+    private record VersionSpecificDefaulter(
+        ClassFileVersion versionGreaterThanOrEqual,
+        boolean resultIfGreaterThanOrEqual
+    ) implements OptionDecoderParam<Boolean, ClassFileVersion> {
 
         @Override
-        public Boolean invoke(String arg, ClassFileVersion classFileVersion, Options ignore2) {
-            if (arg != null) return Boolean.parseBoolean(arg);
-            if (classFileVersion == null) throw new IllegalStateException(); // ho ho ho.
-            return (classFileVersion.equalOrLater(versionGreaterThanOrEqual)) == resultIfGreaterThanOrEqual;
-        }
+            public Boolean invoke(String arg, ClassFileVersion classFileVersion, Options ignore2) {
+                if (arg != null) return Boolean.parseBoolean(arg);
+                if (classFileVersion == null) throw new IllegalStateException(); // ho ho ho.
+                return (classFileVersion.equalOrLater(versionGreaterThanOrEqual)) == resultIfGreaterThanOrEqual;
+            }
 
-        @Override
-        public String getRangeDescription() {
-            return "boolean";
-        }
+            @Override
+            public String getRangeDescription() {
+                return "boolean";
+            }
 
-        @Override
-        public String getDefaultValue() {
-            return "" + resultIfGreaterThanOrEqual + " if class file from version " + versionGreaterThanOrEqual + " or greater";
-        }
+            @Override
+            public String getDefaultValue() {
+                return "" + resultIfGreaterThanOrEqual + " if class file from version " + versionGreaterThanOrEqual + " or greater";
+            }
 
-    }
+        }
 
     public static class ExperimentalVersionSpecificDefaulter implements OptionDecoderParam<Boolean, ClassFileVersion> {
 
@@ -237,7 +232,7 @@ public class OptionsImpl implements Options {
                 first = StringUtils.comma(first, sb);
                 sb.append(experimental);
             }
-            return "true if class file from version " + releaseVersion + " or greater, or experimental in " + sb.toString();
+            return "true if class file from version " + releaseVersion + " or greater, or experimental in " + sb;
         }
 
     }
@@ -245,7 +240,7 @@ public class OptionsImpl implements Options {
     private static final String CFR_WEBSITE = "https://benf.org/other/cfr/";
 
     // Look, I don't like reflection.  ;)
-    private static List<PermittedOptionProvider.ArgumentParam<?,?>> all = ListFactory.newList();
+    private static final List<PermittedOptionProvider.ArgumentParam<?,?>> all = ListFactory.newList();
     
     private static <T extends PermittedOptionProvider.ArgumentParam<?, ?>> T register(T in) {
         all.add(in);

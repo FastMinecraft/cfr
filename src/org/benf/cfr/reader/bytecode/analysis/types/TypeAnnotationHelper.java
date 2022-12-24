@@ -12,7 +12,6 @@ import org.benf.cfr.reader.util.DecompilerComments;
 import org.benf.cfr.reader.util.collections.ListFactory;
 
 import java.util.List;
-import java.util.Set;
 
 public class TypeAnnotationHelper {
     private final List<AnnotationTableTypeEntry> entries;

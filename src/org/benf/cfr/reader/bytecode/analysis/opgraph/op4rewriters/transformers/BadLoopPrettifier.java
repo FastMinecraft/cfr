@@ -76,8 +76,7 @@ public class BadLoopPrettifier implements StructuredStatementTransformer {
         StructuredWhile structuredWhile = new StructuredWhile(newCondition, body, blockIdent);
         if (!liftTestBody) return structuredWhile;
 
-        Block lifted = Block.getBlockFor(false, structuredWhile, structuredExit);
-        return lifted;
+        return Block.getBlockFor(false, structuredWhile, structuredExit);
 
     }
 }

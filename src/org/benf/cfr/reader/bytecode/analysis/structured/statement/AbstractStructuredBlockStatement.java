@@ -7,7 +7,7 @@ import org.benf.cfr.reader.bytecode.analysis.structured.StructuredScope;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 
 public abstract class AbstractStructuredBlockStatement extends AbstractStructuredStatement {
-    private Op04StructuredStatement body;
+    private final Op04StructuredStatement body;
 
     AbstractStructuredBlockStatement(BytecodeLoc loc, Op04StructuredStatement body) {
         super(loc);

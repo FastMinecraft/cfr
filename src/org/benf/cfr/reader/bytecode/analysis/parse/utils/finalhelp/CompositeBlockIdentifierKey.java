@@ -3,7 +3,6 @@ package org.benf.cfr.reader.bytecode.analysis.parse.utils.finalhelp;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.util.collections.Functional;
-import java.util.function.Predicate;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,9 +35,7 @@ public class CompositeBlockIdentifierKey implements Comparable<CompositeBlockIde
 
         CompositeBlockIdentifierKey that = (CompositeBlockIdentifierKey) o;
 
-        if (!key.equals(that.key)) return false;
-
-        return true;
+        return key.equals(that.key);
     }
 
     @Override

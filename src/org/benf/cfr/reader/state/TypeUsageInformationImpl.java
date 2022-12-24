@@ -21,7 +21,7 @@ import java.util.*;
 
 public class TypeUsageInformationImpl implements TypeUsageInformation {
     private final IllegalIdentifierDump iid;
-    private Set<DetectedStaticImport> staticImports;
+    private final Set<DetectedStaticImport> staticImports;
     private final JavaRefTypeInstance analysisType;
     private final Set<JavaRefTypeInstance> usedRefTypes = SetFactory.newOrderedSet();
     private final Set<JavaRefTypeInstance> shortenedRefTypes = SetFactory.newOrderedSet();
@@ -114,9 +114,9 @@ public class TypeUsageInformationImpl implements TypeUsageInformation {
              * Everything else gets the long name.
              */
             class PriClass implements Comparable<PriClass> {
-                private int priType;
+                private final int priType;
                 private boolean innerClass = false;
-                private JavaRefTypeInstance type;
+                private final JavaRefTypeInstance type;
 
                 PriClass(JavaRefTypeInstance type) {
                     if (type.equals(analysisType)) {
@@ -238,9 +238,6 @@ public class TypeUsageInformationImpl implements TypeUsageInformation {
 
     @Override
     public boolean isNameClash(JavaTypeInstance type, String name, TypeContext typeContext) {
-        if (typeContext == TypeContext.Static && clashNames.get(name)) {
-            return true;
-        }
-        return false;
+        return typeContext == TypeContext.Static && clashNames.get(name);
     }
 }

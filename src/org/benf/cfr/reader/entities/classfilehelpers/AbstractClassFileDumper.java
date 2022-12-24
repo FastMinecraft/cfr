@@ -25,10 +25,7 @@ import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.Dumper;
 import org.benf.cfr.reader.util.output.IllegalIdentifierDump;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 abstract class AbstractClassFileDumper implements ClassFileDumper {
 
@@ -114,12 +111,12 @@ abstract class AbstractClassFileDumper implements ClassFileDumper {
         List<JavaTypeInstance> classTypes = d.getObfuscationMapping().get(classFile.getAllClassTypes());
         Set<JavaRefTypeInstance> types = d.getTypeUsageInformation().getShortenedClassTypes();
         //noinspection SuspiciousMethodCalls
-        types.removeAll(classTypes);
+        classTypes.forEach(types::remove);
         /*
          * Now - for all inner class types, remove them, but make sure the base class of the inner class is imported.
          */
         List<JavaRefTypeInstance> inners = Functional.filter(types, in -> in.getInnerClassHereInfo().isInnerClass());
-        types.removeAll(inners);
+        inners.forEach(types::remove);
         for (JavaRefTypeInstance inner : inners) {
             types.add(InnerClassInfoUtils.getTransitiveOuterClass(inner));
         }
@@ -129,7 +126,7 @@ abstract class AbstractClassFileDumper implements ClassFileDumper {
          * (as with others, this could be done with an iterator pass to avoid having scan-then-remove,
          * but this feels cleaner for very little cost).
          */
-        types.removeAll(Functional.filter(types, in -> "".equals(in.getPackageName())));
+        types.removeIf(in -> in.getPackageName().isEmpty());
 
         Options options = dcCommonState.getOptions();
         final IllegalIdentifierDump iid = IllegalIdentifierDump.Factory.getOrNull(options);

@@ -11,16 +11,12 @@ import org.benf.cfr.reader.state.TypeUsageInformation;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.output.MethodErrorCollector.SummaryDumperMethodErrorCollector;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.NavigableMap;
+import java.util.*;
 
 public class SinkDumperFactory implements DumperFactory {
     private static final List<OutputSinkFactory.SinkClass> justString = Collections.singletonList(OutputSinkFactory.SinkClass.STRING);
     private final OutputSinkFactory sinkFactory;
-    private Options options;
+    private final Options options;
     private final int version;
 
     public SinkDumperFactory(OutputSinkFactory sinkFactory, Options options) {
@@ -56,51 +52,48 @@ public class SinkDumperFactory implements DumperFactory {
         }
 
         for (OutputSinkFactory.SinkClass sinkClass : linesSupported) {
-            switch (sinkClass) {
-                case LINE_NUMBER_MAPPING -> {
+            if (sinkClass == OutputSinkFactory.SinkClass.LINE_NUMBER_MAPPING) {
+                final OutputSinkFactory.Sink<SinkReturns.LineNumberMapping> sink = sinkFactory.getSink(
+                    OutputSinkFactory.SinkType.LINENUMBER,
+                    OutputSinkFactory.SinkClass.LINE_NUMBER_MAPPING
+                );
+                BytecodeDumpConsumer d = items -> {
+                    for (final BytecodeDumpConsumer.Item item : items) {
+                        sink.write(new SinkReturns.LineNumberMapping() {
+                            @Override
+                            public String getClassName() {
+                                return item.getMethod().getClassFile().getClassType().getRawName();
+                            }
 
-                    final OutputSinkFactory.Sink<SinkReturns.LineNumberMapping> sink = sinkFactory.getSink(
-                        OutputSinkFactory.SinkType.LINENUMBER,
-                        OutputSinkFactory.SinkClass.LINE_NUMBER_MAPPING
-                    );
-                    BytecodeDumpConsumer d = items -> {
-                        for (final BytecodeDumpConsumer.Item item : items) {
-                            sink.write(new SinkReturns.LineNumberMapping() {
-                                @Override
-                                public String getClassName() {
-                                    return item.getMethod().getClassFile().getClassType().getRawName();
-                                }
+                            @Override
+                            public String methodName() {
+                                return item.getMethod().getName();
+                            }
 
-                                @Override
-                                public String methodName() {
-                                    return item.getMethod().getName();
-                                }
+                            @Override
+                            public String methodDescriptor() {
+                                return item.getMethod().getMethodPrototype().getOriginalDescriptor();
+                            }
 
-                                @Override
-                                public String methodDescriptor() {
-                                    return item.getMethod().getMethodPrototype().getOriginalDescriptor();
-                                }
+                            @Override
+                            public NavigableMap<Integer, Integer> getMappings() {
+                                return item.getBytecodeLocs();
+                            }
 
-                                @Override
-                                public NavigableMap<Integer, Integer> getMappings() {
-                                    return item.getBytecodeLocs();
-                                }
+                            @Override
+                            public NavigableMap<Integer, Integer> getClassFileMappings() {
+                                AttributeCode codeAttribute = item.getMethod().getCodeAttribute();
+                                if (codeAttribute == null) return null;
+                                AttributeLineNumberTable lineNumberTable = codeAttribute.getAttributes().getByName(
+                                    AttributeLineNumberTable.ATTRIBUTE_NAME);
+                                if (lineNumberTable == null) return null;
 
-                                @Override
-                                public NavigableMap<Integer, Integer> getClassFileMappings() {
-                                    AttributeCode codeAttribute = item.getMethod().getCodeAttribute();
-                                    if (codeAttribute == null) return null;
-                                    AttributeLineNumberTable lineNumberTable = codeAttribute.getAttributes().getByName(
-                                        AttributeLineNumberTable.ATTRIBUTE_NAME);
-                                    if (lineNumberTable == null) return null;
-
-                                    return lineNumberTable.getEntries();
-                                }
-                            });
-                        }
-                    };
-                    return new BytecodeTrackingDumper(dumper, d);
-                }
+                                return lineNumberTable.getEntries();
+                            }
+                        });
+                    }
+                };
+                return new BytecodeTrackingDumper(dumper, d);
             }
         }
         return dumper;
@@ -110,25 +103,25 @@ public class SinkDumperFactory implements DumperFactory {
         for (OutputSinkFactory.SinkClass sinkClass : supported) {
             switch (sinkClass) {
                 case DECOMPILED_MULTIVER -> {
-                    return SinkSourceClassDumper(sinkFactory.<SinkReturns.Decompiled>getSink(
+                    return SinkSourceClassDumper(sinkFactory.getSink(
                         OutputSinkFactory.SinkType.JAVA,
                         sinkClass
                     ), version, classType, methodErrorCollector, typeUsageInformation, illegalIdentifierDump);
                 }
                 case DECOMPILED -> {
-                    return SinkSourceClassDumper(sinkFactory.<SinkReturns.Decompiled>getSink(
+                    return SinkSourceClassDumper(sinkFactory.getSink(
                         OutputSinkFactory.SinkType.JAVA,
                         sinkClass
                     ), classType, methodErrorCollector, typeUsageInformation, illegalIdentifierDump);
                 }
                 case STRING -> {
-                    return SinkStringClassDumper(sinkFactory.<String>getSink(
+                    return SinkStringClassDumper(sinkFactory.getSink(
                         OutputSinkFactory.SinkType.JAVA,
                         sinkClass
                     ), methodErrorCollector, typeUsageInformation, illegalIdentifierDump);
                 }
                 case TOKEN_STREAM -> {
-                    return TokenStreamClassDumper(sinkFactory.<SinkReturns.Token>getSink(
+                    return TokenStreamClassDumper(sinkFactory.getSink(
                         OutputSinkFactory.SinkType.JAVA,
                         sinkClass
                     ), version, classType, methodErrorCollector, typeUsageInformation, illegalIdentifierDump);
@@ -230,16 +223,11 @@ public class SinkDumperFactory implements DumperFactory {
         List<OutputSinkFactory.SinkClass> supported = sinkFactory.getSupportedSinks(OutputSinkFactory.SinkType.PROGRESS, justString);
         if (supported == null) supported = justString;
         for (OutputSinkFactory.SinkClass sinkClass : supported) {
-            switch (sinkClass) {
-                case STRING -> {
-                    return new SinkProgressDumper(sinkFactory.<String>getSink(
-                        OutputSinkFactory.SinkType.PROGRESS,
-                        sinkClass
-                    ));
-                }
-                default -> {
-                    continue;
-                }
+            if (sinkClass == OutputSinkFactory.SinkClass.STRING) {
+                return new SinkProgressDumper(sinkFactory.getSink(
+                    OutputSinkFactory.SinkType.PROGRESS,
+                    sinkClass
+                ));
             }
         }
         OutputSinkFactory.Sink<String> stringSink = sinkFactory.getSink(OutputSinkFactory.SinkType.PROGRESS, OutputSinkFactory.SinkClass.STRING);
@@ -255,16 +243,11 @@ public class SinkDumperFactory implements DumperFactory {
         List<OutputSinkFactory.SinkClass> supported = sinkFactory.getSupportedSinks(OutputSinkFactory.SinkType.SUMMARY, justString);
         if (supported == null) supported = justString;
         for (OutputSinkFactory.SinkClass sinkClass : supported) {
-            switch (sinkClass) {
-                case STRING -> {
-                    return new SinkSummaryDumper(sinkFactory.<String>getSink(
-                        OutputSinkFactory.SinkType.SUMMARY,
-                        sinkClass
-                    ));
-                }
-                default -> {
-                    continue;
-                }
+            if (sinkClass == OutputSinkFactory.SinkClass.STRING) {
+                return new SinkSummaryDumper(sinkFactory.getSink(
+                    OutputSinkFactory.SinkType.SUMMARY,
+                    sinkClass
+                ));
             }
         }
         OutputSinkFactory.Sink<String> stringSink = sinkFactory.getSink(OutputSinkFactory.SinkType.SUMMARY, OutputSinkFactory.SinkClass.STRING);
@@ -281,19 +264,18 @@ public class SinkDumperFactory implements DumperFactory {
         for (OutputSinkFactory.SinkClass sinkClass : supported) {
             switch (sinkClass) {
                 case STRING -> {
-                    return new SinkStringExceptionDumper(sinkFactory.<String>getSink(
+                    return new SinkStringExceptionDumper(sinkFactory.getSink(
                         OutputSinkFactory.SinkType.EXCEPTION,
                         sinkClass
                     ));
                 }
                 case EXCEPTION_MESSAGE -> {
-                    return new SinkExceptionDumper(sinkFactory.<SinkReturns.ExceptionMessage>getSink(
+                    return new SinkExceptionDumper(sinkFactory.getSink(
                         OutputSinkFactory.SinkType.EXCEPTION,
                         sinkClass
                     ));
                 }
                 default -> {
-                    continue;
                 }
             }
         }
@@ -310,23 +292,18 @@ public class SinkDumperFactory implements DumperFactory {
         }
     }
 
-    private static class SinkProgressDumper implements ProgressDumper {
-        OutputSinkFactory.Sink<String> progressSink;
-
-        SinkProgressDumper(OutputSinkFactory.Sink<String> progressSink) {
-            this.progressSink = progressSink;
-        }
+    private record SinkProgressDumper(OutputSinkFactory.Sink<String> progressSink) implements ProgressDumper {
 
         @Override
-        public void analysingType(JavaTypeInstance type) {
-            progressSink.write("Analysing type " + type.getRawName());
-        }
+            public void analysingType(JavaTypeInstance type) {
+                progressSink.write("Analysing type " + type.getRawName());
+            }
 
-        @Override
-        public void analysingPath(String path) {
-            progressSink.write("Analysing path " + path);
+            @Override
+            public void analysingPath(String path) {
+                progressSink.write("Analysing path " + path);
+            }
         }
-    }
 
     private record SinkStringExceptionDumper(OutputSinkFactory.Sink<String> sink) implements ExceptionDumper {
 
@@ -336,33 +313,27 @@ public class SinkDumperFactory implements DumperFactory {
             }
         }
 
-    private static class SinkExceptionDumper implements ExceptionDumper {
-
-        private OutputSinkFactory.Sink<SinkReturns.ExceptionMessage> exceptionSink;
-
-        private SinkExceptionDumper(OutputSinkFactory.Sink<SinkReturns.ExceptionMessage> exceptionSink) {
-            this.exceptionSink = exceptionSink;
-        }
+    private record SinkExceptionDumper(OutputSinkFactory.Sink<SinkReturns.ExceptionMessage> exceptionSink) implements ExceptionDumper {
 
         @Override
-        public void noteException(final String path, final String comment, final Exception e) {
-            SinkReturns.ExceptionMessage res = new SinkReturns.ExceptionMessage() {
-                @Override
-                public String getPath() {
-                    return path;
-                }
+            public void noteException(final String path, final String comment, final Exception e) {
+                SinkReturns.ExceptionMessage res = new SinkReturns.ExceptionMessage() {
+                    @Override
+                    public String getPath() {
+                        return path;
+                    }
 
-                @Override
-                public String getMessage() {
-                    return comment;
-                }
+                    @Override
+                    public String getMessage() {
+                        return comment;
+                    }
 
-                @Override
-                public Exception getThrownException() {
-                    return e;
-                }
-            };
-            exceptionSink.write(res);
+                    @Override
+                    public Exception getThrownException() {
+                        return e;
+                    }
+                };
+                exceptionSink.write(res);
+            }
         }
-    }
 }

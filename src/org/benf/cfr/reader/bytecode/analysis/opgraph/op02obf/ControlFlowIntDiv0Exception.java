@@ -2,19 +2,14 @@ package org.benf.cfr.reader.bytecode.analysis.opgraph.op02obf;
 
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op02WithProcessedDataAndRefs;
 import org.benf.cfr.reader.bytecode.opcode.JVMInstr;
-import org.benf.cfr.reader.entities.Method;
-import org.benf.cfr.reader.entities.exceptions.ExceptionAggregator;
-import org.benf.cfr.reader.entities.exceptions.ExceptionGroup;
-import org.benf.cfr.reader.util.collections.ListFactory;
 
 import java.util.List;
-import java.util.SortedMap;
 
 /*
  * Undo a very simple control flow obfuscation where integer division by 0 is used with an exception handler.
  */
 public class ControlFlowIntDiv0Exception extends SimpleControlFlowBase {
-    public static ControlFlowIntDiv0Exception Instance = new ControlFlowIntDiv0Exception();
+    public static final ControlFlowIntDiv0Exception Instance = new ControlFlowIntDiv0Exception();
 
     @Override
     protected boolean checkTry(List<Op02WithProcessedDataAndRefs> op2list, int from, int to, Op02WithProcessedDataAndRefs handlerJmp) {

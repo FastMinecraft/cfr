@@ -4,7 +4,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.CfrVersionInfo;
-import org.benf.cfr.reader.util.MiscConstants;
 
 import java.util.*;
 
@@ -48,7 +47,7 @@ public class GetOptParser {
         int max = 10;
         for (PermittedOptionProvider.ArgumentParam param : permittedOptionProvider.getArguments()) {
             int len = param.getName().length();
-            max = len > max ? len : max;
+            max = Math.max(len, max);
         }
         max += 4;
         List<? extends PermittedOptionProvider.ArgumentParam<?, ?>> args = permittedOptionProvider.getArguments();

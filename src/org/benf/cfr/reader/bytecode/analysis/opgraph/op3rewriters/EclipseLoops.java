@@ -62,7 +62,7 @@ public class EclipseLoops {
             for (Op03SimpleStatement source : target.getSources()) {
                 InstrIndex sourceIdx = source.getIndex();
                 if (sourceIdx.isBackJumpFrom(statement) ||
-                        sourceIdx.isBackJumpTo(target)) continue;
+                        sourceIdx.isBackJumpTo(target)) {}
             }
             Op03SimpleStatement afterTest = target.getTargets().get(0);
 //            // This has to be a fall through

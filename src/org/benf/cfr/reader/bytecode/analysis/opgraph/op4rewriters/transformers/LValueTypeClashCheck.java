@@ -115,7 +115,6 @@ public class LValueTypeClashCheck implements LValueScopeDiscoverer, StructuredSt
                     check.rewriteExpression(value, null, null, null);
                     if (!check.ok) {
                         clashes.add(idx);
-                        return;
                     }
                 }
             }
@@ -140,8 +139,8 @@ public class LValueTypeClashCheck implements LValueScopeDiscoverer, StructuredSt
 
     private static class Check extends AbstractExpressionRewriter {
         private boolean ok = true;
-        private RawJavaType javaTypeInstance;
-        private Visitor visitor = new Visitor();
+        private final RawJavaType javaTypeInstance;
+        private final Visitor visitor = new Visitor();
 
         Check(RawJavaType javaTypeInstance) {
             this.javaTypeInstance = javaTypeInstance;

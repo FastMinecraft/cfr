@@ -332,7 +332,7 @@ public class LoopIdentifier {
             int newIdx = statements.indexOf(lastJump) + 1;
 
             if (newIdx >= statements.size()) {
-                postBlock = new Op03SimpleStatement(SetFactory.<BlockIdentifier>newSet(), new ReturnNothingStatement(BytecodeLoc.TODO), lastJump.getIndex().justAfter());
+                postBlock = new Op03SimpleStatement(SetFactory.newSet(), new ReturnNothingStatement(BytecodeLoc.TODO), lastJump.getIndex().justAfter());
                 statements.add(postBlock);
 
 //                return false;
@@ -408,7 +408,7 @@ public class LoopIdentifier {
                     // a synthetic lastJump.  The previous lastJump should now jump to our synthetic
                     // We can insert a BACK jump to lastJump's target
                     //
-                    newBackJump = new Op03SimpleStatement(SetFactory.<BlockIdentifier>newSet(), new GotoStatement(BytecodeLoc.TODO), beforeNewJump.getIndex().justAfter());
+                    newBackJump = new Op03SimpleStatement(SetFactory.newSet(), new GotoStatement(BytecodeLoc.TODO), beforeNewJump.getIndex().justAfter());
                 } else {
                     afterNewJump = statements.get(lastPostBlock);
                     // Find after statement.  Insert a jump forward (out) here, and then insert

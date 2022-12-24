@@ -74,8 +74,7 @@ public class MonitorExitStatement extends MonitorStatement {
         if (o == this) return true;
         if (getClass() != o.getClass()) return false;
         MonitorExitStatement other = (MonitorExitStatement) o;
-        if (!constraint.equivalent(monitor, other.monitor)) return false;
-        return true;
+        return constraint.equivalent(monitor, other.monitor);
     }
 
 }

@@ -291,8 +291,7 @@ public abstract class AbstractMemberFunctionInvokation extends AbstractFunctionI
         if (o == this) return true;
         if (!(o instanceof AbstractMemberFunctionInvokation other)) return false;
         if (!object.equals(other.object)) return false;
-        if (!args.equals(other.args)) return false;
-        return true;
+        return args.equals(other.args);
     }
 
     @Override
@@ -301,7 +300,6 @@ public abstract class AbstractMemberFunctionInvokation extends AbstractFunctionI
         if (o == this) return true;
         if (!(o instanceof AbstractMemberFunctionInvokation other)) return false;
         if (!constraint.equivalent(object, other.object)) return false;
-        if (!constraint.equivalent(args, other.args)) return false;
-        return true;
+        return constraint.equivalent(args, other.args);
     }
 }

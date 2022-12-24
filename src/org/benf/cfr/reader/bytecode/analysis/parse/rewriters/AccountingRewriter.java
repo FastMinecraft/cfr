@@ -8,14 +8,13 @@ import org.benf.cfr.reader.bytecode.analysis.parse.lvalue.StackSSALabel;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.SSAIdentifiers;
 import org.benf.cfr.reader.util.collections.LazyMap;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 
 import java.util.Map;
 
 public class AccountingRewriter implements ExpressionRewriter {
 
     private final Map<StackSSALabel, Long> count = new LazyMap<>(
-        MapFactory.<StackSSALabel, Long>newOrderedMap(),
+        MapFactory.newOrderedMap(),
         arg -> 0L
     );
 

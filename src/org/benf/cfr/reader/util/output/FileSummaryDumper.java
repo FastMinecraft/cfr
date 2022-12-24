@@ -72,7 +72,7 @@ public class FileSummaryDumper implements SummaryDumper {
                     writer.write(comment.toString() + "\n");
                     // It's also handy to see these on console.
                     if (!options.getOption(OptionsImpl.SILENT)) {
-                        System.err.println(comment.toString());
+                        System.err.println(comment);
                     }
                 }
             }

@@ -51,8 +51,8 @@ import java.util.List;
 import java.util.Set;
 
 public class RecordRewriter {
-    private static Set<AccessFlag> recordFieldFlags = SetFactory.newSet(AccessFlag.ACC_FINAL, AccessFlag.ACC_PRIVATE);
-    private static Set<AccessFlagMethod> recordGetterFlags = SetFactory.newSet(AccessFlagMethod.ACC_PUBLIC);
+    private static final Set<AccessFlag> recordFieldFlags = SetFactory.newSet(AccessFlag.ACC_FINAL, AccessFlag.ACC_PRIVATE);
+    private static final Set<AccessFlagMethod> recordGetterFlags = SetFactory.newSet(AccessFlagMethod.ACC_PUBLIC);
 
     public static void rewrite(ClassFile classFile, DCCommonState state) {
         if (!TypeConstants.RECORD.equals(classFile.getBaseClassType())) return;
@@ -159,7 +159,7 @@ public class RecordRewriter {
     }
 
     private static void hideEquals(ClassFile classFile, JavaTypeInstance thisType, List<ClassFileField> fields) {
-        Method method = getMethod(classFile, Collections.<JavaTypeInstance>singletonList(TypeConstants.OBJECT), MiscConstants.EQUALS);
+        Method method = getMethod(classFile, Collections.singletonList(TypeConstants.OBJECT), MiscConstants.EQUALS);
         if (method == null) return;
 
         WildcardMatch wcm = new WildcardMatch();
@@ -174,7 +174,7 @@ public class RecordRewriter {
     }
 
     private static void hideToString(ClassFile classFile, JavaTypeInstance thisType, List<ClassFileField> fields) {
-        Method method = getMethod(classFile, Collections.<JavaTypeInstance>emptyList(), MiscConstants.TOSTRING);
+        Method method = getMethod(classFile, Collections.emptyList(), MiscConstants.TOSTRING);
         if (method == null) return;
 
         WildcardMatch wcm = new WildcardMatch();
@@ -188,7 +188,7 @@ public class RecordRewriter {
     }
 
     private static void hideHashCode(ClassFile classFile, JavaTypeInstance thisType, List<ClassFileField> fields) {
-        Method method = getMethod(classFile, Collections.<JavaTypeInstance>emptyList(), MiscConstants.HASHCODE);
+        Method method = getMethod(classFile, Collections.emptyList(), MiscConstants.HASHCODE);
         if (method == null) return;
 
         WildcardMatch wcm = new WildcardMatch();
@@ -242,7 +242,7 @@ public class RecordRewriter {
         List<Expression> cmpValues = ((NewAnonymousArray) cmpArgs).getValues();
         if (cmpValues.size() != instances.size() + 2) return false;
 
-        if (!classArgEq(cmpValues.get(0), thisType)) return false;
+        return classArgEq(cmpValues.get(0), thisType);
 
         /* Fabric: Disable checking the bsm args matching the field names. Proguard does not remap these.
         StringBuilder semi = new StringBuilder();
@@ -256,7 +256,6 @@ public class RecordRewriter {
         }
         if (!stringArgEq(cmpValues.get(1), semi.toString())) return false;
          */
-        return true;
     }
 
     private static Method getMethod(ClassFile classFile, final List<JavaTypeInstance> args, String name) {

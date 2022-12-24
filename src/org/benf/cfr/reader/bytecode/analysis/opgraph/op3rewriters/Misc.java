@@ -148,11 +148,10 @@ public class Misc {
         GraphVisitor<Op03SimpleStatement> visitor = new GraphVisitorDFS<>(statements.get(start), graphVisitorCallee);
         visitor.process();
 
-        final int first = start;
         int last = -1;
         boolean foundLast = false;
 
-        for (int x = first; x < afterEnd; ++x) {
+        for (int x = start; x < afterEnd; ++x) {
             if (reachableNodes.contains(x) || statements.get(x).isAgreedNop()) {
                 if (foundLast) {
                     // This is 'failure' behaviour.  It will probably trigger a re-sort.
@@ -178,7 +177,7 @@ public class Misc {
         new GraphVisitorDFS<>(eventualtarget, (arg1, arg2) -> {
             for (Op03SimpleStatement source : arg1.getSources()) {
                 Statement statement = source.getStatement();
-                Class clazz = statement.getClass();
+                Class<? extends Statement> clazz = statement.getClass();
                 if (clazz == Nop.class ||
                     clazz == CaseStatement.class) {
                     arg2.enqueue(source);

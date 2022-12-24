@@ -93,8 +93,7 @@ public class MemberFunctionInvokationExplicit extends AbstractFunctionInvokation
         if (!constraint.equivalent(object, other.object)) return false;
         if (!constraint.equivalent(getMethod(), other.getMethod())) return false;
         if (!constraint.equivalent(getClazz(), other.getClazz())) return false;
-        if (!constraint.equivalent(getArgs(), other.getArgs())) return false;
-        return true;
+        return constraint.equivalent(getArgs(), other.getArgs());
     }
 
     @Override

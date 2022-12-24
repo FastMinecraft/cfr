@@ -11,9 +11,7 @@ public record Slot(JavaTypeInstance javaTypeInstance, int idx) {
 
         Slot slot = (Slot) o;
 
-        if (idx != slot.idx) return false;
-
-        return true;
+        return idx == slot.idx;
     }
 
     @Override

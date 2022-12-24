@@ -3,7 +3,7 @@ package org.benf.cfr.reader.bytecode.analysis.loc;
 import org.benf.cfr.reader.entities.Method;
 
 public class BytecodeLocFactoryStub implements BytecodeLocFactory {
-    public static BytecodeLocFactory INSTANCE = new BytecodeLocFactoryStub();
+    public static final BytecodeLocFactory INSTANCE = new BytecodeLocFactoryStub();
 
     private BytecodeLocFactoryStub() {
     }

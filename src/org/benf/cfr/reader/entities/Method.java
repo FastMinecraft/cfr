@@ -29,8 +29,6 @@ import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import java.util.function.Predicate;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.Dumper;
@@ -84,7 +82,7 @@ public class Method implements KnowsRawSize, TypeUsageCollectable {
     private static final long OFFSET_OF_ATTRIBUTES_COUNT = 6;
     private static final long OFFSET_OF_ATTRIBUTES = 8;
 
-    private static final AnnotationTableEntry OVERRIDE_ANNOTATION = new AnnotationTableEntry(TypeConstants.OVERRIDE, Collections.<String, ElementValue>emptyMap());
+    private static final AnnotationTableEntry OVERRIDE_ANNOTATION = new AnnotationTableEntry(TypeConstants.OVERRIDE, Collections.emptyMap());
 
     private final long length;
     private final EnumSet<AccessFlagMethod> accessFlags;
@@ -329,12 +327,8 @@ public class Method implements KnowsRawSize, TypeUsageCollectable {
 
         int offset = 0;
         if (desargs.size() != sigargs.size()) {
-            if (isInnerConstructor || isEnumConstructor) {
-                // anonymous inner classes will not map correctly unless we can infer
-                return true;
-            } else {
-                return false;
-            }
+            // anonymous inner classes will not map correctly unless we can infer
+            return isInnerConstructor || isEnumConstructor;
         }
         for (int x=0,len=sigargs.size();x<len;++x) {
             JavaTypeInstance desarg = desargs.get(x+offset).getArrayStrippedType();
@@ -516,8 +510,7 @@ public class Method implements KnowsRawSize, TypeUsageCollectable {
 
     public Op04StructuredStatement getAnalysis() {
         if (codeAttribute == null) throw new ConfusedCFRException("No code in this method to analyze");
-        Op04StructuredStatement analysis = codeAttribute.analyse();
-        return analysis;
+        return codeAttribute.analyse();
     }
 
     public boolean isConstructor() {

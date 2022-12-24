@@ -11,7 +11,7 @@ import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryMethodRef;
 
 public class GetClassTestLambda implements GetClassTest {
 
-    public static GetClassTest INSTANCE = new GetClassTestLambda();
+    public static final GetClassTest INSTANCE = new GetClassTestLambda();
 
     private GetClassTestLambda() {
     }
@@ -34,8 +34,6 @@ public class GetClassTestLambda implements GetClassTest {
         String methodName = methodRef.getName();
 
         DynamicInvokeType dynamicInvokeType = DynamicInvokeType.lookup(methodName);
-        if (dynamicInvokeType == DynamicInvokeType.UNKNOWN) return false;
-
-        return true;
+        return dynamicInvokeType != DynamicInvokeType.UNKNOWN;
     }
 }

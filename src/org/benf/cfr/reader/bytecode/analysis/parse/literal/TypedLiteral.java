@@ -147,13 +147,13 @@ public class TypedLiteral implements TypeUsageCollectable, Dumpable {
                 return "'\\\\'";
             }
             case '\'' -> {
-                return "'\\\''";
+                return "'\\''";
             }
             default -> {
                 if (i < 32 || i >= 254) {
                     // perversely, java will allow you to compare non-char values to chars
                     // happily..... (also pretty print for out of range.)
-                    return "'\\u" + String.format("%04x", i) + "\'";
+                    return "'\\u" + String.format("%04x", i) + "'";
                 } else {
                     return "'" + c + "'";
                 }
@@ -240,7 +240,6 @@ public class TypedLiteral implements TypeUsageCollectable, Dumpable {
             case Class -> d.dump((JavaTypeInstance) value).print(".class");
             case Double -> d.literal(value.toString(), value);
             case Float -> d.literal(value.toString() + "f", value);
-            default -> d.print(value.toString());
         };
     }
 

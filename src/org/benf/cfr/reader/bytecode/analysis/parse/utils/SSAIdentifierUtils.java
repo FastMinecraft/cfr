@@ -16,7 +16,6 @@ public class SSAIdentifierUtils {
         if (beforeTarget.isSuperSet(afterSrc)) return true;
         // weird, but I suppose legitimate.
         SSAIdent afterTarget = atTarget.getSSAIdentOnExit(lValueMove);
-        if (beforeTarget.equals(afterSrc) && afterTarget.equals(afterSrc)) return true;
-        return false;
+        return beforeTarget.equals(afterSrc) && afterTarget.equals(afterSrc);
     }
 }

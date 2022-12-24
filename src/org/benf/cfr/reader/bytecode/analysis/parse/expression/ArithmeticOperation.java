@@ -135,8 +135,7 @@ public class ArithmeticOperation extends AbstractExpression implements BoxingPro
     public boolean isMutationOf(LValue lValue) {
         if (!(lhs instanceof LValueExpression)) return false;
         if (!isLValueExprFor((LValueExpression) lhs, lValue)) return false;
-        if (op.isTemporary()) return false;
-        return true;
+        return !op.isTemporary();
     }
 
     public AbstractMutatingAssignmentExpression getMutationOf(LValue lValue) {
@@ -197,8 +196,7 @@ public class ArithmeticOperation extends AbstractExpression implements BoxingPro
         if (!(o instanceof ArithmeticOperation other)) return false;
         if (op != other.op) return false;
         if (!lhs.equals(other.lhs)) return false;
-        if (!rhs.equals(other.rhs)) return false;
-        return true;
+        return rhs.equals(other.rhs);
     }
 
     @Override
@@ -209,8 +207,7 @@ public class ArithmeticOperation extends AbstractExpression implements BoxingPro
         ArithmeticOperation other = (ArithmeticOperation) o;
         if (op != other.op) return false;
         if (!constraint.equivalent(lhs, other.lhs)) return false;
-        if (!constraint.equivalent(rhs, other.rhs)) return false;
-        return true;
+        return constraint.equivalent(rhs, other.rhs);
     }
 
     private static boolean returnsTrueForNaN(CompOp from, int on, boolean nanG) {
@@ -254,17 +251,15 @@ public class ArithmeticOperation extends AbstractExpression implements BoxingPro
                 case GT -> CompOp.GTE; // > -1 -> >= 0
                 case EQ -> CompOp.LT;  // == -1 -> < 0
                 case NE -> CompOp.GTE; // != -1 -> >= 0
-                default -> throw new IllegalStateException("Unknown enum");
             };
         } else {
             return switch (from) {
                 case LT -> CompOp.LTE; // < 1 -> <= 0
                 case LTE -> throw new IllegalStateException("Bad CMP");
-                case GTE -> CompOp.GT; // >= 1 -> > 1
+                case GTE, EQ -> CompOp.GT; // >= 1 -> > 1
                 case GT -> throw new IllegalStateException("Bad CMP");
-                case EQ -> CompOp.GT; // == 1 -> > 0
+                // == 1 -> > 0
                 case NE -> CompOp.LTE; // != 1 -> <= 0
-                default -> throw new IllegalStateException("Unknown enum");
             };
         }
     }

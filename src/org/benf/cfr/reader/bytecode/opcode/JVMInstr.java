@@ -296,7 +296,7 @@ public enum JVMInstr {
         return opcodeLookup.get(opcode);
     }
 
-    protected int getRawLength() {
+    int getRawLength() {
         return bytes;
     }
 
@@ -316,8 +316,7 @@ public enum JVMInstr {
     }
 
     public Op01WithProcessedDataAndByteJumps createOperation(ByteData bd, ConstantPool cp, int offset) {
-        Op01WithProcessedDataAndByteJumps res = handler.createOperation(this, bd, cp, offset);
-        return res;
+        return handler.createOperation(this, bd, cp, offset);
     }
 
     public RawJavaType getRawJavaType() {

@@ -21,7 +21,6 @@ import org.benf.cfr.reader.entities.attributes.TypeAnnotationTargetInfo;
 import org.benf.cfr.reader.util.DecompilerComments;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
-import java.util.function.Predicate;
 
 import java.util.Collections;
 import java.util.List;
@@ -31,8 +30,8 @@ import static org.benf.cfr.reader.entities.attributes.TypeAnnotationEntryValue.*
 
 public class TypeAnnotationTransformer implements StructuredStatementTransformer, ExpressionRewriter {
 
-    private List<AnnotationTableTypeEntry> variableAnnotations;
-    private List<AnnotationTableTypeEntry> catchAnnotations;
+    private final List<AnnotationTableTypeEntry> variableAnnotations;
+    private final List<AnnotationTableTypeEntry> catchAnnotations;
 
     private final SortedMap<Integer, Integer> instrsByOffset;
     private final DecompilerComments comments;

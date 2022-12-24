@@ -35,14 +35,14 @@ public abstract class AbstractBackedByteData implements ByteData {
     public long getLongAt(long o) throws ConfusedCFRException {
         int a = getRealOffset((int) o);
         try {
-            return (((long)(d[a + 0] & 0xFF) << 56) +
+            return (((long)(d[a] & 0xFF) << 56) +
             ((long)(d[a + 1] & 0xFF) << 48) +
             ((long)(d[a + 2] & 0xFF) << 40) +
             ((long)(d[a + 3] & 0xFF) << 32) +
             ((long)(d[a + 4] & 0xFF) << 24) +
             ((d[a + 5] & 0xFF) << 16) +
             ((d[a + 6] & 0xFF) <<  8) +
-            ((d[a + 7] & 0xFF) << 0));
+            ((d[a + 7] & 0xFF)));
         } catch (IndexOutOfBoundsException e) {
             throw new ConfusedCFRException(e);
         }

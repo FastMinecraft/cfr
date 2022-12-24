@@ -151,8 +151,7 @@ public class PushThroughGoto {
         if (clazz == AssignmentSimple.class) return true;
         if (clazz == CommentStatement.class) return true;
         if (clazz == ExpressionStatement.class) return true;
-        if (clazz == IfExitingStatement.class) return true;
-        return false;
+        return clazz == IfExitingStatement.class;
     }
 
 }

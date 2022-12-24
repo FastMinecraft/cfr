@@ -18,7 +18,7 @@ import java.util.List;
 
 public class WhileStatement extends AbstractStatement {
     private ConditionalExpression condition;
-    private BlockIdentifier blockIdentifier;
+    private final BlockIdentifier blockIdentifier;
 
     public WhileStatement(BytecodeLoc loc, ConditionalExpression conditionalExpression, BlockIdentifier blockIdentifier) {
         super(loc);
@@ -98,8 +98,7 @@ public class WhileStatement extends AbstractStatement {
         if (o == this) return true;
         if (getClass() != o.getClass()) return false;
         WhileStatement other = (WhileStatement) o;
-        if (!constraint.equivalent(condition, other.condition)) return false;
-        return true;
+        return constraint.equivalent(condition, other.condition);
     }
 
 }

@@ -21,7 +21,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.CreationCollector;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.JumpType;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.LValueAssignmentAndAliasCondenser;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.LValueRewriter;
-import org.benf.cfr.reader.bytecode.analysis.parse.utils.LValueUsageCollectorSimple;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.LValueUsageCollectorSimpleRW;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.SSAIdent;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.SSAIdentifierFactory;
@@ -34,16 +33,12 @@ import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.collections.UniqueSeenQueue;
 import java.util.function.BiConsumer;
-import java.util.function.Predicate;
+
 import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 import org.benf.cfr.reader.util.output.Dumpable;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -437,13 +432,11 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
                     statements.add(insertAfter + 1, backJump);
                 }
             }
-            case UNCONDITIONALDOLOOP -> {
-                containedStatement.getContainer().replaceStatement(new WhileStatement(
-                    BytecodeLoc.TODO,
-                    null,
-                    blockIdentifier
-                ));
-            }
+            case UNCONDITIONALDOLOOP -> containedStatement.getContainer().replaceStatement(new WhileStatement(
+                BytecodeLoc.TODO,
+                null,
+                blockIdentifier
+            ));
             case DOLOOP -> {
                 IfStatement ifStatement = (IfStatement) containedStatement;
                 ifStatement.replaceWithWhileLoopEnd(blockIdentifier);
@@ -486,7 +479,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
         targets.clear();
     }
 
-    public class GraphVisitorCallee implements BiConsumer<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>> {
+    public static class GraphVisitorCallee implements BiConsumer<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>> {
         private final List<Op03SimpleStatement> reachableNodes;
 
         GraphVisitorCallee(List<Op03SimpleStatement> reachableNodes) {

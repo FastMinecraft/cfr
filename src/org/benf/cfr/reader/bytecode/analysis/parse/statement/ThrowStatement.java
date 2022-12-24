@@ -78,8 +78,7 @@ public class ThrowStatement extends ReturnStatement {
         if (o == this) return true;
         if (getClass() != o.getClass()) return false;
         ThrowStatement other = (ThrowStatement) o;
-        if (!constraint.equivalent(rvalue, other.rvalue)) return false;
-        return true;
+        return constraint.equivalent(rvalue, other.rvalue);
     }
 
 }

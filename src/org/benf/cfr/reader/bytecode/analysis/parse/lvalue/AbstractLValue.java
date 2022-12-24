@@ -14,7 +14,7 @@ import org.benf.cfr.reader.util.output.Dumper;
 import org.benf.cfr.reader.util.output.ToStringDumper;
 
 public abstract class AbstractLValue implements LValue {
-    private InferredJavaType inferredJavaType;
+    private final InferredJavaType inferredJavaType;
 
     public AbstractLValue(InferredJavaType inferredJavaType) {
         this.inferredJavaType = inferredJavaType;

@@ -139,12 +139,12 @@ public class ClassFileSourceImpl implements ClassFileSource2 {
     private static Map<String, String> getPackageToModuleMap() {
         Map<String, String> mapRes = MapFactory.newMap();
         try {
-            Class moduleLayerClass = Class.forName("java.lang.ModuleLayer");
+            Class<?> moduleLayerClass = Class.forName("java.lang.ModuleLayer");
             Method bootMethod = moduleLayerClass.getMethod("boot");
             Object boot = bootMethod.invoke(null);
             Method modulesMeth = boot.getClass().getMethod("modules");
             Object modules = modulesMeth.invoke(boot);
-            Class moduleClass = Class.forName("java.lang.Module");
+            Class<?> moduleClass = Class.forName("java.lang.Module");
             Method getPackagesMethod = moduleClass.getMethod("getPackages");
             Method getNameMethod = moduleClass.getMethod("getName");
             for (Object module : (Set)modules) {

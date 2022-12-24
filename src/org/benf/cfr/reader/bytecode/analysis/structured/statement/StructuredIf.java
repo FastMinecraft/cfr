@@ -28,7 +28,7 @@ import java.util.Vector;
 public class StructuredIf extends AbstractStructuredStatement implements CanRemovePointlessBlock {
 
     ConditionalExpression conditionalExpression;
-    Op04StructuredStatement ifTaken;
+    final Op04StructuredStatement ifTaken;
     Op04StructuredStatement elseBlock;
 
     public StructuredIf(BytecodeLoc loc, ConditionalExpression conditionalExpression, Op04StructuredStatement ifTaken) {
@@ -145,8 +145,7 @@ public class StructuredIf extends AbstractStructuredStatement implements CanRemo
     @Override
     public boolean isRecursivelyStructured() {
         if (!ifTaken.isFullyStructured()) return false;
-        if (elseBlock != null && !elseBlock.isFullyStructured()) return false;
-        return true;
+        return elseBlock == null || elseBlock.isFullyStructured();
     }
 
     @Override

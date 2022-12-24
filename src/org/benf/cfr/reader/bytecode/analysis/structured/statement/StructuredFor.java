@@ -31,8 +31,8 @@ import java.util.List;
 
 public class StructuredFor extends AbstractStructuredBlockStatement {
     private ConditionalExpression condition;
-    private AssignmentSimple initial;
-    private List<AbstractAssignmentExpression> assignments;
+    private final AssignmentSimple initial;
+    private final List<AbstractAssignmentExpression> assignments;
     private final BlockIdentifier block;
     private boolean isCreator;
 

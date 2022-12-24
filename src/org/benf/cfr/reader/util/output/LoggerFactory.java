@@ -7,8 +7,8 @@ import java.util.logging.*;
  */
 public class LoggerFactory {
 
-    private static Handler handler = getHandler();
-    private static Level level = Level.WARNING;
+    private static final Handler handler = getHandler();
+    private static final Level level = Level.WARNING;
 
     private static Handler getHandler() {
         Handler handler = new ConsoleHandler();

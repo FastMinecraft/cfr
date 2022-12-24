@@ -17,12 +17,12 @@ import org.benf.cfr.reader.util.output.Dumper;
 import java.util.List;
 
 public class SwitchExpression extends AbstractExpression {
-    private Expression value;
-    private List<Branch> cases;
+    private final Expression value;
+    private final List<Branch> cases;
 
     public static class Branch {
-        List<Expression> cases;
-        Expression value;
+        final List<Expression> cases;
+        final Expression value;
 
         public Branch(List<Expression> cases, Expression value) {
             this.cases = cases;

@@ -21,7 +21,6 @@ import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.collections.SetUtil;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 
 import java.util.Collection;
 import java.util.List;

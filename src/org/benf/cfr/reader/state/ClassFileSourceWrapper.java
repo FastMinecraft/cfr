@@ -26,7 +26,7 @@ public class ClassFileSourceWrapper implements ClassFileSource2 {
     public JarContent addJarContent(String jarPath, AnalysisType type) {
         return new JarContentImpl(
             classFileSource.addJar(jarPath),
-                Collections.<String, String>emptyMap(), type);
+                Collections.emptyMap(), type);
     }
 
     @Override

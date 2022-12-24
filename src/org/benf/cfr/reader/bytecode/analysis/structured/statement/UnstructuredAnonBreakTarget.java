@@ -9,7 +9,7 @@ import org.benf.cfr.reader.util.output.Dumper;
 import java.util.List;
 
 public class UnstructuredAnonBreakTarget extends AbstractUnStructuredStatement {
-    private BlockIdentifier blockIdentifier;
+    private final BlockIdentifier blockIdentifier;
 
     public UnstructuredAnonBreakTarget(BlockIdentifier blockIdentifier) {
         super(BytecodeLoc.NONE);

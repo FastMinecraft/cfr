@@ -146,7 +146,7 @@ public class EnumClassRewriter {
 
         List<Pair<StaticVariable, AbstractConstructorInvokation>> entries = ListFactory.newList();
         for (Map.Entry<StaticVariable, MatchedEnumEntry> entry : entryMap.entrySet()) {
-            entries.add(Pair.<StaticVariable, AbstractConstructorInvokation>make(entry.getKey(), entry.getValue().data()));
+            entries.add(Pair.make(entry.getKey(), entry.getValue().data()));
         }
         classFile.setDumpHelper(new ClassFileDumperEnum(state, entries));
 
@@ -233,7 +233,7 @@ public class EnumClassRewriter {
                 new MatchOneOf(
                     new ResetAfterTest(wcm, new CollectMatch("values", new StructuredAssignment(BytecodeLoc.NONE, wcm.getStaticVariable("v", classType, clazzAIJT), wcm.getNewArrayWildCard("v", 0, 1)))),
                     new ResetAfterTest(wcm, new CollectMatch("values15", new StructuredAssignment(BytecodeLoc.NONE, wcm.getStaticVariable("v", classType, clazzAIJT), wcm.getStaticFunction("v", this.classType, new JavaArrayTypeInstance(1, this.classType), null)))),
-                    new ResetAfterTest(wcm, new CollectMatch("noValues", new StructuredAssignment(BytecodeLoc.NONE, wcm.getStaticVariable("v", classType, clazzAIJT), new NewObjectArray(BytecodeLoc.NONE, Collections.<Expression>singletonList(Literal.INT_ZERO), arrayType))))
+                    new ResetAfterTest(wcm, new CollectMatch("noValues", new StructuredAssignment(BytecodeLoc.NONE, wcm.getStaticVariable("v", classType, clazzAIJT), new NewObjectArray(BytecodeLoc.NONE, Collections.singletonList(Literal.INT_ZERO), arrayType))))
                 )
         );
 
@@ -261,7 +261,7 @@ public class EnumClassRewriter {
         private final WildcardMatch wcm;
         private final Map<StaticVariable, MatchedEnumEntry> entryMap = MapFactory.newOrderedMap();
         private MatchedArrayData matchedArray;
-        private List<ClassFileField> matchedHideTheseFields = ListFactory.newList();
+        private final List<ClassFileField> matchedHideTheseFields = ListFactory.newList();
 
         private EnumInitMatchCollector(WildcardMatch wcm) {
             this.wcm = wcm;
@@ -297,7 +297,7 @@ public class EnumClassRewriter {
                 }
                 case "noValues" -> matchedArray = new MatchedArrayData(statement.getContainer(),
                     null,
-                    Collections.<Expression>emptyList()
+                    Collections.emptyList()
                 );
                 case "values15" -> {
                     StaticFunctionInvokation sf = wcm.getStaticFunction("v").getMatch();
@@ -401,7 +401,7 @@ public class EnumClassRewriter {
             // Expecting `new EnumType[0]`
             if (newArrayExpr.getNumDims() != 1) return null;
             if (!newArrayExpr.getDimSize(0).equals(Literal.INT_ZERO)) return null;
-            return new MatchedArrayData(container, method, Collections.<Expression>emptyList());
+            return new MatchedArrayData(container, method, Collections.emptyList());
         } else {
             return null;
         }

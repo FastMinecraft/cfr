@@ -11,8 +11,8 @@ import org.benf.cfr.reader.util.output.Dumper;
 import java.util.Vector;
 
 public class UnstructuredSynchronized extends AbstractUnStructuredStatement {
-    private Expression monitor;
-    private BlockIdentifier blockIdentifier;
+    private final Expression monitor;
+    private final BlockIdentifier blockIdentifier;
 
     public UnstructuredSynchronized(BytecodeLoc loc, Expression monitor, BlockIdentifier blockIdentifier) {
         super(loc);

@@ -24,7 +24,6 @@ import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import java.util.function.Predicate;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -48,10 +47,9 @@ public class NonStaticLifter {
         // All uninitialised non-static fields, in definition order.
         Pair<List<ClassFileField>, List<ClassFileField>> fields =  Functional.partition(classFile.getFields(), in -> {
             if (in.getField().testAccessFlag(AccessFlag.ACC_STATIC)) return false;
-            if (in.getField().testAccessFlag(AccessFlag.ACC_SYNTHETIC)) return false;
+            return !in.getField().testAccessFlag(AccessFlag.ACC_SYNTHETIC);
             // Members may well have an initial value. If they do, we need to make sure that it is
             // exactly the same as the one we're lifting, or we abort.
-            return true;
         });
         LinkedList<ClassFileField> classFileFields = new LinkedList<>(fields.getFirst());
         Map<String, ClassFileField> other = MapFactory.newMap();
@@ -83,8 +81,7 @@ public class NonStaticLifter {
                 // We can skip comments and definitions - they won't have any effect on meaning of assignment to
                 // members.
                 if (stm instanceof StructuredComment) return false;
-                if (stm instanceof StructuredDefinition) return false;
-                return true;
+                return !(stm instanceof StructuredDefinition);
             });
             if (blockStatements.isEmpty()) return;
 

@@ -83,9 +83,7 @@ public class StructuredThrow extends AbstractStructuredStatement {
 
         StructuredThrow that = (StructuredThrow) o;
 
-        if (!Objects.equals(value, that.value)) return false;
-
-        return true;
+        return Objects.equals(value, that.value);
     }
 
 }

@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 public class FormalTypeParameter implements Dumpable, TypeUsageCollectable {
-    private String name;
+    private final String name;
     private JavaTypeInstance classBound;
     private JavaTypeInstance interfaceBound;
 

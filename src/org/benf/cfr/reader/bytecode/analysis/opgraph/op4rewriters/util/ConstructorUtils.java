@@ -26,8 +26,7 @@ public class ConstructorUtils {
             StructuredStatement test = new StructuredExpressionStatement(BytecodeLoc.NONE, wcm1.getMemberFunction("m", null, true /* this method */, new LValueExpression(wcm1.getLValueWildCard("o")), null), false);
             if (test.equals(structuredExpressionStatement)) {
                 MemberFunctionInvokation m = wcm1.getMemberFunction("m").getMatch();
-                MethodPrototype prototype = m.getMethodPrototype();
-                return prototype;
+                return m.getMethodPrototype();
             }
             return null;
         }

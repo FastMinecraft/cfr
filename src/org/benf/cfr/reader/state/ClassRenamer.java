@@ -11,10 +11,10 @@ import java.util.Map;
 import java.util.Set;
 
 public class ClassRenamer {
-    private Map<String, String> classCollisionRenamerToReal = MapFactory.newMap();
-    private Map<String, String> classCollisionRenamerFromReal = MapFactory.newMap();
+    private final Map<String, String> classCollisionRenamerToReal = MapFactory.newMap();
+    private final Map<String, String> classCollisionRenamerFromReal = MapFactory.newMap();
 
-    private List<ClassNameFunction> renamers;
+    private final List<ClassNameFunction> renamers;
 
     private ClassRenamer(List<ClassNameFunction> renamers) {
         this.renamers = renamers;

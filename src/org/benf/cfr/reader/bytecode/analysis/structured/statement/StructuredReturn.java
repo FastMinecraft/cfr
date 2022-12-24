@@ -113,11 +113,10 @@ public class StructuredReturn extends AbstractStructuredStatement implements Box
         }
 
         if (fnReturnType == null) {
-            if (other.fnReturnType != null) return false;
+            return other.fnReturnType == null;
         } else {
-            if (!fnReturnType.equals(other.fnReturnType)) return false;
+            return fnReturnType.equals(other.fnReturnType);
         }
-        return true;
     }
 
     @Override

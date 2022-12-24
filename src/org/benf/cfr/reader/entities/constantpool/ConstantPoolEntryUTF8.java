@@ -7,10 +7,11 @@ import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ConstantPoolEntryUTF8 extends AbstractConstantPoolEntry {
-    private static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
+    private static final Charset UTF8_CHARSET = StandardCharsets.UTF_8;
 
     private static final long OFFSET_OF_LENGTH = 1;
     private static final long OFFSET_OF_DATA = 3;

@@ -16,7 +16,7 @@ import java.util.List;
 
 public class StructuredExpressionStatement extends AbstractStructuredStatement {
     private Expression expression;
-    private boolean inline;
+    private final boolean inline;
 
     public StructuredExpressionStatement(BytecodeLoc loc, Expression expression, boolean inline) {
         super(loc);

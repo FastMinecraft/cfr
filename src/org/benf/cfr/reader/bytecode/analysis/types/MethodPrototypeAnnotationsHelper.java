@@ -12,7 +12,6 @@ import org.benf.cfr.reader.entities.attributes.TypeAnnotationTargetInfo;
 import org.benf.cfr.reader.util.DecompilerComments;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
-import java.util.function.Predicate;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.List;

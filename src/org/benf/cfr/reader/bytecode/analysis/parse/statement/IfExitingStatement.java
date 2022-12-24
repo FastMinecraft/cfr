@@ -19,7 +19,7 @@ import java.util.Objects;
 public class IfExitingStatement extends AbstractStatement {
 
     private ConditionalExpression condition;
-    private Statement statement;
+    private final Statement statement;
 
     public IfExitingStatement(BytecodeLoc loc, ConditionalExpression conditionalExpression, Statement statement) {
         super(loc);
@@ -86,9 +86,7 @@ public class IfExitingStatement extends AbstractStatement {
         IfExitingStatement that = (IfExitingStatement) o;
 
         if (!Objects.equals(condition, that.condition)) return false;
-        if (!statement.equals(that.statement)) return false;
-
-        return true;
+        return statement.equals(that.statement);
     }
 
     @Override
@@ -98,8 +96,7 @@ public class IfExitingStatement extends AbstractStatement {
         if (getClass() != o.getClass()) return false;
         IfExitingStatement other = (IfExitingStatement) o;
         if (!constraint.equivalent(condition, other.condition)) return false;
-        if (!constraint.equivalent(statement, other.statement)) return false;
-        return true;
+        return constraint.equivalent(statement, other.statement);
     }
 
     @Override

@@ -4,7 +4,6 @@ import org.benf.cfr.reader.entities.Method;
 
 import java.util.Collection;
 import java.util.NavigableMap;
-import java.util.TreeMap;
 
 public interface BytecodeDumpConsumer {
     interface Item {

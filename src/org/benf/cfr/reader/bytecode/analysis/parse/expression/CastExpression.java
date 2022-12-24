@@ -8,14 +8,11 @@ import org.benf.cfr.reader.bytecode.analysis.parse.StatementContainer;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.misc.Precedence;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.rewriteinterface.BoxingProcessor;
 import org.benf.cfr.reader.bytecode.analysis.parse.literal.LiteralFolding;
-import org.benf.cfr.reader.bytecode.analysis.parse.literal.TypedLiteral;
-import org.benf.cfr.reader.bytecode.analysis.parse.literal.TypedLiteral.LiteralType;
 import org.benf.cfr.reader.bytecode.analysis.parse.rewriters.CloneHelper;
 import org.benf.cfr.reader.bytecode.analysis.parse.rewriters.ExpressionRewriter;
 import org.benf.cfr.reader.bytecode.analysis.parse.rewriters.ExpressionRewriterFlags;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.*;
 import org.benf.cfr.reader.bytecode.analysis.types.*;
-import org.benf.cfr.reader.bytecode.analysis.types.discovery.CastAction;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.Troolean;
@@ -25,7 +22,7 @@ import java.util.Map;
 
 public class CastExpression extends AbstractExpression implements BoxingProcessor {
     private Expression child;
-    private boolean forced;
+    private final boolean forced;
 
     public CastExpression(BytecodeLoc loc, InferredJavaType knownType, Expression child) {
         super(loc, knownType);
@@ -207,8 +204,7 @@ public class CastExpression extends AbstractExpression implements BoxingProcesso
         CastExpression other = (CastExpression) o;
         if (!constraint.equivalent(getInferredJavaType().getJavaTypeInstance(), other.getInferredJavaType().getJavaTypeInstance()))
             return false;
-        if (!constraint.equivalent(child, other.child)) return false;
-        return true;
+        return constraint.equivalent(child, other.child);
     }
 
     public static Expression removeImplicit(Expression e) {

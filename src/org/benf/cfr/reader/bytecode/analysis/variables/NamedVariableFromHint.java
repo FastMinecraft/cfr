@@ -5,8 +5,8 @@ import org.benf.cfr.reader.util.output.Dumper;
 
 public class NamedVariableFromHint implements NamedVariable {
     private String name;
-    private int slot;
-    private int idx;
+    private final int slot;
+    private final int idx;
 
     NamedVariableFromHint(String name, int slot, int idx) {
         this.name = name;
@@ -53,9 +53,7 @@ public class NamedVariableFromHint implements NamedVariable {
 
         if (slot != that.slot) return false;
         if (idx != that.idx) return false;
-        if (!name.equals(that.name)) return false;
-
-        return true;
+        return name.equals(that.name);
     }
 
     @Override

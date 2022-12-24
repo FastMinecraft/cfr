@@ -28,8 +28,8 @@ import java.util.Set;
 public class LValuePropSimple {
 
     private static class AssignmentCollector implements LValueAssignmentCollector<Statement> {
-        Map<StackSSALabel, StatementContainer<Statement>> assignments = MapFactory.newMap();
-        Map<StackSSALabel, Expression> values = MapFactory.newMap();
+        final Map<StackSSALabel, StatementContainer<Statement>> assignments = MapFactory.newMap();
+        final Map<StackSSALabel, Expression> values = MapFactory.newMap();
 
         public void collect(StackSSALabel lValue, StatementContainer<Statement> statementContainer, Expression value) {
             if (assignments.containsKey(lValue)) {
@@ -60,7 +60,7 @@ public class LValuePropSimple {
 
     private static class UsageCollector implements LValueUsageCollector {
 
-        Map<StackSSALabel, Boolean> singleUsages = MapFactory.newMap();
+        final Map<StackSSALabel, Boolean> singleUsages = MapFactory.newMap();
 
         @Override
         public void collect(LValue lValue, ReadWrite rw) {

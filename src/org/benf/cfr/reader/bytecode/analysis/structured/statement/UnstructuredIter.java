@@ -12,9 +12,9 @@ import org.benf.cfr.reader.util.output.Dumper;
 import java.util.Vector;
 
 public class UnstructuredIter extends AbstractUnStructuredStatement {
-    private BlockIdentifier blockIdentifier;
-    private LValue iterator;
-    private Expression list;
+    private final BlockIdentifier blockIdentifier;
+    private final LValue iterator;
+    private final Expression list;
 
     public UnstructuredIter(BytecodeLoc loc, BlockIdentifier blockIdentifier, LValue iterator, Expression list) {
         super(loc);

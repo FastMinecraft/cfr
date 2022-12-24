@@ -313,8 +313,7 @@ public class ComparisonOperation extends AbstractExpression implements Condition
         ComparisonOperation other = (ComparisonOperation) o;
         if (!constraint.equivalent(op, other.op)) return false;
         if (!constraint.equivalent(lhs, other.lhs)) return false;
-        if (!constraint.equivalent(rhs, other.rhs)) return false;
-        return true;
+        return constraint.equivalent(rhs, other.rhs);
     }
 
     @Override

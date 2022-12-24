@@ -78,7 +78,7 @@ public class InvalidBooleanCastCleaner extends AbstractExpressionRewriter implem
     }
 
     private static class BoolCastInnerTransformer extends AbstractExpressionRewriter {
-        private static BoolCastInnerTransformer Instance = new BoolCastInnerTransformer();
+        private static final BoolCastInnerTransformer Instance = new BoolCastInnerTransformer();
 
         @Override
         public Expression rewriteExpression(Expression expression, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {

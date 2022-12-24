@@ -21,7 +21,7 @@ import java.util.Vector;
 public class StructuredAssert extends AbstractStructuredStatement {
 
     private ConditionalExpression conditionalExpression;
-    private Expression arg;
+    private final Expression arg;
 
     private StructuredAssert(BytecodeLoc loc, ConditionalExpression conditionalExpression, Expression arg) {
         super(loc);

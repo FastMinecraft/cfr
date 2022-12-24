@@ -78,7 +78,7 @@ public class ResourceReleaseDetector {
         LValueExpression throwableExpression = new LValueExpression(throwableLValue);
         MatchOneOf closeExpression = getCloseExpressionMatch(wcm, autocloseExpression);
 
-        MatchSequence inner = new MatchSequence(
+        return new MatchSequence(
                 // We shouldn't see this, but might have if we've pulled some gotos up.
                 new MatchOpt(
                         new MatchSequence(
@@ -100,22 +100,18 @@ public class ResourceReleaseDetector {
                 new EndBlock(null),
                 new StructuredThrow(BytecodeLoc.NONE, new LValueExpression(throwableLValue))
         );
-
-        return inner;
     }
 
     public static Matcher<StructuredStatement> getSimpleStructuredStatementMatcher(WildcardMatch wcm, LValue throwableLValue, LValue autoclose) {
         LValueExpression autocloseExpression = new LValueExpression(autoclose);
         MatchOneOf closeExpression = getCloseExpressionMatch(wcm, autocloseExpression);
 
-        Matcher<StructuredStatement> matchsimple = new MatchOneOf(new MatchSequence(
+        return new MatchOneOf(new MatchSequence(
                 new StructuredIf(BytecodeLoc.NONE, new ComparisonOperation(BytecodeLoc.NONE, new LValueExpression(autoclose), Literal.NULL, CompOp.NE), null),
                 new BeginBlock(null),
                 closeExpression,
                 new EndBlock(null)),
                 closeExpression);
-
-        return matchsimple;
     }
 
     public static MatchOneOf getCloseExpressionMatch(WildcardMatch wcm, LValueExpression autocloseExpression) {

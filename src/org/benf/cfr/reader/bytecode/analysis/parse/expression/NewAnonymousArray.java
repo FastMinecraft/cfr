@@ -25,9 +25,9 @@ import java.util.Objects;
  * 1d array only.
  */
 public class NewAnonymousArray extends AbstractNewArray implements BoxingProcessor {
-    private JavaTypeInstance allocatedType;
-    private int numDims;
-    private List<Expression> values;
+    private final JavaTypeInstance allocatedType;
+    private final int numDims;
+    private final List<Expression> values;
     private boolean isCompletelyAnonymous;
 
     public NewAnonymousArray(BytecodeLoc loc, InferredJavaType type, int numDims, List<Expression> values, boolean isCompletelyAnonymous) {
@@ -151,9 +151,7 @@ public class NewAnonymousArray extends AbstractNewArray implements BoxingProcess
         if (numDims != that.numDims) return false;
         if (!Objects.equals(allocatedType, that.allocatedType))
             return false;
-        if (!Objects.equals(values, that.values)) return false;
-
-        return true;
+        return Objects.equals(values, that.values);
     }
 
     @Override
@@ -166,7 +164,6 @@ public class NewAnonymousArray extends AbstractNewArray implements BoxingProcess
         if (isCompletelyAnonymous != other.isCompletelyAnonymous) return false;
         if (numDims != other.numDims) return false;
         if (!constraint.equivalent(allocatedType, other.allocatedType)) return false;
-        if (!constraint.equivalent(values, other.values)) return false;
-        return true;
+        return constraint.equivalent(values, other.values);
     }
 }

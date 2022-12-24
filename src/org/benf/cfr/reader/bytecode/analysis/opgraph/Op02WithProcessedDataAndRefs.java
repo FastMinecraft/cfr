@@ -1,7 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph;
 
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
-import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.BytecodeMeta;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op2rewriters.TypeHintRecovery;
 import org.benf.cfr.reader.bytecode.analysis.variables.Ident;
@@ -78,7 +77,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
     private boolean hasCatchParent = false;
 
     private SSAIdentifiers<Slot> ssaIdentifiers;
-    private Map<Integer, Ident> localVariablesBySlot = MapFactory.newOrderedMap();
+    private final Map<Integer, Ident> localVariablesBySlot = MapFactory.newOrderedMap();
 
     @SuppressWarnings("CopyConstructorMissesField")
     private Op02WithProcessedDataAndRefs(Op02WithProcessedDataAndRefs other) {
@@ -462,13 +461,10 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         dynamicPrototype.tightenArgs(null, dynamicArgs);
 
         Expression funcCall;
-        switch (bootstrapBehaviour) {
-            case INVOKE_STATIC:
-                funcCall = new StaticFunctionInvokation(loc, methodRef, callargs);
-                break;
-            case NEW_INVOKE_SPECIAL:
-            default:
-                throw new UnsupportedOperationException("Only static invoke dynamic calls supported currently. This is " + bootstrapBehaviour);
+        if (bootstrapBehaviour == MethodHandleBehaviour.INVOKE_STATIC) {
+            funcCall = new StaticFunctionInvokation(loc, methodRef, callargs);
+        } else {
+            throw new UnsupportedOperationException("Only static invoke dynamic calls supported currently. This is " + bootstrapBehaviour);
         }
 
         JavaTypeInstance lambdaConstructedType = callSiteReturnType;
@@ -652,7 +648,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         if (showBoilerArgs) {
             Pair<JavaRefTypeInstance, JavaRefTypeInstance> methodHandlesLookup = state.getClassCache().getRefClassForInnerOuterPair(TypeConstants.methodHandlesLookupName, TypeConstants.methodHandlesName);
             callargs.add(new StaticFunctionInvokationExplicit(loc, new InferredJavaType(methodHandlesLookup.getFirst(), InferredJavaType.Source.LITERAL),
-                    methodHandlesLookup.getSecond(), "lookup", Collections.<Expression>emptyList()));
+                    methodHandlesLookup.getSecond(), "lookup", Collections.emptyList()));
             callargs.add(new Literal(TypedLiteral.getString(QuotingUtils.enquoteString(methodRef.getName()))));
             callargs.add(new LValueExpression(loc, new StaticVariable(new InferredJavaType(TypeConstants.CLASS, InferredJavaType.Source.LITERAL), classFile.getClassType(), "class")));
         }
@@ -746,9 +742,8 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             case ALOAD_1, ILOAD_1, LLOAD_1, DLOAD_1, FLOAD_1 -> 1;
             case ALOAD_2, ILOAD_2, LLOAD_2, DLOAD_2, FLOAD_2 -> 2;
             case ALOAD_3, ILOAD_3, LLOAD_3, DLOAD_3, FLOAD_3 -> 3;
-            case ALOAD_WIDE, ILOAD_WIDE, LLOAD_WIDE, DLOAD_WIDE, FLOAD_WIDE -> getInstrArgShort(1);
+            case ALOAD_WIDE, ILOAD_WIDE, LLOAD_WIDE, DLOAD_WIDE, FLOAD_WIDE, RET_WIDE -> getInstrArgShort(1);
             case RET -> getInstrArgByte(0);
-            case RET_WIDE -> getInstrArgShort(1);
             default -> null;
         };
     }
@@ -1376,8 +1371,8 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         ConstantPoolEntryNameAndType nameAndType = cpe.getNameAndTypeEntry();
         int idx = cpe.getBootstrapMethodAttrIndex();
         MethodPrototype dynamicProto = new MethodPrototype(cp.getDCCommonState(), classFile, classFile.getClassType(), "???",
-                false, Method.MethodConstructor.NOT, Collections.<FormalTypeParameter>emptyList(), Collections.<JavaTypeInstance>emptyList(),
-                nameAndType.decodeTypeTok(), Collections.<JavaTypeInstance>emptyList(), false, new VariableNamerDefault(), false, "");
+                false, Method.MethodConstructor.NOT, Collections.emptyList(), Collections.emptyList(),
+                nameAndType.decodeTypeTok(), Collections.emptyList(), false, new VariableNamerDefault(), false, "");
         Statement s = buildInvokeDynamic(method.getClassFile(), cp.getDCCommonState(), nameAndType.getName().getValue(), dynamicProto, idx, true, comments);
         if (!(s instanceof AssignmentSimple as)) {
             throw new ConfusedCFRException("Expected a result from a dynamic literal");
@@ -1435,7 +1430,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             for (Op02WithProcessedDataAndRefs op : op2list) {
                 op.dump(dmp);
             }
-            System.err.print(dmp.toString());
+            System.err.print(dmp);
             throw e;
         }
         if (comments.isEmpty()) return null;
@@ -1555,7 +1550,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
          * we will mark our actual parameters as eliding our synthetics
          */
         Map<Slot, SSAIdent> idents = useProtoArgs ? method.getMethodPrototype().collectInitialSlotUsage(ssaIdentifierFactory) :
-                MapFactory.<Slot, SSAIdent>newMap();
+                MapFactory.newMap();
 
         for (Op02WithProcessedDataAndRefs statement : statements) {
             statement.collectLocallyMutatedVariables(ssaIdentifierFactory);
@@ -1570,10 +1565,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             if (t1 == t2) {
                 if (t1.isClosed()) return true;
                 if (livenessClashes.isEmpty()) return true;
-                if (livenessClashes.contains(a.idx())) {
-                    return false;
-                }
-                return true;
+                return !livenessClashes.contains(a.idx());
             }
             return false;
         };
@@ -1662,10 +1654,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
                  * Is this either used here, or used in a child?
                  * (if it's used in a child, it must not be SET in that child).
                  */
-                boolean used = false;
-                if (retrieved != null && retrieved.getSecond() == slot.idx()) {
-                    used = true;
-                }
+                boolean used = retrieved != null && retrieved.getSecond() == slot.idx();
                 if (!used) {
                     for (Op02WithProcessedDataAndRefs target : node.targets) {
                         if (target.ssaIdentifiers.getSSAIdentOnEntry(slot) != null) {
@@ -1962,7 +1951,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             int startCompare = triggeringGroup.getBytecodeIndexFrom() - other.triggeringGroup.getBytecodeIndexFrom();
             if (startCompare != 0) return startCompare;
             int endCompare = triggeringGroup.getBytecodeIndexTo() - other.triggeringGroup.getBytecodeIndexTo();
-            return 0 - endCompare;
+            return -endCompare;
 //            throw new ConfusedCFRException("Can't compare these exception groups.");
         }
 
@@ -2246,7 +2235,10 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
                 if (next.sources.size() > 1) {
                     for (Op02WithProcessedDataAndRefs source : next.sources) {
                         Set<BlockIdentifier> blocks2 = SetFactory.newSet(source.containedInTheseBlocks);
-                        if (!blocks.equals(blocks2)) bOk = false;
+                        if (!blocks.equals(blocks2)) {
+                            bOk = false;
+                            break;
+                        }
                     }
                 }
                 // If all sources are in same block....
@@ -2503,11 +2495,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
                     if (stackJumpLocs.empty()) return false;
                     stackJumpLocLocals.put(1, stackJumpLocs.pop());
                     break;
-                case ASTORE_2:
-                    if (stackJumpLocs.empty()) return false;
-                    stackJumpLocLocals.put(2, stackJumpLocs.pop());
-                    break;
-                case ASTORE_3:
+                case ASTORE_2, ASTORE_3:
                     if (stackJumpLocs.empty()) return false;
                     stackJumpLocLocals.put(2, stackJumpLocs.pop());
                     break;
@@ -2567,7 +2555,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         // Cheap, but wrong, pass 1.  If it turns out that this was the original JSR, we can now replace that with
         // a GOTO, and replace our RET with a GOTO after original.
         if (afterThis == start) {
-            Op02WithProcessedDataAndRefs[] remaining = stackJumpLocs.toArray(new Op02WithProcessedDataAndRefs[stackJumpLocs.size()]);
+            Op02WithProcessedDataAndRefs[] remaining = stackJumpLocs.toArray(new Op02WithProcessedDataAndRefs[0]);
             // Check that if we're visiting any JSRS in order, they're the same order as those left on the stack.
             // we can ignore any not on the stack, and nop them (as gotos).
             int remainIdx = 0;

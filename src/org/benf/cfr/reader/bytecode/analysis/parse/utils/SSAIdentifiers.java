@@ -142,8 +142,7 @@ public class SSAIdentifiers<KEYTYPE> {
         /*
          * Last chance, is otherVersion a subset of thisVersion.
          */
-        if (thisVersion.isSuperSet(otherVersion)) return true;
-        return false;
+        return thisVersion.isSuperSet(otherVersion);
     }
 
     boolean isValidReplacementOnExit(KEYTYPE lValue, SSAIdentifiers<KEYTYPE> other) {
@@ -156,8 +155,7 @@ public class SSAIdentifiers<KEYTYPE> {
         /*
          * Last chance, is otherVersion a subset of thisVersion.
          */
-        if (thisVersion.isSuperSet(otherVersion)) return true;
-        return false;
+        return thisVersion.isSuperSet(otherVersion);
     }
 
     Set<KEYTYPE> getChanges() {

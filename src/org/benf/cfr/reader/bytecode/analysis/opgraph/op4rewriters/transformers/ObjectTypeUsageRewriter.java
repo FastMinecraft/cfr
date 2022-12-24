@@ -33,7 +33,7 @@ import java.util.Map;
 public class ObjectTypeUsageRewriter extends AbstractExpressionRewriter implements StructuredStatementTransformer {
 
     private final Map<InferredJavaType, Boolean> isAnonVar = MapFactory.newIdentityMap();
-    private boolean canHaveVar;
+    private final boolean canHaveVar;
 
     public ObjectTypeUsageRewriter(AnonymousClassUsage anonymousClassUsage, ClassFile classFile) {
         this.canHaveVar = !anonymousClassUsage.isEmpty() && classFile.getClassFileVersion().equalOrLater(ClassFileVersion.JAVA_10);
@@ -131,10 +131,7 @@ public class ObjectTypeUsageRewriter extends AbstractExpressionRewriter implemen
             }
             currentAsWas = classFile.getBaseClassType().getDeGenerifiedType();
         } while (currentAsWas != null);
-        if (currentAsWas == null || currentAsWas.equals(owningClassType)) {
-            return false;
-        }
-        return true;
+        return currentAsWas != null && !currentAsWas.equals(owningClassType);
     }
 
     private Expression handleMemberFunction(final MemberFunctionInvokation funcInv) {

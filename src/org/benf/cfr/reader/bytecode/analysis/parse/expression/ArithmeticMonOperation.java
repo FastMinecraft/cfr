@@ -6,7 +6,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
 import org.benf.cfr.reader.bytecode.analysis.parse.StatementContainer;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.misc.Precedence;
 import org.benf.cfr.reader.bytecode.analysis.parse.literal.LiteralFolding;
-import org.benf.cfr.reader.bytecode.analysis.parse.literal.TypedLiteral;
 import org.benf.cfr.reader.bytecode.analysis.parse.rewriters.CloneHelper;
 import org.benf.cfr.reader.bytecode.analysis.parse.rewriters.ExpressionRewriter;
 import org.benf.cfr.reader.bytecode.analysis.parse.rewriters.ExpressionRewriterFlags;
@@ -102,9 +101,7 @@ public class ArithmeticMonOperation extends AbstractExpression {
         ArithmeticMonOperation that = (ArithmeticMonOperation) o;
 
         if (!Objects.equals(lhs, that.lhs)) return false;
-        if (op != that.op) return false;
-
-        return true;
+        return op == that.op;
     }
 
     @Override
@@ -114,7 +111,6 @@ public class ArithmeticMonOperation extends AbstractExpression {
 
         ArithmeticMonOperation other = (ArithmeticMonOperation) o;
         if (!constraint.equivalent(lhs, other.lhs)) return false;
-        if (!constraint.equivalent(op, other.op)) return false;
-        return true;
+        return constraint.equivalent(op, other.op);
     }
 }

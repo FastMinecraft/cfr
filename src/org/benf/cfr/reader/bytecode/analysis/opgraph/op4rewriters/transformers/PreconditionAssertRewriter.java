@@ -10,17 +10,9 @@ import org.benf.cfr.reader.bytecode.analysis.parse.expression.ConditionalExpress
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.LValueExpression;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.NotOperation;
 import org.benf.cfr.reader.bytecode.analysis.parse.lvalue.StaticVariable;
-import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
-import org.benf.cfr.reader.bytecode.analysis.parse.wildcard.WildcardMatch;
 import org.benf.cfr.reader.bytecode.analysis.structured.StructuredScope;
 import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
-import org.benf.cfr.reader.bytecode.analysis.structured.statement.AbstractStructuredBlockStatement;
-import org.benf.cfr.reader.bytecode.analysis.structured.statement.Block;
-import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredDo;
 import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredIf;
-import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredThrow;
-import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredWhile;
-import org.benf.cfr.reader.bytecode.analysis.types.TypeConstants;
 import org.benf.cfr.reader.util.collections.ListFactory;
 
 import java.util.List;
@@ -43,7 +35,7 @@ import java.util.List;
  */
 public class PreconditionAssertRewriter implements StructuredStatementTransformer
 {
-    private Expression test;
+    private final Expression test;
 
     public PreconditionAssertRewriter(StaticVariable assertionStatic) {
         this.test = new NotOperation(BytecodeLoc.NONE, new BooleanExpression(new LValueExpression(assertionStatic)));

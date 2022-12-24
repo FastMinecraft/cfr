@@ -125,8 +125,7 @@ public class NotOperation extends AbstractExpression implements ConditionalExpre
         if (o == this) return true;
         if (getClass() != o.getClass()) return false;
         NotOperation other = (NotOperation) o;
-        if (!constraint.equivalent(inner, other.inner)) return false;
-        return true;
+        return constraint.equivalent(inner, other.inner);
     }
 
     @Override

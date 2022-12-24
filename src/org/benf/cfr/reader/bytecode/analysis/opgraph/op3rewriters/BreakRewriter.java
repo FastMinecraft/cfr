@@ -36,7 +36,7 @@ public class BreakRewriter {
                                     statement.getBlockIdentifiers()
                                 )) {
                                     jumpingStatement.setJumpType(JumpType.CONTINUE);
-                                    continue test;
+                                    continue;
                                 }
                             }
                         }
@@ -54,7 +54,6 @@ public class BreakRewriter {
                         // Break to the outermost block.
                         if (outermostContainedIn != null) {
                             jumpingStatement.setJumpType(JumpType.BREAK);
-                            continue;
                         }
                     }
                 }

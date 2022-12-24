@@ -139,8 +139,7 @@ public class BooleanExpression extends AbstractExpression implements Conditional
         if (o == this) return true;
         if (getClass() != o.getClass()) return false;
         BooleanExpression other = (BooleanExpression) o;
-        if (!constraint.equivalent(inner, other.inner)) return false;
-        return true;
+        return constraint.equivalent(inner, other.inner);
     }
 
     @Override

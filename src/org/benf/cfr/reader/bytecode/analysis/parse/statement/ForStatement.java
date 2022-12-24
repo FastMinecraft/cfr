@@ -18,9 +18,9 @@ import java.util.List;
 
 public class ForStatement extends AbstractStatement {
     private ConditionalExpression condition;
-    private BlockIdentifier blockIdentifier;
-    private AssignmentSimple initial;
-    private List<AbstractAssignmentExpression> assignments;
+    private final BlockIdentifier blockIdentifier;
+    private final AssignmentSimple initial;
+    private final List<AbstractAssignmentExpression> assignments;
 
     ForStatement(BytecodeLoc loc, ConditionalExpression conditionalExpression, BlockIdentifier blockIdentifier, AssignmentSimple initial, List<AbstractAssignmentExpression> assignments) {
         super(loc);
@@ -112,8 +112,7 @@ public class ForStatement extends AbstractStatement {
         ForStatement other = (ForStatement) o;
         if (!constraint.equivalent(condition, other.condition)) return false;
         if (!constraint.equivalent(initial, other.initial)) return false;
-        if (!constraint.equivalent(assignments, other.assignments)) return false;
-        return true;
+        return constraint.equivalent(assignments, other.assignments);
     }
 
 }

@@ -13,7 +13,7 @@ import org.benf.cfr.reader.state.TypeUsageInformation;
 import java.io.BufferedOutputStream;
 
 public abstract class DelegatingDumper implements Dumper {
-    protected Dumper delegate;
+    protected final Dumper delegate;
 
     public DelegatingDumper(Dumper delegate) {
         this.delegate = delegate;

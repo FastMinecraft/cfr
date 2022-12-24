@@ -190,7 +190,6 @@ public class AssignmentSimple extends AbstractAssignment {
         if (getClass() != o.getClass()) return false;
         AssignmentSimple other = (AssignmentSimple) o;
         if (!constraint.equivalent(lvalue, other.lvalue)) return false;
-        if (!constraint.equivalent(rvalue, other.rvalue)) return false;
-        return true;
+        return constraint.equivalent(rvalue, other.rvalue);
     }
 }

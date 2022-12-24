@@ -27,7 +27,6 @@ import org.benf.cfr.reader.util.DecompilerComments;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -110,7 +109,7 @@ public class JumpsIntoDoRewriter {
                 }
 
                 Op03SimpleStatement afterDo = doS.getTargets().get(0);
-                SSAIdentifiers doId = doS.getSSAIdentifiers();
+                SSAIdentifiers<LValue> doId = doS.getSSAIdentifiers();
                 LValue loopControl = vf.tempVariable(new InferredJavaType(RawJavaType.BOOLEAN, InferredJavaType.Source.TRANSFORM, true));
                 prev.replaceStatement(new AssignmentSimple(BytecodeLoc.TODO, loopControl, Literal.TRUE));
                 // No, it's not pretty.  But it structures!

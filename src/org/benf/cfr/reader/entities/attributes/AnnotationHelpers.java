@@ -134,7 +134,7 @@ class AnnotationHelpers {
             offset = getElementValuePair(raw, offset, cp, elementValueMap);
         }
 
-        AnnotationTableTypeEntry res = new AnnotationTableTypeEntry<>(
+        AnnotationTableTypeEntry<TypeAnnotationTargetInfo> res = new AnnotationTableTypeEntry<>(
             typeAnnotationEntryValue,
             targetInfo,
             path,
@@ -160,7 +160,6 @@ class AnnotationHelpers {
             case catch_target -> TypeAnnotationTargetInfo.TypeAnnotationCatchTarget.Read(raw, offset);
             case offset_target -> TypeAnnotationTargetInfo.TypeAnnotationOffsetTarget.Read(raw, offset);
             case type_argument_target -> TypeAnnotationTargetInfo.TypeAnnotationTypeArgumentTarget.Read(raw, offset);
-            default -> throw new BadAttributeException();
         };
     }
 

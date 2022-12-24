@@ -61,8 +61,7 @@ public class JSRRetStatement extends AbstractStatement {
         if (o == this) return true;
         if (getClass() != o.getClass()) return false;
         JSRRetStatement other = (JSRRetStatement) o;
-        if (!constraint.equivalent(ret, other.ret)) return false;
-        return true;
+        return constraint.equivalent(ret, other.ret);
     }
 
     @Override

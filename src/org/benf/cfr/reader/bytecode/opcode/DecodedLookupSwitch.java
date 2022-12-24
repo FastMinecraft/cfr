@@ -4,7 +4,6 @@ import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.bytestream.BaseByteData;
 import org.benf.cfr.reader.util.bytestream.ByteData;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 
 import java.util.List;
 import java.util.Map;
@@ -35,8 +34,8 @@ public class DecodedLookupSwitch implements DecodedSwitch {
         );
         uniqueTargets.get(defaultvalue).add(null);
         for (int x = 0; x < numpairs; ++x) {
-            int value = bd.getS4At(offset + OFFSET_OF_PAIRS + (x * 8));
-            int target = bd.getS4At(offset + OFFSET_OF_PAIRS + (x * 8) + 4);
+            int value = bd.getS4At(offset + OFFSET_OF_PAIRS + (x * 8L));
+            int target = bd.getS4At(offset + OFFSET_OF_PAIRS + (x * 8L) + 4);
             if (target != defaultvalue) {
                 uniqueTargets.get(target).add(value);
             }

@@ -5,7 +5,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.bytecode.analysis.structured.statement.Block;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.collections.SetUtil;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -119,7 +118,7 @@ public class StructuredScope {
     }
 
     protected static class AtLevel {
-        StructuredStatement statement;
+        final StructuredStatement statement;
         int next;
 
         private AtLevel(StructuredStatement statement) {

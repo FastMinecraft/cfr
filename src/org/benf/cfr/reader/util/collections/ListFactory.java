@@ -51,6 +51,6 @@ public class ListFactory {
     }
 
     public static <X> List<X> orEmptyList(List<X> nullableList) {
-        return nullableList == null ? Collections.<X>emptyList() : nullableList;
+        return nullableList == null ? Collections.emptyList() : nullableList;
     }
 }

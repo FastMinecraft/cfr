@@ -3,7 +3,7 @@ package org.benf.cfr.reader.bytecode.analysis.parse.utils;
 import java.util.BitSet;
 
 public class SSAIdent {
-    public static SSAIdent poison = new SSAIdent(0, new Object());
+    public static final SSAIdent poison = new SSAIdent(0, new Object());
 
     private final BitSet val;
     private final Object comparisonType;

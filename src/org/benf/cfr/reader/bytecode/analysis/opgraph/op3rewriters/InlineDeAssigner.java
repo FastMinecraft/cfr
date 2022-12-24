@@ -46,12 +46,12 @@ public class InlineDeAssigner {
     private InlineDeAssigner() {
     }
 
-    private class Deassigner extends AbstractExpressionRewriter {
+    private static class Deassigner extends AbstractExpressionRewriter {
 
-        Set<LValue> read = SetFactory.newSet();
-        Set<LValue> write = SetFactory.newSet();
+        final Set<LValue> read = SetFactory.newSet();
+        final Set<LValue> write = SetFactory.newSet();
 
-        List<AssignmentExpression> extracted = ListFactory.newList();
+        final List<AssignmentExpression> extracted = ListFactory.newList();
 
         boolean noFurther = false;
 

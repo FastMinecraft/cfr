@@ -1,20 +1,15 @@
 package org.benf.cfr.reader.bytecode.analysis.loc;
 
 import org.benf.cfr.reader.entities.Method;
-import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.collections.SetUtil;
 
 import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
 
 /*
  * The amount of checks for DISABLED in here is very annoying.  But we want the convenience of not having to pass a
  * factory around at the point where we combine locations, along with being able to hardcode usages of NONE/(t)ODO.
  */
 public class BytecodeLocFactoryImpl implements BytecodeLocFactory {
-    public static BytecodeLocFactoryImpl INSTANCE = new BytecodeLocFactoryImpl();
+    public static final BytecodeLocFactoryImpl INSTANCE = new BytecodeLocFactoryImpl();
 
     private BytecodeLocFactoryImpl() {
     }

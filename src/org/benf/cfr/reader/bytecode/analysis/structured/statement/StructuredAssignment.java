@@ -132,9 +132,8 @@ public class StructuredAssignment extends AbstractStructuredStatement implements
         if (o == null) return false;
         if (!(o instanceof StructuredAssignment other)) return false;
         if (!lvalue.equals(other.lvalue)) return false;
-        if (!rvalue.equals(other.rvalue)) return false;
+        return rvalue.equals(other.rvalue);
 //        if (isCreator != other.isCreator) return false;
-        return true;
     }
 
     @Override

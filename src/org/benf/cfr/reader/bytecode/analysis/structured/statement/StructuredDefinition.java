@@ -22,7 +22,7 @@ import java.util.List;
 
 public class StructuredDefinition extends AbstractStructuredStatement {
 
-    private LValue scopedEntity;
+    private final LValue scopedEntity;
 
     public StructuredDefinition(LValue scopedEntity) {
         super(BytecodeLoc.NONE);
@@ -91,8 +91,7 @@ public class StructuredDefinition extends AbstractStructuredStatement {
         if (o == this) return true;
         if (o == null) return false;
         if (!(o instanceof StructuredDefinition other)) return false;
-        if (!scopedEntity.equals(other.scopedEntity)) return false;
-        return true;
+        return scopedEntity.equals(other.scopedEntity);
     }
 
     @Override

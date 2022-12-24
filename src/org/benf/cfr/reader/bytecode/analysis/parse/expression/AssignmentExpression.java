@@ -128,9 +128,7 @@ public class AssignmentExpression extends AbstractAssignmentExpression {
         AssignmentExpression that = (AssignmentExpression) o;
 
         if (!Objects.equals(lValue, that.lValue)) return false;
-        if (!Objects.equals(rValue, that.rValue)) return false;
-
-        return true;
+        return Objects.equals(rValue, that.rValue);
     }
 
     @Override
@@ -140,8 +138,7 @@ public class AssignmentExpression extends AbstractAssignmentExpression {
         if (getClass() != o.getClass()) return false;
         AssignmentExpression other = (AssignmentExpression) o;
         if (!constraint.equivalent(lValue, other.lValue)) return false;
-        if (!constraint.equivalent(rValue, other.rValue)) return false;
-        return true;
+        return constraint.equivalent(rValue, other.rValue);
     }
 
     @Override

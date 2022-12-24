@@ -79,9 +79,7 @@ public class FieldVariable extends AbstractFieldVariable {
         if (object instanceof LValueExpression) {
             LValue lValue = ((LValueExpression) object).getLValue();
             if (lValue instanceof FieldVariable) {
-                if (((FieldVariable) lValue).getClassFileField().getFieldName().endsWith(MiscConstants.DOT_THIS)) {
-                    return true;
-                }
+                return ((FieldVariable) lValue).getClassFileField().getFieldName().endsWith(MiscConstants.DOT_THIS);
             }
         }
         return false;
@@ -102,10 +100,7 @@ public class FieldVariable extends AbstractFieldVariable {
         if (!super.canThrow(caught))  {
             return false;
         }
-        if (objectIsThis()) {
-            return false;
-        }
-        return true;
+        return !objectIsThis();
     }
 
     private boolean objectIsIllegalThis() {
@@ -174,8 +169,7 @@ public class FieldVariable extends AbstractFieldVariable {
         if (!(o instanceof FieldVariable other)) return false;
 
         if (!super.equals(o)) return false;
-        if (!object.equals(other.object)) return false;
-        return true;
+        return object.equals(other.object);
     }
 
     // THIS IS ABSOLUTELY WRONG.

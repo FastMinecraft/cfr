@@ -2,19 +2,16 @@ package org.benf.cfr.reader.util.output;
 
 import org.benf.cfr.reader.api.OutputSinkFactory;
 import org.benf.cfr.reader.api.SinkReturns;
-import org.benf.cfr.reader.bytecode.analysis.loc.HasByteCodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.MethodPrototype;
 import org.benf.cfr.reader.bytecode.analysis.variables.NamedVariable;
-import org.benf.cfr.reader.entities.Field;
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.mapping.NullMapping;
 import org.benf.cfr.reader.mapping.ObfuscationMapping;
 import org.benf.cfr.reader.state.TypeUsageInformation;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.getopt.Options;
 
 import java.io.BufferedOutputStream;
@@ -97,7 +94,7 @@ public class TokenStreamDumper extends AbstractDumper {
         private final Set<SinkReturns.TokenTypeFlags> flags;
 
         Token(SinkReturns.TokenType type, String value, Object raw) {
-            this(type, value, raw, Collections.<SinkReturns.TokenTypeFlags>emptySet());
+            this(type, value, raw, Collections.emptySet());
         }
 
         Token(SinkReturns.TokenType type, String value, Object raw, SinkReturns.TokenTypeFlags flag) {

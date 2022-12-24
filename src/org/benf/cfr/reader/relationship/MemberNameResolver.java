@@ -317,10 +317,8 @@ public class MemberNameResolver {
                 MethodKey methodKey = (MethodKey) o;
 
                 if (!args.equals(methodKey.args)) return false;
-                if (!name.equals(methodKey.name)) return false;
-
-                return true;
-            }
+            return name.equals(methodKey.name);
+        }
 
         @Override
             public String toString() {

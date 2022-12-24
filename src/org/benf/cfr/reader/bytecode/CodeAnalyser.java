@@ -195,7 +195,7 @@ public class CodeAnalyser {
                 throw new IllegalArgumentException("Illegal recovery pass idx");
             }
             RecoveryOptions.Applied applied = recoveryOptionsArr[pass].apply(dcCommonState, options, bytecodeMeta);
-            res = getAnalysisOrWrapFail(pass, instrs, dcCommonState, applied.options, applied.comments, bytecodeMeta);
+            res = getAnalysisOrWrapFail(pass, instrs, dcCommonState, applied.options(), applied.comments(), bytecodeMeta);
         } else {
 
             res = getAnalysisOrWrapFail(0, instrs, dcCommonState, options, null, bytecodeMeta);
@@ -204,8 +204,8 @@ public class CodeAnalyser {
                 int passIdx = 1;
                 for (RecoveryOptions recoveryOptions : recoveryOptionsArr) {
                     RecoveryOptions.Applied applied = recoveryOptions.apply(dcCommonState, options, bytecodeMeta);
-                    if (!applied.valid) continue;
-                    AnalysisResult nextRes = getAnalysisOrWrapFail(passIdx++, instrs, dcCommonState, applied.options, applied.comments, bytecodeMeta);
+                    if (!applied.valid()) continue;
+                    AnalysisResult nextRes = getAnalysisOrWrapFail(passIdx++, instrs, dcCommonState, applied.options(), applied.comments(), bytecodeMeta);
                     if (res.isFailed() && nextRes.isFailed()) {
                         if (!nextRes.isThrown()) {
                             if (res.isThrown()) {

@@ -52,9 +52,9 @@ public class PeerTries {
     /*
      * Best guess using reverse information from the catch block.
      */
-    private Set<BlockIdentifier> guessPeerTryBlocks = SetFactory.newOrderedSet();
-    private Map<BlockIdentifier, Op03SimpleStatement> guessPeerTryMap = MapFactory.newOrderedMap();
-    private Set<Op03SimpleStatement> guessPeerTryStarts = SetFactory.newOrderedSet();
+    private final Set<BlockIdentifier> guessPeerTryBlocks = SetFactory.newOrderedSet();
+    private final Map<BlockIdentifier, Op03SimpleStatement> guessPeerTryMap = MapFactory.newOrderedMap();
+    private final Set<Op03SimpleStatement> guessPeerTryStarts = SetFactory.newOrderedSet();
 
     private final Map<CompositeBlockIdentifierKey, PeerTrySet> triesByLevel = MapFactory.newLazyMap(
         new TreeMap<>(),
@@ -140,9 +140,7 @@ public class PeerTries {
 
             PeerTrySet that = (PeerTrySet) o;
 
-            if (idx != that.idx) return false;
-
-            return true;
+            return idx == that.idx;
         }
 
         @Override

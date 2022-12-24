@@ -174,7 +174,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
 
         accessFlags = AccessFlag.build(data.getU2At(OFFSET_OF_ACCESS_FLAGS));
 
-        final long OFFSET_OF_FIELDS_COUNT = OFFSET_OF_INTERFACES + 2 * numInterfaces;
+        final long OFFSET_OF_FIELDS_COUNT = OFFSET_OF_INTERFACES + 2L * numInterfaces;
         final long OFFSET_OF_FIELDS = OFFSET_OF_FIELDS_COUNT + 2;
         final int numFields = data.getU2At(OFFSET_OF_FIELDS_COUNT);
         List<Field> tmpFields = ListFactory.newList();
@@ -279,8 +279,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
          *
          */
         if (classFileVersion.before(ClassFileVersion.JAVA_6)) {
-            boolean hasSignature = false;
-            if (null != attributes.getByName(AttributeSignature.ATTRIBUTE_NAME)) hasSignature = true;
+            boolean hasSignature = null != attributes.getByName(AttributeSignature.ATTRIBUTE_NAME);
             if (!hasSignature) {
                 for (Method method : methods) {
                     if (null != method.getSignatureAttribute()) {
@@ -454,7 +453,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
             collector.collectFrom(field.getInitialValue());
         }
         collector.collectFrom(methods);
-        if (fakeMethods != null) collector.collectFrom(fakeMethods);;
+        if (fakeMethods != null) collector.collectFrom(fakeMethods);
         // Collect the types of all inner classes, then process recursively.
         for (Map.Entry<JavaTypeInstance, Pair<InnerClassAttributeInfo, ClassFile>> innerClassByTypeInfo : innerClassesByTypeInfo.entrySet()) {
             collector.collect(innerClassByTypeInfo.getKey());
@@ -657,7 +656,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         final boolean isInstance = prototype.isInstanceMethod();
         final int numArgs = prototype.getArgs().size();
         List<Method> named = ListFactory.newList();
-        collectMethods(prototype, named, SetFactory.<JavaTypeInstance>newIdentitySet());
+        collectMethods(prototype, named, SetFactory.newIdentitySet());
         final boolean isVarArgs = (prototype.isVarArgs());
         named = Functional.filter(named, in -> {
             MethodPrototype other = in.getMethodPrototype();
@@ -1263,9 +1262,9 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         JavaTypeInstance base = classSignature.superClass();
         if (base == null) return new BindingSuperContainer(this, new HashMap<>(),
             new HashMap<>());
-        getBoundSuperClasses2(base, genericTypeBinder, boundSuperCollector, BindingSuperContainer.Route.EXTENSION, SetFactory.<JavaTypeInstance>newSet());
+        getBoundSuperClasses2(base, genericTypeBinder, boundSuperCollector, BindingSuperContainer.Route.EXTENSION, SetFactory.newSet());
         for (JavaTypeInstance interfaceBase : classSignature.interfaces()) {
-            getBoundSuperClasses2(interfaceBase, genericTypeBinder, boundSuperCollector, BindingSuperContainer.Route.INTERFACE, SetFactory.<JavaTypeInstance>newSet());
+            getBoundSuperClasses2(interfaceBase, genericTypeBinder, boundSuperCollector, BindingSuperContainer.Route.INTERFACE, SetFactory.newSet());
         }
 
         return boundSuperCollector.getBoundSupers();
@@ -1358,9 +1357,9 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         classFile.getBoundSuperClasses(boundBase, boundSuperCollector, route, seen);
     }
 
-    private List<ConstructorInvokationAnonymousInner> anonymousUsages = ListFactory.newList();
+    private final List<ConstructorInvokationAnonymousInner> anonymousUsages = ListFactory.newList();
 
-    private List<ConstructorInvokationSimple> methodUsages = ListFactory.newList();
+    private final List<ConstructorInvokationSimple> methodUsages = ListFactory.newList();
 
     public void noteAnonymousUse(ConstructorInvokationAnonymousInner anoynmousInner) {
         anonymousUsages.add(anoynmousInner);

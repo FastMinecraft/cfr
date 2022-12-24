@@ -40,8 +40,7 @@ public class ClassFileVersion {
     public boolean equalOrLater(ClassFileVersion other) {
         if (this.major < other.major) return false;
         if (this.major > other.major) return true;
-        if (this.minor < other.minor) return false;
-        return true;
+        return this.minor >= other.minor;
     }
 
     public boolean isExperimental() {

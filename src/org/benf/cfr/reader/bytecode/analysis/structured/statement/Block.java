@@ -33,7 +33,7 @@ public class Block extends AbstractStructuredStatement {
 
     private LinkedList<Op04StructuredStatement> containedStatements;
     private boolean indenting;
-    private BlockIdentifier blockIdentifier;
+    private final BlockIdentifier blockIdentifier;
 
     public Block(Op04StructuredStatement statement) {
         super(BytecodeLoc.NONE);
@@ -184,7 +184,7 @@ public class Block extends AbstractStructuredStatement {
 
     public Optional<Op04StructuredStatement> getMaybeJustOneStatement() {
         Pair<Boolean, Op04StructuredStatement> tmp = getOneStatementIfPresent();
-        return tmp.getSecond() == null ? Optional.<Op04StructuredStatement>empty() : Optional.of(tmp.getSecond());
+        return tmp.getSecond() == null ? Optional.empty() : Optional.of(tmp.getSecond());
     }
 
     @Override
@@ -306,7 +306,7 @@ public class Block extends AbstractStructuredStatement {
 
     public void combineTryCatch() {
 
-        Set<Class<?>> skipThese = SetFactory.<Class<?>>newSet(
+        Set<Class<?>> skipThese = SetFactory.newSet(
                 StructuredCatch.class,
                 StructuredFinally.class,
                 StructuredTry.class,
@@ -523,11 +523,7 @@ public class Block extends AbstractStructuredStatement {
     private boolean canFoldUp() {
         boolean isIndenting = isIndenting();
         if (blockIdentifier != null) {
-            if (blockIdentifier.hasForeignReferences()) {
-                isIndenting = true;
-            } else {
-                isIndenting = false;
-            }
+            isIndenting = blockIdentifier.hasForeignReferences();
         }
         return !isIndenting;
     }

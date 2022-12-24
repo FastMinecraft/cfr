@@ -39,12 +39,12 @@ public abstract class AbstractLValueScopeDiscoverer implements LValueScopeDiscov
     final Map<Integer, Map<NamedVariable, Boolean>> earliestDefinitionsByLevel = MapFactory.newLazyMap(arg -> MapFactory.newIdentityMap());
     int currentDepth = 0;
 
-    Stack<StatementContainer<StructuredStatement>> currentBlock = new Stack<>();
+    final Stack<StatementContainer<StructuredStatement>> currentBlock = new Stack<>();
 
     final List<ScopeDefinition> discoveredCreations = ListFactory.newList();
     final VariableFactory variableFactory;
     StatementContainer<StructuredStatement> currentMark = null;
-    Options options;
+    final Options options;
     private final MethodPrototype prototype;
     private final ScopeDiscoverInfoCache factCache = new ScopeDiscoverInfoCache();
 
@@ -134,10 +134,8 @@ public abstract class AbstractLValueScopeDiscoverer implements LValueScopeDiscov
                 ScopeKey scopeKey = (ScopeKey) o;
 
                 if (!lValue.equals(scopeKey.lValue)) return false;
-                if (!type.equals(scopeKey.type)) return false;
-
-                return true;
-            }
+            return type.equals(scopeKey.type);
+        }
 
     }
 
@@ -147,7 +145,7 @@ public abstract class AbstractLValueScopeDiscoverer implements LValueScopeDiscov
          * where scopes for the same variable exist, lift to the lowest common denominator.
          */
         Map<ScopeKey, List<ScopeDefinition>> definitionsByType = Functional.groupToMapBy(discoveredCreations,
-                MapFactory.<ScopeKey, List<ScopeDefinition>>newOrderedMap(),
+                MapFactory.newOrderedMap(),
             ScopeDefinition::getScopeKey
         );
 

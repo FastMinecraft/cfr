@@ -61,10 +61,9 @@ public class AttributeStackMapTable extends Attribute {
     public AttributeStackMapTable(ByteData raw, ConstantPool cp, ClassFileVersion classFileVersion) {
         this.length = raw.getS4At(OFFSET_OF_ATTRIBUTE_LENGTH);
         int numEntries = raw.getU2At(OFFSET_OF_NUMBER_OF_ENTRIES);
-        long offset = OFFSET_OF_STACK_MAP_FRAMES;
         List<StackMapFrame> frames = ListFactory.newList();
         boolean isValid = true;
-        OffsettingByteData data = raw.getOffsettingOffsetData(offset);
+        OffsettingByteData data = raw.getOffsettingOffsetData(OFFSET_OF_STACK_MAP_FRAMES);
         try {
             for (int x = 0; x < numEntries; ++x) {
                 StackMapFrame frame = readStackMapFrame(data);
@@ -261,37 +260,37 @@ public class AttributeStackMapTable extends Attribute {
 
     private static class VerificationInfoTop extends AbstractVerificationInfo {
         private static final char TYPE = 0;
-        private static VerificationInfo INSTANCE = new VerificationInfoTop();
+        private static final VerificationInfo INSTANCE = new VerificationInfoTop();
     }
 
     private static class VerificationInfoInteger extends AbstractVerificationInfo {
         private static final char TYPE = 1;
-        private static VerificationInfo INSTANCE = new VerificationInfoInteger();
+        private static final VerificationInfo INSTANCE = new VerificationInfoInteger();
     }
 
     private static class VerificationInfoFloat extends AbstractVerificationInfo {
         private static final char TYPE = 2;
-        private static VerificationInfo INSTANCE = new VerificationInfoFloat();
+        private static final VerificationInfo INSTANCE = new VerificationInfoFloat();
     }
 
     private static class VerificationInfoDouble extends AbstractVerificationInfo {
         private static final char TYPE = 3;
-        private static VerificationInfo INSTANCE = new VerificationInfoDouble();
+        private static final VerificationInfo INSTANCE = new VerificationInfoDouble();
     }
 
     private static class VerificationInfoLong extends AbstractVerificationInfo {
         private static final char TYPE = 4;
-        private static VerificationInfo INSTANCE = new VerificationInfoLong();
+        private static final VerificationInfo INSTANCE = new VerificationInfoLong();
     }
 
     private static class VerificationInfoNull extends AbstractVerificationInfo {
         private static final char TYPE = 5;
-        private static VerificationInfo INSTANCE = new VerificationInfoNull();
+        private static final VerificationInfo INSTANCE = new VerificationInfoNull();
     }
 
     private static class VerificationInfoUninitializedThis extends AbstractVerificationInfo {
         private static final char TYPE = 6;
-        private static VerificationInfo INSTANCE = new VerificationInfoUninitializedThis();
+        private static final VerificationInfo INSTANCE = new VerificationInfoUninitializedThis();
     }
 
     private record VerificationInfoObject(int cpool_index) implements VerificationInfo {

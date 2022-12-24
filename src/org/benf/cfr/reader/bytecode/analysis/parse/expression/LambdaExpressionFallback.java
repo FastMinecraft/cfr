@@ -30,10 +30,10 @@ import java.util.Objects;
  */
 public class LambdaExpressionFallback extends AbstractExpression implements LambdaExpressionCommon {
 
-    private JavaTypeInstance callClassType;
-    private MethodPrototype lambdaFn;
-    private List<JavaTypeInstance> targetFnArgTypes;
-    private List<Expression> curriedArgs;
+    private final JavaTypeInstance callClassType;
+    private final MethodPrototype lambdaFn;
+    private final List<JavaTypeInstance> targetFnArgTypes;
+    private final List<Expression> curriedArgs;
     private boolean instance;
     private final boolean methodRef;
 
@@ -191,10 +191,7 @@ public class LambdaExpressionFallback extends AbstractExpression implements Lamb
             return false;
         if (!Objects.equals(curriedArgs, that.curriedArgs)) return false;
         if (!Objects.equals(lambdaFn, that.lambdaFn)) return false;
-        if (!Objects.equals(targetFnArgTypes, that.targetFnArgTypes))
-            return false;
-
-        return true;
+        return Objects.equals(targetFnArgTypes, that.targetFnArgTypes);
     }
 
     @Override
@@ -206,8 +203,7 @@ public class LambdaExpressionFallback extends AbstractExpression implements Lamb
         if (instance != other.instance) return false;
         if (methodRef != other.methodRef) return false;
         if (!constraint.equivalent(lambdaFn, other.lambdaFn)) return false;
-        if (!constraint.equivalent(curriedArgs, other.curriedArgs)) return false;
-        return true;
+        return constraint.equivalent(curriedArgs, other.curriedArgs);
     }
 
 

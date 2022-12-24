@@ -18,7 +18,7 @@ public class ExplicitTypeCallRewriter extends AbstractExpressionRewriter {
     public ExplicitTypeCallRewriter() {
     }
 
-    private class InnerExplicitTypeCallRewriter extends AbstractExpressionRewriter {
+    private static class InnerExplicitTypeCallRewriter extends AbstractExpressionRewriter {
         // If the signature of the function we're calling is generic, but there's insufficient generic
         // information in the arguments, then we should give the call an explicit type.
         //

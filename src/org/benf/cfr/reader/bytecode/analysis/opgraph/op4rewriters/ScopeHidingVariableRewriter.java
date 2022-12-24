@@ -37,7 +37,7 @@ public class ScopeHidingVariableRewriter implements Op04Rewriter {
     /*
      * Collect collisions in a first pass, so that we can avoid uneccesarily
      */
-    private List<LocalVariable> collisions = ListFactory.newList();
+    private final List<LocalVariable> collisions = ListFactory.newList();
 
     public ScopeHidingVariableRewriter(List<ClassFileField> fieldVariables, Method method, ClassCache classCache) {
         this.method = method;

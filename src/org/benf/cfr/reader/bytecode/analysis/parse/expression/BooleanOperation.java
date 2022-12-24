@@ -16,7 +16,6 @@ import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.Troolean;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,7 +23,7 @@ import java.util.Set;
 public class BooleanOperation extends AbstractExpression implements ConditionalExpression {
     private ConditionalExpression lhs;
     private ConditionalExpression rhs;
-    private BoolOp op;
+    private final BoolOp op;
 
     public BooleanOperation(BytecodeLoc loc, ConditionalExpression lhs, ConditionalExpression rhs, BoolOp op) {
         super(loc, new InferredJavaType(RawJavaType.BOOLEAN, InferredJavaType.Source.EXPRESSION));
@@ -190,9 +189,7 @@ public class BooleanOperation extends AbstractExpression implements ConditionalE
 
         if (!lhs.equals(that.lhs)) return false;
         if (op != that.op) return false;
-        if (!rhs.equals(that.rhs)) return false;
-
-        return true;
+        return rhs.equals(that.rhs);
     }
 
     @Override
@@ -203,8 +200,7 @@ public class BooleanOperation extends AbstractExpression implements ConditionalE
         BooleanOperation other = (BooleanOperation) o;
         if (op != other.op)
             if (!constraint.equivalent(lhs, other.lhs)) return false;
-        if (!constraint.equivalent(rhs, other.rhs)) return false;
-        return true;
+        return constraint.equivalent(rhs, other.rhs);
     }
 
     private static Boolean getComputed(Expression e, Map<LValue, Literal> display) {

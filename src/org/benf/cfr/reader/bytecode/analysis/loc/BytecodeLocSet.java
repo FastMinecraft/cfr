@@ -1,7 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.loc;
 
 import org.benf.cfr.reader.entities.Method;
-import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.Collection;
 import java.util.Map;

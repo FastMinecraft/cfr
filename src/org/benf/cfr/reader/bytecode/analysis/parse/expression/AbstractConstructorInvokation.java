@@ -91,8 +91,7 @@ public abstract class AbstractConstructorInvokation extends AbstractExpression i
         if (!(o instanceof AbstractConstructorInvokation other)) return false;
 
         if (!getTypeInstance().equals(other.getTypeInstance())) return false;
-        if (!args.equals(other.args)) return false;
-        return true;
+        return args.equals(other.args);
     }
 
     @Override
@@ -103,8 +102,7 @@ public abstract class AbstractConstructorInvokation extends AbstractExpression i
         if (!(o instanceof AbstractConstructorInvokation other)) return false;
 
         if (!constraint.equivalent(getTypeInstance(), other.getTypeInstance())) return false;
-        if (!constraint.equivalent(args, other.args)) return false;
-        return true;
+        return constraint.equivalent(args, other.args);
     }
 
     /*
@@ -172,7 +170,7 @@ public abstract class AbstractConstructorInvokation extends AbstractExpression i
                 boolean ignore = false;
                 if (argType instanceof JavaGenericBaseInstance) {
                     // TODO : Should check flag for ignore bad generics?
-                    ignore = ((JavaGenericBaseInstance) argType).hasForeignUnbound(function.getCp(), 0, false, Collections.<String, FormalTypeParameter>emptyMap());
+                    ignore = ((JavaGenericBaseInstance) argType).hasForeignUnbound(function.getCp(), 0, false, Collections.emptyMap());
                 }
                 /*
                  * Lambda types will always look wrong.

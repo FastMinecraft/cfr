@@ -120,7 +120,7 @@ public class ExceptionTableEntry implements Comparable<ExceptionTableEntry> {
         if (res != 0) return res;
         res = bytecode_index_to - other.bytecode_index_to;
 //        res = other.bytecode_index_to - bytecode_index_to;
-        if (res != 0) return 0 - res;
+        if (res != 0) return -res;
         res = bytecode_index_handler - other.bytecode_index_handler;
         return res;
     }

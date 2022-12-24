@@ -10,7 +10,7 @@ import org.benf.cfr.reader.util.MiscConstants;
 
 public class GetClassTestInnerConstructor implements GetClassTest {
 
-    public static GetClassTest INSTANCE = new GetClassTestInnerConstructor();
+    public static final GetClassTest INSTANCE = new GetClassTestInnerConstructor();
 
     private GetClassTestInnerConstructor() {
     }
@@ -26,7 +26,6 @@ public class GetClassTestInnerConstructor implements GetClassTest {
         if (!function.getName().equals(MiscConstants.INIT_METHOD)) return false;
         JavaTypeInstance initType = function.getClassEntry().getTypeInstance();
         InnerClassInfo innerClassInfo = initType.getInnerClassHereInfo();
-        if (!innerClassInfo.isInnerClass()) return false;
-        return true;
+        return innerClassInfo.isInnerClass();
     }
 }

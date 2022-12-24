@@ -87,8 +87,7 @@ public class NewObject extends AbstractExpression {
         if (o == null) return false;
         if (o == this) return true;
         if (!(o instanceof NewObject other)) return false;
-        if (!getTypeInstance().equals(other.getTypeInstance())) return false;
-        return true;
+        return getTypeInstance().equals(other.getTypeInstance());
     }
 
     @Override
@@ -102,7 +101,6 @@ public class NewObject extends AbstractExpression {
         if (o == this) return true;
         if (o.getClass() != getClass()) return false;
         NewObject other = (NewObject) o;
-        if (!constraint.equivalent(getTypeInstance(), other.getTypeInstance())) return false;
-        return true;
+        return constraint.equivalent(getTypeInstance(), other.getTypeInstance());
     }
 }

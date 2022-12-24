@@ -11,11 +11,10 @@ import org.benf.cfr.reader.util.Optional;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Vector;
 
 public class UnstructuredDo extends AbstractUnStructuredStatement {
-    private BlockIdentifier blockIdentifier;
+    private final BlockIdentifier blockIdentifier;
 
     public UnstructuredDo(BlockIdentifier blockIdentifier) {
         super(BytecodeLoc.NONE);

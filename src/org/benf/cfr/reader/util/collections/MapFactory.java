@@ -18,7 +18,7 @@ public class MapFactory {
     }
 
     public static <X, Y> Map<X, Y> newIdentityLazyMap(UnaryFunction<X, Y> factory) {
-        return new LazyMap<>(MapFactory.<X, Y>newIdentityMap(), factory);
+        return new LazyMap<>(MapFactory.newIdentityMap(), factory);
     }
 
     public static <X, Y> TreeMap<X, Y> newTreeMap() {
@@ -26,11 +26,11 @@ public class MapFactory {
     }
 
     public static <X, Y> LazyMap<X, Y> newLazyMap(UnaryFunction<X, Y> factory) {
-        return new LazyMap<>(MapFactory.<X, Y>newMap(), factory);
+        return new LazyMap<>(MapFactory.newMap(), factory);
     }
 
     public static <X, Y> Map<X, Y> newLinkedLazyMap(UnaryFunction<X, Y> factory) {
-        return new LazyMap<>(MapFactory.<X, Y>newOrderedMap(), factory);
+        return new LazyMap<>(MapFactory.newOrderedMap(), factory);
     }
 
     public static <X, Y> Map<X, Y> newLazyMap(Map<X, Y> base, UnaryFunction<X, Y> factory) {
@@ -38,7 +38,7 @@ public class MapFactory {
     }
 
     public static <X, Y> Map<X, Y> newExceptionRetainingLazyMap(UnaryFunction<X, Y> factory) {
-        return new LazyExceptionRetainingMap<>(MapFactory.<X, Y>newMap(), factory);
+        return new LazyExceptionRetainingMap<>(MapFactory.newMap(), factory);
     }
 
 }

@@ -16,9 +16,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.analysis.parse.wildcard.WildcardMatch;
 import org.benf.cfr.reader.bytecode.analysis.types.*;
 import org.benf.cfr.reader.util.collections.Functional;
-import java.util.function.Predicate;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import java.util.function.BiConsumer;
 import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
@@ -141,7 +139,7 @@ public class IterLoopRewriter {
                 loopStart.getStatement())) {
             // If the assignment's been pushed down into a conditional, we could have
             // if ((i = a[x]) > 3).  This is why we've avoided pushing that down. :(
-            Set<Expression> poison = SetFactory.<Expression>newSet(new LValueExpression(originalLoopVariable));
+            Set<Expression> poison = SetFactory.newSet(new LValueExpression(originalLoopVariable));
             if (!Misc.findHiddenIter(loopStart.getStatement(), sugariterWC, arrIndex, poison)) {
                 return;
             }
@@ -333,7 +331,7 @@ public class IterLoopRewriter {
             // it's unboxing into the iterator. (See BreakTest4)
         }  else {
             // Try seeing if it's a hidden iter, which has been pushed inside a conditional
-            Set<Expression> poison = SetFactory.<Expression>newSet(new LValueExpression(iterable));
+            Set<Expression> poison = SetFactory.newSet(new LValueExpression(iterable));
             if (!Misc.findHiddenIter(loopStart.getStatement(), sugariterWC, nextCall, poison)) {
                 return;
             }

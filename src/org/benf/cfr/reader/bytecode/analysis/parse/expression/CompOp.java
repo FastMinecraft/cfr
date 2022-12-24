@@ -37,25 +37,18 @@ public enum CompOp {
             case LTE -> GT;
             case EQ -> NE;
             case NE -> EQ;
-            default -> throw new ConfusedCFRException("Can't invert CompOp " + this);
         };
     }
 
 
     public static CompOp getOpFor(JVMInstr instr) {
         return switch (instr) {
-            case IF_ICMPEQ, IF_ACMPEQ -> EQ;
-            case IF_ICMPLT -> LT;
-            case IF_ICMPGE -> GTE;
-            case IF_ICMPGT -> GT;
-            case IF_ICMPNE, IF_ACMPNE -> NE;
-            case IF_ICMPLE -> LTE;
-            case IFEQ -> EQ;
-            case IFNE -> NE;
-            case IFLE -> LTE;
-            case IFLT -> LT;
-            case IFGE -> GTE;
-            case IFGT -> GT;
+            case IF_ICMPEQ, IF_ACMPEQ, IFEQ -> EQ;
+            case IF_ICMPLT, IFLT -> LT;
+            case IF_ICMPGE, IFGE -> GTE;
+            case IF_ICMPGT, IFGT -> GT;
+            case IF_ICMPNE, IF_ACMPNE, IFNE -> NE;
+            case IF_ICMPLE, IFLE -> LTE;
             default -> throw new ConfusedCFRException("Don't know comparison op for " + instr);
         };
     }

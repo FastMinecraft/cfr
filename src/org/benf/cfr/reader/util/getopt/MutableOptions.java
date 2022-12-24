@@ -8,7 +8,7 @@ import java.util.Map;
 public class MutableOptions implements Options {
     private final Options delegate;
 
-    private Map<String, String> overrides = MapFactory.newMap();
+    private final Map<String, String> overrides = MapFactory.newMap();
 
     public MutableOptions(Options delegate) {
         this.delegate = delegate;

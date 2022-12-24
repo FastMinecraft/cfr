@@ -22,16 +22,7 @@ public class RecoveryOptions {
         this.recoveryOptions.addAll(recoveryOptionList);
     }
 
-    public static class Applied {
-        public Options options;
-        public List<DecompilerComment> comments;
-        public boolean valid;
-
-        public Applied(Options options, List<DecompilerComment> comments, boolean valid) {
-            this.options = options;
-            this.comments = comments;
-            this.valid = valid;
-        }
+    public record Applied(Options options, List<DecompilerComment> comments, boolean valid) {
     }
 
     public Applied apply(DCCommonState commonState, Options originalOptions, BytecodeMeta bytecodeMeta) {

@@ -161,9 +161,7 @@ public class TernaryExpression extends AbstractExpression implements BoxingProce
 
         if (!Objects.equals(condition, that.condition)) return false;
         if (!Objects.equals(lhs, that.lhs)) return false;
-        if (!Objects.equals(rhs, that.rhs)) return false;
-
-        return true;
+        return Objects.equals(rhs, that.rhs);
     }
 
     @Override
@@ -174,7 +172,6 @@ public class TernaryExpression extends AbstractExpression implements BoxingProce
         TernaryExpression other = (TernaryExpression) o;
         if (!constraint.equivalent(condition, other.condition)) return false;
         if (!constraint.equivalent(lhs, other.lhs)) return false;
-        if (!constraint.equivalent(rhs, other.rhs)) return false;
-        return true;
+        return constraint.equivalent(rhs, other.rhs);
     }
 }

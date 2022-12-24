@@ -447,8 +447,7 @@ public class JavaRefTypeInstance implements JavaTypeInstance {
         BindingSuperContainer thisBindingSuper = this.getBindingSupers();
         if (thisBindingSuper == null) {
             // TODO : If we ever get value types, this won't be valid.
-            if (otherRaw == TypeConstants.OBJECT) return true;
-            return false;
+            return otherRaw == TypeConstants.OBJECT;
         }
         return thisBindingSuper.containsBase(otherRaw);
     }
@@ -502,18 +501,14 @@ public class JavaRefTypeInstance implements JavaTypeInstance {
         if (bindingSuperContainer == null) {
             return true;
         }
-        if (bindingSuperContainer.containsBase(this)) {
-            return true;
-        }
-        return false;
+        return bindingSuperContainer.containsBase(this);
     }
 
 
     public ClassFile getClassFile() {
         if (dcCommonState == null) return null;
         try {
-            ClassFile classFile = dcCommonState.getClassFile(this);
-            return classFile;
+            return dcCommonState.getClassFile(this);
         } catch (CannotLoadClassException e) {
             return null;
         }
@@ -521,8 +516,7 @@ public class JavaRefTypeInstance implements JavaTypeInstance {
 
     private static String getShortName(String fullClassName) {
         int idxlast = fullClassName.lastIndexOf('.');
-        String partname = idxlast == -1 ? fullClassName : fullClassName.substring(idxlast + 1);
-        return partname;
+        return idxlast == -1 ? fullClassName : fullClassName.substring(idxlast + 1);
     }
 
     private static String getShortName(String fullClassName, InnerClassInfo innerClassInfo) {

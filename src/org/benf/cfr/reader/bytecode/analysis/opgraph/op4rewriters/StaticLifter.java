@@ -12,7 +12,6 @@ import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.entities.ClassFileField;
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.util.collections.Functional;
-import java.util.function.Predicate;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -33,8 +32,7 @@ public class StaticLifter {
             in -> {
                 if (!in.getField().testAccessFlag(AccessFlag.ACC_STATIC)) return false;
                 if (in.getField().testAccessFlag(AccessFlag.ACC_SYNTHETIC)) return false;
-                if (in.getInitialValue() != null) return false;
-                return true;
+                return in.getInitialValue() == null;
             }
         ));
         if (classFileFields.isEmpty()) return;

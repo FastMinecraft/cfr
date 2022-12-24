@@ -3,9 +3,6 @@ package org.benf.cfr.reader.bytecode.analysis.parse.rewriters;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
 import org.benf.cfr.reader.bytecode.analysis.parse.StatementContainer;
-import org.benf.cfr.reader.bytecode.analysis.parse.expression.ArithmeticMonOperation;
-import org.benf.cfr.reader.bytecode.analysis.parse.expression.ArithmeticOperation;
-import org.benf.cfr.reader.bytecode.analysis.parse.expression.CastExpression;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.Literal;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.SSAIdentifiers;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
@@ -16,7 +13,7 @@ import java.util.Map;
 
 public class ConstantFoldingRewriter extends AbstractExpressionRewriter {
 	public static final ConstantFoldingRewriter INSTANCE = new ConstantFoldingRewriter();
-	private static final Map<LValue, Literal> DISPLAY_MAP = MapFactory.<LValue, Literal>newMap();
+	private static final Map<LValue, Literal> DISPLAY_MAP = MapFactory.newMap();
 
 	@Override
 	public Expression rewriteExpression(Expression expression, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {

@@ -56,8 +56,7 @@ public class ReturnNothingStatement extends ReturnStatement {
     public final boolean equivalentUnder(Object o, EquivalenceConstraint constraint) {
         if (o == null) return false;
         if (o == this) return true;
-        if (getClass() != o.getClass()) return false;
-        return true;
+        return getClass() == o.getClass();
     }
 
     @Override

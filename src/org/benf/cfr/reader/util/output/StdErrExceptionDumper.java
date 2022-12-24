@@ -10,7 +10,7 @@ public class StdErrExceptionDumper implements ExceptionDumper {
         }
         if (e instanceof CannotLoadClassException) {
             System.err.println("Can't load the class specified:");
-            System.err.println(e.toString());
+            System.err.println(e);
         } else {
             System.err.println(e.toString());
             for (Object x : e.getStackTrace()) {

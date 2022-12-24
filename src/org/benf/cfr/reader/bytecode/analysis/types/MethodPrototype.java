@@ -34,8 +34,8 @@ import java.util.Set;
 
 public class MethodPrototype implements TypeUsageCollectable {
     public static class ParameterLValue {
-        public LocalVariable localVariable;
-        public HiddenReason hidden;
+        public final LocalVariable localVariable;
+        public final HiddenReason hidden;
 
         ParameterLValue(LocalVariable localVariable, HiddenReason hidden) {
             this.localVariable = localVariable;
@@ -303,12 +303,8 @@ public class MethodPrototype implements TypeUsageCollectable {
 
         int offset = 0;
         switch (constructorFlag) {
-            case ENUM_CONSTRUCTOR -> {
-                offset = 3;
-            }
-            case ECLIPSE_ENUM_CONSTRUCTOR -> {
-                offset = 1;
-            }
+            case ENUM_CONSTRUCTOR -> offset = 3;
+            case ECLIPSE_ENUM_CONSTRUCTOR -> offset = 1;
             default -> {
                 if (isInstanceMethod()) offset = 1;
             }
@@ -484,12 +480,11 @@ public class MethodPrototype implements TypeUsageCollectable {
              *
              * i.e. given that genericRefTypeInstance has the correct bindings, apply those to method.
              */
-            JavaTypeInstance boundResult = getResultBoundAccordingly(result, genericRefTypeInstance, invokingArgs);
             /*
              * If there are any parameters in this binding which are method parameters, this means we've been unable
              * to correctly bind them.  We can't leave them in, it'll confuse the issue.
              */
-            return boundResult;
+            return getResultBoundAccordingly(result, genericRefTypeInstance, invokingArgs);
         } else {
             return result;
         }
@@ -586,7 +581,6 @@ public class MethodPrototype implements TypeUsageCollectable {
             genericTypeBinder = GenericTypeBinder.extractBindings((JavaGenericBaseInstance) classType, objecTypeInstance);
         } else if (object != null && objecTypeInstance instanceof JavaGenericBaseInstance) {
             // TODO : Dead code?
-            JavaTypeInstance objectType = objecTypeInstance;
             List<JavaTypeInstance> invokingTypes = ListFactory.newList();
             for (Expression invokingArg : expressions) {
                 invokingTypes.add(invokingArg.getInferredJavaType().getJavaTypeInstance());
@@ -596,7 +590,7 @@ public class MethodPrototype implements TypeUsageCollectable {
              * For each of the formal type parameters of the class signature, what has it been bound to in the
              * instance?
              */
-            JavaGenericRefTypeInstance boundInstance = (objectType instanceof JavaGenericRefTypeInstance) ? (JavaGenericRefTypeInstance) objectType : null;
+            JavaGenericRefTypeInstance boundInstance = (objecTypeInstance instanceof JavaGenericRefTypeInstance) ? (JavaGenericRefTypeInstance) objecTypeInstance : null;
             if (classFile != null) {
                 genericTypeBinder = GenericTypeBinder.bind(formalTypeParameters, classFile.getClassSignature(), args, boundInstance, invokingTypes);
             }
@@ -636,8 +630,7 @@ public class MethodPrototype implements TypeUsageCollectable {
 
     private static boolean isGenericArg(JavaTypeInstance arg) {
         arg = arg.getArrayStrippedType();
-        if (arg instanceof JavaGenericBaseInstance) return true;
-        return false;
+        return arg instanceof JavaGenericBaseInstance;
     }
 
     public String getComparableString() {
@@ -722,8 +715,7 @@ public class MethodPrototype implements TypeUsageCollectable {
             return null;
         }
 
-        GenericTypeBinder genericTypeBinder = GenericTypeBinder.bind(formalTypeParameters, classFile.getClassSignature(), args, null, invokingArgTypes);
-        return genericTypeBinder;
+        return GenericTypeBinder.bind(formalTypeParameters, classFile.getClassSignature(), args, null, invokingArgTypes);
     }
 
     public GenericTypeBinder getTypeBinderFor(List<Expression> invokingArgs) {
@@ -796,8 +788,7 @@ public class MethodPrototype implements TypeUsageCollectable {
             if (!result.equals(other.result)) {
                 BindingSuperContainer otherBindingSupers = other.result.getBindingSupers();
                 if (otherBindingSupers == null) return false;
-                if (otherBindingSupers.containsBase(result)) return true;
-                return false;
+                return otherBindingSupers.containsBase(result);
             }
         }
         return true;

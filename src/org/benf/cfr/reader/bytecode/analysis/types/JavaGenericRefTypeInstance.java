@@ -65,9 +65,9 @@ public class JavaGenericRefTypeInstance implements JavaGenericBaseInstance, Comp
         return new Annotated(typeAnnotated, genericTypeAnnotated);
     }
 
-    private class Annotated implements JavaAnnotatedTypeInstance {
-        JavaAnnotatedTypeInstance typeAnnotated;
-        List<JavaAnnotatedTypeInstance> genericTypeAnnotated;
+    private static class Annotated implements JavaAnnotatedTypeInstance {
+        final JavaAnnotatedTypeInstance typeAnnotated;
+        final List<JavaAnnotatedTypeInstance> genericTypeAnnotated;
 
         private Annotated(JavaAnnotatedTypeInstance typeAnnotated, List<JavaAnnotatedTypeInstance> genericTypeAnnotated) {
             this.typeAnnotated = typeAnnotated;
@@ -271,8 +271,7 @@ public class JavaGenericRefTypeInstance implements JavaGenericBaseInstance, Comp
         if (o == this) return true;
         if (!(o instanceof JavaGenericRefTypeInstance other)) return false;
         if (!constraint.equivalent(typeInstance, other.typeInstance)) return false;
-        if (!constraint.equivalent(genericTypes, other.genericTypes)) return false;
-        return true;
+        return constraint.equivalent(genericTypes, other.genericTypes);
     }
 
 
@@ -318,7 +317,7 @@ public class JavaGenericRefTypeInstance implements JavaGenericBaseInstance, Comp
 
 
             JavaTypeInstance reboundOther = (gtb.getBindingFor(other));
-            if (this.equivalentUnder(reboundOther, WILDCARD_CONSTRAINT)) return true;
+            return this.equivalentUnder(reboundOther, WILDCARD_CONSTRAINT);
         }
         return false;
     }

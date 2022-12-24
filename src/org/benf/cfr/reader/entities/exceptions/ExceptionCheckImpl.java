@@ -133,8 +133,7 @@ public class ExceptionCheckImpl implements ExceptionCheck {
          */
         Collection<JavaRefTypeInstance> throwingBases = boundSuperClasses.keySet();
         if (SetUtil.hasIntersection(caughtChecked, throwingBases)) return true;
-        if (SetUtil.hasIntersection(caughtUnchecked, throwingBases)) return true;
-        return false;
+        return SetUtil.hasIntersection(caughtUnchecked, throwingBases);
     }
 
     @Override

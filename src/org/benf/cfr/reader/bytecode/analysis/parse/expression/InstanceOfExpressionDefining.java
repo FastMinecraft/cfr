@@ -13,18 +13,15 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.LValueRewriter;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.LValueUsageCollector;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.SSAIdentifiers;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
-import org.benf.cfr.reader.bytecode.analysis.types.RawJavaType;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
-import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntry;
-import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryClass;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.Troolean;
 import org.benf.cfr.reader.util.output.Dumper;
 
 public class InstanceOfExpressionDefining extends AbstractExpression {
     private Expression lhs;
-    private JavaTypeInstance typeInstance;
-    private LValue defines;
+    private final JavaTypeInstance typeInstance;
+    private final LValue defines;
 
     public InstanceOfExpressionDefining(BytecodeLoc loc, InferredJavaType inferredJavaType, Expression lhs, JavaTypeInstance typeInstance, LValue defines) {
         super(loc, inferredJavaType);
@@ -100,8 +97,7 @@ public class InstanceOfExpressionDefining extends AbstractExpression {
         if (!(o instanceof InstanceOfExpressionDefining other)) return false;
         if (!lhs.equals(other.lhs)) return false;
         if (!typeInstance.equals(other.typeInstance)) return false;
-        if (!defines.equals(other.defines)) return false;
-        return true;
+        return defines.equals(other.defines);
     }
 
     @Override
@@ -112,8 +108,7 @@ public class InstanceOfExpressionDefining extends AbstractExpression {
         InstanceOfExpressionDefining other = (InstanceOfExpressionDefining) o;
         if (!constraint.equivalent(lhs, other.lhs)) return false;
         if (!constraint.equivalent(typeInstance, other.typeInstance)) return false;
-        if (!constraint.equivalent(defines, other.defines)) return false;
-        return true;
+        return constraint.equivalent(defines, other.defines);
     }
 
 }

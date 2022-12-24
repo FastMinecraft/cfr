@@ -21,7 +21,7 @@ public class GenericTypeBinder {
 
     // TODO : This seems wrong.
     public static GenericTypeBinder createEmpty() {
-        return new GenericTypeBinder(MapFactory.<String, JavaTypeInstance>newMap());
+        return new GenericTypeBinder(MapFactory.newMap());
     }
 
     @SafeVarargs
@@ -122,9 +122,7 @@ public class GenericTypeBinder {
         BindingSuperContainer maybeBindingContainer = maybeBound.getBindingSupers();
         JavaTypeInstance boundAssignable = maybeBindingContainer.getBoundAssignable(maybeBoundGeneric, unboundGeneric);
 
-        GenericTypeBinder binder = extractBindings(unboundGeneric, boundAssignable);
-
-        return binder;
+        return extractBindings(unboundGeneric, boundAssignable);
     }
 
 
@@ -197,8 +195,7 @@ public class GenericTypeBinder {
 
     private static boolean isBetterBinding(JavaTypeInstance isBetter, JavaTypeInstance than) {
         if (than == null) return true;
-        if (isBetter instanceof JavaGenericPlaceholderTypeInstance) return false;
-        return true;
+        return !(isBetter instanceof JavaGenericPlaceholderTypeInstance);
     }
 
     public void suggestOnlyNullBinding(JavaGenericPlaceholderTypeInstance type) {

@@ -2,24 +2,16 @@ package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
-import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
-import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
 import org.benf.cfr.reader.bytecode.analysis.parse.StatementContainer;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.LValueExpression;
-import org.benf.cfr.reader.bytecode.analysis.parse.expression.Literal;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.StaticFunctionInvokation;
 import org.benf.cfr.reader.bytecode.analysis.parse.rewriters.AbstractExpressionRewriter;
 import org.benf.cfr.reader.bytecode.analysis.parse.rewriters.ExpressionRewriterFlags;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.ExpressionStatement;
-import org.benf.cfr.reader.bytecode.analysis.parse.statement.GotoStatement;
-import org.benf.cfr.reader.bytecode.analysis.parse.statement.IfStatement;
-import org.benf.cfr.reader.bytecode.analysis.parse.statement.Nop;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.SSAIdentifiers;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
-import org.benf.cfr.reader.util.collections.MapFactory;
 
 import java.util.List;
-import java.util.Map;
 
 public class StaticInstanceCondenser {
     public static final StaticInstanceCondenser INSTANCE = new StaticInstanceCondenser();
@@ -63,8 +55,8 @@ public class StaticInstanceCondenser {
     }
 
     private static class Rewriter extends AbstractExpressionRewriter {
-        JavaTypeInstance typ;
-        Expression object;
+        final JavaTypeInstance typ;
+        final Expression object;
         boolean done = false;
         boolean success = false;
 

@@ -60,9 +60,7 @@ public class Op02GetClassRewriter {
         MethodPrototype methodPrototype = function.getMethodPrototype();
         if (!methodPrototype.getName().equals(MiscConstants.GET_CLASS_NAME)) return false;
         if (methodPrototype.getArgs().size() != 0) return false;
-        if (!methodPrototype.getReturnType().getDeGenerifiedType().getRawName().equals(TypeConstants.className))
-            return false;
-        return true;
+        return methodPrototype.getReturnType().getDeGenerifiedType().getRawName().equals(TypeConstants.className);
     }
 
     private boolean isRequireNonNull(Op02WithProcessedDataAndRefs item) {
@@ -76,10 +74,7 @@ public class Op02GetClassRewriter {
         MethodPrototype methodPrototype = function.getMethodPrototype();
         if (!methodPrototype.getName().equals(MiscConstants.REQUIRE_NON_NULL)) return false;
         if (methodPrototype.getArgs().size() != 1) return false;
-        if (!methodPrototype.getReturnType().getDeGenerifiedType().equals(TypeConstants.OBJECT)) {
-            return false;
-        }
-        return true;
+        return methodPrototype.getReturnType().getDeGenerifiedType().equals(TypeConstants.OBJECT);
     }
 
     public static void removeInvokeGetClass(ClassFile classFile, List<Op02WithProcessedDataAndRefs> op02list, GetClassTest classTest) {

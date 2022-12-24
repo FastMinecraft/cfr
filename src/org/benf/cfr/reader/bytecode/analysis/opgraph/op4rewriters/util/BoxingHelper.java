@@ -15,7 +15,7 @@ import java.util.Set;
 
 public class BoxingHelper {
     @SuppressWarnings("unchecked")
-    private static Set<Pair<String, String>> unboxing = SetFactory.newSet(
+    private static final Set<Pair<String, String>> unboxing = SetFactory.newSet(
             Pair.make(TypeConstants.boxingNameInt, "intValue"),
             Pair.make(TypeConstants.boxingNameLong, "longValue"),
             Pair.make(TypeConstants.boxingNameDouble, "doubleValue"),
@@ -24,10 +24,10 @@ public class BoxingHelper {
             Pair.make(TypeConstants.boxingNameBoolean, "booleanValue")
     );
 
-    private static Map<String, String> unboxingByRawName;
+    private static final Map<String, String> unboxingByRawName;
 
     @SuppressWarnings("unchecked")
-    private static Set<Pair<String, String>> boxing = SetFactory.newSet(
+    private static final Set<Pair<String, String>> boxing = SetFactory.newSet(
             Pair.make(TypeConstants.boxingNameInt, "valueOf"),
             Pair.make(TypeConstants.boxingNameLong, "valueOf"),
             Pair.make(TypeConstants.boxingNameDouble, "valueOf"),
@@ -49,8 +49,7 @@ public class BoxingHelper {
         String rawTypeName = type.getRawName();
         Pair<String, String> testPair = Pair.make(rawTypeName, name);
         if (unboxing.contains(testPair)) {
-            Expression expression = memberFunctionInvokation.getObject();
-            return expression;
+            return memberFunctionInvokation.getObject();
         }
         return memberFunctionInvokation;
     }
@@ -77,8 +76,7 @@ public class BoxingHelper {
 
     public static boolean isBoxedTypeInclNumber(JavaTypeInstance type) {
         if (RawJavaType.getUnboxedTypeFor(type) != null) return true;
-        if (type.getRawName().equals(TypeConstants.boxingNameNumber)) return true;
-        return false;
+        return type.getRawName().equals(TypeConstants.boxingNameNumber);
     }
 
     public static boolean isBoxedType(JavaTypeInstance type) {

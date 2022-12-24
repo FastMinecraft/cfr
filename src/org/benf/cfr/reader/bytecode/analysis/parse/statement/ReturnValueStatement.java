@@ -98,8 +98,7 @@ public class ReturnValueStatement extends ReturnStatement {
         if (o == this) return true;
         if (getClass() != o.getClass()) return false;
         ReturnValueStatement other = (ReturnValueStatement) o;
-        if (!constraint.equivalent(rvalue, other.rvalue)) return false;
-        return true;
+        return constraint.equivalent(rvalue, other.rvalue);
     }
 
     @Override

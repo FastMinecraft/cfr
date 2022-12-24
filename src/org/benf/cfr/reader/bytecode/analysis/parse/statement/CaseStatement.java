@@ -16,7 +16,7 @@ import org.benf.cfr.reader.util.output.Dumper;
 import java.util.List;
 
 public class CaseStatement extends AbstractStatement {
-    private List<Expression> values; // null for default.
+    private final List<Expression> values; // null for default.
     private final BlockIdentifier switchBlock;
     private final BlockIdentifier caseBlock;
     private final InferredJavaType caseType;
@@ -108,7 +108,6 @@ public class CaseStatement extends AbstractStatement {
         if (o == this) return true;
         if (getClass() != o.getClass()) return false;
         CaseStatement other = (CaseStatement) o;
-        if (!constraint.equivalent(values, other.values)) return false;
-        return true;
+        return constraint.equivalent(values, other.values);
     }
 }

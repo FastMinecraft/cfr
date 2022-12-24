@@ -23,7 +23,7 @@ import java.util.List;
 public class ConstructorInvokationSimple extends AbstractConstructorInvokation implements FunctionProcessor {
 
     private final MemberFunctionInvokation constructorInvokation;
-    private InferredJavaType constructionType;
+    private final InferredJavaType constructionType;
 
     public ConstructorInvokationSimple(BytecodeLoc loc,
                                        MemberFunctionInvokation constructorInvokation,
@@ -102,10 +102,7 @@ public class ConstructorInvokationSimple extends AbstractConstructorInvokation i
 
     public static boolean isAnonymousMethodType(JavaTypeInstance lValueType) {
         InnerClassInfo innerClassInfo = lValueType.getInnerClassHereInfo();
-        if (innerClassInfo.isMethodScopedClass() && !innerClassInfo.isAnonymousClass()) {
-            return true;
-        }
-        return false;
+        return innerClassInfo.isMethodScopedClass() && !innerClassInfo.isAnonymousClass();
     }
 
     @Override
@@ -121,8 +118,7 @@ public class ConstructorInvokationSimple extends AbstractConstructorInvokation i
     @Override
     public boolean equivalentUnder(Object o, EquivalenceConstraint constraint) {
         if (!(o instanceof ConstructorInvokationSimple)) return false;
-        if (!super.equivalentUnder(o, constraint)) return false;
-        return true;
+        return super.equivalentUnder(o, constraint);
     }
 
     @Override

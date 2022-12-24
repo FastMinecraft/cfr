@@ -15,10 +15,10 @@ import java.util.List;
 import java.util.Vector;
 
 public class UnstructuredFor extends AbstractUnStructuredStatement {
-    private ConditionalExpression condition;
-    private BlockIdentifier blockIdentifier;
-    private AssignmentSimple initial;
-    private List<AbstractAssignmentExpression> assignments;
+    private final ConditionalExpression condition;
+    private final BlockIdentifier blockIdentifier;
+    private final AssignmentSimple initial;
+    private final List<AbstractAssignmentExpression> assignments;
 
     public UnstructuredFor(BytecodeLoc loc, ConditionalExpression condition, BlockIdentifier blockIdentifier, AssignmentSimple initial, List<AbstractAssignmentExpression> assignments) {
         super(loc);

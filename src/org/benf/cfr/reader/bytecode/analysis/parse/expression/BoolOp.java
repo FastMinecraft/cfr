@@ -27,7 +27,6 @@ public enum BoolOp {
         return switch (this) {
             case OR -> AND;
             case AND -> OR;
-            default -> throw new ConfusedCFRException("Unknown op.");
         };
     }
 }

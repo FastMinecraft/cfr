@@ -21,10 +21,7 @@ import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import java.util.function.Predicate;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -481,7 +478,7 @@ public class KotlinSwitchHandler {
     }
 
     private static class DistinctSwitchTarget {
-        List<OriginalSwitchLookupInfo> entries = ListFactory.newList();
+        final List<OriginalSwitchLookupInfo> entries = ListFactory.newList();
         final int idx;
 
         private DistinctSwitchTarget(int idx) {
@@ -494,10 +491,10 @@ public class KotlinSwitchHandler {
     }
 
     private static class OriginalSwitchLookupInfo {
-        Op03SimpleStatement ifTest;
+        final Op03SimpleStatement ifTest;
         Op03SimpleStatement stringMatchJump;
-        public TypedLiteral literal;
-        public Op03SimpleStatement target;
+        public final TypedLiteral literal;
+        public final Op03SimpleStatement target;
 
         OriginalSwitchLookupInfo(Op03SimpleStatement ifTest, Op03SimpleStatement stringMatchJump, TypedLiteral literal, Op03SimpleStatement target) {
             this.ifTest = ifTest;

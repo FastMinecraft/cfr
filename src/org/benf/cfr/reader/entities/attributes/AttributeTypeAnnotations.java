@@ -7,7 +7,6 @@ import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.List;
@@ -19,7 +18,7 @@ public abstract class AttributeTypeAnnotations extends Attribute {
     private static final long OFFSET_OF_REMAINDER = 6;
     private static final long OFFSET_OF_NUMBER_OF_ANNOTATIONS = 6;
     private static final long OFFSET_OF_ANNOTATION_TABLE = 8;
-    private Map<TypeAnnotationEntryValue, List<AnnotationTableTypeEntry>> annotationTableEntryData = MapFactory.newMap();
+    private final Map<TypeAnnotationEntryValue, List<AnnotationTableTypeEntry>> annotationTableEntryData = MapFactory.newMap();
 
     private final int length;
 

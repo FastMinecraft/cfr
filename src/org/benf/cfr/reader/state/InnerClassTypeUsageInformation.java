@@ -35,8 +35,7 @@ public class InnerClassTypeUsageInformation implements TypeUsageInformation {
         if (type == null) return false;
         ClassFile classFile = type.getClassFile();
         if (classFile == null) return false;
-        if (classFile.hasLocalField(name)) return true;
-        return false;
+        return classFile.hasLocalField(name);
     }
 
     @Override
@@ -98,10 +97,11 @@ public class InnerClassTypeUsageInformation implements TypeUsageInformation {
 
     @Override
     public boolean isNameClash(JavaTypeInstance type, String name, TypeContext typeContext) {
-        if (typeContext == TypeContext.Static && (clashesWithField(name) || delegate.isNameClash(type, name, typeContext))) {
-            return true;
-        }
-        return false;
+        return typeContext == TypeContext.Static && (clashesWithField(name) || delegate.isNameClash(
+            type,
+            name,
+            typeContext
+        ));
     }
 
     @Override

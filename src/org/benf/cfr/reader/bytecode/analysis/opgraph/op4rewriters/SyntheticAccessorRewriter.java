@@ -125,8 +125,7 @@ public class SyntheticAccessorRewriter extends AbstractExpressionRewriter implem
         Set<JavaTypeInstance> parents2 = SetFactory.newSet();
         type2.getInnerClassHereInfo().collectTransitiveDegenericParents(parents2);
         parents2.add(type2);
-        boolean res = SetUtil.hasIntersection(parents1, parents2);
-        return res;
+        return SetUtil.hasIntersection(parents1, parents2);
     }
 
     private Expression rewriteFunctionExpression2(final StaticFunctionInvokation functionInvokation) {
@@ -358,7 +357,7 @@ public class SyntheticAccessorRewriter extends AbstractExpressionRewriter implem
         }
     }
 
-    private class AccessorMatchCollector extends AbstractMatchResultIterator {
+    private static class AccessorMatchCollector extends AbstractMatchResultIterator {
 
         String matchType;
         LValue lValue;
@@ -443,7 +442,7 @@ public class SyntheticAccessorRewriter extends AbstractExpressionRewriter implem
         return appliedArg;
     }
 
-    private class FuncMatchCollector extends AbstractMatchResultIterator {
+    private static class FuncMatchCollector extends AbstractMatchResultIterator {
 
         String matchType;
         LValue lValue;

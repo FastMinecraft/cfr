@@ -12,7 +12,6 @@ import org.benf.cfr.reader.bytecode.analysis.types.JavaGenericPlaceholderTypeIns
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.util.collections.*;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 
 import java.util.List;
 import java.util.Map;
@@ -21,8 +20,8 @@ import java.util.Set;
 public class GenericInferer {
 
     private static class GenericInferData {
-        GenericTypeBinder binder;
-        Set<JavaGenericPlaceholderTypeInstance> nullPlaceholders;
+        final GenericTypeBinder binder;
+        final Set<JavaGenericPlaceholderTypeInstance> nullPlaceholders;
 
         private GenericInferData(GenericTypeBinder binder, Set<JavaGenericPlaceholderTypeInstance> nullPlaceholders) {
             this.binder = binder;

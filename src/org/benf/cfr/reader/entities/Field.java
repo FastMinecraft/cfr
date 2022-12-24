@@ -29,7 +29,6 @@ import org.benf.cfr.reader.util.KnowsRawSize;
 import org.benf.cfr.reader.util.TypeUsageCollectable;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.Dumper;
 
@@ -79,7 +78,7 @@ public class Field implements KnowsRawSize, TypeUsageCollectable {
         this.disambiguate = false;
         TypedLiteral constValue = null;
         if (cvAttribute != null) {
-            constValue = TypedLiteral.getConstantPoolEntry(cp, ((AttributeConstantValue) cvAttribute).getValue());
+            constValue = TypedLiteral.getConstantPoolEntry(cp, cvAttribute.getValue());
             if (constValue.getType() == TypedLiteral.LiteralType.Integer) {
                 // Need to check if the field is actually something smaller than an integer, and downcast the
                 // literal - sufficiently constructed to do this. (although naughty).

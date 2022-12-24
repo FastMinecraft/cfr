@@ -25,7 +25,6 @@ public record ClassSignature(List<FormalTypeParameter> formalTypeParameters, Jav
         for (FormalTypeParameter formalTypeParameter : formalTypeParameters) {
             typeParameterNames.add(new JavaGenericPlaceholderTypeInstance(formalTypeParameter.getName(), cp));
         }
-        JavaTypeInstance res = new JavaGenericRefTypeInstance(nonGenericInstance, typeParameterNames);
-        return res;
+        return new JavaGenericRefTypeInstance(nonGenericInstance, typeParameterNames);
     }
 }

@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.Vector;
 
 public class UnstructuredSwitch extends AbstractUnStructuredStatement {
-    private Expression switchOn;
+    private final Expression switchOn;
     private final BlockIdentifier blockIdentifier;
-    private boolean safeExpression;
+    private final boolean safeExpression;
 
     public UnstructuredSwitch(BytecodeLoc loc, Expression switchOn, BlockIdentifier blockIdentifier, boolean safeExpression) {
         super(loc);

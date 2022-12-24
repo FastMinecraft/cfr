@@ -13,10 +13,10 @@ import org.benf.cfr.reader.bytecode.analysis.structured.statement.UnstructuredIt
 import org.benf.cfr.reader.util.output.Dumper;
 
 public class ForIterStatement extends AbstractStatement {
-    private BlockIdentifier blockIdentifier;
+    private final BlockIdentifier blockIdentifier;
     private LValue iterator;
     private Expression list; // or array!
-    private LValue hiddenList;
+    private final LValue hiddenList;
 
     public ForIterStatement(BytecodeLoc loc, BlockIdentifier blockIdentifier, LValue iterator, Expression list, LValue hiddenList) {
         super(loc);
@@ -90,8 +90,7 @@ public class ForIterStatement extends AbstractStatement {
         if (getClass() != o.getClass()) return false;
         ForIterStatement other = (ForIterStatement) o;
         if (!constraint.equivalent(iterator, other.iterator)) return false;
-        if (!constraint.equivalent(list, other.list)) return false;
-        return true;
+        return constraint.equivalent(list, other.list);
     }
 
 

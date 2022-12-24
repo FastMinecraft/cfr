@@ -8,9 +8,9 @@ import org.benf.cfr.reader.util.output.Dumper;
 import java.util.List;
 
 public class NullMapping implements ObfuscationMapping {
-    public static NullMapping INSTANCE = new NullMapping();
+    public static final NullMapping INSTANCE = new NullMapping();
 
-    private static UnaryFunction<JavaTypeInstance, JavaTypeInstance> id = arg -> arg;
+    private static final UnaryFunction<JavaTypeInstance, JavaTypeInstance> id = arg -> arg;
 
     @Override
     public UnaryFunction<JavaTypeInstance, JavaTypeInstance> getter() {

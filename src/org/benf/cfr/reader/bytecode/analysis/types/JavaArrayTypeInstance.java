@@ -44,7 +44,7 @@ public class JavaArrayTypeInstance implements JavaTypeInstance {
         Annotated() {
             entries = ListFactory.newList();
             for (int x=0;x<dimensions;++x) {
-                entries.add(ListFactory.<AnnotationTableEntry>newList());
+                entries.add(ListFactory.newList());
             }
             annotatedUnderlyingType = underlyingType.getAnnotatedInstance();
         }
@@ -73,7 +73,7 @@ public class JavaArrayTypeInstance implements JavaTypeInstance {
         }
 
         private class Iterator extends JavaAnnotatedTypeIterator.BaseAnnotatedTypeIterator {
-            private int curIdx;
+            private final int curIdx;
 
             private Iterator() {
                 curIdx = 0;

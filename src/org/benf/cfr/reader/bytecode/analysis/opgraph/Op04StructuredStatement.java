@@ -46,13 +46,13 @@ import java.util.logging.Logger;
 
 public class Op04StructuredStatement implements MutableGraph<Op04StructuredStatement>, Dumpable, StatementContainer<StructuredStatement>, TypeUsageCollectable {
     private static final Logger logger = LoggerFactory.create(Op04StructuredStatement.class);
-    private InstrIndex instrIndex;
+    private final InstrIndex instrIndex;
     // Should we be bothering with sources and targets?  Not once we're "Properly" structured...
     private List<Op04StructuredStatement> sources = ListFactory.newList();
     private List<Op04StructuredStatement> targets = ListFactory.newList();
     private StructuredStatement structuredStatement;
 
-    private Set<BlockIdentifier> blockMembership;
+    private final Set<BlockIdentifier> blockMembership;
     // Handy for really icky breakpointing, oh I wish we had proper conditional compilation.
 //    private static int id = 0;
 //    private final int idx = id++;
@@ -303,7 +303,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
             source.replaceTarget(original, replacement);
         }
         replacement.setSources(original.getSources());
-        original.setSources(ListFactory.<Op04StructuredStatement>newList());
+        original.setSources(ListFactory.newList());
     }
 
     public static void replaceInTargets(Op04StructuredStatement original, Op04StructuredStatement replacement) {
@@ -311,7 +311,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
             target.replaceSource(original, replacement);
         }
         replacement.setTargets(original.getTargets());
-        original.setTargets(ListFactory.<Op04StructuredStatement>newList());
+        original.setTargets(ListFactory.newList());
     }
 
     /*
@@ -377,16 +377,11 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
         return true;
     }
 
-    private static class StackedBlock {
-        BlockIdentifier blockIdentifier;
-        LinkedList<Op04StructuredStatement> statements;
-        Op04StructuredStatement outerStart;
-
-        private StackedBlock(BlockIdentifier blockIdentifier, LinkedList<Op04StructuredStatement> statements, Op04StructuredStatement outerStart) {
-            this.blockIdentifier = blockIdentifier;
-            this.statements = statements;
-            this.outerStart = outerStart;
-        }
+    private record StackedBlock(
+        BlockIdentifier blockIdentifier,
+        LinkedList<Op04StructuredStatement> statements,
+        Op04StructuredStatement outerStart
+    ) {
     }
 
 
@@ -406,7 +401,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
          */
         if (nowIn.size() <= wasIn.size()) return null;
         Set<BlockIdentifier> nowCopy = SetFactory.newSet(nowIn);
-        nowCopy.removeAll(wasIn);
+        wasIn.forEach(nowCopy::remove);
         if (nowCopy.size() != 1) {
 //            logger.warning("From " + wasIn + " to " + nowIn + " = " + nowCopy);
             throw new ConfusedCFRException("Started " + nowCopy.size() + " blocks at once");
@@ -872,8 +867,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
         InnerClassConstructorRewriter innerClassConstructorRewriter = new InnerClassConstructorRewriter(method.getClassFile(), outerThis);
         // Not actually rewriting, just checking.
         innerClassConstructorRewriter.rewrite(root);
-        FieldVariable matchedLValue = innerClassConstructorRewriter.getMatchedField();
-        return matchedLValue;
+        return innerClassConstructorRewriter.getMatchedField();
     }
 
 
@@ -924,13 +918,13 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
          * Make sure this usage is appropriate to *THIS* constructor.
          */
         class CaptureExpression {
-            private int idx;
+            private final int idx;
 
             private CaptureExpression(int idx) {
                 this.idx = idx;
             }
 
-            private Set<Expression> captures = new HashSet<>();
+            private final Set<Expression> captures = new HashSet<>();
         }
 
         Map<MethodPrototype, MethodPrototype> protos = new IdentityHashMap<>();

@@ -20,13 +20,11 @@ import org.benf.cfr.reader.util.DecompilerComments;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import java.util.function.BiConsumer;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
-import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +40,7 @@ import java.util.Set;
  */
 public class JumpsIntoLoopCloneRewriter {
 
-    private int maxDepth;
+    private final int maxDepth;
 
     JumpsIntoLoopCloneRewriter(Options options) {
         this.maxDepth = options.getOption(OptionsImpl.AGGRESSIVE_DO_COPY);
@@ -243,7 +241,7 @@ public class JumpsIntoLoopCloneRewriter {
              * (strictly speaking, we could handle it, if we leave visited for something OUTSIDE
              * the loop - but I need testcases to prove that first!)
              */
-            List<Op03SimpleStatement> copy = copyBlock(stm, caller, target, possLast, visited, ident, SetFactory.<Op03SimpleStatement>newSet(), copies);
+            List<Op03SimpleStatement> copy = copyBlock(stm, caller, target, possLast, visited, ident, SetFactory.newSet(), copies);
             if (copy == null || copy.isEmpty()) {
                 return;
             }
@@ -286,7 +284,7 @@ public class JumpsIntoLoopCloneRewriter {
         Op03SimpleStatement s1 = Misc.followNopGotoChain(t0, false, true);
         Op03SimpleStatement t1 = targets.get(1);
         Op03SimpleStatement s2 = Misc.followNopGotoChain(t1, false, true);
-        if (s1 == s2 && null != newConditionStatement.getCondition().getComputedLiteral(MapFactory.<LValue, Literal>newMap())) {
+        if (s1 == s2 && null != newConditionStatement.getCondition().getComputedLiteral(MapFactory.newMap())) {
             t0.removeSource(newCondition);
             t1.removeSource(newCondition);
             newCondition.getTargets().clear();

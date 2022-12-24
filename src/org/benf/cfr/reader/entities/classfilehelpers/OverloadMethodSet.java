@@ -7,7 +7,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.analysis.types.*;
 import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.util.collections.*;
-import java.util.function.Predicate;
 import org.benf.cfr.reader.util.functors.UnaryFunction;
 
 import java.util.*;
@@ -33,7 +32,7 @@ public class OverloadMethodSet {
         private final MethodPrototype methodPrototype;
         private final List<JavaTypeInstance> methodArgs;
         private final int size;
-        private static MethodData POISON = new MethodData();
+        private static final MethodData POISON = new MethodData();
 
         private MethodData() {
             this.methodPrototype = null;

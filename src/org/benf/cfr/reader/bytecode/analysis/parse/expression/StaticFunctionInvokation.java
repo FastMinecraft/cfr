@@ -206,8 +206,7 @@ public class StaticFunctionInvokation extends AbstractFunctionInvokation impleme
         if (!(o instanceof StaticFunctionInvokation other)) return false;
         if (!getName().equals(other.getName())) return false;
         if (!clazz.equals(other.clazz)) return false;
-        if (!args.equals(other.args)) return false;
-        return true;
+        return args.equals(other.args);
     }
 
     @Override
@@ -217,7 +216,6 @@ public class StaticFunctionInvokation extends AbstractFunctionInvokation impleme
         if (!(o instanceof StaticFunctionInvokation other)) return false;
         if (!constraint.equivalent(getName(), other.getName())) return false;
         if (!constraint.equivalent(clazz, other.clazz)) return false;
-        if (!constraint.equivalent(args, other.args)) return false;
-        return true;
+        return constraint.equivalent(args, other.args);
     }
 }

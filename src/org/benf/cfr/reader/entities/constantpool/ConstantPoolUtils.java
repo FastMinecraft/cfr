@@ -101,7 +101,7 @@ public class ConstantPoolUtils {
     }
 
     public static RawJavaType decodeRawJavaType(char c) {
-        RawJavaType javaTypeInstance = switch (c) {
+        return switch (c) {
             case 'B' ->   // byte
                 RawJavaType.BYTE;
             case 'C' ->   // char
@@ -120,7 +120,6 @@ public class ConstantPoolUtils {
                 RawJavaType.LONG;
             default -> throw new ConfusedCFRException("Illegal raw java type");
         };
-        return javaTypeInstance;
     }
 
     private static String getNextTypeTok(String proto, int curridx) {
@@ -358,15 +357,10 @@ public class ConstantPoolUtils {
         }
         curridx++;
         StackTypes resultType = StackTypes.EMPTY; // void.
-        switch (proto.charAt(curridx)) {
-            case 'V':
-                break;
-            default:
-                resultType = decodeTypeTok(getNextTypeTok(proto, curridx), cp).getStackType().asList();
-                break;
+        if (proto.charAt(curridx) != 'V') {
+            resultType = decodeTypeTok(getNextTypeTok(proto, curridx), cp).getStackType().asList();
         }
-        StackDelta res = new StackDeltaImpl(argumentTypes, resultType);
-//        logger.info("Parsed prototype " + proto + " as " + res);
-        return res;
+        //        logger.info("Parsed prototype " + proto + " as " + res);
+        return new StackDeltaImpl(argumentTypes, resultType);
     }
 }

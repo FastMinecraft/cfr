@@ -17,10 +17,10 @@ import java.util.LinkedList;
 import java.util.Vector;
 
 public class UnstructuredIf extends AbstractUnStructuredStatement {
-    private ConditionalExpression conditionalExpression;
+    private final ConditionalExpression conditionalExpression;
     private Op04StructuredStatement setIfBlock;
-    private BlockIdentifier knownIfBlock;
-    private BlockIdentifier knownElseBlock;
+    private final BlockIdentifier knownIfBlock;
+    private final BlockIdentifier knownElseBlock;
 
     public UnstructuredIf(BytecodeLoc loc, ConditionalExpression conditionalExpression, BlockIdentifier knownIfBlock, BlockIdentifier knownElseBlock) {
         super(loc);

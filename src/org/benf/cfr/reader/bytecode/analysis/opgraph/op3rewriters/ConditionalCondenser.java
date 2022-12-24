@@ -26,8 +26,8 @@ import java.util.Set;
 
 public class ConditionalCondenser {
 
-    private boolean testEclipse;
-    private boolean notInstanceOf;
+    private final boolean testEclipse;
+    private final boolean notInstanceOf;
 
     private ConditionalCondenser(boolean testEclipse, boolean notInstanceOf) {
 
@@ -78,11 +78,11 @@ public class ConditionalCondenser {
             Statement contained = source.getStatement();
             if (contained instanceof AbstractAssignment) {
                 preCondAssignmentSeen = true;
+                break;
             }
             statement = source;
         }
-        if (!preCondAssignmentSeen) return false;
-        return true;
+        return preCondAssignmentSeen;
     }
 
     // a=x

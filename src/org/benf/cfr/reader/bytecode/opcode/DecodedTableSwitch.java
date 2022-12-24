@@ -4,7 +4,6 @@ import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.bytestream.BaseByteData;
 import org.benf.cfr.reader.util.bytestream.ByteData;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 
 import java.util.List;
 import java.util.Map;
@@ -31,19 +30,17 @@ public class DecodedTableSwitch implements DecodedSwitch {
         int lowvalue = bd.getS4At(offset + OFFSET_OF_LOWBYTE);
         int highvalue = bd.getS4At(offset + OFFSET_OF_HIGHBYTE);
         int numoffsets = highvalue - lowvalue + 1;
-        int defaultTarget = defaultvalue;
-        int startValue = lowvalue;
 
         // Treemap so that targets are in bytecode order.
         Map<Integer, List<Integer>> uniqueTargets = MapFactory.newLazyMap(
             new TreeMap<>(),
             arg -> ListFactory.newList()
         );
-        uniqueTargets.get(defaultTarget).add(null);
+        uniqueTargets.get(defaultvalue).add(null);
         for (int x = 0; x < numoffsets; ++x) {
-            int target = bd.getS4At(offset + OFFSET_OF_OFFSETS + (x * 4));
-            if (target != defaultTarget) {
-                uniqueTargets.get(target).add(startValue + x);
+            int target = bd.getS4At(offset + OFFSET_OF_OFFSETS + (x * 4L));
+            if (target != defaultvalue) {
+                uniqueTargets.get(target).add(lowvalue + x);
             }
         }
 

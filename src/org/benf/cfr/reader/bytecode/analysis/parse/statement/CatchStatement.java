@@ -14,7 +14,6 @@ import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.entities.exceptions.ExceptionGroup;
 import org.benf.cfr.reader.util.collections.Functional;
-import java.util.function.Predicate;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.List;
@@ -129,8 +128,7 @@ public class CatchStatement extends AbstractStatement {
         if (getClass() != o.getClass()) return false;
         CatchStatement other = (CatchStatement) o;
         if (!constraint.equivalent(exceptions, other.exceptions)) return false;
-        if (!constraint.equivalent(catching, other.catching)) return false;
-        return true;
+        return constraint.equivalent(catching, other.catching);
     }
 
 }

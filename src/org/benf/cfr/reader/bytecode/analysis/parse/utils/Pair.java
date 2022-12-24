@@ -32,11 +32,10 @@ public class Pair<X, Y> {
             if (!x.equals(other.x)) return false;
         }
         if (y == null) {
-            if (other.y != null) return false;
+            return other.y == null;
         } else {
-            if (!y.equals(other.y)) return false;
+            return y.equals(other.y);
         }
-        return true;
     }
 
     @Override

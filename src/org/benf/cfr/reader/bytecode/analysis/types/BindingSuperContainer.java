@@ -15,7 +15,7 @@ public class BindingSuperContainer {
         INTERFACE
     }
 
-    static BindingSuperContainer POISON = new BindingSuperContainer(null, null, null);
+    static final BindingSuperContainer POISON = new BindingSuperContainer(null, null, null);
 
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ClassFile thisClass;
@@ -48,8 +48,7 @@ public class BindingSuperContainer {
             return assignable;
         }
         GenericTypeBinder genericTypeBinder = GenericTypeBinder.extractBindings(reboundBase, superType);
-        JavaGenericRefTypeInstance boundAssignable = assignable.getBoundInstance(genericTypeBinder);
-        return boundAssignable;
+        return assignable.getBoundInstance(genericTypeBinder);
     }
 
     public boolean containsBase(JavaTypeInstance possBase) {
