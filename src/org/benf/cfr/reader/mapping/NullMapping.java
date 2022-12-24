@@ -2,18 +2,18 @@ package org.benf.cfr.reader.mapping;
 
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.entities.innerclass.InnerClassAttributeInfo;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.List;
+import java.util.function.Function;
 
 public class NullMapping implements ObfuscationMapping {
     public static final NullMapping INSTANCE = new NullMapping();
 
-    private static final UnaryFunction<JavaTypeInstance, JavaTypeInstance> id = arg -> arg;
+    private static final Function<JavaTypeInstance, JavaTypeInstance> id = arg -> arg;
 
     @Override
-    public UnaryFunction<JavaTypeInstance, JavaTypeInstance> getter() {
+    public Function<JavaTypeInstance, JavaTypeInstance> getter() {
         return id;
     }
 

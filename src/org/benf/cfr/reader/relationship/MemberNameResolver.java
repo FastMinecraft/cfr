@@ -5,11 +5,11 @@ import org.benf.cfr.reader.entities.AccessFlagMethod;
 import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.state.DCCommonState;
-import org.benf.cfr.reader.util.*;
+import org.benf.cfr.reader.util.CannotLoadClassException;
 import org.benf.cfr.reader.util.collections.*;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 
 import java.util.*;
+import java.util.function.Function;
 
 public class MemberNameResolver {
     public static void resolveNames(DCCommonState dcCommonState, Collection<? extends JavaTypeInstance> types) {
@@ -35,7 +35,7 @@ public class MemberNameResolver {
     }
 
     private final DCCommonState dcCommonState;
-    private transient final UnaryFunction<ClassFile, Set<ClassFile>> mapFactory = arg -> SetFactory.newOrderedSet();
+    private transient final Function<ClassFile, Set<ClassFile>> mapFactory = arg -> SetFactory.newOrderedSet();
     private final Map<ClassFile, Set<ClassFile>> childToParent = MapFactory.newLazyMap(mapFactory);
     private final Map<ClassFile, Set<ClassFile>> parentToChild = MapFactory.newLazyMap(mapFactory);
     private final Map<ClassFile, MemberInfo> infoMap = MapFactory.newIdentityMap();

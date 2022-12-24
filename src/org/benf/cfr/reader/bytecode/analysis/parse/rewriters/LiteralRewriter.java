@@ -3,12 +3,7 @@ package org.benf.cfr.reader.bytecode.analysis.parse.rewriters;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.StatementContainer;
-import org.benf.cfr.reader.bytecode.analysis.parse.expression.ArithOp;
-import org.benf.cfr.reader.bytecode.analysis.parse.expression.ArithmeticMonOperation;
-import org.benf.cfr.reader.bytecode.analysis.parse.expression.ArithmeticOperation;
-import org.benf.cfr.reader.bytecode.analysis.parse.expression.CastExpression;
-import org.benf.cfr.reader.bytecode.analysis.parse.expression.LValueExpression;
-import org.benf.cfr.reader.bytecode.analysis.parse.expression.Literal;
+import org.benf.cfr.reader.bytecode.analysis.parse.expression.*;
 import org.benf.cfr.reader.bytecode.analysis.parse.literal.TypedLiteral;
 import org.benf.cfr.reader.bytecode.analysis.parse.lvalue.StaticVariable;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.SSAIdentifiers;
@@ -17,9 +12,9 @@ import org.benf.cfr.reader.bytecode.analysis.types.RawJavaType;
 import org.benf.cfr.reader.bytecode.analysis.types.TypeConstants;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.functors.NonaryFunction;
 
 import java.util.Map;
+import java.util.function.Supplier;
 
 public class LiteralRewriter extends AbstractExpressionRewriter {
     public static final LiteralRewriter INSTANCE = new LiteralRewriter(TypeConstants.OBJECT);
@@ -169,8 +164,8 @@ public class LiteralRewriter extends AbstractExpressionRewriter {
 
     // NB : Normal 'set of ieee754' complaint doesn't occur here, as these are comparing against
     // compile time constants (and we're calculating them with strictfp to match).
-    private static final Map<Double, NonaryFunction<Expression>> PI_DOUBLES = MapFactory.newMap();
-    private static final Map<Float, NonaryFunction<Expression>> PI_FLOATS = MapFactory.newMap();
+    private static final Map<Double, Supplier<Expression>> PI_DOUBLES = MapFactory.newMap();
+    private static final Map<Float, Supplier<Expression>> PI_FLOATS = MapFactory.newMap();
 
     static {
         final Expression pi = new LValueExpression(MATH_PI);
@@ -179,7 +174,7 @@ public class LiteralRewriter extends AbstractExpressionRewriter {
             if (i == 0) continue;
 
             final int ii = i;
-            NonaryFunction<Expression> pifn = () -> switch (ii) {
+            Supplier<Expression> pifn = () -> switch (ii) {
                 case 1 -> pi;
                 case -1 -> npi;
                 default -> new ArithmeticOperation(BytecodeLoc.NONE,
@@ -213,7 +208,7 @@ public class LiteralRewriter extends AbstractExpressionRewriter {
             if (i == 0) continue;
             final int ii = i;
             final Expression p = i < 0 ? npi : pi;
-            NonaryFunction<Expression> pifn = () -> new ArithmeticOperation(BytecodeLoc.NONE, p, new Literal(TypedLiteral.getInt(90 * Math.abs(ii))), ArithOp.DIVIDE);
+            Supplier<Expression> pifn = () -> new ArithmeticOperation(BytecodeLoc.NONE, p, new Literal(TypedLiteral.getInt(90 * Math.abs(ii))), ArithOp.DIVIDE);
             PI_DOUBLES.put(Math.PI / (90 * i), pifn);
 
             pifn = () -> new CastExpression(BytecodeLoc.NONE, INFERRED_FLOAT, new ArithmeticOperation(BytecodeLoc.NONE, p, new Literal(TypedLiteral.getInt(90 * Math.abs(ii))), ArithOp.DIVIDE));
@@ -229,14 +224,14 @@ public class LiteralRewriter extends AbstractExpressionRewriter {
     }
 
     private static Expression maybeGetPiExpression(float value) {
-        NonaryFunction<Expression> e = PI_FLOATS.get(value);
+        Supplier<Expression> e = PI_FLOATS.get(value);
         if (null == e) return null;
-        return e.invoke();
+        return e.get();
     }
 
     private static Expression maybeGetPiExpression(double value) {
-        NonaryFunction<Expression> e = PI_DOUBLES.get(value);
+        Supplier<Expression> e = PI_DOUBLES.get(value);
         if (null == e) return null;
-        return e.invoke();
+        return e.get();
     }
 }

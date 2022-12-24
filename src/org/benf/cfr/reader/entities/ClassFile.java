@@ -7,84 +7,35 @@ import org.benf.cfr.reader.bytecode.analysis.parse.expression.ConstructorInvokat
 import org.benf.cfr.reader.bytecode.analysis.parse.rewriters.LiteralRewriter;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Triplet;
-import org.benf.cfr.reader.bytecode.analysis.types.BindingSuperContainer;
-import org.benf.cfr.reader.bytecode.analysis.types.BoundSuperCollector;
-import org.benf.cfr.reader.bytecode.analysis.types.ClassSignature;
-import org.benf.cfr.reader.bytecode.analysis.types.FormalTypeParameter;
-import org.benf.cfr.reader.bytecode.analysis.types.GenericTypeBinder;
-import org.benf.cfr.reader.bytecode.analysis.types.InnerClassInfo;
-import org.benf.cfr.reader.bytecode.analysis.types.JavaGenericRefTypeInstance;
-import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
-import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
-import org.benf.cfr.reader.bytecode.analysis.types.MethodPrototype;
-import org.benf.cfr.reader.bytecode.analysis.types.RawJavaType;
-import org.benf.cfr.reader.bytecode.analysis.types.TypeAnnotationHelper;
-import org.benf.cfr.reader.bytecode.analysis.types.TypeConstants;
+import org.benf.cfr.reader.bytecode.analysis.types.*;
 import org.benf.cfr.reader.bytecode.analysis.types.annotated.JavaAnnotatedTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.variables.VariableNamer;
 import org.benf.cfr.reader.bytecode.analysis.variables.VariableNamerDefault;
 import org.benf.cfr.reader.entities.annotations.AnnotationTableTypeEntry;
-import org.benf.cfr.reader.entities.attributes.Attribute;
-import org.benf.cfr.reader.entities.attributes.AttributeBootstrapMethods;
-import org.benf.cfr.reader.entities.attributes.AttributeEnclosingMethod;
-import org.benf.cfr.reader.entities.attributes.AttributeInnerClasses;
-import org.benf.cfr.reader.entities.attributes.AttributeMap;
-import org.benf.cfr.reader.entities.attributes.AttributeModule;
-import org.benf.cfr.reader.entities.attributes.AttributePermittedSubclasses;
-import org.benf.cfr.reader.entities.attributes.AttributeRuntimeInvisibleAnnotations;
-import org.benf.cfr.reader.entities.attributes.AttributeRuntimeVisibleAnnotations;
-import org.benf.cfr.reader.entities.attributes.AttributeSignature;
-import org.benf.cfr.reader.entities.attributes.TypeAnnotationEntryValue;
-import org.benf.cfr.reader.entities.attributes.TypeAnnotationTargetInfo;
-import org.benf.cfr.reader.entities.classfilehelpers.ClassFileDumper;
-import org.benf.cfr.reader.entities.classfilehelpers.ClassFileDumperAnnotation;
-import org.benf.cfr.reader.entities.classfilehelpers.ClassFileDumperInterface;
-import org.benf.cfr.reader.entities.classfilehelpers.ClassFileDumperModule;
-import org.benf.cfr.reader.entities.classfilehelpers.ClassFileDumperNormal;
-import org.benf.cfr.reader.entities.classfilehelpers.OverloadMethodSet;
-import org.benf.cfr.reader.entities.constantpool.ConstantPool;
-import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryClass;
-import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryNameAndType;
-import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryUTF8;
-import org.benf.cfr.reader.entities.constantpool.ConstantPoolUtils;
+import org.benf.cfr.reader.entities.attributes.*;
+import org.benf.cfr.reader.entities.classfilehelpers.*;
+import org.benf.cfr.reader.entities.constantpool.*;
 import org.benf.cfr.reader.entities.innerclass.InnerClassAttributeInfo;
 import org.benf.cfr.reader.entityfactories.AttributeFactory;
 import org.benf.cfr.reader.entityfactories.ContiguousEntityFactory;
 import org.benf.cfr.reader.relationship.MemberNameResolver;
-import org.benf.cfr.reader.state.DCCommonState;
-import org.benf.cfr.reader.state.InnerClassTypeUsageInformation;
-import org.benf.cfr.reader.state.OverloadMethodSetCache;
-import org.benf.cfr.reader.state.TypeUsageCollectingDumper;
-import org.benf.cfr.reader.state.TypeUsageCollector;
-import org.benf.cfr.reader.state.TypeUsageInformation;
-import org.benf.cfr.reader.util.CannotLoadClassException;
-import org.benf.cfr.reader.util.ClassFileVersion;
-import org.benf.cfr.reader.util.ConfusedCFRException;
-import org.benf.cfr.reader.util.DecompilerComment;
-import org.benf.cfr.reader.util.DecompilerComments;
-import org.benf.cfr.reader.util.MiscConstants;
-import org.benf.cfr.reader.util.StringUtils;
-import org.benf.cfr.reader.util.TypeUsageCollectable;
+import org.benf.cfr.reader.state.*;
+import org.benf.cfr.reader.util.*;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import java.util.function.Predicate;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
-import org.benf.cfr.reader.util.functors.UnaryProcedure;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.Dumpable;
 import org.benf.cfr.reader.util.output.Dumper;
 import org.benf.cfr.reader.util.output.IllegalIdentifierReplacement;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static org.benf.cfr.reader.entities.AccessFlag.ACC_FAKE_SEALED;
 
@@ -153,7 +104,12 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         this.classFileVersion = classFileVersion;
         final ClassFileVersion cfv = classFileVersion;
         int constantPoolCount = data.getU2At(OFFSET_OF_CONSTANT_POOL_COUNT);
-        this.constantPool = new ConstantPool(this, dcCommonState, data.getOffsetData(OFFSET_OF_CONSTANT_POOL), constantPoolCount);
+        this.constantPool = new ConstantPool(
+            this,
+            dcCommonState,
+            data.getOffsetData(OFFSET_OF_CONSTANT_POOL),
+            constantPoolCount
+        );
         final long OFFSET_OF_ACCESS_FLAGS = OFFSET_OF_CONSTANT_POOL + constantPool.getRawByteLength();
         final long OFFSET_OF_THIS_CLASS = OFFSET_OF_ACCESS_FLAGS + 2;
         final long OFFSET_OF_SUPER_CLASS = OFFSET_OF_THIS_CLASS + 2;
@@ -162,7 +118,10 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
 
         int numInterfaces = data.getU2At(OFFSET_OF_INTERFACES_COUNT);
         ArrayList<ConstantPoolEntryClass> tmpInterfaces = new ArrayList<>();
-        ContiguousEntityFactory.buildSized(data.getOffsetData(OFFSET_OF_INTERFACES), (short)numInterfaces, 2, tmpInterfaces,
+        ContiguousEntityFactory.buildSized(data.getOffsetData(OFFSET_OF_INTERFACES),
+            (short) numInterfaces,
+            2,
+            tmpInterfaces,
             arg -> {
                 int offset = arg.getU2At(0);
                 return (ConstantPoolEntryClass) constantPool.getEntry(offset);
@@ -178,7 +137,9 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         final long OFFSET_OF_FIELDS = OFFSET_OF_FIELDS_COUNT + 2;
         final int numFields = data.getU2At(OFFSET_OF_FIELDS_COUNT);
         List<Field> tmpFields = ListFactory.newList();
-        final long fieldsLength = ContiguousEntityFactory.build(data.getOffsetData(OFFSET_OF_FIELDS), numFields, tmpFields,
+        final long fieldsLength = ContiguousEntityFactory.build(data.getOffsetData(OFFSET_OF_FIELDS),
+            numFields,
+            tmpFields,
             arg -> new Field(arg, constantPool, cfv)
         );
         this.fields = ListFactory.newList();
@@ -191,7 +152,9 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         final long OFFSET_OF_METHODS = OFFSET_OF_METHODS_COUNT + 2;
         final int numMethods = data.getU2At(OFFSET_OF_METHODS_COUNT);
         List<Method> tmpMethods = new ArrayList<>(numMethods);
-        final long methodsLength = ContiguousEntityFactory.build(data.getOffsetData(OFFSET_OF_METHODS), numMethods, tmpMethods,
+        final long methodsLength = ContiguousEntityFactory.build(data.getOffsetData(OFFSET_OF_METHODS),
+            numMethods,
+            tmpMethods,
             arg -> new Method(arg, ClassFile.this, constantPool, dcCommonState, cfv)
         );
 //        tmpMethods = MethodOrdering.sort(tmpMethods);
@@ -216,7 +179,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         ArrayList<Attribute> tmpAttributes = new ArrayList<>();
         tmpAttributes.ensureCapacity(numAttributes);
         ContiguousEntityFactory.build(data.getOffsetData(OFFSET_OF_ATTRIBUTES), numAttributes, tmpAttributes,
-                AttributeFactory.getBuilder(constantPool, classFileVersion)
+            AttributeFactory.getBuilder(constantPool, classFileVersion)
         );
 
         this.attributes = new AttributeMap(tmpAttributes);
@@ -381,7 +344,11 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
     /*
      * We might have to correct this, if an assumption has been made based on type name.
      */
-    private void checkInnerClassAssumption(AttributeInnerClasses attributeInnerClasses, JavaRefTypeInstance typeInstance, DCCommonState state) {
+    private void checkInnerClassAssumption(
+        AttributeInnerClasses attributeInnerClasses,
+        JavaRefTypeInstance typeInstance,
+        DCCommonState state
+    ) {
         if (attributeInnerClasses != null) {
             for (InnerClassAttributeInfo innerClassAttributeInfo : attributeInnerClasses.getInnerClassAttributeInfoList()) {
                 if (innerClassAttributeInfo.getInnerClassInfo().equals(typeInstance)) {
@@ -430,7 +397,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         return decompilerComments;
     }
 
-    public FakeMethod addFakeMethod(Object key, String nameHint, UnaryFunction<String, FakeMethod> methodFactory) {
+    public FakeMethod addFakeMethod(Object key, String nameHint, Function<String, FakeMethod> methodFactory) {
         if (fakeMethods == null) fakeMethods = new FakeMethods();
         return fakeMethods.add(key, nameHint, methodFactory);
     }
@@ -521,8 +488,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
     public boolean hasAccessibleField(String name, JavaRefTypeInstance maybeCaller) {
         ensureFieldsByName();
         Map<JavaTypeInstance, ClassFileField> fields = fieldsByName.get(name);
-        if (fields == null)
-        {
+        if (fields == null) {
             JavaTypeInstance baseClassType = getBaseClassType();
             if (baseClassType == null) return false;
             baseClassType = baseClassType.getDeGenerifiedType();
@@ -629,7 +595,12 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         }
     }
 
-    private void collectTypeMethods(MethodPrototype prototype, List<Method> tgt, Set<JavaTypeInstance> seen, JavaTypeInstance clazz) {
+    private void collectTypeMethods(
+        MethodPrototype prototype,
+        List<Method> tgt,
+        Set<JavaTypeInstance> seen,
+        JavaTypeInstance clazz
+    ) {
         if (clazz == null) return;
         clazz = clazz.getDeGenerifiedType();
         if (!(clazz instanceof JavaRefTypeInstance)) return;
@@ -717,7 +688,11 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         return methodMatch;
     }
 
-    private Method getAccessibleMethodByPrototype(final MethodPrototype prototype, GenericTypeBinder binder, JavaRefTypeInstance accessor) throws NoSuchMethodException {
+    private Method getAccessibleMethodByPrototype(
+        final MethodPrototype prototype,
+        GenericTypeBinder binder,
+        JavaRefTypeInstance accessor
+    ) throws NoSuchMethodException {
         List<Method> named = getMethodsWithMatchingName(prototype);
         Method methodMatch = null;
         for (Method method : named) {
@@ -780,12 +755,16 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         return thisClass;
     }
 
-    private boolean isInferredAnonymousStatic(DCCommonState state, JavaTypeInstance thisType, JavaTypeInstance innerType) {
+    private boolean isInferredAnonymousStatic(
+        DCCommonState state,
+        JavaTypeInstance thisType,
+        JavaTypeInstance innerType
+    ) {
         if (!innerType.getInnerClassHereInfo().isAnonymousClass()) return false;
 
         boolean j8orLater = classFileVersion.equalOrLater(ClassFileVersion.JAVA_8);
         if (!j8orLater) return false;
-        
+
         JavaRefTypeInstance containing = thisType.getInnerClassHereInfo().getOuterClass();
 
         // if the outer class doesn't exist, we just don't know
@@ -813,7 +792,20 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         String name = nameAndType.getName().getValue();
         VariableNamer fakeNamer = new VariableNamerDefault();
 
-        MethodPrototype basePrototype = ConstantPoolUtils.parseJavaMethodPrototype(state,null, containing, name, /* interfaceMethod */ false, Method.MethodConstructor.NOT, descriptor, constantPool, false /* we can't tell */, false, fakeNamer, descriptor.getValue());
+        MethodPrototype basePrototype = ConstantPoolUtils.parseJavaMethodPrototype(
+            state,
+            null,
+            containing,
+            name, /* interfaceMethod */
+            false,
+            Method.MethodConstructor.NOT,
+            descriptor,
+            constantPool,
+            false /* we can't tell */,
+            false,
+            fakeNamer,
+            descriptor.getValue()
+        );
 
         try {
             Method m = containingClassFile.getMethodByPrototype(basePrototype);
@@ -901,9 +893,9 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         }
     }
 
-    private void analysePassOuterFirst(UnaryProcedure<ClassFile> fn) {
+    private void analysePassOuterFirst(Consumer<ClassFile> fn) {
         try {
-            fn.call(this);
+            fn.accept(this);
         } catch (RuntimeException e) {
             addComment("Exception performing whole class analysis ignored.", e);
         }
@@ -915,14 +907,21 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         }
     }
 
-    public void analyseTop(final DCCommonState dcCommonState, final TypeUsageCollectingDumper typeUsageCollectingDumper) {
+    public void analyseTop(
+        final DCCommonState dcCommonState,
+        final TypeUsageCollectingDumper typeUsageCollectingDumper
+    ) {
         analyseMid(dcCommonState);
         analysePassOuterFirst(arg -> CodeAnalyserWholeClass.wholeClassAnalysisPass2(arg, dcCommonState));
         /*
          * Perform a pass to determine what imports / classes etc we used / failed.
          */
         this.dump(typeUsageCollectingDumper);
-        analysePassOuterFirst(arg -> CodeAnalyserWholeClass.wholeClassAnalysisPass3(arg, dcCommonState, typeUsageCollectingDumper));
+        analysePassOuterFirst(arg -> CodeAnalyserWholeClass.wholeClassAnalysisPass3(
+            arg,
+            dcCommonState,
+            typeUsageCollectingDumper
+        ));
     }
 
     private void analyseSyntheticTags(Method method, Options options) {
@@ -975,7 +974,11 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
                     ClassFile classFile = bindTester.getSecond();
                     GenericTypeBinder genericTypeBinder = bindTester.getThird();
                     try {
-                        baseMethod = classFile.getAccessibleMethodByPrototype(prototype, genericTypeBinder, (JavaRefTypeInstance)getClassType().getDeGenerifiedType());
+                        baseMethod = classFile.getAccessibleMethodByPrototype(
+                            prototype,
+                            genericTypeBinder,
+                            (JavaRefTypeInstance) getClassType().getDeGenerifiedType()
+                        );
                     } catch (NoSuchMethodException ignore) {
                     }
                     if (baseMethod != null) break;
@@ -1006,7 +1009,8 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
          * While we're going to consider the methods in order, analyse synthetic methods first
          * so that we can tag them.
          */
-        Pair<List<Method>, List<Method>> partition = Functional.partition(methods,
+        Pair<List<Method>, List<Method>> partition = Functional.partition(
+            methods,
             x -> x.getAccessFlags().contains(AccessFlagMethod.ACC_SYNTHETIC)
         );
         // Analyse synthetic methods.
@@ -1043,7 +1047,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
     }
 
     public JavaRefTypeInstance getRefClassType() {
-        return (JavaRefTypeInstance)thisClass.getTypeInstance();
+        return (JavaRefTypeInstance) thisClass.getTypeInstance();
     }
 
     public JavaTypeInstance getBaseClassType() {
@@ -1067,12 +1071,15 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         }
     }
 
-    private ClassSignature getSignature(ConstantPool cp,
-                                        ConstantPoolEntryClass rawSuperClass,
-                                        List<ConstantPoolEntryClass> rawInterfaces) {
+    private ClassSignature getSignature(
+        ConstantPool cp,
+        ConstantPoolEntryClass rawSuperClass,
+        List<ConstantPoolEntryClass> rawInterfaces
+    ) {
         AttributeSignature signatureAttribute = attributes.getByName(AttributeSignature.ATTRIBUTE_NAME);
 
-        sigAgree : if (signatureAttribute != null) {
+        sigAgree:
+        if (signatureAttribute != null) {
             try {
                 ClassSignature fromAttr = ConstantPoolUtils.parseClassSignature(signatureAttribute.getSignature(), cp);
                 if (rawSuperClass != null) {
@@ -1095,9 +1102,11 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
             interfaces.add(rawInterface.getTypeInstance());
         }
 
-        return new ClassSignature(null,
-                rawSuperClass == null ? null : rawSuperClass.getTypeInstance(),
-                interfaces);
+        return new ClassSignature(
+            null,
+            rawSuperClass == null ? null : rawSuperClass.getTypeInstance(),
+            interfaces
+        );
 
     }
 
@@ -1119,7 +1128,10 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
                 continue;
             }
             TypeUsageInformation typeUsageInformation = d.getTypeUsageInformation();
-            TypeUsageInformation innerclassTypeUsageInformation = new InnerClassTypeUsageInformation(typeUsageInformation, (JavaRefTypeInstance) classFile.getClassType());
+            TypeUsageInformation innerclassTypeUsageInformation = new InnerClassTypeUsageInformation(
+                typeUsageInformation,
+                (JavaRefTypeInstance) classFile.getClassType()
+            );
             d.newln();
             Dumper d2 = d.withTypeUsageInformation(innerclassTypeUsageInformation);
             classFile.dumpHelper.dump(classFile, ClassFileDumper.InnerClassDumpType.INNER_CLASS, d2);
@@ -1145,20 +1157,28 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
     }
 
 
-    private static void getFormalParametersText(ClassSignature signature, TypeAnnotationHelper ah,
-                                                UnaryFunction<Integer, Predicate<AnnotationTableTypeEntry>> typeAnnPredicateFact,
-                                                UnaryFunction<Integer, Predicate<AnnotationTableTypeEntry>> typeBoundAnnPredicateFact,
-                                                Dumper d) {
+    private static void getFormalParametersText(
+        ClassSignature signature, TypeAnnotationHelper ah,
+        Function<Integer, Predicate<AnnotationTableTypeEntry>> typeAnnPredicateFact,
+        Function<Integer, Predicate<AnnotationTableTypeEntry>> typeBoundAnnPredicateFact,
+        Dumper d
+    ) {
         List<FormalTypeParameter> formalTypeParameters = signature.formalTypeParameters();
         if (formalTypeParameters == null || formalTypeParameters.isEmpty()) return;
         d.separator("<");
         boolean first = true;
-        for (int idx=0,len=formalTypeParameters.size();idx<len;idx++) {
+        for (int idx = 0, len = formalTypeParameters.size(); idx < len; idx++) {
             FormalTypeParameter formalTypeParameter = formalTypeParameters.get(idx);
             first = StringUtils.comma(first, d);
             if (ah != null) {
-                List<AnnotationTableTypeEntry> typeAnnotations = Functional.filter(ah.getEntries(), typeAnnPredicateFact.invoke(idx));
-                List<AnnotationTableTypeEntry> typeBoundAnnotations = Functional.filter(ah.getEntries(), typeBoundAnnPredicateFact.invoke(idx));
+                List<AnnotationTableTypeEntry> typeAnnotations = Functional.filter(
+                    ah.getEntries(),
+                    typeAnnPredicateFact.apply(idx)
+                );
+                List<AnnotationTableTypeEntry> typeBoundAnnotations = Functional.filter(
+                    ah.getEntries(),
+                    typeBoundAnnPredicateFact.apply(idx)
+                );
                 if (!(typeAnnotations.isEmpty() && typeBoundAnnotations.isEmpty())) {
                     // TODO : preprocess - don't do this at dumper.
                     formalTypeParameter.dump(d, typeAnnotations, typeBoundAnnotations);
@@ -1171,7 +1191,8 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
     }
 
     public void dumpReceiverClassIdentity(List<AnnotationTableTypeEntry> recieverAnnotations, Dumper d) {
-        Pair<List<AnnotationTableTypeEntry>, List<AnnotationTableTypeEntry>> split = Functional.partition(recieverAnnotations,
+        Pair<List<AnnotationTableTypeEntry>, List<AnnotationTableTypeEntry>> split = Functional.partition(
+            recieverAnnotations,
             in -> in.getTypePath().segments().isEmpty()
         );
         List<AnnotationTableTypeEntry> pre = split.getFirst();
@@ -1218,19 +1239,27 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
 
     public void dumpClassIdentity(Dumper d) {
         d.dump(getThisClassConstpoolEntry().getTypeInstance(), true);
-        TypeAnnotationHelper typeAnnotations = TypeAnnotationHelper.create(attributes,
-                TypeAnnotationEntryValue.type_generic_class_interface,
-                TypeAnnotationEntryValue.type_type_parameter_class_interface);
-        UnaryFunction<Integer, Predicate<AnnotationTableTypeEntry>> typeAnnPredicateFact = arg -> in -> {
+        TypeAnnotationHelper typeAnnotations = TypeAnnotationHelper.create(
+            attributes,
+            TypeAnnotationEntryValue.type_generic_class_interface,
+            TypeAnnotationEntryValue.type_type_parameter_class_interface
+        );
+        Function<Integer, Predicate<AnnotationTableTypeEntry>> typeAnnPredicateFact = arg -> in -> {
             if (in.getValue() != TypeAnnotationEntryValue.type_generic_class_interface) return false;
             // TODO : Cleaner way pls!
             return ((TypeAnnotationTargetInfo.TypeAnnotationParameterTarget) in.getTargetInfo()).getIndex() == arg;
         };
-        UnaryFunction<Integer, Predicate<AnnotationTableTypeEntry>> typeBoundAnnPredicateFact = arg -> in -> {
+        Function<Integer, Predicate<AnnotationTableTypeEntry>> typeBoundAnnPredicateFact = arg -> in -> {
             if (in.getValue() != TypeAnnotationEntryValue.type_type_parameter_class_interface) return false;
             return ((TypeAnnotationTargetInfo.TypeAnnotationParameterBoundTarget) in.getTargetInfo()).getIndex() == arg;
         };
-        getFormalParametersText(getClassSignature(), typeAnnotations, typeAnnPredicateFact, typeBoundAnnPredicateFact, d);
+        getFormalParametersText(
+            getClassSignature(),
+            typeAnnotations,
+            typeAnnPredicateFact,
+            typeBoundAnnPredicateFact,
+            d
+        );
     }
 
     /*
@@ -1261,16 +1290,34 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
 
         JavaTypeInstance base = classSignature.superClass();
         if (base == null) return new BindingSuperContainer(this, new HashMap<>(),
-            new HashMap<>());
-        getBoundSuperClasses2(base, genericTypeBinder, boundSuperCollector, BindingSuperContainer.Route.EXTENSION, SetFactory.newSet());
+            new HashMap<>()
+        );
+        getBoundSuperClasses2(
+            base,
+            genericTypeBinder,
+            boundSuperCollector,
+            BindingSuperContainer.Route.EXTENSION,
+            SetFactory.newSet()
+        );
         for (JavaTypeInstance interfaceBase : classSignature.interfaces()) {
-            getBoundSuperClasses2(interfaceBase, genericTypeBinder, boundSuperCollector, BindingSuperContainer.Route.INTERFACE, SetFactory.newSet());
+            getBoundSuperClasses2(
+                interfaceBase,
+                genericTypeBinder,
+                boundSuperCollector,
+                BindingSuperContainer.Route.INTERFACE,
+                SetFactory.newSet()
+            );
         }
 
         return boundSuperCollector.getBoundSupers();
     }
 
-    private void getBoundSuperClasses(JavaTypeInstance boundGeneric, BoundSuperCollector boundSuperCollector, BindingSuperContainer.Route route, Set<JavaTypeInstance> seen) {
+    private void getBoundSuperClasses(
+        JavaTypeInstance boundGeneric,
+        BoundSuperCollector boundSuperCollector,
+        BindingSuperContainer.Route route,
+        Set<JavaTypeInstance> seen
+    ) {
         // TODO: This seems deeply over complicated ;)
         // Perhaps rather than matching in terms of types, we could match in terms of the signature?
         JavaTypeInstance thisType = getClassSignature().getThisGeneralTypeClass(getClassType(), getConstantPool());
@@ -1308,7 +1355,13 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         if (base == null) return;
         getBoundSuperClasses2(base, genericTypeBinder, boundSuperCollector, route, SetFactory.newSet(seen));
         for (JavaTypeInstance interfaceBase : classSignature.interfaces()) {
-            getBoundSuperClasses2(interfaceBase, genericTypeBinder, boundSuperCollector, BindingSuperContainer.Route.INTERFACE, SetFactory.newSet(seen));
+            getBoundSuperClasses2(
+                interfaceBase,
+                genericTypeBinder,
+                boundSuperCollector,
+                BindingSuperContainer.Route.INTERFACE,
+                SetFactory.newSet(seen)
+            );
         }
     }
 
@@ -1321,8 +1374,13 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         }
     }
 
-    private void getBoundSuperClasses2(JavaTypeInstance base, GenericTypeBinder genericTypeBinder, BoundSuperCollector boundSuperCollector, BindingSuperContainer.Route route,
-                                       Set<JavaTypeInstance> seen) {
+    private void getBoundSuperClasses2(
+        JavaTypeInstance base,
+        GenericTypeBinder genericTypeBinder,
+        BoundSuperCollector boundSuperCollector,
+        BindingSuperContainer.Route route,
+        Set<JavaTypeInstance> seen
+    ) {
         if (seen.contains(base)) return;
         seen.add(base);
 

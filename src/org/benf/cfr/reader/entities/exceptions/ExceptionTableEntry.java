@@ -6,7 +6,8 @@ import org.benf.cfr.reader.bytecode.analysis.types.TypeConstants;
 import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.bytestream.ByteData;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
+
+import java.util.function.Function;
 
 public class ExceptionTableEntry implements Comparable<ExceptionTableEntry> {
     private static final int OFFSET_INDEX_FROM = 0;
@@ -23,11 +24,12 @@ public class ExceptionTableEntry implements Comparable<ExceptionTableEntry> {
 
     private ExceptionTableEntry(ByteData raw, int priority) {
         this(
-                raw.getU2At(OFFSET_INDEX_FROM),
-                raw.getU2At(OFFSET_INDEX_TO),
-                raw.getU2At(OFFSET_INDEX_HANDLER),
-                raw.getU2At(OFFSET_CATCH_TYPE),
-                priority);
+            raw.getU2At(OFFSET_INDEX_FROM),
+            raw.getU2At(OFFSET_INDEX_TO),
+            raw.getU2At(OFFSET_INDEX_HANDLER),
+            raw.getU2At(OFFSET_CATCH_TYPE),
+            priority
+        );
     }
 
     ExceptionTableEntry(int from, int to, int handler, int catchType, int priority) {
@@ -83,11 +85,17 @@ public class ExceptionTableEntry implements Comparable<ExceptionTableEntry> {
 
     ExceptionTableEntry aggregateWith(ExceptionTableEntry later) {
         if ((this.bytecode_index_from >= later.bytecode_index_from) ||
-                (this.bytecode_index_to != later.bytecode_index_from)) {
+            (this.bytecode_index_to != later.bytecode_index_from)) {
             throw new ConfusedCFRException("Can't aggregate exceptionTableEntries");
         }
         // TODO : Priority is not quite right here.
-        return new ExceptionTableEntry(this.bytecode_index_from, later.bytecode_index_to, this.bytecode_index_handler, this.catch_type, this.priority);
+        return new ExceptionTableEntry(
+            this.bytecode_index_from,
+            later.bytecode_index_to,
+            this.bytecode_index_handler,
+            this.catch_type,
+            this.priority
+        );
     }
 
     ExceptionTableEntry aggregateWithLenient(ExceptionTableEntry later) {
@@ -95,23 +103,24 @@ public class ExceptionTableEntry implements Comparable<ExceptionTableEntry> {
             throw new ConfusedCFRException("Can't aggregate exceptionTableEntries");
         }
         // TODO : Priority is not quite right here.
-        return new ExceptionTableEntry(this.bytecode_index_from, later.bytecode_index_to, this.bytecode_index_handler, this.catch_type, this.priority);
+        return new ExceptionTableEntry(
+            this.bytecode_index_from,
+            later.bytecode_index_to,
+            this.bytecode_index_handler,
+            this.catch_type,
+            this.priority
+        );
     }
 
-    public static UnaryFunction<ByteData, ExceptionTableEntry> getBuilder() {
-        return new ExceptionTableEntryBuilder();
-    }
+    public static Function<ByteData, ExceptionTableEntry> getBuilder() {
+        return new Function<>() {
+            int idx = 0;
 
-    private static class ExceptionTableEntryBuilder implements UnaryFunction<ByteData, ExceptionTableEntry> {
-        int idx = 0;
-
-        ExceptionTableEntryBuilder() {
-        }
-
-        @Override
-        public ExceptionTableEntry invoke(ByteData arg) {
-            return new ExceptionTableEntry(arg, idx++);
-        }
+            @Override
+            public ExceptionTableEntry apply(ByteData arg) {
+                return new ExceptionTableEntry(arg, idx++);
+            }
+        };
     }
 
     @Override

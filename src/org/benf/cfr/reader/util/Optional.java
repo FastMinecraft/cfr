@@ -1,6 +1,6 @@
 package org.benf.cfr.reader.util;
 
-import org.benf.cfr.reader.util.functors.UnaryProcedure;
+import java.util.function.Consumer;
 
 public class Optional<T> {
     private final T value;
@@ -25,8 +25,8 @@ public class Optional<T> {
         return value;
     }
 
-    public void then(UnaryProcedure<T> func) {
-        func.call(value);
+    public void then(Consumer<T> func) {
+        func.accept(value);
     }
 
     public static <T> Optional<T> of(T value) {

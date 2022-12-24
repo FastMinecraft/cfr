@@ -16,15 +16,17 @@ import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 import org.benf.cfr.reader.state.ClassCache;
 import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.state.TypeUsageCollectingDumper;
-import org.benf.cfr.reader.util.*;
+import org.benf.cfr.reader.util.MiscConstants;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Analysis which needs to be performed on the whole classfile in one go, once we've
@@ -156,7 +158,12 @@ public class CodeAnalyserWholeClass {
         if (classFile.isInnerClass()) {
             Set<MethodPrototype> processed = SetFactory.newSet();
             for (Method method : classFile.getConstructors()) {
-                Op04StructuredStatement.fixInnerClassConstructorSyntheticOuterArgs(classFile, method, method.getAnalysis(), processed);
+                Op04StructuredStatement.fixInnerClassConstructorSyntheticOuterArgs(
+                    classFile,
+                    method,
+                    method.getAnalysis(),
+                    processed
+                );
             }
         }
     }
@@ -184,7 +191,7 @@ public class CodeAnalyserWholeClass {
             if (!flags.contains(AccessFlagMethod.ACC_SYNTHETIC)) continue;
             if (flags.contains(AccessFlagMethod.ACC_PUBLIC)) continue;
 
-            MethodPrototype chainPrototype =  ConstructorUtils.getDelegatingPrototype(method);
+            MethodPrototype chainPrototype = ConstructorUtils.getDelegatingPrototype(method);
             if (chainPrototype == null) continue;
             // Verify that the target is identical to this, minus last arg.
             MethodPrototype prototype = method.getMethodPrototype();
@@ -193,12 +200,12 @@ public class CodeAnalyserWholeClass {
             if (argsThis.isEmpty()) continue;
             List<JavaTypeInstance> argsThat = chainPrototype.getArgs();
             if (argsThis.size() != argsThat.size() + 1) continue;
-            JavaTypeInstance last = argsThis.get(argsThis.size()-1);
+            JavaTypeInstance last = argsThis.get(argsThis.size() - 1);
 
-            UnaryFunction<JavaTypeInstance, JavaTypeInstance> degenerifier = JavaTypeInstance::getDeGenerifiedType;
+            Function<JavaTypeInstance, JavaTypeInstance> degenerifier = JavaTypeInstance::getDeGenerifiedType;
             argsThis = Functional.map(argsThis, degenerifier);
             argsThat = Functional.map(argsThat, degenerifier);
-            argsThis.remove(argsThis.size()-1);
+            argsThis.remove(argsThis.size() - 1);
 
 
             /*
@@ -392,7 +399,7 @@ public class CodeAnalyserWholeClass {
     }
 
     private static void removeBoilerplateMethods(ClassFile classFile) {
-        String[] removeThese = {MiscConstants.DESERIALISE_LAMBDA_METHOD};
+        String[] removeThese = { MiscConstants.DESERIALISE_LAMBDA_METHOD };
         for (String methName : removeThese) {
             List<Method> methods = classFile.getMethodsByNameOrNull(methName);
             if (methods != null) {
@@ -417,7 +424,8 @@ public class CodeAnalyserWholeClass {
     }
 
     private static void tryRemoveConstructor(ClassFile classFile) {
-        List<Method> constructors = Functional.filter(classFile.getConstructors(),
+        List<Method> constructors = Functional.filter(
+            classFile.getConstructors(),
             in -> in.hiddenState() == Method.Visibility.Visible
         );
         if (constructors.size() != 1) return;
@@ -487,7 +495,11 @@ public class CodeAnalyserWholeClass {
      *
      * This is the point at which we can perform analysis like rewriting references like accessors inner -> outer.
      */
-    public static void wholeClassAnalysisPass3(ClassFile classFile, DCCommonState state, TypeUsageCollectingDumper typeUsage) {
+    public static void wholeClassAnalysisPass3(
+        ClassFile classFile,
+        DCCommonState state,
+        TypeUsageCollectingDumper typeUsage
+    ) {
         Options options = state.getOptions();
         if (options.getOption(OptionsImpl.REMOVE_BOILERPLATE)) {
             removeRedundantSupers(classFile);

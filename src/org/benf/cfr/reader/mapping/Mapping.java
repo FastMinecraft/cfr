@@ -11,7 +11,6 @@ import org.benf.cfr.reader.state.TypeUsageInformationImpl;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.output.DelegatingDumper;
 import org.benf.cfr.reader.util.output.Dumper;
@@ -21,12 +20,13 @@ import org.benf.cfr.reader.util.output.TypeContext;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 public class Mapping implements ObfuscationMapping {
     // NB: This is a map of *erased* types.  If they type we're reconstructing is generic, we
     // need to reconstruct it.
     private final Map<JavaTypeInstance, ClassMapping> erasedTypeMap = MapFactory.newMap();
-    private final UnaryFunction<JavaTypeInstance, JavaTypeInstance> getter = this::get;
+    private final Function<JavaTypeInstance, JavaTypeInstance> getter = this::get;
     private final Options options;
     private final Map<JavaTypeInstance, List<InnerClassAttributeInfo>> innerInfo;
 
@@ -79,7 +79,7 @@ public class Mapping implements ObfuscationMapping {
     }
 
     @Override
-    public UnaryFunction<JavaTypeInstance, JavaTypeInstance> getter() {
+    public Function<JavaTypeInstance, JavaTypeInstance> getter() {
         return getter;
     }
 

@@ -7,7 +7,6 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 
 import java.util.*;
 
@@ -58,12 +57,8 @@ public class PeerTries {
 
     private final Map<CompositeBlockIdentifierKey, PeerTrySet> triesByLevel = MapFactory.newLazyMap(
         new TreeMap<>(),
-        new UnaryFunction<>() {
-            @Override
-            public PeerTrySet invoke(CompositeBlockIdentifierKey arg) {
-                return new PeerTrySet(nextIdx++);
-            }
-        });
+        (arg) -> new PeerTrySet(nextIdx++)
+    );
 
     PeerTries(Op03SimpleStatement possibleFinallyCatch) {
         this.possibleFinallyCatch = possibleFinallyCatch;

@@ -6,7 +6,6 @@ import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.entities.attributes.AttributeCode;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.PermittedOptionProvider;
 
@@ -14,6 +13,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 public class BytecodeMeta {
     public enum CodeInfoFlag {
@@ -54,7 +54,7 @@ public class BytecodeMeta {
         return flags.contains(flag);
     }
 
-    public void set(CodeInfoFlag flag) { flags.add(flag); }
+    public void set(CodeInfoFlag flag) {flags.add(flag);}
 
     public void informLivenessClashes(Set<Integer> slots) {
         flags.add(CodeInfoFlag.LIVENESS_CLASH);
@@ -78,29 +78,23 @@ public class BytecodeMeta {
     }
 
     public Map<Integer, JavaTypeInstance> getIteratedTypeHints() {
-           return iteratedTypeHints;
+        return iteratedTypeHints;
     }
 
     public Set<Integer> getLivenessClashes() {
         return livenessClashes;
     }
 
-    private record FlagTest(CodeInfoFlag[] flags) implements UnaryFunction<BytecodeMeta, Boolean> {
-
-        @Override
-            public Boolean invoke(BytecodeMeta arg) {
-                for (CodeInfoFlag flag : flags) {
-                    if (arg.has(flag)) return true;
-                }
-                return false;
+    public static Function<BytecodeMeta, Boolean> hasAnyFlag(CodeInfoFlag... flags) {
+        return (arg) -> {
+            for (CodeInfoFlag flag : flags) {
+                if (arg.has(flag)) return true;
             }
-        }
-
-    public static UnaryFunction<BytecodeMeta, Boolean> hasAnyFlag(CodeInfoFlag... flag) {
-        return new FlagTest(flag);
+            return false;
+        };
     }
 
-    public static UnaryFunction<BytecodeMeta, Boolean> checkParam(final PermittedOptionProvider.Argument<Boolean> param) {
+    public static Function<BytecodeMeta, Boolean> checkParam(final PermittedOptionProvider.Argument<Boolean> param) {
         return arg -> arg.options.getOption(param);
     }
 }

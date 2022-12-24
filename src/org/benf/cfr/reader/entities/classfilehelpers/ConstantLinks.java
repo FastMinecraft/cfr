@@ -28,11 +28,11 @@ public class ConstantLinks {
     public static Map<String, Expression> getLocalStringConstants(final ClassFile classFile, DCCommonState state) {
         Map<Object, Expression> consts = getFinalConstants(classFile, state,
             (fieldClass, field) -> field.testAccessFlag(AccessFlag.ACC_STATIC)
-                    && field.testAccessFlag(AccessFlag.ACC_FINAL)
-                    // While it's possible to relink other types, I think the chances of an external
-                    // reference are higher.  Constants abound, and I don't want Months[CUSTOMER_ID].
-                    && field.getJavaTypeInstance() == TypeConstants.STRING
-                    && field.isAccessibleFrom(classFile.getRefClassType(), fieldClass),
+                && field.testAccessFlag(AccessFlag.ACC_FINAL)
+                // While it's possible to relink other types, I think the chances of an external
+                // reference are higher.  Constants abound, and I don't want Months[CUSTOMER_ID].
+                && field.getJavaTypeInstance() == TypeConstants.STRING
+                && field.isAccessibleFrom(classFile.getRefClassType(), fieldClass),
             (classFile1, field, isLocal) -> new LValueExpression(new StaticVariable(classFile1, field, isLocal))
         );
         if (consts.isEmpty()) return null;
@@ -46,7 +46,12 @@ public class ConstantLinks {
         return res;
     }
 
-    public static Map<Object, Expression> getVisibleInstanceConstants(final JavaRefTypeInstance from, final JavaRefTypeInstance fieldOf, final Expression objectExp, DCCommonState state) {
+    public static Map<Object, Expression> getVisibleInstanceConstants(
+        final JavaRefTypeInstance from,
+        final JavaRefTypeInstance fieldOf,
+        final Expression objectExp,
+        DCCommonState state
+    ) {
         final ClassFile classFile = fieldOf.getClassFile();
         if (classFile == null)
             return MapFactory.newMap();
@@ -56,8 +61,12 @@ public class ConstantLinks {
         );
     }
 
-    public static Map<Object, Expression> getFinalConstants(ClassFile classFile, DCCommonState state, BiPredicate<ClassFile, Field> fieldTest,
-                                                            TrinaryFunction<ClassFile, ClassFileField, Boolean, Expression> expfact) {
+    public static Map<Object, Expression> getFinalConstants(
+        ClassFile classFile,
+        DCCommonState state,
+        BiPredicate<ClassFile, Field> fieldTest,
+        TrinaryFunction<ClassFile, ClassFileField, Boolean, Expression> expfact
+    ) {
         Map<Object, Expression> spares = new HashMap<>();
         Map<Object, Expression> rewrites = new HashMap<>();
         ClassFile currClass = classFile;
@@ -74,7 +83,7 @@ public class ConstantLinks {
                 addOrPoison(currClass, expfact, rewrites, local, f, o);
                 // A few hacks
                 if (lit.getType() == TypedLiteral.LiteralType.Integer) {
-                    addOrPoison(currClass, expfact, spares, local, f, (double)lit.getIntValue());
+                    addOrPoison(currClass, expfact, spares, local, f, (double) lit.getIntValue());
                 }
             }
             if (currClass.isInnerClass()) {
@@ -99,7 +108,14 @@ public class ConstantLinks {
         return rewrites;
     }
 
-    private static void addOrPoison(ClassFile classFile, TrinaryFunction<ClassFile, ClassFileField, Boolean, Expression> expfact, Map<Object, Expression> rewrites, boolean local, ClassFileField f, Object o) {
+    private static void addOrPoison(
+        ClassFile classFile,
+        TrinaryFunction<ClassFile, ClassFileField, Boolean, Expression> expfact,
+        Map<Object, Expression> rewrites,
+        boolean local,
+        ClassFileField f,
+        Object o
+    ) {
         if (rewrites.containsKey(o)) {
             rewrites.put(o, POISON);
         } else {

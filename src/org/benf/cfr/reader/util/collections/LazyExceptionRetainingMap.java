@@ -1,13 +1,12 @@
 package org.benf.cfr.reader.util.collections;
 
-import org.benf.cfr.reader.util.functors.UnaryFunction;
-
 import java.util.Map;
+import java.util.function.Function;
 
 public class LazyExceptionRetainingMap<X, Y> extends LazyMap<X, Y> {
     private final Map<X, RuntimeException> exceptionMap = MapFactory.newMap();
 
-    LazyExceptionRetainingMap(Map<X, Y> inner, UnaryFunction<X, Y> factory) {
+    LazyExceptionRetainingMap(Map<X, Y> inner, Function<X, Y> factory) {
         super(inner, factory);
     }
 

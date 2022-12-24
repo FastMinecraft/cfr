@@ -10,14 +10,13 @@ import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import java.util.function.Predicate;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.IllegalIdentifierDump;
 import org.benf.cfr.reader.util.output.TypeContext;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 public class TypeUsageInformationImpl implements TypeUsageInformation {
     private final IllegalIdentifierDump iid;
@@ -29,7 +28,7 @@ public class TypeUsageInformationImpl implements TypeUsageInformation {
     private final Map<JavaRefTypeInstance, String> displayName = MapFactory.newMap();
     private final Map<String, LinkedList<JavaRefTypeInstance>> shortNames = MapFactory.newLazyMap(arg -> ListFactory.newLinkedList());
     private final Predicate<String> allowShorten;
-    private final Map<String, Boolean> clashNames = MapFactory.newLazyMap(new FieldClash());
+    private final Map<String, Boolean> clashNames = MapFactory.newLazyMap(this::fieldClash);
 
     public TypeUsageInformationImpl(Options options, JavaRefTypeInstance analysisType, Set<JavaRefTypeInstance> usedRefTypes, Set<DetectedStaticImport> staticImports) {
         this.allowShorten = MiscUtils.mkRegexFilter(options.getOption(OptionsImpl.IMPORT_FILTER), true);
@@ -174,13 +173,6 @@ public class TypeUsageInformationImpl implements TypeUsageInformation {
                     displayName.put(priClass.type, useName);
                 }
             }
-        }
-    }
-
-    private class FieldClash implements UnaryFunction<String, Boolean> {
-        @Override
-        public Boolean invoke(String name) {
-            return fieldClash(name);
         }
     }
 

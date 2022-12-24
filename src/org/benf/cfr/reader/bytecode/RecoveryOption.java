@@ -2,20 +2,20 @@ package org.benf.cfr.reader.bytecode;
 
 import org.benf.cfr.reader.util.DecompilerComment;
 import org.benf.cfr.reader.util.Troolean;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.getopt.MutableOptions;
 import org.benf.cfr.reader.util.getopt.PermittedOptionProvider;
 
 import java.util.List;
+import java.util.function.Function;
 
 public abstract class RecoveryOption<T> {
 
-    final UnaryFunction<BytecodeMeta, Boolean> canhelp;
+    final Function<BytecodeMeta, Boolean> canhelp;
     protected final PermittedOptionProvider.Argument<T> arg;
     protected final T value;
     private final DecompilerComment decompilerComment;
 
-    RecoveryOption(PermittedOptionProvider.Argument<T> arg, T value, UnaryFunction<BytecodeMeta, Boolean> canHelp, DecompilerComment comment) {
+    RecoveryOption(PermittedOptionProvider.Argument<T> arg, T value, Function<BytecodeMeta, Boolean> canHelp, DecompilerComment comment) {
         this.arg = arg;
         this.value = value;
         this.decompilerComment = comment;
@@ -40,17 +40,17 @@ public abstract class RecoveryOption<T> {
             super(arg, value, null, comment);
         }
 
-        TrooleanRO(PermittedOptionProvider.Argument<Troolean> arg, Troolean value, UnaryFunction<BytecodeMeta, Boolean> canHelp) {
+        TrooleanRO(PermittedOptionProvider.Argument<Troolean> arg, Troolean value, Function<BytecodeMeta, Boolean> canHelp) {
             super(arg, value, canHelp, null);
         }
 
-        TrooleanRO(PermittedOptionProvider.Argument<Troolean> arg, Troolean value, UnaryFunction<BytecodeMeta, Boolean> canHelp, DecompilerComment comment) {
+        TrooleanRO(PermittedOptionProvider.Argument<Troolean> arg, Troolean value, Function<BytecodeMeta, Boolean> canHelp, DecompilerComment comment) {
             super(arg, value, canHelp, comment);
         }
 
         @Override
         public boolean apply(MutableOptions mutableOptions, List<DecompilerComment> commentList, BytecodeMeta bytecodeMeta) {
-            if (canhelp != null && !canhelp.invoke(bytecodeMeta)) return false;
+            if (canhelp != null && !canhelp.apply(bytecodeMeta)) return false;
             return applyComment(mutableOptions.override(arg, value), commentList);
         }
     }
@@ -64,13 +64,13 @@ public abstract class RecoveryOption<T> {
             super(arg, value, null, comment);
         }
 
-        BooleanRO(PermittedOptionProvider.Argument<Boolean> arg, boolean value, UnaryFunction<BytecodeMeta, Boolean> canHelp, DecompilerComment comment) {
+        BooleanRO(PermittedOptionProvider.Argument<Boolean> arg, boolean value, Function<BytecodeMeta, Boolean> canHelp, DecompilerComment comment) {
             super(arg, value, canHelp, comment);
         }
 
         @Override
         public boolean apply(MutableOptions mutableOptions, List<DecompilerComment> commentList, BytecodeMeta bytecodeMeta) {
-            if (canhelp != null && !canhelp.invoke(bytecodeMeta)) return false;
+            if (canhelp != null && !canhelp.apply(bytecodeMeta)) return false;
             return applyComment(mutableOptions.override(arg, value), commentList);
         }
     }
@@ -84,13 +84,13 @@ public abstract class RecoveryOption<T> {
             super(arg, value, null, comment);
         }
 
-        IntRO(PermittedOptionProvider.Argument<Integer> arg, int value, UnaryFunction<BytecodeMeta, Boolean> canHelp, DecompilerComment comment) {
+        IntRO(PermittedOptionProvider.Argument<Integer> arg, int value, Function<BytecodeMeta, Boolean> canHelp, DecompilerComment comment) {
             super(arg, value, canHelp, comment);
         }
 
         @Override
         public boolean apply(MutableOptions mutableOptions, List<DecompilerComment> commentList, BytecodeMeta bytecodeMeta) {
-            if (canhelp != null && !canhelp.invoke(bytecodeMeta)) return false;
+            if (canhelp != null && !canhelp.apply(bytecodeMeta)) return false;
             if (mutableOptions.optionIsSet(arg)) return false;
             return applyComment(mutableOptions.override(arg, value), commentList);
         }

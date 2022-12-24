@@ -1,10 +1,10 @@
 package org.benf.cfr.reader.util.collections;
 
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
-import java.util.function.Predicate;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class Functional {
 
@@ -89,18 +89,18 @@ public class Functional {
     }
 
 
-    public static <X, Y> List<Y> map(Collection<X> input, UnaryFunction<X, Y> function) {
+    public static <X, Y> List<Y> map(Collection<X> input, Function<X, Y> function) {
         List<Y> result = ListFactory.newList();
         for (X item : input) {
-            result.add(function.invoke(item));
+            result.add(function.apply(item));
         }
         return result;
     }
 
-    public static <X, Y> Set<Y> mapToSet(Collection<X> input, UnaryFunction<X, Y> function) {
+    public static <X, Y> Set<Y> mapToSet(Collection<X> input, Function<X, Y> function) {
         Set<Y> result = SetFactory.newSet();
         for (X item : input) {
-            result.add(function.invoke(item));
+            result.add(function.apply(item));
         }
         return result;
     }
@@ -123,14 +123,14 @@ public class Functional {
         return temp;
     }
 
-    public static <Y, X> Map<Y, List<X>> groupToMapBy(Collection<X> input, UnaryFunction<X, Y> mapF) {
+    public static <Y, X> Map<Y, List<X>> groupToMapBy(Collection<X> input, Function<X, Y> mapF) {
         Map<Y, List<X>> temp = MapFactory.newMap();
         return groupToMapBy(input, temp, mapF);
     }
 
-    public static <Y, X> Map<Y, List<X>> groupToMapBy(Collection<X> input, Map<Y, List<X>> tgt, UnaryFunction<X, Y> mapF) {
+    public static <Y, X> Map<Y, List<X>> groupToMapBy(Collection<X> input, Map<Y, List<X>> tgt, Function<X, Y> mapF) {
         for (X x : input) {
-            Y key = mapF.invoke(x);
+            Y key = mapF.apply(x);
             List<X> lx = tgt.get(key);
             //noinspection Java8MapApi
             if (lx == null) {
@@ -142,7 +142,7 @@ public class Functional {
         return tgt;
     }
 
-    public static <Y, X> List<Y> groupBy(List<X> input, Comparator<? super X> comparator, UnaryFunction<List<X>, Y> gf) {
+    public static <Y, X> List<Y> groupBy(List<X> input, Comparator<? super X> comparator, Function<List<X>, Y> gf) {
         TreeMap<X, List<X>> temp = new TreeMap<>(comparator);
         for (X x : input) {
             List<X> lx = temp.get(x);
@@ -155,7 +155,7 @@ public class Functional {
         }
         List<Y> res = ListFactory.newList();
         for (List<X> lx : temp.values()) {
-            res.add(gf.invoke(lx));
+            res.add(gf.apply(lx));
         }
         return res;
     }

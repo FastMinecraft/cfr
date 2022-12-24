@@ -6,14 +6,15 @@ import org.benf.cfr.reader.bytecode.analysis.parse.rewriters.AbstractExpressionR
 import org.benf.cfr.reader.bytecode.analysis.parse.rewriters.ExpressionRewriterFlags;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.SSAIdentifiers;
 import org.benf.cfr.reader.bytecode.analysis.parse.wildcard.WildcardMatch;
-import org.benf.cfr.reader.util.functors.NonaryFunction;
+
+import java.util.function.Supplier;
 
 public class ExpressionWildcardReplacingRewriter extends AbstractExpressionRewriter {
     private final WildcardMatch wildcardMatch;
     private final Expression search;
-    private final NonaryFunction<Expression> replacementFunction;
+    private final Supplier<Expression> replacementFunction;
 
-    ExpressionWildcardReplacingRewriter(WildcardMatch wildcardMatch, Expression search, NonaryFunction<Expression> replacementFunction) {
+    ExpressionWildcardReplacingRewriter(WildcardMatch wildcardMatch, Expression search, Supplier<Expression> replacementFunction) {
         this.wildcardMatch = wildcardMatch;
         this.search = search;
         this.replacementFunction = replacementFunction;
@@ -23,7 +24,7 @@ public class ExpressionWildcardReplacingRewriter extends AbstractExpressionRewri
     public Expression rewriteExpression(Expression expression, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
         if (expression == null) return null;
         if (search.equals(expression)) {
-            Expression replacement = replacementFunction.invoke();
+            Expression replacement = replacementFunction.get();
             if (replacement != null) {
                 wildcardMatch.reset();
                 return replacement;

@@ -8,11 +8,7 @@ import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.util.MiscState
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
 import org.benf.cfr.reader.bytecode.analysis.parse.StatementContainer;
-import org.benf.cfr.reader.bytecode.analysis.parse.expression.LValueExpression;
-import org.benf.cfr.reader.bytecode.analysis.parse.expression.Literal;
-import org.benf.cfr.reader.bytecode.analysis.parse.expression.MemberFunctionInvokation;
-import org.benf.cfr.reader.bytecode.analysis.parse.expression.SuperFunctionInvokation;
-import org.benf.cfr.reader.bytecode.analysis.parse.expression.SwitchExpression;
+import org.benf.cfr.reader.bytecode.analysis.parse.expression.*;
 import org.benf.cfr.reader.bytecode.analysis.parse.lvalue.FieldVariable;
 import org.benf.cfr.reader.bytecode.analysis.parse.lvalue.LocalVariable;
 import org.benf.cfr.reader.bytecode.analysis.parse.rewriters.AbstractExpressionRewriter;
@@ -25,33 +21,18 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.SSAIdentifiers;
 import org.benf.cfr.reader.bytecode.analysis.structured.StructuredScope;
 import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.structured.expression.StructuredStatementExpression;
-import org.benf.cfr.reader.bytecode.analysis.structured.statement.Block;
-import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredAssignment;
-import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredBreak;
-import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredCase;
-import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredComment;
-import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredDefinition;
-import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredExpressionStatement;
-import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredExpressionYield;
-import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredReturn;
-import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredSwitch;
-import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredThrow;
+import org.benf.cfr.reader.bytecode.analysis.structured.statement.*;
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.util.DecompilerComment;
 import org.benf.cfr.reader.util.DecompilerComments;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import java.util.function.Predicate;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class SwitchExpressionRewriter extends AbstractExpressionRewriter implements StructuredStatementTransformer {
     private final boolean experimental;
@@ -642,10 +623,10 @@ public class SwitchExpressionRewriter extends AbstractExpressionRewriter impleme
         }
     }
 
-    private boolean rollOne(Op04StructuredStatement root, UnaryFunction<RollState, Boolean> apply) {
+    private boolean rollOne(Op04StructuredStatement root, Function<RollState, Boolean> apply) {
         RollState rollState = getRollState(root);
         if (!rollState.valid) return false;
-        if (apply.invoke(rollState)) {
+        if (apply.apply(rollState)) {
             List<Op04StructuredStatement> mutableBlockStatements = rollState.block.getBlockStatements();
             mutableBlockStatements.clear();
             mutableBlockStatements.addAll(rollState.prequel);

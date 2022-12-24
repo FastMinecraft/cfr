@@ -16,7 +16,6 @@ import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
@@ -25,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class Misc {
@@ -105,9 +105,9 @@ public class Misc {
         }
     }
 
-    public static class GetBackJump implements UnaryFunction<Op03SimpleStatement, Op03SimpleStatement> {
+    public static class GetBackJump implements Function<Op03SimpleStatement, Op03SimpleStatement> {
         @Override
-        public Op03SimpleStatement invoke(Op03SimpleStatement in) {
+        public Op03SimpleStatement apply(Op03SimpleStatement in) {
             InstrIndex inIndex = in.getIndex();
             List<Op03SimpleStatement> targets = in.getTargets();
             for (Op03SimpleStatement target : targets) {

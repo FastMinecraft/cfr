@@ -1,12 +1,13 @@
 package org.benf.cfr.reader.entityfactories;
 
+import org.benf.cfr.reader.entities.attributes.*;
 import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryUTF8;
-import org.benf.cfr.reader.entities.attributes.*;
 import org.benf.cfr.reader.util.ClassFileVersion;
 import org.benf.cfr.reader.util.MiscUtils;
 import org.benf.cfr.reader.util.bytestream.ByteData;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
+
+import java.util.function.Function;
 
 public class AttributeFactory {
     private static final long OFFSET_OF_ATTRIBUTE_NAME_INDEX = 0;
@@ -89,16 +90,7 @@ public class AttributeFactory {
         return new AttributeUnknown(raw, attributeName);
     }
 
-    public static UnaryFunction<ByteData, Attribute> getBuilder(ConstantPool cp, ClassFileVersion classFileVersion) {
-        return new AttributeBuilder(cp, classFileVersion);
+    public static Function<ByteData, Attribute> getBuilder(ConstantPool cp, ClassFileVersion classFileVersion) {
+        return (arg) -> AttributeFactory.build(arg, cp, classFileVersion);
     }
-
-    private record AttributeBuilder(ConstantPool cp,
-                                    ClassFileVersion classFileVersion) implements UnaryFunction<ByteData, Attribute> {
-
-        @Override
-            public Attribute invoke(ByteData arg) {
-                return AttributeFactory.build(arg, cp, classFileVersion);
-            }
-        }
 }

@@ -7,9 +7,12 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.analysis.types.*;
 import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.util.collections.*;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 
 /**
  * These are the possibilities we could be hitting when we call an overloaded method.
@@ -93,8 +96,8 @@ public class OverloadMethodSet {
 
     public OverloadMethodSet(ClassFile classFile, MethodPrototype actualPrototype, List<MethodPrototype> allPrototypes) {
         this.classFile = classFile;
-        UnaryFunction<MethodPrototype, MethodData> mk = arg -> new MethodData(arg, arg.getArgs());
-        this.actualPrototype = mk.invoke(actualPrototype);
+        Function<MethodPrototype, MethodData> mk = arg -> new MethodData(arg, arg.getArgs());
+        this.actualPrototype = mk.apply(actualPrototype);
         this.allPrototypes = Functional.map(allPrototypes, mk);
     }
 
@@ -107,8 +110,8 @@ public class OverloadMethodSet {
     public OverloadMethodSet specialiseTo(JavaGenericRefTypeInstance type) {
         final GenericTypeBinder genericTypeBinder = classFile.getGenericTypeBinder(type);
         if (genericTypeBinder == null) return null;
-        UnaryFunction<MethodData, MethodData> mk = arg -> arg.getBoundVersion(genericTypeBinder);
-        return new OverloadMethodSet(classFile, mk.invoke(actualPrototype), Functional.map(allPrototypes, mk));
+        Function<MethodData, MethodData> mk = arg -> arg.getBoundVersion(genericTypeBinder);
+        return new OverloadMethodSet(classFile, mk.apply(actualPrototype), Functional.map(allPrototypes, mk));
     }
 
     public JavaTypeInstance getArgType(int idx, JavaTypeInstance used) {
