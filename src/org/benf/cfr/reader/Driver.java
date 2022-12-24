@@ -1,8 +1,9 @@
 package org.benf.cfr.reader;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.*;
 import org.benf.cfr.reader.bytecode.analysis.types.InnerClassInfo;
-import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.entities.Method;
@@ -14,12 +15,14 @@ import org.benf.cfr.reader.state.TypeUsageCollectingDumper;
 import org.benf.cfr.reader.state.TypeUsageInformation;
 import org.benf.cfr.reader.util.*;
 import org.benf.cfr.reader.util.collections.Functional;
-
-import java.util.*;
-import java.util.function.Predicate;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.*;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.function.Predicate;
 
 public class Driver {
 
@@ -65,7 +68,7 @@ public class Driver {
             }
             if (options.getOption(OptionsImpl.RENAME_DUP_MEMBERS)) {
                 Collection<org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance> original = dcCommonState.getClassCache().getLoadedTypes();
-                MemberNameResolver.resolveNames(dcCommonState, new ObjectArrayList<JavaRefTypeInstance>(original));
+                MemberNameResolver.resolveNames(dcCommonState, new ObjectArrayList<>(original));
             }
 
             TypeUsageCollectingDumper collectingDumper = new TypeUsageCollectingDumper(options, c);
@@ -117,14 +120,14 @@ public class Driver {
             Map<Integer, ObjectList<JavaTypeInstance>> clstypes = dcCommonState.explicitlyLoadJar(path, analysisType);
             ObjectSet<JavaTypeInstance> versionCollisions = getVersionCollisions(clstypes);
             dcCommonState.setCollisions(versionCollisions);
-            ObjectList<Integer> versionsSeen = new ObjectArrayList<>();
+            IntList versionsSeen = new IntArrayList();
             
             addMissingOuters(clstypes);
             
             for (Map.Entry<Integer, ObjectList<JavaTypeInstance>> entry : clstypes.entrySet()) {
                 int forVersion = entry.getKey();
                 versionsSeen.add(forVersion);
-                ObjectList<Integer> localVersionsSeen = new ObjectArrayList<>(versionsSeen);
+                IntList localVersionsSeen = new IntArrayList(versionsSeen);
                 ObjectList<JavaTypeInstance> types = entry.getValue();
                 doJarVersionTypes(forVersion, localVersionsSeen, dcCommonState, dumperFactory, illegalIdentifierDump, summaryDumper, progressDumper, types);
             }
@@ -175,7 +178,7 @@ public class Driver {
         return collisions;
     }
 
-    private static void doJarVersionTypes(int forVersion, final ObjectList<Integer> versionsSeen, DCCommonState dcCommonState, DumperFactory dumperFactory, IllegalIdentifierDump illegalIdentifierDump, SummaryDumper summaryDumper, ProgressDumper progressDumper, ObjectList<JavaTypeInstance> types) {
+    private static void doJarVersionTypes(int forVersion, final IntList versionsSeen, DCCommonState dcCommonState, DumperFactory dumperFactory, IllegalIdentifierDump illegalIdentifierDump, SummaryDumper summaryDumper, ProgressDumper progressDumper, ObjectList<JavaTypeInstance> types) {
         Options options = dcCommonState.getOptions();
         final boolean lomem = options.getOption(OptionsImpl.LOMEM);
         final Predicate<String> matcher = MiscUtils.mkRegexFilter(options.getOption(OptionsImpl.JAR_FILTER), true);
@@ -190,7 +193,8 @@ public class Driver {
             dcCommonState = new DCCommonState(dcCommonState, (arg, arg2) -> {
                 // First we try to load forVersion, then forVersion-1, etc.
                 Exception lastException = null;
-                for (int version : versionsSeen) {
+                for (int i = 0, versionsSeenSize = versionsSeen.size(); i < versionsSeenSize; i++) {
+                    int version = versionsSeen.getInt(i);
                     try {
                         if (version == 0) {
                             return arg2.loadClassFileAtPath(arg);

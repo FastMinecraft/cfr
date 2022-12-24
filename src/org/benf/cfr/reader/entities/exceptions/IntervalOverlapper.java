@@ -1,5 +1,7 @@
 package org.benf.cfr.reader.entities.exceptions;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -106,10 +108,10 @@ public class IntervalOverlapper {
                 starts.get(e2.getBytecodeIndexFrom()).remove(e2);
                 ends.get(e2.getBytecodeIndexTo()).remove(e2);
             }
-            ObjectList<Integer> revBlockStarts = new ObjectArrayList<>(blockStarts);
+            IntList revBlockStarts = new IntArrayList(blockStarts);
             currentTo = to;
             for (int x = revBlockStarts.size() - 1; x >= 0; --x) {
-                Integer start = revBlockStarts.get(x);
+                int start = revBlockStarts.getInt(x);
                 ExceptionTableEntry out = e.copyWithRange(start, currentTo);
                 addEntry(out);
                 output.add(out);
@@ -120,7 +122,7 @@ public class IntervalOverlapper {
             for (ExceptionTableEntry e2 : overlapStartsBefore) {
                 currentTo = e2.getBytecodeIndexTo();
                 for (int x = revBlockStarts.size() - 1; x >= 0; --x) {
-                    Integer start = revBlockStarts.get(x);
+                    int start = revBlockStarts.getInt(x);
                     if (start <= e2.getBytecodeIndexFrom()) break;
                     ExceptionTableEntry out = e.copyWithRange(start, currentTo);
                     addEntry(out);
@@ -142,7 +144,6 @@ public class IntervalOverlapper {
 
     private <A, B> void add(NavigableMap<A, Set<B>> m, A k, B v) {
         Set<B> b = m.get(k);
-        //noinspection Java8MapApi
         if (b == null) {
             b = new ObjectLinkedOpenHashSet<>();
             m.put(k, b);

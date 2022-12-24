@@ -1,5 +1,7 @@
 package org.benf.cfr.reader.bytecode.opcode;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.bytestream.BaseByteData;
@@ -28,9 +30,9 @@ public class DecodedLookupSwitch implements DecodedSwitch {
         int defaultvalue = bd.getS4At(offset + OFFSET_OF_DEFAULT);
         int numpairs = bd.getS4At(offset + OFFSET_OF_NUMPAIRS);
         // Treemap so that targets are in bytecode order.
-        Map<Integer, ObjectList<Integer>> uniqueTargets = MapFactory.newLazyMap(
+        Map<Integer, IntList> uniqueTargets = MapFactory.newLazyMap(
             new TreeMap<>(),
-            arg -> new ObjectArrayList<>()
+            arg -> new IntArrayList()
         );
         uniqueTargets.get(defaultvalue).add(null);
         for (int x = 0; x < numpairs; ++x) {
@@ -41,7 +43,7 @@ public class DecodedLookupSwitch implements DecodedSwitch {
             }
         }
         jumpTargets = new ObjectArrayList<>();
-        for (Map.Entry<Integer, ObjectList<Integer>> entry : uniqueTargets.entrySet()) {
+        for (Map.Entry<Integer, IntList> entry : uniqueTargets.entrySet()) {
             jumpTargets.add(new DecodedSwitchEntry(entry.getValue(), entry.getKey()));
         }
     }

@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.stack;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.parse.lvalue.StackSSALabel;
 import org.benf.cfr.reader.bytecode.analysis.types.StackType;
@@ -8,7 +9,6 @@ import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.DecompilerComment;
 
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -69,8 +69,8 @@ public class StackEntry {
         artificalSourceCount--;
     }
 
-    public ObjectList<Long> getSources() {
-        return new ObjectArrayList<>(ids);
+    public LongList getSources() {
+        return new LongArrayList(ids);
     }
 
     public void removeSource(long x) {

@@ -1,5 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.*;
 import org.benf.cfr.reader.bytecode.BytecodeMeta;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
@@ -390,7 +392,7 @@ public class KotlinSwitchHandler {
         ObjectList<DecodedSwitchEntry> switchTargets = new ObjectArrayList<>();
         for (Op03SimpleStatement target : secondSwitchTargets) {
             DistinctSwitchTarget distinctSwitchTarget = reTargets.get(target);
-            ObjectList<Integer> tmp2 = new ObjectArrayList<>();
+            IntList tmp2 = new IntArrayList();
             tmp2.add(distinctSwitchTarget.idx);
             DecodedSwitchEntry entry = new DecodedSwitchEntry(tmp2,-1);
             switchTargets.add(entry);
@@ -410,8 +412,8 @@ public class KotlinSwitchHandler {
             defaultSource.removeGotoTarget(localTarget);
         }
 
-        ObjectList<Integer> defaultSecondary = new ObjectArrayList<>();
-        defaultSecondary.add(null);
+        IntList defaultSecondary = new IntArrayList();
+        defaultSecondary.add(Integer.MIN_VALUE);
         switchTargets.add(new DecodedSwitchEntry(defaultSecondary, -1));
         DecodedSwitch info = new FakeSwitch(switchTargets);
         RawSwitchStatement secondarySwitch = new RawSwitchStatement(BytecodeLoc.TODO, lValueExpr, info);
