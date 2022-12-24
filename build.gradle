@@ -4,10 +4,10 @@ plugins {
     id "net.kyori.blossom" version "1.3.0"
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 17
+targetCompatibility = 17
 
-version = '0.2.0'
+version = '0.2-SNAPSHOT'
 
 def ENV = System.getenv()
 version = version + (ENV.GITHUB_ACTIONS ? "" : "+local")
@@ -25,17 +25,11 @@ java {
     withSourcesJar()
 }
 
-tasks.withType(JavaCompile).configureEach {
-    if (JavaVersion.current().isJava9Compatible()) {
-         it.options.release = 8
-    }
-}
-
 blossom {
     replaceTokenIn 'src-templates/org/benf/cfr/reader/util/CfrVersionInfo.java'
     replaceToken '${project.version}', project.version
-    replaceToken '${git.commit.id.abbrev}', 'git rev-parse --short HEAD'.execute().text.readLines()[0]
-    replaceToken '${git.dirty}', 'git diff --quiet HEAD'.execute().waitFor() == 1
+    replaceToken '${git.commit.id.abbrev}', ''
+    replaceToken '${git.dirty}', 'false'
 }
 
 jar {
