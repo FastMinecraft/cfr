@@ -1,7 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.*;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
@@ -26,9 +25,7 @@ import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
 import java.util.Collection;
 import java.util.IdentityHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 /*
  * Similar to the jumps into do rewriter, however we allow (grudgingly) a small amount of code to be copied.
@@ -112,7 +109,7 @@ public class JumpsIntoLoopCloneRewriter {
         if (!(possLast.getStatement() instanceof WhileStatement whileStatement)) return;
         if (whileStatement.getBlockIdentifier() != ident) return;
         Op03SimpleStatement afterWhile = possLast.getTargets().get(0);
-        final Map<Op03SimpleStatement, Op03SimpleStatement> candidates = MapFactory.newOrderedMap();
+        final Map<Op03SimpleStatement, Op03SimpleStatement> candidates = new Object2ObjectLinkedOpenHashMap<>();
         GraphVisitor<Op03SimpleStatement> gv = visitCandidates(ident, possLast, candidates);
         Collection<Op03SimpleStatement> content = gv.getVisitedNodes();
         ObjectSet<Op03SimpleStatement> visited = new ObjectOpenHashSet<>(content);
@@ -221,7 +218,7 @@ public class JumpsIntoLoopCloneRewriter {
     private void refactorWhile(ObjectList<Op03SimpleStatement> addThese, Op03SimpleStatement stm, BlockIdentifier ident) {
         Op03SimpleStatement possLast = getPossLast(stm, ident);
         if (possLast == null) return;
-        final Map<Op03SimpleStatement, Op03SimpleStatement> candidates = MapFactory.newOrderedMap();
+        final Map<Op03SimpleStatement, Op03SimpleStatement> candidates = new Object2ObjectLinkedOpenHashMap<>();
         GraphVisitor<Op03SimpleStatement> gv = visitCandidates(ident, possLast, candidates);
         Collection<Op03SimpleStatement> content = gv.getVisitedNodes();
         ObjectSet<Op03SimpleStatement> visited = new ObjectOpenHashSet<>(content);

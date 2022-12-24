@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.mapping;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.types.BindingSuperContainer;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
@@ -62,7 +63,7 @@ public class ClassMapping {
         Map<MethodData, String> byName = methodMappings.get(m.getName());
         //noinspection Java8MapApi
         if (byName == null) {
-            byName = MapFactory.newOrderedMap();
+            byName = new Object2ObjectLinkedOpenHashMap<>();
             methodMappings.put(m.getName(), byName);
         }
         // Don't need to check return type, two methods can't differ just by return type.

@@ -1,8 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectLists;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.*;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.matchutil.*;
@@ -29,16 +27,13 @@ import org.benf.cfr.reader.entities.classfilehelpers.ClassFileDumperEnum;
 import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.util.*;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.IllegalIdentifierReplacement;
 
 import java.util.Collection;
 
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class EnumClassRewriter {
 
@@ -262,7 +257,7 @@ public class EnumClassRewriter {
     private class EnumInitMatchCollector extends AbstractMatchResultIterator {
 
         private final WildcardMatch wcm;
-        private final Map<StaticVariable, MatchedEnumEntry> entryMap = MapFactory.newOrderedMap();
+        private final Map<StaticVariable, MatchedEnumEntry> entryMap = new Object2ObjectLinkedOpenHashMap<>();
         private MatchedArrayData matchedArray;
         private final ObjectList<ClassFileField> matchedHideTheseFields = new ObjectArrayList<>();
 

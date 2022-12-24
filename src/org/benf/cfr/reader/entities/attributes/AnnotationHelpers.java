@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.entities.attributes;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.parse.literal.TypedLiteral;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
@@ -11,7 +12,6 @@ import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntry;
 import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryUTF8;
 import org.benf.cfr.reader.entities.constantpool.ConstantPoolUtils;
 import org.benf.cfr.reader.util.ConfusedCFRException;
-import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -24,7 +24,7 @@ class AnnotationHelpers {
         offset += 2;
         int numElementPairs = raw.getU2At(offset);
         offset += 2;
-        Map<String, ElementValue> elementValueMap = MapFactory.newOrderedMap();
+        Map<String, ElementValue> elementValueMap = new Object2ObjectLinkedOpenHashMap<>();
         for (int x = 0; x < numElementPairs; ++x) {
             offset = getElementValuePair(raw, offset, cp, elementValueMap);
         }
@@ -129,7 +129,7 @@ class AnnotationHelpers {
 
         int numElementPairs = raw.getU2At(offset);
         offset += 2;
-        Map<String, ElementValue> elementValueMap = MapFactory.newOrderedMap();
+        Map<String, ElementValue> elementValueMap = new Object2ObjectLinkedOpenHashMap<>();
         for (int x = 0; x < numElementPairs; ++x) {
             offset = getElementValuePair(raw, offset, cp, elementValueMap);
         }

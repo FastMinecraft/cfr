@@ -1,9 +1,6 @@
 package org.benf.cfr.reader.entities;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import it.unimi.dsi.fastutil.objects.*;
 import org.benf.cfr.reader.bytecode.CodeAnalyserWholeClass;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.ConstructorInvokationAnonymousInner;
@@ -547,7 +544,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
             Map<JavaTypeInstance, ClassFileField> perNameMap = fieldsByName.get(fieldName);
             //noinspection Java8MapApi
             if (perNameMap == null) {
-                perNameMap = MapFactory.newOrderedMap();
+                perNameMap = new Object2ObjectLinkedOpenHashMap<>();
                 fieldsByName.put(fieldName, perNameMap);
             }
             perNameMap.put(fieldType, field);

@@ -1,8 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.utils;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.*;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters.Misc;
@@ -24,9 +22,7 @@ import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetUtil;
 
 import java.util.Collection;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Statement>, LValueAssignmentCollector<Statement> {
     //
@@ -59,7 +55,7 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
     private final Map<VersionedLValue, ExpressionStatementPair> mutableFound;
 
     public LValueAssignmentAndAliasCondenser() {
-        found = MapFactory.newOrderedMap();
+        found = new Object2ObjectLinkedOpenHashMap<>();
         blacklisted = new ObjectLinkedOpenHashSet<>();
         keepConstant = new ObjectOpenHashSet<>();
         aliasReplacements = MapFactory.newMap();

@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.rewriters;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
 import org.benf.cfr.reader.bytecode.analysis.parse.StatementContainer;
@@ -7,14 +8,13 @@ import org.benf.cfr.reader.bytecode.analysis.parse.expression.ConditionalExpress
 import org.benf.cfr.reader.bytecode.analysis.parse.lvalue.StackSSALabel;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.SSAIdentifiers;
 import org.benf.cfr.reader.util.collections.LazyMap;
-import org.benf.cfr.reader.util.collections.MapFactory;
 
 import java.util.Map;
 
 public class AccountingRewriter implements ExpressionRewriter {
 
     private final Map<StackSSALabel, Long> count = new LazyMap<>(
-        MapFactory.newOrderedMap(),
+        new Object2ObjectLinkedOpenHashMap<StackSSALabel, Long>(),
         arg -> 0L
     );
 

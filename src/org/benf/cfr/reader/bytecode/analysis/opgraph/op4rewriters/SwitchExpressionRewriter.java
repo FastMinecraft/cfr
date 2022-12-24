@@ -88,7 +88,7 @@ public class SwitchExpressionRewriter extends AbstractExpressionRewriter impleme
     }
 
     private static class BlockSwitchDiscoverer implements StructuredStatementTransformer {
-        final Map<StructuredStatement, ObjectList<Op04StructuredStatement>> blockSwitches = MapFactory.newOrderedMap();
+        final Map<StructuredStatement, ObjectList<Op04StructuredStatement>> blockSwitches = new Object2ObjectLinkedOpenHashMap<>();
 
         @Override
         public StructuredStatement transform(StructuredStatement in, StructuredScope scope) {

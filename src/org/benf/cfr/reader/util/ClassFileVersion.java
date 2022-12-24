@@ -1,6 +1,6 @@
 package org.benf.cfr.reader.util;
 
-import org.benf.cfr.reader.util.collections.MapFactory;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 
 import java.util.Map;
 
@@ -9,7 +9,7 @@ public class ClassFileVersion {
     private final int major;
     private final int minor;
     private final String name;
-    private final static Map<String, ClassFileVersion> byName = MapFactory.newOrderedMap();
+    private final static Map<String, ClassFileVersion> byName = new Object2ObjectLinkedOpenHashMap<>();
 
     public ClassFileVersion(int major, int minor) {
         this(major, minor, null);

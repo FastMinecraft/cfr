@@ -1259,7 +1259,7 @@ public class SwitchReplacer {
         targets.sort(new CompareByIndex());
         BlockIdentifier prevBlock = null;
         BlockIdentifier nextBlock = null;
-        Map<Op03SimpleStatement, ObjectList<Op03SimpleStatement>> badSrcMap = MapFactory.newOrderedMap();
+        Map<Op03SimpleStatement, ObjectList<Op03SimpleStatement>> badSrcMap = new Object2ObjectLinkedOpenHashMap<>();
         for (Op03SimpleStatement cas : targets) {
             // This can only have legitimate sources of the preceeding switch block (linearly preceeding),
             // the switch statements itself, or (in theory) another statement in the same block.

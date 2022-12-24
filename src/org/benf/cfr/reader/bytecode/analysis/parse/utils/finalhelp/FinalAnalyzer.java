@@ -311,7 +311,7 @@ public class FinalAnalyzer {
         newFinallyBody.add(finallyOp);
 
         extraBlocks.add(finallyBlock);
-        Map<Op03SimpleStatement, Op03SimpleStatement> old2new = MapFactory.newOrderedMap();
+        Map<Op03SimpleStatement, Op03SimpleStatement> old2new = new Object2ObjectLinkedOpenHashMap<>();
         for (Op03SimpleStatement old : oldFinallyBody) {
             Statement statement = old.getStatement();
             Collection<BlockIdentifier> content = old.getBlockIdentifiers();
@@ -899,7 +899,7 @@ public class FinalAnalyzer {
          * that way we can look at the exits from this block and easily see
          * which is in a finally
          */
-        Map<Op03SimpleStatement, Result> matchedFinallyBlockMap = MapFactory.newOrderedMap();
+        Map<Op03SimpleStatement, Result> matchedFinallyBlockMap = new Object2ObjectLinkedOpenHashMap<>();
         for (Result res : possibleFinallyBlocks) {
             for (Op03SimpleStatement b : res.getToRemove()) {
                 matchedFinallyBlockMap.put(b, res);

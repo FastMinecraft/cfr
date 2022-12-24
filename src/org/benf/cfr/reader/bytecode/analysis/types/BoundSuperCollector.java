@@ -1,7 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.types;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import org.benf.cfr.reader.entities.ClassFile;
-import org.benf.cfr.reader.util.collections.MapFactory;
 
 import java.util.Map;
 
@@ -14,8 +14,8 @@ public class BoundSuperCollector {
 
     public BoundSuperCollector(ClassFile classFile) {
         this.classFile = classFile;
-        this.boundSupers = MapFactory.newOrderedMap();
-        this.boundSuperRoute = MapFactory.newOrderedMap();
+        this.boundSupers = new Object2ObjectLinkedOpenHashMap<>();
+        this.boundSuperRoute = new Object2ObjectLinkedOpenHashMap<>();
     }
 
     public BindingSuperContainer getBoundSupers() {

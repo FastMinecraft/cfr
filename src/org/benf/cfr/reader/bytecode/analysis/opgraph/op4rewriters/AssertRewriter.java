@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
@@ -27,7 +28,6 @@ import org.benf.cfr.reader.bytecode.analysis.types.RawJavaType;
 import org.benf.cfr.reader.bytecode.analysis.types.TypeConstants;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.entities.*;
-import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
@@ -385,7 +385,7 @@ public class AssertRewriter {
         // We know the first statement is a switch - if it doesn't have any breaks in it, then we're safe to
         // roll outer statements in.
         private ObjectList<Op04StructuredStatement> tryCombineSwitch(ObjectList<Op04StructuredStatement> content, BlockIdentifier outer, BlockIdentifier swiBlockIdentifier, Block swBodyBlock) {
-            Map<Op04StructuredStatement, StructuredExpressionYield> replacements = MapFactory.newOrderedMap();
+            Map<Op04StructuredStatement, StructuredExpressionYield> replacements = new Object2ObjectLinkedOpenHashMap<>();
             ControlFlowSwitchExpressionTransformer cfset = new ControlFlowSwitchExpressionTransformer(outer, swiBlockIdentifier, replacements);
             content.get(0).transform(cfset, new StructuredScope());
 
@@ -436,7 +436,7 @@ public class AssertRewriter {
             // break outer -> yield true
             // However, the switch could itself have complex content in it.
             ObjectList<SwitchExpression.Branch> branches = new ObjectArrayList<>();
-            Map<Op04StructuredStatement, StructuredExpressionYield> replacements = MapFactory.newOrderedMap();
+            Map<Op04StructuredStatement, StructuredExpressionYield> replacements = new Object2ObjectLinkedOpenHashMap<>();
             if (!getBranches(outer, swiBlockIdentifier, swBodyBlock, branches, replacements, false)) return null;
 
             SwitchExpression sw = new SwitchExpression(BytecodeLoc.TODO, boolIjt, struSwi.getSwitchOn(), branches);
@@ -496,7 +496,7 @@ public class AssertRewriter {
             // If there are multiple?
             // If they're identical, then we COULD consider them the same.  If not, give up, go home.
             // Also, don't forget to add a 'yield true' at the end of the last block, if there's not a yield or a throw there already!
-            Map<Op04StructuredStatement, StructuredExpressionYield> replacements = MapFactory.newOrderedMap();
+            Map<Op04StructuredStatement, StructuredExpressionYield> replacements = new Object2ObjectLinkedOpenHashMap<>();
             BlockIdentifier swiBlockIdentifier = struSwi.getBlockIdentifier();
             AssertionTrackingControlFlowSwitchExpressionTransformer track = new AssertionTrackingControlFlowSwitchExpressionTransformer(swiBlockIdentifier, outer, replacements);
             switchStm.transform(track, new StructuredScope());

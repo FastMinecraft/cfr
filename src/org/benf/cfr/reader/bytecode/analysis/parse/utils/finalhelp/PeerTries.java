@@ -1,9 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.utils.finalhelp;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
+import it.unimi.dsi.fastutil.objects.*;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.TryStatement;
@@ -54,7 +51,7 @@ public class PeerTries {
      * Best guess using reverse information from the catch block.
      */
     private final ObjectSet<BlockIdentifier> guessPeerTryBlocks = new ObjectLinkedOpenHashSet<>();
-    private final Map<BlockIdentifier, Op03SimpleStatement> guessPeerTryMap = MapFactory.newOrderedMap();
+    private final Map<BlockIdentifier, Op03SimpleStatement> guessPeerTryMap = new Object2ObjectLinkedOpenHashMap<>();
     private final ObjectSet<Op03SimpleStatement> guessPeerTryStarts = new ObjectLinkedOpenHashSet<>();
 
     private final Map<CompositeBlockIdentifierKey, PeerTrySet> triesByLevel = MapFactory.newLazyMap(

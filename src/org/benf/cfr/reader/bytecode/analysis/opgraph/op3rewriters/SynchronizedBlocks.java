@@ -1,7 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.*;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
@@ -9,16 +8,13 @@ import org.benf.cfr.reader.bytecode.analysis.parse.expression.CastExpression;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.*;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetUtil;
 import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
 import java.util.Collection;
 import java.util.Iterator;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class SynchronizedBlocks {
     /*
@@ -54,7 +50,7 @@ public class SynchronizedBlocks {
         final Expression monitor = removeCasts(monitorEnterExpression);
         final ObjectSet<Op03SimpleStatement> addToBlock = new ObjectOpenHashSet<>();
 
-        final Map<Op03SimpleStatement, MonitorExitStatement> foundExits = MapFactory.newOrderedMap();
+        final Map<Op03SimpleStatement, MonitorExitStatement> foundExits = new Object2ObjectLinkedOpenHashMap<>();
         final ObjectSet<Op03SimpleStatement> extraNodes = new ObjectOpenHashSet<>();
         /* Process all the parents until we find the monitorExit.
          * Note that this does NOT find statements which are 'orphaned', i.e.

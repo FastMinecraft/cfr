@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.types;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -24,7 +25,6 @@ import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.*;
 import org.benf.cfr.reader.util.annotation.Nullable;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.Dumper;
 
@@ -339,7 +339,7 @@ public class MethodPrototype implements TypeUsageCollectable {
     }
 
     public Map<Slot, SSAIdent> collectInitialSlotUsage(SSAIdentifierFactory<Slot, ?> ssaIdentifierFactory) {
-        Map<Slot, SSAIdent> res = MapFactory.newOrderedMap();
+        Map<Slot, SSAIdent> res = new Object2ObjectLinkedOpenHashMap<>();
         int offset = 0;
         if (instanceMethod) {
             Slot tgt = new Slot(classFile.getClassType(), 0);

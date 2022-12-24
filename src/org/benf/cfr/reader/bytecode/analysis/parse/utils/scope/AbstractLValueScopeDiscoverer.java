@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.utils.scope;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
@@ -36,7 +37,7 @@ public abstract class AbstractLValueScopeDiscoverer implements LValueScopeDiscov
      * We keep track of the first definition for a given variable.  If we exit the scope that the variable
      * is defined at (i.e. scope depth goes above) we have to remove all earliest definitions at that level.
      */
-    final Map<NamedVariable, ScopeDefinition> earliestDefinition = MapFactory.newOrderedMap();
+    final Map<NamedVariable, ScopeDefinition> earliestDefinition = new Object2ObjectLinkedOpenHashMap<>();
     final Map<Integer, Map<NamedVariable, Boolean>> earliestDefinitionsByLevel = MapFactory.newLazyMap(arg -> MapFactory.newIdentityMap());
     int currentDepth = 0;
 
@@ -146,7 +147,7 @@ public abstract class AbstractLValueScopeDiscoverer implements LValueScopeDiscov
          * where scopes for the same variable exist, lift to the lowest common denominator.
          */
         Map<ScopeKey, ObjectList<ScopeDefinition>> definitionsByType = Functional.groupToMapBy(discoveredCreations,
-                MapFactory.newOrderedMap(),
+                                                                                               new Object2ObjectLinkedOpenHashMap<ScopeKey, ObjectList<ScopeDefinition>>(),
             ScopeDefinition::getScopeKey
         );
 

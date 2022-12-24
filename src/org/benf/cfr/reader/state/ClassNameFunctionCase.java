@@ -1,17 +1,16 @@
 package org.benf.cfr.reader.state;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectRBTreeSet;
-import org.benf.cfr.reader.util.collections.MapFactory;
 
 import java.util.Map;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
-import java.util.TreeSet;
 
 public class ClassNameFunctionCase implements ClassNameFunction {
     @Override
     public Map<String, String> apply(Map<String, String> names) {
         ObjectSet<String> caseInTest = new ObjectRBTreeSet<>(String.CASE_INSENSITIVE_ORDER);
-        Map<String, String> applied = MapFactory.newOrderedMap();
+        Map<String, String> applied = new Object2ObjectLinkedOpenHashMap<>();
         for (Map.Entry<String, String> entry : names.entrySet()) {
             String original = entry.getKey();
             String used = entry.getValue();

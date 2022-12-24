@@ -1,7 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.objects.*;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers.ExpressionRewriterTransformer;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
@@ -21,14 +20,12 @@ import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredAssi
 import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredDefinition;
 import org.benf.cfr.reader.util.collections.MapFactory;
 
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class InstanceofMatchTidyingRewriter {
     private final Map<LocalVariable, Integer> locals = MapFactory.newMap();
     private final ObjectSet<LocalVariable> removeCandidates = new ObjectLinkedOpenHashSet<>();
-    private final Map<LValue, ObjectList<StructuredStatement>> definitions = MapFactory.newOrderedMap();
+    private final Map<LValue, ObjectList<StructuredStatement>> definitions = new Object2ObjectLinkedOpenHashMap<>();
     private StructuredStatement last;
 
     public static void rewrite(Op04StructuredStatement block) {

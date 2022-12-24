@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.state;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.getopt.Options;
@@ -49,7 +50,7 @@ public class ClassRenamer {
     }
 
     void notifyClassFiles(Collection<String> names) {
-        Map<String, String> originalToXfrm = MapFactory.newOrderedMap();
+        Map<String, String> originalToXfrm = new Object2ObjectLinkedOpenHashMap<>();
         for (String name : names) {
             originalToXfrm.put(name, name);
         }

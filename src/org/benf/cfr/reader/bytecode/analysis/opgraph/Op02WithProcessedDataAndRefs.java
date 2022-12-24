@@ -83,7 +83,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
     private boolean hasCatchParent = false;
 
     private SSAIdentifiers<Slot> ssaIdentifiers;
-    private final Map<Integer, Ident> localVariablesBySlot = MapFactory.newOrderedMap();
+    private final Map<Integer, Ident> localVariablesBySlot = new Object2ObjectLinkedOpenHashMap<>();
 
     @SuppressWarnings("CopyConstructorMissesField")
     private Op02WithProcessedDataAndRefs(Op02WithProcessedDataAndRefs other) {
@@ -1954,7 +1954,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             }
         }
         // Now rationalise this map.
-        final Map<Pair<Slot, SSAIdent>, Ident> combinedMap = MapFactory.newOrderedMap();
+        final Map<Pair<Slot, SSAIdent>, Ident> combinedMap = new Object2ObjectLinkedOpenHashMap<>();
 
         final IdentFactory identFactory = new IdentFactory();
         for (Map.Entry<Slot, ObjectSet<SSAIdent>> entry : poisoned.entrySet()) {
