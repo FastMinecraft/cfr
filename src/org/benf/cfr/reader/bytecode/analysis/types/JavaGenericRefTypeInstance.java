@@ -65,60 +65,56 @@ public class JavaGenericRefTypeInstance implements JavaGenericBaseInstance, Comp
         return new Annotated(typeAnnotated, genericTypeAnnotated);
     }
 
-    private static class Annotated implements JavaAnnotatedTypeInstance {
-        final JavaAnnotatedTypeInstance typeAnnotated;
-        final List<JavaAnnotatedTypeInstance> genericTypeAnnotated;
-
-        private Annotated(JavaAnnotatedTypeInstance typeAnnotated, List<JavaAnnotatedTypeInstance> genericTypeAnnotated) {
-            this.typeAnnotated = typeAnnotated;
-            this.genericTypeAnnotated = genericTypeAnnotated;
-        }
+    private record Annotated(
+        JavaAnnotatedTypeInstance typeAnnotated,
+        List<JavaAnnotatedTypeInstance> genericTypeAnnotated
+    ) implements JavaAnnotatedTypeInstance {
 
         @Override
-        public JavaAnnotatedTypeIterator pathIterator() {
-            return new Iterator();
+            public JavaAnnotatedTypeIterator pathIterator() {
+                return new Iterator();
+            }
+
+            @Override
+            public Dumper dump(Dumper d) {
+                typeAnnotated.dump(d).print('<');
+                boolean first = true;
+                for (JavaAnnotatedTypeInstance type : genericTypeAnnotated) {
+                    first = StringUtils.comma(first, d);
+                    type.dump(d);
+                }
+                d.print('>');
+                return d;
+            }
+
+            private class Iterator extends JavaAnnotatedTypeIterator.BaseAnnotatedTypeIterator {
+
+                @Override
+                public JavaAnnotatedTypeIterator moveArray(DecompilerComments comments) {
+                    return typeAnnotated.pathIterator().moveArray(comments);
+                }
+
+                @Override
+                public JavaAnnotatedTypeIterator moveBound(DecompilerComments comments) {
+                    return typeAnnotated.pathIterator().moveBound(comments);
+                }
+
+                @Override
+                public JavaAnnotatedTypeIterator moveNested(DecompilerComments comments) {
+                    return typeAnnotated.pathIterator().moveNested(comments);
+                }
+
+                @Override
+                public JavaAnnotatedTypeIterator moveParameterized(int index, DecompilerComments comments) {
+                    return genericTypeAnnotated.get(index).pathIterator();
+                }
+
+                @Override
+                public void apply(AnnotationTableEntry entry) {
+                    typeAnnotated.pathIterator().apply(entry);
+                }
+            }
         }
-
-        @Override
-        public Dumper dump(Dumper d) {
-            typeAnnotated.dump(d).print('<');
-            boolean first = true;
-            for (JavaAnnotatedTypeInstance type : genericTypeAnnotated) {
-                first = StringUtils.comma(first, d);
-                type.dump(d);
-            }
-            d.print('>');
-            return d;
-        }
-
-        private class Iterator extends JavaAnnotatedTypeIterator.BaseAnnotatedTypeIterator {
-
-            @Override
-            public JavaAnnotatedTypeIterator moveArray(DecompilerComments comments) {
-                return typeAnnotated.pathIterator().moveArray(comments);
-            }
-
-            @Override
-            public JavaAnnotatedTypeIterator moveBound(DecompilerComments comments) {
-                return typeAnnotated.pathIterator().moveBound(comments);
-            }
-
-            @Override
-            public JavaAnnotatedTypeIterator moveNested(DecompilerComments comments) {
-                return typeAnnotated.pathIterator().moveNested(comments);
-            }
-
-            @Override
-            public JavaAnnotatedTypeIterator moveParameterized(int index, DecompilerComments comments) {
-                return genericTypeAnnotated.get(index).pathIterator();
-            }
-
-            @Override
-            public void apply(AnnotationTableEntry entry) {
-                typeAnnotated.pathIterator().apply(entry);
-            }
-        }
-    }
 
     @Override
     public boolean hasUnbound() {

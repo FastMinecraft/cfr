@@ -13,7 +13,6 @@ import java.util.Set;
 public class BreakRewriter {
     public static void rewriteBreakStatements(List<Op03SimpleStatement> statements) {
         Cleaner.reindexInPlace(statements);
-        test:
         for (Op03SimpleStatement statement : statements) {
             Statement innerStatement = statement.getStatement();
             if (innerStatement instanceof JumpingStatement jumpingStatement) {
@@ -42,15 +41,21 @@ public class BreakRewriter {
                         }
                     }
                     if (targetStatement.getBlockStarted() != null &&
-                            targetStatement.getBlockStarted().getBlockType() == BlockType.UNCONDITIONALDOLOOP) {
-                        if (BlockIdentifier.blockIsOneOf(targetStatement.getBlockStarted(), statement.getBlockIdentifiers())) {
+                        targetStatement.getBlockStarted().getBlockType() == BlockType.UNCONDITIONALDOLOOP) {
+                        if (BlockIdentifier.blockIsOneOf(
+                            targetStatement.getBlockStarted(),
+                            statement.getBlockIdentifiers()
+                        )) {
                             jumpingStatement.setJumpType(JumpType.CONTINUE);
                             continue;
                         }
                     }
                     Set<BlockIdentifier> blocksEnded = targetStatement.getBlocksEnded();
                     if (!blocksEnded.isEmpty()) {
-                        BlockIdentifier outermostContainedIn = BlockIdentifier.getOutermostContainedIn(blocksEnded, statement.getBlockIdentifiers());
+                        BlockIdentifier outermostContainedIn = BlockIdentifier.getOutermostContainedIn(
+                            blocksEnded,
+                            statement.getBlockIdentifiers()
+                        );
                         // Break to the outermost block.
                         if (outermostContainedIn != null) {
                             jumpingStatement.setJumpType(JumpType.BREAK);

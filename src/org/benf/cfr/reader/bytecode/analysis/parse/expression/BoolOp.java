@@ -1,7 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.expression;
 
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.misc.Precedence;
-import org.benf.cfr.reader.util.ConfusedCFRException;
 
 public enum BoolOp {
     OR("||", Precedence.LOG_OR),

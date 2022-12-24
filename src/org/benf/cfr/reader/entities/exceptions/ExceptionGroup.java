@@ -180,40 +180,19 @@ public class ExceptionGroup {
 
     }
 
-    public static class ExtenderKey {
-        private final JavaRefTypeInstance type;
-        private final int handler;
-
-        public ExtenderKey(JavaRefTypeInstance type, int handler) {
-            this.type = type;
-            this.handler = handler;
-        }
-
-        public JavaRefTypeInstance getType() {
-            return type;
-        }
-
-        public int getHandler() {
-            return handler;
-        }
+    public record ExtenderKey(JavaRefTypeInstance type, int handler) {
 
         @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
 
-            ExtenderKey that = (ExtenderKey) o;
+                ExtenderKey that = (ExtenderKey) o;
 
-            if (handler != that.handler) return false;
-            return Objects.equals(type, that.type);
-        }
+                if (handler != that.handler) return false;
+                return Objects.equals(type, that.type);
+            }
 
-        @Override
-        public int hashCode() {
-            int result = type != null ? type.hashCode() : 0;
-            result = 31 * result + handler;
-            return result;
-        }
     }
 
 }

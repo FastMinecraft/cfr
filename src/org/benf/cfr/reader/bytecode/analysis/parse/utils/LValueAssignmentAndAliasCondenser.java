@@ -240,7 +240,7 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
          * We've decided we're going to make the substitution - now changes need to be applied to the target identifiers.
          */
         if (changes != null && !changes.isEmpty()) {
-            SSAIdentifiers tgtIdents = lvSc.getSSAIdentifiers();
+            SSAIdentifiers<LValue> tgtIdents = lvSc.getSSAIdentifiers();
             for (LValue change : changes) {
                 // The change is now being applied inside lvsc.
                 tgtIdents.setKnownIdentifierOnEntry(change, replacementIdentifiers.getSSAIdentOnEntry(change));
@@ -617,7 +617,7 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
                     if (replacement == statementContainer) return null;
 
                     SSAIdentifiers<LValue> previousIdents = replacement.getSSAIdentifiers();
-                    Set fixedPrevious = previousIdents.getFixedHere();
+                    Set<LValue> fixedPrevious = previousIdents.getFixedHere();
                     if (SetUtil.hasIntersection(this.fixed, fixedPrevious)) {
                         return null;
                     }

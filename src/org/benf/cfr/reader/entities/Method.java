@@ -9,7 +9,6 @@ import org.benf.cfr.reader.bytecode.analysis.types.*;
 import org.benf.cfr.reader.bytecode.analysis.types.DeclarationAnnotationHelper.DeclarationAnnotationsInfo;
 import org.benf.cfr.reader.entities.annotations.AnnotationTableEntry;
 import org.benf.cfr.reader.entities.annotations.AnnotationTableTypeEntry;
-import org.benf.cfr.reader.entities.annotations.ElementValue;
 import org.benf.cfr.reader.entities.attributes.*;
 import org.benf.cfr.reader.entities.classfilehelpers.VisibilityHelper;
 import org.benf.cfr.reader.entities.constantpool.ConstantPool;
