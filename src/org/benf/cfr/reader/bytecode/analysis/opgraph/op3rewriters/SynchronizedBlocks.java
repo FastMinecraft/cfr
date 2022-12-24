@@ -18,7 +18,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class SynchronizedBlocks {
     /*
@@ -52,10 +52,10 @@ public class SynchronizedBlocks {
 
     private static void findSynchronizedRange(final Op03SimpleStatement start, final Expression monitorEnterExpression) {
         final Expression monitor = removeCasts(monitorEnterExpression);
-        final Set<Op03SimpleStatement> addToBlock = new ObjectOpenHashSet<>();
+        final ObjectSet<Op03SimpleStatement> addToBlock = new ObjectOpenHashSet<>();
 
         final Map<Op03SimpleStatement, MonitorExitStatement> foundExits = MapFactory.newOrderedMap();
-        final Set<Op03SimpleStatement> extraNodes = new ObjectOpenHashSet<>();
+        final ObjectSet<Op03SimpleStatement> extraNodes = new ObjectOpenHashSet<>();
         /* Process all the parents until we find the monitorExit.
          * Note that this does NOT find statements which are 'orphaned', i.e.
          *
@@ -71,7 +71,7 @@ public class SynchronizedBlocks {
          * }
          */
 
-        final Set<BlockIdentifier> leaveExitsMutex = new ObjectOpenHashSet<>();
+        final ObjectSet<BlockIdentifier> leaveExitsMutex = new ObjectOpenHashSet<>();
 
         GraphVisitor<Op03SimpleStatement> marker = new GraphVisitorDFS<Op03SimpleStatement>(
             start.getTargets(),
@@ -79,7 +79,7 @@ public class SynchronizedBlocks {
                 Statement statement = arg1.getStatement();
 
                 if (statement instanceof TryStatement tryStatement) {
-                    Set<Expression> tryMonitors = tryStatement.getMonitors();
+                    ObjectSet<Expression> tryMonitors = tryStatement.getMonitors();
                     // TODO
                     // It's possible that this is a function of monitor, as per https://github.com/leibnitz27/cfr/issues/154
                     // However, if that's the case, we'll need to potentially leave a different mutex at different exit points
@@ -155,12 +155,12 @@ public class SynchronizedBlocks {
         /*
          * find entries with same-block targets which are NOT in addToBlock, add them.
          */
-        Set<Op03SimpleStatement> requiredComments = new ObjectOpenHashSet<>();
+        ObjectSet<Op03SimpleStatement> requiredComments = new ObjectOpenHashSet<>();
         Iterator<Op03SimpleStatement> foundExitIter = foundExits.keySet().iterator();
         while (foundExitIter.hasNext()) {
             final Op03SimpleStatement foundExit = foundExitIter.next();
             Collection<BlockIdentifier> content = foundExit.getBlockIdentifiers();
-            final Set<BlockIdentifier> exitBlocks = new ObjectOpenHashSet<>(content);
+            final ObjectSet<BlockIdentifier> exitBlocks = new ObjectOpenHashSet<>(content);
             exitBlocks.removeAll(start.getBlockIdentifiers());
             final ObjectList<Op03SimpleStatement> added = new ObjectArrayList<>();
             GraphVisitor<Op03SimpleStatement> additional = new GraphVisitorDFS<>(

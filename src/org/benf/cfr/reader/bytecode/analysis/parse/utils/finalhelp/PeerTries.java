@@ -3,6 +3,7 @@ package org.benf.cfr.reader.bytecode.analysis.parse.utils.finalhelp;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.TryStatement;
@@ -44,7 +45,7 @@ import java.util.*;
 public class PeerTries {
     private final Op03SimpleStatement possibleFinallyCatch;
 
-    private final Set<Op03SimpleStatement> seenEver = new ObjectLinkedOpenHashSet<>();
+    private final ObjectSet<Op03SimpleStatement> seenEver = new ObjectLinkedOpenHashSet<>();
 
     private final LinkedList<Op03SimpleStatement> toProcess = new LinkedList<>();
     private int nextIdx;
@@ -52,9 +53,9 @@ public class PeerTries {
     /*
      * Best guess using reverse information from the catch block.
      */
-    private final Set<BlockIdentifier> guessPeerTryBlocks = new ObjectLinkedOpenHashSet<>();
+    private final ObjectSet<BlockIdentifier> guessPeerTryBlocks = new ObjectLinkedOpenHashSet<>();
     private final Map<BlockIdentifier, Op03SimpleStatement> guessPeerTryMap = MapFactory.newOrderedMap();
-    private final Set<Op03SimpleStatement> guessPeerTryStarts = new ObjectLinkedOpenHashSet<>();
+    private final ObjectSet<Op03SimpleStatement> guessPeerTryStarts = new ObjectLinkedOpenHashSet<>();
 
     private final Map<CompositeBlockIdentifierKey, PeerTrySet> triesByLevel = MapFactory.newLazyMap(
         new TreeMap<>(),
@@ -79,7 +80,7 @@ public class PeerTries {
         return possibleFinallyCatch;
     }
 
-    Set<BlockIdentifier> getGuessPeerTryBlocks() {
+    ObjectSet<BlockIdentifier> getGuessPeerTryBlocks() {
         return guessPeerTryBlocks;
     }
 
@@ -87,7 +88,7 @@ public class PeerTries {
         return guessPeerTryMap;
     }
 
-    Set<Op03SimpleStatement> getGuessPeerTryStarts() {
+    ObjectSet<Op03SimpleStatement> getGuessPeerTryStarts() {
         return guessPeerTryStarts;
     }
 
@@ -114,7 +115,7 @@ public class PeerTries {
     }
 
     public static final class PeerTrySet {
-        private final Set<Op03SimpleStatement> content = new ObjectLinkedOpenHashSet<>();
+        private final ObjectSet<Op03SimpleStatement> content = new ObjectLinkedOpenHashSet<>();
         private final int idx;
 
         private PeerTrySet(int idx) {

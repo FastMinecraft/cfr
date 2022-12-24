@@ -15,7 +15,7 @@ import org.benf.cfr.reader.util.Troolean;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class NotOperation extends AbstractExpression implements ConditionalExpression {
     private ConditionalExpression inner;
@@ -90,7 +90,7 @@ public class NotOperation extends AbstractExpression implements ConditionalExpre
     }
 
     @Override
-    public Set<LValue> getLoopLValues() {
+    public ObjectSet<LValue> getLoopLValues() {
         return inner.getLoopLValues();
     }
 

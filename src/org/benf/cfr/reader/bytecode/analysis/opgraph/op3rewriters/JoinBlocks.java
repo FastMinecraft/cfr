@@ -8,18 +8,18 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.entities.exceptions.ExceptionGroup;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 class JoinBlocks {
     /*
      * This is a dangerous tidy-up operation.  Should only do it if we're falling back.
      */
     static void rejoinBlocks(ObjectList<Op03SimpleStatement> statements) {
-        Set<BlockIdentifier> lastBlocks = new ObjectOpenHashSet<>();
-        Set<BlockIdentifier> haveLeft = new ObjectOpenHashSet<>();
+        ObjectSet<BlockIdentifier> lastBlocks = new ObjectOpenHashSet<>();
+        ObjectSet<BlockIdentifier> haveLeft = new ObjectOpenHashSet<>();
         // We blacklist blocks we can't POSSIBLY be in - i.e. after a catch block has started, we can't POSSIBLY
         // be in its try block.
-        Set<BlockIdentifier> blackListed = new ObjectOpenHashSet<>();
+        ObjectSet<BlockIdentifier> blackListed = new ObjectOpenHashSet<>();
 
         for (int x = 0, len = statements.size(); x < len; ++x) {
             Op03SimpleStatement stm = statements.get(x);
@@ -30,7 +30,7 @@ class JoinBlocks {
                 }
             }
             // If we're in any blocks which we have left, then we need to backfill.
-            Set<BlockIdentifier> blocks = stm.getBlockIdentifiers();
+            ObjectSet<BlockIdentifier> blocks = stm.getBlockIdentifiers();
             blocks.removeAll(blackListed);
 
             for (BlockIdentifier ident : blocks) {

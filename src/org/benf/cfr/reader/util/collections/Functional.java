@@ -3,6 +3,7 @@ package org.benf.cfr.reader.util.collections;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 
 import java.util.*;
@@ -54,8 +55,8 @@ public class Functional {
         return null;
     }
 
-    public static <X> Set<X> filterSet(Collection<X> input, Predicate<X> predicate) {
-        Set<X> result = new ObjectOpenHashSet<>();
+    public static <X> ObjectSet<X> filterSet(Collection<X> input, Predicate<X> predicate) {
+        ObjectSet<X> result = new ObjectOpenHashSet<>();
         for (X item : input) {
             if (predicate.test(item)) result.add(item);
         }
@@ -100,8 +101,8 @@ public class Functional {
         return result;
     }
 
-    public static <X, Y> Set<Y> mapToSet(Collection<X> input, Function<X, Y> function) {
-        Set<Y> result = new ObjectOpenHashSet<>();
+    public static <X, Y> ObjectSet<Y> mapToSet(Collection<X> input, Function<X, Y> function) {
+        ObjectSet<Y> result = new ObjectOpenHashSet<>();
         for (X item : input) {
             result.add(function.apply(item));
         }
@@ -109,7 +110,7 @@ public class Functional {
     }
 
     public static <X> ObjectList<X> uniqAll(ObjectList<X> input) {
-        Set<X> found = new ObjectOpenHashSet<>();
+        ObjectSet<X> found = new ObjectOpenHashSet<>();
         ObjectList<X> result = new ObjectArrayList<>();
         for (X in : input) {
             if (found.add(in)) result.add(in);

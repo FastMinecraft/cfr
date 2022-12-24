@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.entities.attributes;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectRBTreeSet;
 import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryModuleInfo;
 import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryUTF8;
@@ -8,7 +9,7 @@ import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import java.util.TreeSet;
 
 public class AttributeModule extends Attribute {
@@ -28,7 +29,7 @@ public class AttributeModule extends Attribute {
     private final ObjectList<Use> uses;
     private final ObjectList<Provide> provides;
 
-    public Set<ModuleFlags> getFlags() {
+    public ObjectSet<ModuleFlags> getFlags() {
         return ModuleFlags.build(flags);
     }
 
@@ -43,9 +44,9 @@ public class AttributeModule extends Attribute {
             this.comment = comment;
         }
 
-        public static Set<ModuleFlags> build(int raw)
+        public static ObjectSet<ModuleFlags> build(int raw)
         {
-            Set<ModuleFlags> res = new TreeSet<>();
+            ObjectSet<ModuleFlags> res = new ObjectRBTreeSet<>();
             if (0 != (raw & 0x20)) res.add(OPEN);
             if (0 != (raw & 0x1000)) res.add(SYNTHETIC);
             if (0 != (raw & 0x8000)) res.add(MANDATED);
@@ -70,9 +71,9 @@ public class AttributeModule extends Attribute {
             this.comment = comment;
         }
 
-        public static Set<ModuleContentFlags> build(int raw)
+        public static ObjectSet<ModuleContentFlags> build(int raw)
         {
-            Set<ModuleContentFlags> res = new TreeSet<>();
+            ObjectSet<ModuleContentFlags> res = new ObjectRBTreeSet<>();
             if (0 != (raw & 0x20)) res.add(TRANSITIVE);
             if (0 != (raw & 0x40)) res.add(STATIC_PHASE);
             if (0 != (raw & 0x1000)) res.add(SYNTHETIC);
@@ -98,7 +99,7 @@ public class AttributeModule extends Attribute {
             return index;
         }
 
-        public Set<ModuleContentFlags> getFlags() {
+        public ObjectSet<ModuleContentFlags> getFlags() {
             return ModuleContentFlags.build(flags);
         }
 
@@ -138,7 +139,7 @@ public class AttributeModule extends Attribute {
             this.to_index = to_index;
         }
 
-        public Set<ModuleContentFlags> getFlags() {
+        public ObjectSet<ModuleContentFlags> getFlags() {
             return ModuleContentFlags.build(flags);
         }
 

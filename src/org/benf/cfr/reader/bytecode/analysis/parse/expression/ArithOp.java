@@ -8,7 +8,7 @@ import org.benf.cfr.reader.bytecode.opcode.JVMInstr;
 import org.benf.cfr.reader.entities.exceptions.ExceptionCheck;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public enum ArithOp {
     LCMP("LCMP", true, false, Precedence.WEAKEST),
@@ -75,7 +75,7 @@ public enum ArithOp {
         };
     }
 
-    public boolean canThrow(InferredJavaType inferredJavaType, ExceptionCheck caught, Set<? extends JavaTypeInstance> instances) {
+    public boolean canThrow(InferredJavaType inferredJavaType, ExceptionCheck caught, ObjectSet<? extends JavaTypeInstance> instances) {
         StackType stackType = inferredJavaType.getRawType().getStackType();
         switch (stackType) {
             case DOUBLE, FLOAT, INT, LONG -> {

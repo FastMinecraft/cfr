@@ -12,7 +12,7 @@ import org.benf.cfr.reader.util.output.Dumper;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class ClassMapping {
     private final JavaRefTypeInstance realClass;
@@ -149,7 +149,7 @@ public class ClassMapping {
     private String getFieldNameOrNull(String name, JavaTypeInstance type, Dumper d, Mapping mapping) {
         if (name.endsWith(MiscConstants.DOT_THIS)) {
             String preName = name.substring(0, name.length() - MiscConstants.DOT_THIS.length());
-            Set<JavaTypeInstance> parents = new ObjectLinkedOpenHashSet<>();
+            ObjectSet<JavaTypeInstance> parents = new ObjectLinkedOpenHashSet<>();
             type.getInnerClassHereInfo().collectTransitiveDegenericParents(parents);
             for (JavaTypeInstance parent : parents) {
                 if (((JavaRefTypeInstance)parent).getRawShortName().equals(preName)) {

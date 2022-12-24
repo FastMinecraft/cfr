@@ -11,7 +11,7 @@ import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 class ReturnRewriter {
     private static void replaceReturningIf(Op03SimpleStatement ifStatement, boolean aggressive) {
@@ -31,7 +31,7 @@ class ReturnRewriter {
             Op03SimpleStatement origfall = ifStatement.getTargets().get(0);
             origfall.setFirstStatementInThisBlock(null);
             BlockIdentifier ifBlock = innerIf.getKnownIfBlock();
-            Pair<Set<Op03SimpleStatement>, Set<Op03SimpleStatement>> blockReachableAndExits = Misc.GraphVisitorBlockReachable.getBlockReachableAndExits(origfall, ifBlock);
+            Pair<ObjectSet<Op03SimpleStatement>, ObjectSet<Op03SimpleStatement>> blockReachableAndExits = Misc.GraphVisitorBlockReachable.getBlockReachableAndExits(origfall, ifBlock);
             for (Op03SimpleStatement stm : blockReachableAndExits.getFirst()) {
                 stm.getBlockIdentifiers().remove(ifBlock);
             }

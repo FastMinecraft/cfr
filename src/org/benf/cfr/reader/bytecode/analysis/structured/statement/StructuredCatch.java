@@ -24,15 +24,15 @@ import org.benf.cfr.reader.util.output.Dumper;
 import java.util.Collection;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Objects;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class StructuredCatch extends AbstractStructuredStatement {
     private final ObjectList<JavaRefTypeInstance> catchTypes;
     private final Op04StructuredStatement catchBlock;
     private final LValue catching;
-    private final Set<BlockIdentifier> possibleTryBlocks;
+    private final ObjectSet<BlockIdentifier> possibleTryBlocks;
 
-    public StructuredCatch(Collection<JavaRefTypeInstance> catchTypes, Op04StructuredStatement catchBlock, LValue catching, Set<BlockIdentifier> possibleTryBlocks) {
+    public StructuredCatch(Collection<JavaRefTypeInstance> catchTypes, Op04StructuredStatement catchBlock, LValue catching, ObjectSet<BlockIdentifier> possibleTryBlocks) {
         super(BytecodeLoc.NONE);
         this.catchTypes = catchTypes == null ? null : new ObjectArrayList<>(catchTypes);
         this.catchBlock = catchBlock;
@@ -137,7 +137,7 @@ public class StructuredCatch extends AbstractStructuredStatement {
         expressionRewriter.handleStatement(this.getContainer());
     }
 
-    public Set<BlockIdentifier> getPossibleTryBlocks() {
+    public ObjectSet<BlockIdentifier> getPossibleTryBlocks() {
         return possibleTryBlocks;
     }
 

@@ -18,7 +18,7 @@ import org.benf.cfr.reader.util.output.Dumper;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class BooleanOperation extends AbstractExpression implements ConditionalExpression {
     private ConditionalExpression lhs;
@@ -157,8 +157,8 @@ public class BooleanOperation extends AbstractExpression implements ConditionalE
     }
 
     @Override
-    public Set<LValue> getLoopLValues() {
-        Set<LValue> res = new ObjectOpenHashSet<>();
+    public ObjectSet<LValue> getLoopLValues() {
+        ObjectSet<LValue> res = new ObjectOpenHashSet<>();
         res.addAll(lhs.getLoopLValues());
         res.addAll(rhs.getLoopLValues());
         return res;

@@ -1,13 +1,14 @@
 package org.benf.cfr.reader.state;
 
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSets;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.util.output.IllegalIdentifierDump;
 import org.benf.cfr.reader.util.output.TypeContext;
 
 import java.util.Collections;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class TypeUsageInformationEmpty implements TypeUsageInformation {
     public static final TypeUsageInformation INSTANCE = new TypeUsageInformationEmpty();
@@ -28,22 +29,22 @@ public class TypeUsageInformationEmpty implements TypeUsageInformation {
     }
 
     @Override
-    public Set<DetectedStaticImport> getDetectedStaticImports() {
-        return Collections.emptySet();
+    public ObjectSet<DetectedStaticImport> getDetectedStaticImports() {
+        return ObjectSets.emptySet();
     }
 
     @Override
-    public Set<JavaRefTypeInstance> getUsedClassTypes() {
+    public ObjectSet<JavaRefTypeInstance> getUsedClassTypes() {
         return new ObjectLinkedOpenHashSet<>();
     }
 
     @Override
-    public Set<JavaRefTypeInstance> getUsedInnerClassTypes() {
+    public ObjectSet<JavaRefTypeInstance> getUsedInnerClassTypes() {
         return new ObjectLinkedOpenHashSet<>();
     }
 
     @Override
-    public Set<JavaRefTypeInstance> getShortenedClassTypes() {
+    public ObjectSet<JavaRefTypeInstance> getShortenedClassTypes() {
         return new ObjectLinkedOpenHashSet<>();
     }
 

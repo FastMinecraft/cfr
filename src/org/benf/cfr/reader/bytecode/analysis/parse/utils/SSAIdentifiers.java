@@ -1,27 +1,28 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.utils;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.util.collections.MapFactory;
 
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import java.util.function.BiPredicate;
 
 public class SSAIdentifiers<KEYTYPE> {
 
     private final Map<KEYTYPE, SSAIdent> knownIdentifiersOnEntry;
     private final Map<KEYTYPE, SSAIdent> knownIdentifiersOnExit;
-    private final Map<KEYTYPE, KEYTYPE> fixedHere;
+    private final Object2ObjectMap<KEYTYPE, KEYTYPE> fixedHere;
 
     public SSAIdentifiers() {
         knownIdentifiersOnEntry = MapFactory.newMap();
         knownIdentifiersOnExit = MapFactory.newMap();
-        fixedHere = MapFactory.newMap();
+        fixedHere = new Object2ObjectOpenHashMap<>();
     }
 
     public SSAIdentifiers(SSAIdentifiers<KEYTYPE> other) {
-        this.fixedHere = MapFactory.newMap();
-        fixedHere.putAll(other.fixedHere);
+        this.fixedHere = new Object2ObjectOpenHashMap<>(other.fixedHere);
         this.knownIdentifiersOnEntry = MapFactory.newMap();
         knownIdentifiersOnEntry.putAll(other.knownIdentifiersOnEntry);
         this.knownIdentifiersOnExit = MapFactory.newMap();
@@ -33,14 +34,14 @@ public class SSAIdentifiers<KEYTYPE> {
         knownIdentifiersOnEntry = MapFactory.newMap();
         knownIdentifiersOnExit = MapFactory.newMap();
         knownIdentifiersOnExit.put(lValue, id);
-        fixedHere = MapFactory.newMap();
+        fixedHere = new Object2ObjectOpenHashMap<>();
         fixedHere.put(lValue, lValue);
     }
 
     public SSAIdentifiers(Map<KEYTYPE, SSAIdent> precomputedIdentifiers) {
         this.knownIdentifiersOnEntry = MapFactory.newMap();
         this.knownIdentifiersOnExit = MapFactory.newMap();
-        this.fixedHere = MapFactory.newMap();
+        this.fixedHere = new Object2ObjectOpenHashMap<>();
         knownIdentifiersOnEntry.putAll(precomputedIdentifiers);
         knownIdentifiersOnExit.putAll(precomputedIdentifiers);
     }
@@ -112,13 +113,13 @@ public class SSAIdentifiers<KEYTYPE> {
         return changed;
     }
 
-    void fixHere(Set<KEYTYPE> fixed) {
+    void fixHere(ObjectSet<KEYTYPE> fixed) {
         for (KEYTYPE fix : fixed) {
             fixedHere.put(fix, fix);
         }
     }
 
-    public Set<KEYTYPE> getFixedHere() {
+    public ObjectSet<KEYTYPE> getFixedHere() {
         return fixedHere.keySet();
     }
 
@@ -158,8 +159,8 @@ public class SSAIdentifiers<KEYTYPE> {
         return thisVersion.isSuperSet(otherVersion);
     }
 
-    Set<KEYTYPE> getChanges() {
-        Set<KEYTYPE> result = new ObjectOpenHashSet<>();
+    ObjectSet<KEYTYPE> getChanges() {
+        ObjectSet<KEYTYPE> result = new ObjectOpenHashSet<>();
         for (Map.Entry<KEYTYPE, SSAIdent> entry : knownIdentifiersOnEntry.entrySet()) {
             SSAIdent after = knownIdentifiersOnExit.get(entry.getKey());
             if (after != null && !after.equals(entry.getValue())) {

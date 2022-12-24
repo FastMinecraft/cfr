@@ -14,7 +14,7 @@ import org.benf.cfr.reader.util.output.Dumper;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import java.util.Vector;
 
 public class UnstructuredCatch extends AbstractUnStructuredStatement {
@@ -52,7 +52,7 @@ public class UnstructuredCatch extends AbstractUnStructuredStatement {
          * Get the unique set of exception types.
          */
         Map<String, JavaRefTypeInstance> catchTypes = MapFactory.newTreeMap();
-        Set<BlockIdentifier> possibleTryBlocks = new ObjectOpenHashSet<>();
+        ObjectSet<BlockIdentifier> possibleTryBlocks = new ObjectOpenHashSet<>();
         for (ExceptionGroup.Entry entry : exceptions) {
             JavaRefTypeInstance typ = entry.getCatchType();
             catchTypes.put(typ.getRawName(), typ);

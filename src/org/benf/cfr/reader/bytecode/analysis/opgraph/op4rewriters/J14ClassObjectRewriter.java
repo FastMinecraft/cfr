@@ -36,7 +36,7 @@ import org.benf.cfr.reader.entities.ClassFileField;
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.state.DCCommonState;
 
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 /**
  * Java 1.4 will produce
@@ -118,7 +118,7 @@ public class J14ClassObjectRewriter {
                         ),
                 staticExpression);
 
-        final Set<Pair<String, JavaTypeInstance>> hideThese = new ObjectOpenHashSet<>();
+        final ObjectSet<Pair<String, JavaTypeInstance>> hideThese = new ObjectOpenHashSet<>();
         ExpressionRewriter expressionRewriter = new ExpressionWildcardReplacingRewriter(wcm, test, () -> {
             Expression string = wcm.getExpressionWildCard("classString").getMatch();
             if (!(string instanceof Literal)) return null;

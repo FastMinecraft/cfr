@@ -2,6 +2,7 @@ package org.benf.cfr.reader.bytecode.analysis.parse.expression;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
+import it.unimi.dsi.fastutil.objects.ObjectSets;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
@@ -138,10 +139,10 @@ public class MethodHandlePlaceholder extends AbstractExpression {
                                 new ConstructorInvokationExplicit(getLoc(),
                                         new InferredJavaType(TypeConstants.ILLEGALARGUMENT_EXCEPTION, InferredJavaType.Source.CONSTRUCTOR),
                                         TypeConstants.ILLEGALARGUMENT_EXCEPTION,
-                                    new ObjectArrayList<Expression>(original)
+                                                                  new ObjectArrayList<>(original)
                                 )))),
                 caught,
-                Collections.singleton(identifier)
+                ObjectSets.singleton(identifier)
         );
         trys.getCatchBlocks().add(new Op04StructuredStatement(catche));
         Op04StructuredStatement stm = new Op04StructuredStatement(Block.getBlockFor(true, trys));

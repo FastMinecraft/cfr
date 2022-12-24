@@ -22,7 +22,7 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import java.util.function.Function;
 
 public class Mapping implements ObfuscationMapping {
@@ -106,7 +106,7 @@ public class Mapping implements ObfuscationMapping {
         }
 
         @Override
-        public Set<DetectedStaticImport> getDetectedStaticImports() {
+        public ObjectSet<DetectedStaticImport> getDetectedStaticImports() {
             return delegateOriginal.getDetectedStaticImports();
         }
 
@@ -116,17 +116,17 @@ public class Mapping implements ObfuscationMapping {
         }
 
         @Override
-        public Set<JavaRefTypeInstance> getShortenedClassTypes() {
+        public ObjectSet<JavaRefTypeInstance> getShortenedClassTypes() {
             return delegateRemapped.getShortenedClassTypes();
         }
 
         @Override
-        public Set<JavaRefTypeInstance> getUsedClassTypes() {
+        public ObjectSet<JavaRefTypeInstance> getUsedClassTypes() {
             return delegateOriginal.getUsedClassTypes();
         }
 
         @Override
-        public Set<JavaRefTypeInstance> getUsedInnerClassTypes() {
+        public ObjectSet<JavaRefTypeInstance> getUsedInnerClassTypes() {
             return delegateOriginal.getUsedClassTypes();
         }
 

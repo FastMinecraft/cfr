@@ -3,6 +3,7 @@ package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
@@ -94,8 +95,8 @@ public class ExceptionRewriters {
      * Could be refactored out as uniquelyReachableFrom....
      */
     private static void identifyCatchBlock(Op03SimpleStatement start, BlockIdentifier blockIdentifier, ObjectList<Op03SimpleStatement> statements) {
-        Set<Op03SimpleStatement> knownMembers = new ObjectOpenHashSet<>();
-        Set<Op03SimpleStatement> seen = new ObjectOpenHashSet<>();
+        ObjectSet<Op03SimpleStatement> knownMembers = new ObjectOpenHashSet<>();
+        ObjectSet<Op03SimpleStatement> seen = new ObjectOpenHashSet<>();
         seen.add(start);
         knownMembers.add(start);
 
@@ -123,7 +124,7 @@ public class ExceptionRewriters {
             seen.add(target);
         }
 
-        Map<Op03SimpleStatement, Set<Op03SimpleStatement>> allows = MapFactory.newLazyMap(ignore -> new ObjectOpenHashSet<>());
+        Map<Op03SimpleStatement, ObjectSet<Op03SimpleStatement>> allows = MapFactory.newLazyMap(ignore -> new ObjectOpenHashSet<>());
         int sinceDefinite = 0;
         while (!pendingPossibilities.isEmpty() && sinceDefinite <= pendingPossibilities.size()) {
             Op03SimpleStatement maybe = pendingPossibilities.removeFirst();
@@ -144,7 +145,7 @@ public class ExceptionRewriters {
                 sinceDefinite = 0;
                 // All of this guys sources are known
                 knownMembers.add(maybe);
-                Set<Op03SimpleStatement> allowedBy = allows.get(maybe);
+                ObjectSet<Op03SimpleStatement> allowedBy = allows.get(maybe);
                 pendingPossibilities.addAll(allowedBy);
                 // They'll get re-added if they're still blocked.
                 allowedBy.clear();
@@ -234,7 +235,7 @@ public class ExceptionRewriters {
 
 
     private static void combineTryCatchBlocks(final Op03SimpleStatement tryStatement) {
-        Set<Op03SimpleStatement> allStatements = new ObjectOpenHashSet<>();
+        ObjectSet<Op03SimpleStatement> allStatements = new ObjectOpenHashSet<>();
         TryStatement innerTryStatement = (TryStatement) tryStatement.getStatement();
 
         allStatements.addAll(Misc.GraphVisitorBlockReachable.getBlockReachable(tryStatement, innerTryStatement.getBlockIdentifier()));
@@ -251,7 +252,7 @@ public class ExceptionRewriters {
          */
         /* See Tock test for why we should only extend try/catch.
          */
-        Set<BlockIdentifier> tryBlocks = tryStatement.getBlockIdentifiers();
+        ObjectSet<BlockIdentifier> tryBlocks = tryStatement.getBlockIdentifiers();
         Collection<BlockIdentifier> content = Functional.filter(tryBlocks,
             in -> in.getBlockType() == BlockType.TRYBLOCK || in.getBlockType() == BlockType.CATCHBLOCK
         );
@@ -422,13 +423,13 @@ public class ExceptionRewriters {
 
         if (catchBlock.immediatelyFollows(tryBlock)) return false;
 
-        Set<BlockIdentifier> expected = trystm.getBlockIdentifiers();
+        ObjectSet<BlockIdentifier> expected = trystm.getBlockIdentifiers();
         /*
          * Ok, we have a try block, a catch block and something inbetween them.  Verify that there are no jumps INTO
          * this intermediate code other than from the try or catch block, (or blocks in this range)
          * and that the blockset of the START of the try block is present the whole time.
          */
-        Set<Op03SimpleStatement> middle = new ObjectOpenHashSet<>();
+        ObjectSet<Op03SimpleStatement> middle = new ObjectOpenHashSet<>();
         ObjectList<Op03SimpleStatement> toMove = new ObjectArrayList<>();
         for (int x=tryBlock.getIdxLast()+1;x<catchBlock.getIdxFirst();++x) {
             Op03SimpleStatement stm = statements.get(x);
@@ -442,7 +443,7 @@ public class ExceptionRewriters {
             }
             for (Op03SimpleStatement source : stm.getSources()) {
                 if (source.getIndex().isBackJumpTo(stm)) {
-                    Set<BlockIdentifier> sourceBlocks = source.getBlockIdentifiers();
+                    ObjectSet<BlockIdentifier> sourceBlocks = source.getBlockIdentifiers();
                     if (!(sourceBlocks.contains(tryBlockIdent) || (sourceBlocks.contains(catchBlockIdent)))) {
                         return false;
                     }
@@ -499,8 +500,8 @@ public class ExceptionRewriters {
         /*
          * We require that possibleAfterBlock's block identifiers are the same as the try block, plus the catch ident.
          */
-        Set<BlockIdentifier> tryStartBlocks = trycatch.tryBlock.getFirst().getBlockIdentifiers();
-        Set<BlockIdentifier> possibleBlocks = possibleAfterBlock.getBlockIdentifiers();
+        ObjectSet<BlockIdentifier> tryStartBlocks = trycatch.tryBlock.getFirst().getBlockIdentifiers();
+        ObjectSet<BlockIdentifier> possibleBlocks = possibleAfterBlock.getBlockIdentifiers();
         if (possibleBlocks.size() != tryStartBlocks.size()+1) return;
 
         if (!possibleBlocks.containsAll(tryStartBlocks)) return;
@@ -518,7 +519,7 @@ public class ExceptionRewriters {
     }
 
     private static LinearScannedBlock getLinearScannedBlock(ObjectList<Op03SimpleStatement> statements, int idx, Op03SimpleStatement stm, BlockIdentifier blockIdentifier, boolean prefix) {
-        Set<Op03SimpleStatement> found = new ObjectOpenHashSet<>();
+        ObjectSet<Op03SimpleStatement> found = new ObjectOpenHashSet<>();
         int nextIdx = idx+(prefix?1:0);
         if (prefix) found.add(stm);
         int cnt = statements.size();
@@ -528,7 +529,7 @@ public class ExceptionRewriters {
             found.add(nstm);
             nextIdx++;
         } while (nextIdx < cnt);
-        Set<Op03SimpleStatement> reachable = Misc.GraphVisitorBlockReachable.getBlockReachable(stm, blockIdentifier);
+        ObjectSet<Op03SimpleStatement> reachable = Misc.GraphVisitorBlockReachable.getBlockReachable(stm, blockIdentifier);
         if (!reachable.equals(found)) return null;
         nextIdx--;
         if (reachable.isEmpty()) return null;

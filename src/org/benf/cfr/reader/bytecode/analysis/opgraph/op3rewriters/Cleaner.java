@@ -12,11 +12,11 @@ import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
 import java.util.Collection;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class Cleaner {
     public static ObjectList<Op03SimpleStatement> removeUnreachableCode(final ObjectList<Op03SimpleStatement> statements, final boolean checkBackJumps) {
-        final Set<Op03SimpleStatement> reachable = new ObjectOpenHashSet<>();
+        final ObjectSet<Op03SimpleStatement> reachable = new ObjectOpenHashSet<>();
         reachable.add(statements.get(0));
         GraphVisitor<Op03SimpleStatement> gv = new GraphVisitorDFS<>(
             statements.get(0),

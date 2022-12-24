@@ -1,9 +1,6 @@
 package org.benf.cfr.reader;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.*;
 import org.benf.cfr.reader.bytecode.analysis.types.InnerClassInfo;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
@@ -118,7 +115,7 @@ public class Driver {
             summaryDumper.notify(MiscConstants.CFR_HEADER_BRA + " " + CfrVersionInfo.VERSION_INFO);
             progressDumper.analysingPath(path);
             Map<Integer, ObjectList<JavaTypeInstance>> clstypes = dcCommonState.explicitlyLoadJar(path, analysisType);
-            Set<JavaTypeInstance> versionCollisions = getVersionCollisions(clstypes);
+            ObjectSet<JavaTypeInstance> versionCollisions = getVersionCollisions(clstypes);
             dcCommonState.setCollisions(versionCollisions);
             ObjectList<Integer> versionsSeen = new ObjectArrayList<>();
             
@@ -150,8 +147,8 @@ public class Driver {
         for (Map.Entry<Integer, ObjectList<JavaTypeInstance>> entry : clstypes.entrySet()) {
             int version = entry.getKey();
             if (version == 0) continue;
-            Set<JavaTypeInstance> distinct = new ObjectLinkedOpenHashSet<>((Collection<JavaTypeInstance>) entry.getValue());
-            Set<JavaTypeInstance> toAdd = new ObjectLinkedOpenHashSet<>();
+            ObjectSet<JavaTypeInstance> distinct = new ObjectLinkedOpenHashSet<>((Collection<JavaTypeInstance>) entry.getValue());
+            ObjectSet<JavaTypeInstance> toAdd = new ObjectLinkedOpenHashSet<>();
             for (JavaTypeInstance typ : entry.getValue()) {
                 InnerClassInfo ici = typ.getInnerClassHereInfo();
                 while (ici != null && ici.isInnerClass()) {
@@ -166,10 +163,10 @@ public class Driver {
         }
     }
 
-    private static Set<JavaTypeInstance> getVersionCollisions(Map<Integer, ObjectList<JavaTypeInstance>> clstypes) {
-        if (clstypes.size() <= 1) return Collections.emptySet();
-        Set<JavaTypeInstance> collisions = new ObjectLinkedOpenHashSet<>();
-        Set<JavaTypeInstance> seen = new ObjectOpenHashSet<>();
+    private static ObjectSet<JavaTypeInstance> getVersionCollisions(Map<Integer, ObjectList<JavaTypeInstance>> clstypes) {
+        if (clstypes.size() <= 1) return ObjectSets.emptySet();
+        ObjectSet<JavaTypeInstance> collisions = new ObjectLinkedOpenHashSet<>();
+        ObjectSet<JavaTypeInstance> seen = new ObjectOpenHashSet<>();
         for (ObjectList<JavaTypeInstance> types : clstypes.values()) {
             for (JavaTypeInstance type : types) {
                 if (!seen.add(type)) collisions.add(type);

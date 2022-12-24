@@ -16,12 +16,12 @@ import java.io.OutputStreamWriter;
 import java.util.Collection;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class InternalDumperFactoryImpl implements DumperFactory {
     private final boolean checkDupes;
-    private final Set<String> seen = new ObjectOpenHashSet<>();
+    private final ObjectSet<String> seen = new ObjectOpenHashSet<>();
     private boolean seenCaseDupe = false;
     private final Options options;
     private final ProgressDumper progressDumper;

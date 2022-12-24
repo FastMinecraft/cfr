@@ -13,14 +13,14 @@ import java.util.LinkedList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 
 import java.util.List;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class FinallyCatchBody {
     private final Op03SimpleStatement throwOp;
     private final boolean isEmpty;
     private final Op03SimpleStatement catchCodeStart;
     private final List<Op03SimpleStatement> body;
-    private final Set<Op03SimpleStatement> bodySet;
+    private final ObjectSet<Op03SimpleStatement> bodySet;
 
     private FinallyCatchBody(Op03SimpleStatement throwOp, boolean isEmpty, Op03SimpleStatement catchCodeStart, List<Op03SimpleStatement> body) {
         this.throwOp = throwOp;

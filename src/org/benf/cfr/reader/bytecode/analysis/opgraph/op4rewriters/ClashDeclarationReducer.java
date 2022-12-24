@@ -17,7 +17,7 @@ import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredComm
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 
 import java.util.List;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 /* If we've crippled lifetime checking to handle a clash we can't resolve, then
  * we can, at least, tidy
@@ -34,9 +34,9 @@ import java.util.Set;
  * (it's probably possible to keep an arbitrary name, however we can't rely on SSA to determine this of course)
  */
 public class ClashDeclarationReducer extends AbstractExpressionRewriter implements StructuredStatementTransformer {
-    private final Set<Integer> clashes;
+    private final ObjectSet<Integer> clashes;
 
-    public ClashDeclarationReducer(Set<Integer> clashes) {
+    public ClashDeclarationReducer(ObjectSet<Integer> clashes) {
         this.clashes = clashes;
     }
 

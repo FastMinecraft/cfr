@@ -3,6 +3,7 @@ package org.benf.cfr.reader.bytecode.analysis.parse.wildcard;
 import it.unimi.dsi.fastutil.objects.AbstractObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.loc.HasByteCodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
@@ -1153,7 +1154,7 @@ public class WildcardMatch {
         }
 
         @Override
-        public Set<LValue> getLoopLValues() {
+        public ObjectSet<LValue> getLoopLValues() {
             throw new UnsupportedOperationException();
         }
 

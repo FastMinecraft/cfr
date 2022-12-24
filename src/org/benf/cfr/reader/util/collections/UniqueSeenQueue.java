@@ -4,13 +4,13 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 // This is more about being a queue than being a set, i.e. it's not convenient to use LinkedHashSet.
 public class UniqueSeenQueue<T> {
     private final LinkedList<T> ll;
-    private final Set<T> llItems;
-    private final Set<T> seen;
+    private final ObjectSet<T> llItems;
+    private final ObjectSet<T> seen;
 
     // Items in c should be unique.
     public UniqueSeenQueue(Collection<? extends T> c) {

@@ -9,7 +9,7 @@ import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.DecompilerComment;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class StackEntry {
@@ -19,7 +19,7 @@ public class StackEntry {
     private final static AtomicLong sid = new AtomicLong(0);
 
     private final long id0;
-    private final Set<Long> ids = new ObjectOpenHashSet<>();
+    private final ObjectSet<Long> ids = new ObjectOpenHashSet<>();
     private int artificalSourceCount = 0;
     private final StackSSALabel lValue;
     private long usageCount = 0;
@@ -45,7 +45,7 @@ public class StackEntry {
         usageCount = newCount;
     }
 
-    void mergeWith(StackEntry other, Set<DecompilerComment> comments) {
+    void mergeWith(StackEntry other, ObjectSet<DecompilerComment> comments) {
         if (other.stackType != this.stackType) {
             comments.add(DecompilerComment.UNVERIFIABLE_BYTECODE_BAD_MERGE);
         }

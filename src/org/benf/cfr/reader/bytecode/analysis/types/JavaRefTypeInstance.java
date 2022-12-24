@@ -20,7 +20,7 @@ import org.benf.cfr.reader.util.output.TypeContext;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class JavaRefTypeInstance implements JavaTypeInstance {
     private final String className;
@@ -554,7 +554,7 @@ public class JavaRefTypeInstance implements JavaTypeInstance {
 
         @Override
         public
-        void collectTransitiveDegenericParents(Set<JavaTypeInstance> parents) {
+        void collectTransitiveDegenericParents(ObjectSet<JavaTypeInstance> parents) {
             parents.add(outerClass);
             outerClass.getInnerClassHereInfo().collectTransitiveDegenericParents(parents);
         }

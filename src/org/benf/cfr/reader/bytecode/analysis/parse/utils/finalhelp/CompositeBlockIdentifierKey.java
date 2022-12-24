@@ -6,7 +6,7 @@ import org.benf.cfr.reader.util.collections.Functional;
 
 import java.util.Collections;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class CompositeBlockIdentifierKey implements Comparable<CompositeBlockIdentifierKey> {
     private final String key;
@@ -15,7 +15,7 @@ public class CompositeBlockIdentifierKey implements Comparable<CompositeBlockIde
         this(statement.getBlockIdentifiers());
     }
 
-    public CompositeBlockIdentifierKey(Set<BlockIdentifier> blockIdentifiers) {
+    public CompositeBlockIdentifierKey(ObjectSet<BlockIdentifier> blockIdentifiers) {
         ObjectList<BlockIdentifier> b = Functional.filter(blockIdentifiers, in -> switch (in.getBlockType()) {
             case TRYBLOCK, CATCHBLOCK -> true;
             default -> false;

@@ -2,6 +2,7 @@ package org.benf.cfr.reader.bytecode.analysis.variables;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectRBTreeSet;
 import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 import org.benf.cfr.reader.entities.attributes.LocalVariableEntry;
 import org.benf.cfr.reader.util.MiscConstants;

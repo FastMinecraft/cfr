@@ -13,13 +13,13 @@ import org.benf.cfr.reader.entities.exceptions.ExceptionGroup;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class TryStatement extends AbstractStatement {
     private final ExceptionGroup exceptionGroup;
     // This is a hack. :(
     // We keep track of what mutexes this finally leaves.
-    private final Set<Expression> monitors = new ObjectOpenHashSet<>();
+    private final ObjectSet<Expression> monitors = new ObjectOpenHashSet<>();
 
     public TryStatement(BytecodeLoc loc, ExceptionGroup exceptionGroup) {
         super(loc);
@@ -35,7 +35,7 @@ public class TryStatement extends AbstractStatement {
         monitors.add(e);
     }
 
-    public Set<Expression> getMonitors() {
+    public ObjectSet<Expression> getMonitors() {
         return monitors;
     }
 

@@ -23,11 +23,11 @@ import org.benf.cfr.reader.util.collections.MapFactory;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class InstanceofMatchTidyingRewriter {
     private final Map<LocalVariable, Integer> locals = MapFactory.newMap();
-    private final Set<LocalVariable> removeCandidates = new ObjectLinkedOpenHashSet<>();
+    private final ObjectSet<LocalVariable> removeCandidates = new ObjectLinkedOpenHashSet<>();
     private final Map<LValue, ObjectList<StructuredStatement>> definitions = MapFactory.newOrderedMap();
     private StructuredStatement last;
 

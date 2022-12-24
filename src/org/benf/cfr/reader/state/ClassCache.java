@@ -9,14 +9,14 @@ import org.benf.cfr.reader.util.collections.MapFactory;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class ClassCache {
 
     private final Map<String, JavaRefTypeInstance> refClassTypeCache = MapFactory.newMap();
     // We want to avoid generating names which collide with classes.
     // This is a nice simple check.
-    private final Set<String> simpleClassNamesSeen = new ObjectOpenHashSet<>();
+    private final ObjectSet<String> simpleClassNamesSeen = new ObjectOpenHashSet<>();
     private final Map<String, String> renamedClasses = MapFactory.newMap();
 
     private final DCCommonState dcCommonState;

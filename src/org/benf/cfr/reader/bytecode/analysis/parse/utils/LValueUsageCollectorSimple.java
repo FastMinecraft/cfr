@@ -4,10 +4,10 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
 
 import java.util.Collection;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class LValueUsageCollectorSimple implements LValueUsageCollector {
-    private final Set<LValue> used = new ObjectOpenHashSet<>();
+    private final ObjectSet<LValue> used = new ObjectOpenHashSet<>();
 
     @Override
     public void collect(LValue lValue, ReadWrite rw) {

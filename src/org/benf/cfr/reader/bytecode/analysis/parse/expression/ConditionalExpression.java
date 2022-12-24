@@ -4,7 +4,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.misc.Precedence;
 
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public interface ConditionalExpression extends Expression {
     ConditionalExpression getNegated();
@@ -19,7 +19,7 @@ public interface ConditionalExpression extends Expression {
      */
     ConditionalExpression getRightDeep();
 
-    Set<LValue> getLoopLValues();
+    ObjectSet<LValue> getLoopLValues();
 
     ConditionalExpression optimiseForType();
 

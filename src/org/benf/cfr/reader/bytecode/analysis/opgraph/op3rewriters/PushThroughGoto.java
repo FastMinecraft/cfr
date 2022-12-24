@@ -13,7 +13,7 @@ import java.util.Collection;
 import java.util.function.Predicate;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class PushThroughGoto {
 
@@ -88,9 +88,9 @@ public class PushThroughGoto {
         }
         IsLoopBlock isLoopBlock = new IsLoopBlock();
         Collection<BlockIdentifier> content3 = Functional.filterSet(before.getBlockIdentifiers(), isLoopBlock);
-        Set<BlockIdentifier> beforeLoopBlocks = new ObjectOpenHashSet<>(content3);
+        ObjectSet<BlockIdentifier> beforeLoopBlocks = new ObjectOpenHashSet<>(content3);
         Collection<BlockIdentifier> content2 = Functional.filterSet(tgt.getBlockIdentifiers(), isLoopBlock);
-        Set<BlockIdentifier> tgtLoopBlocks = new ObjectOpenHashSet<>(content2);
+        ObjectSet<BlockIdentifier> tgtLoopBlocks = new ObjectOpenHashSet<>(content2);
         if (!beforeLoopBlocks.equals(tgtLoopBlocks)) return false;
 
         class IsExceptionBlock implements Predicate<BlockIdentifier> {
@@ -106,11 +106,11 @@ public class PushThroughGoto {
         Predicate<BlockIdentifier> exceptionFilter = new IsExceptionBlock();
 
         Collection<BlockIdentifier> content1 = Functional.filterSet(tgt.getBlockIdentifiers(), exceptionFilter);
-        Set<BlockIdentifier> exceptionBlocks = new ObjectOpenHashSet<>(content1);
+        ObjectSet<BlockIdentifier> exceptionBlocks = new ObjectOpenHashSet<>(content1);
         int nextCandidateIdx = statements.indexOf(forwardGoto) - 1;
 
         Op03SimpleStatement lastTarget = tgt;
-        Set<Op03SimpleStatement> seen = new ObjectOpenHashSet<>();
+        ObjectSet<Op03SimpleStatement> seen = new ObjectOpenHashSet<>();
         boolean success = false;
         while (true) {
             Op03SimpleStatement tryMoveThis = forwardGoto.getSources().get(0);
@@ -124,7 +124,7 @@ public class PushThroughGoto {
             boolean abortNext = (tryMoveThis.getSources().size() != 1);
             // Is it in the same exception blocks?
             Collection<BlockIdentifier> content = Functional.filterSet(tryMoveThis.getBlockIdentifiers(), exceptionFilter);
-            Set<BlockIdentifier> moveEB = new ObjectOpenHashSet<>(content);
+            ObjectSet<BlockIdentifier> moveEB = new ObjectOpenHashSet<>(content);
             if (!moveEB.equals(exceptionBlocks)) return success;
             /* Move this instruction through the goto
              */

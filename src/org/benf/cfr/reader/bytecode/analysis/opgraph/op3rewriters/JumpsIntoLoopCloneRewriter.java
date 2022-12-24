@@ -28,7 +28,7 @@ import java.util.Collection;
 import java.util.IdentityHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 /*
  * Similar to the jumps into do rewriter, however we allow (grudgingly) a small amount of code to be copied.
@@ -115,7 +115,7 @@ public class JumpsIntoLoopCloneRewriter {
         final Map<Op03SimpleStatement, Op03SimpleStatement> candidates = MapFactory.newOrderedMap();
         GraphVisitor<Op03SimpleStatement> gv = visitCandidates(ident, possLast, candidates);
         Collection<Op03SimpleStatement> content = gv.getVisitedNodes();
-        Set<Op03SimpleStatement> visited = new ObjectOpenHashSet<>(content);
+        ObjectSet<Op03SimpleStatement> visited = new ObjectOpenHashSet<>(content);
         for (Map.Entry<Op03SimpleStatement, Op03SimpleStatement> candidate : candidates.entrySet()) {
             Op03SimpleStatement caller = candidate.getKey();
             if (caller == stm) continue;
@@ -146,7 +146,7 @@ public class JumpsIntoLoopCloneRewriter {
             Op03SimpleStatement jumpToAfterWhile = new Op03SimpleStatement(caller.getBlockIdentifiers(), new GotoStatement(BytecodeLoc.TODO), caller.getSSAIdentifiers(), idx);
             copies.put(afterWhile, jumpToAfterWhile);
             copies.put(possLast, newCondition);
-            Set<Op03SimpleStatement> addSources = new ObjectOpenHashSet<>(new Op03SimpleStatement[]{ newCondition, jumpToAfterWhile });
+            ObjectSet<Op03SimpleStatement> addSources = new ObjectOpenHashSet<>(new Op03SimpleStatement[]{ newCondition, jumpToAfterWhile });
             ObjectList<Op03SimpleStatement> copy = copyBlock(stm, caller, target, possLast, visited, ident, addSources, copies);
             if (copy == null || copy.isEmpty()) {
                 return;
@@ -224,7 +224,7 @@ public class JumpsIntoLoopCloneRewriter {
         final Map<Op03SimpleStatement, Op03SimpleStatement> candidates = MapFactory.newOrderedMap();
         GraphVisitor<Op03SimpleStatement> gv = visitCandidates(ident, possLast, candidates);
         Collection<Op03SimpleStatement> content = gv.getVisitedNodes();
-        Set<Op03SimpleStatement> visited = new ObjectOpenHashSet<>(content);
+        ObjectSet<Op03SimpleStatement> visited = new ObjectOpenHashSet<>(content);
         for (Map.Entry<Op03SimpleStatement, Op03SimpleStatement> candidate : candidates.entrySet()) {
             Op03SimpleStatement caller = candidate.getKey();
             if (caller == stm) continue;
@@ -339,9 +339,9 @@ public class JumpsIntoLoopCloneRewriter {
         return gv;
     }
 
-    private ObjectList<Op03SimpleStatement> copyBlock(final Op03SimpleStatement stm, final Op03SimpleStatement caller, final Op03SimpleStatement start, final Op03SimpleStatement end, final Set<Op03SimpleStatement> valid,
+    private ObjectList<Op03SimpleStatement> copyBlock(final Op03SimpleStatement stm, final Op03SimpleStatement caller, final Op03SimpleStatement start, final Op03SimpleStatement end, final ObjectSet<Op03SimpleStatement> valid,
                                                 final BlockIdentifier containedIn,
-                                                Set<Op03SimpleStatement> addSources,
+                                                ObjectSet<Op03SimpleStatement> addSources,
                                                 final Map<Op03SimpleStatement, Op03SimpleStatement> orig2copy
     ) {
         final ObjectList<Op03SimpleStatement> copyThese = new ObjectArrayList<>();
@@ -364,13 +364,13 @@ public class JumpsIntoLoopCloneRewriter {
         copyThese.sort(new CompareByIndex());
         ObjectList<Op03SimpleStatement> copies = new ObjectArrayList<>();
         // Note - the expected blocks means that we do NOT currently allow jumping into nested structures.
-        Set<BlockIdentifier> expectedBlocks = end.getBlockIdentifiers();
+        ObjectSet<BlockIdentifier> expectedBlocks = end.getBlockIdentifiers();
 
         CloneHelper cloneHelper = new CloneHelper();
         InstrIndex idx = caller.getIndex().justAfter();
         for (Op03SimpleStatement copyThis : copyThese) {
             Statement s = copyThis.getStatement();
-            Set<BlockIdentifier> b = copyThis.getBlockIdentifiers();
+            ObjectSet<BlockIdentifier> b = copyThis.getBlockIdentifiers();
             if (!b.equals(expectedBlocks)) {
                 return null;
             }

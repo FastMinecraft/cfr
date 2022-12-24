@@ -30,7 +30,7 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 /**
  * Similar to the static lifter, however this has to cope with the possibility that EVERY constructor
@@ -109,7 +109,7 @@ public class NonStaticLifter {
         int numConstructors = constructorCodeList.size();
         final List<Op04StructuredStatement> constructorCode = constructorCodeList.get(0);
         if (constructorCode.isEmpty()) return; // can't happen.
-        Set<Expression> usedFvs = new ObjectOpenHashSet<>();
+        ObjectSet<Expression> usedFvs = new ObjectOpenHashSet<>();
         int maxFieldIdx = -1;
         for (int x = 0; x < minSize; ++x) {
             StructuredStatement s1 = constructorCode.get(x).getStatement();
@@ -193,13 +193,13 @@ public class NonStaticLifter {
     }
 
     private boolean tryLift(FieldVariable lValue, Expression rValue, Map<String, Pair<Integer, ClassFileField>> fieldMap,
-                            Set<Expression> usedFvs) {
+                            ObjectSet<Expression> usedFvs) {
         Pair<Integer, ClassFileField> thisField = fieldMap.get(lValue.getFieldName());
         if (thisField == null) return false;
         return hasLegitArgs(rValue, usedFvs);
     }
 
-    private boolean hasLegitArgs(Expression rValue, Set<Expression> usedFvs) {
+    private boolean hasLegitArgs(Expression rValue, ObjectSet<Expression> usedFvs) {
         LValueUsageCollectorSimple usageCollector = new LValueUsageCollectorSimple();
         rValue.collectUsedLValues(usageCollector);
         for (LValue usedLValue : usageCollector.getUsedLValues()) {

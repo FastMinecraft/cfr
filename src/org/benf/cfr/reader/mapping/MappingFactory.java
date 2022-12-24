@@ -2,6 +2,7 @@ package org.benf.cfr.reader.mapping;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
+import it.unimi.dsi.fastutil.objects.ObjectSets;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaArrayTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
@@ -116,7 +117,7 @@ public class MappingFactory {
             JavaTypeInstance parent = entry.getKey();
             ObjectList<InnerClassAttributeInfo> parentIac = lazyRes.get(parent);
             for (JavaTypeInstance child : entry.getValue()) {
-                InnerClassAttributeInfo iac = new InnerClassAttributeInfo(child, parent, null, Collections.emptySet());
+                InnerClassAttributeInfo iac = new InnerClassAttributeInfo(child, parent, null, ObjectSets.emptySet());
                 parentIac.add(iac);
                 lazyRes.get(child).add(iac);
             }

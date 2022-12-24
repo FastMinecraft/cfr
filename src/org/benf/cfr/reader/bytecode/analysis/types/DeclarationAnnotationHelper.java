@@ -6,7 +6,8 @@ import java.util.HashSet;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 import org.benf.cfr.reader.entities.annotations.AnnotationTableEntry;
 import org.benf.cfr.reader.entities.annotations.AnnotationTableTypeEntry;
@@ -178,7 +179,7 @@ public class DeclarationAnnotationHelper {
         }
     }
 
-    private static Set<JavaTypeInstance> getDeclAndTypeUseAnnotationTypes(ObjectList<AnnotationTableEntry> declAnnotations, ObjectList<AnnotationTableTypeEntry> typeAnnotations) {
+    private static ObjectSet<JavaTypeInstance> getDeclAndTypeUseAnnotationTypes(ObjectList<AnnotationTableEntry> declAnnotations, ObjectList<AnnotationTableTypeEntry> typeAnnotations) {
         /*
          * TODO: To be more correct the @Target meta annotation on the annotation
          * types would have to be checked, however that is currently not easily
@@ -186,7 +187,7 @@ public class DeclarationAnnotationHelper {
          * Therefore at least find annotation types which are actually used on
          * both declaration and type.
          */
-        Set<JavaTypeInstance> declTypeAnnotations = new HashSet<>();
+        ObjectSet<JavaTypeInstance> declTypeAnnotations = new ObjectOpenHashSet<>();
         for (AnnotationTableEntry declAnn : declAnnotations) {
             declTypeAnnotations.add(declAnn.getClazz());
         }
@@ -346,10 +347,10 @@ public class DeclarationAnnotationHelper {
         }
 
         /*
-         * Set containing all annotation classes which can apply both to the declaration
+         * ObjectSet containing all annotation classes which can apply both to the declaration
          * and type (TYPE_USE).
          */
-        Set<JavaTypeInstance> declTypeAnnotations = getDeclAndTypeUseAnnotationTypes(declarationAnnotations, typeAnnotations);
+        ObjectSet<JavaTypeInstance> declTypeAnnotations = getDeclAndTypeUseAnnotationTypes(declarationAnnotations, typeAnnotations);
 
         // No need to perform further checks if all annotations apply either to
         // the declaration or type

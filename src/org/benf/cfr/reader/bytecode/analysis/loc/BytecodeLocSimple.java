@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.loc;
 
+import it.unimi.dsi.fastutil.objects.ObjectSets;
 import org.benf.cfr.reader.entities.Method;
 
 import java.util.Collection;
@@ -31,12 +32,12 @@ class BytecodeLocSimple extends BytecodeLoc {
 
     @Override
     public Collection<Method> getMethods() {
-        return Collections.singleton(method);
+        return ObjectSets.singleton(method);
     }
 
     @Override
     public Collection<Integer> getOffsetsForMethod(Method method) {
-        return Collections.singleton(offset);
+        return ObjectSets.singleton(offset);
     }
 
     @Override

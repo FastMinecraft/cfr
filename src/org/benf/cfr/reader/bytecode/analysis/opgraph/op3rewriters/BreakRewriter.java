@@ -8,7 +8,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockType;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.JumpType;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class BreakRewriter {
     public static void rewriteBreakStatements(ObjectList<Op03SimpleStatement> statements) {
@@ -50,7 +50,7 @@ public class BreakRewriter {
                             continue;
                         }
                     }
-                    Set<BlockIdentifier> blocksEnded = targetStatement.getBlocksEnded();
+                    ObjectSet<BlockIdentifier> blocksEnded = targetStatement.getBlocksEnded();
                     if (!blocksEnded.isEmpty()) {
                         BlockIdentifier outermostContainedIn = BlockIdentifier.getOutermostContainedIn(
                             blocksEnded,

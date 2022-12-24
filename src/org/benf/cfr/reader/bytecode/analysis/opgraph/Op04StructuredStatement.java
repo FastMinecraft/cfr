@@ -3,6 +3,7 @@ package org.benf.cfr.reader.bytecode.analysis.opgraph;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.benf.cfr.reader.bytecode.AnonymousClassUsage;
 import org.benf.cfr.reader.bytecode.BytecodeMeta;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
@@ -55,14 +56,13 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
     private ObjectList<Op04StructuredStatement> targets = new ObjectArrayList<>();
     private StructuredStatement structuredStatement;
 
-    private final Set<BlockIdentifier> blockMembership;
+    private final ObjectSet<BlockIdentifier> blockMembership;
     // Handy for really icky breakpointing, oh I wish we had proper conditional compilation.
-//    private static int id = 0;
-//    private final int idx = id++;
+    //    private static int id = 0;
+    //    private final int idx = id++;
+    private static final ObjectSet<BlockIdentifier> EMPTY_BLOCKSET = new ObjectOpenHashSet<>();
 
-    private static final Set<BlockIdentifier> EMPTY_BLOCKSET = new ObjectOpenHashSet<>();
-
-    private static Set<BlockIdentifier> blockSet(Collection<BlockIdentifier> in) {
+    private static ObjectSet<BlockIdentifier> blockSet(Collection<BlockIdentifier> in) {
         if (in == null || in.isEmpty()) return EMPTY_BLOCKSET;
         return new ObjectOpenHashSet<>(in);
     }
@@ -176,7 +176,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
     }
 
     @Override
-    public Set<BlockIdentifier> getBlockIdentifiers() {
+    public ObjectSet<BlockIdentifier> getBlockIdentifiers() {
         return blockMembership;
     }
 
@@ -186,7 +186,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
     }
 
     @Override
-    public Set<BlockIdentifier> getBlocksEnded() {
+    public ObjectSet<BlockIdentifier> getBlocksEnded() {
         throw new UnsupportedOperationException();
     }
 
@@ -391,19 +391,19 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
     /*
      * This is pretty inefficient....
      */
-    private static Set<BlockIdentifier> getEndingBlocks(Stack<BlockIdentifier> wasIn, Set<BlockIdentifier> nowIn) {
-        Set<BlockIdentifier> wasCopy = new ObjectOpenHashSet<>(wasIn);
+    private static ObjectSet<BlockIdentifier> getEndingBlocks(Stack<BlockIdentifier> wasIn, ObjectSet<BlockIdentifier> nowIn) {
+        ObjectSet<BlockIdentifier> wasCopy = new ObjectOpenHashSet<>(wasIn);
         wasCopy.removeAll(nowIn);
         return wasCopy;
     }
 
-    private static BlockIdentifier getStartingBlocks(Stack<BlockIdentifier> wasIn, Set<BlockIdentifier> nowIn) {
+    private static BlockIdentifier getStartingBlocks(Stack<BlockIdentifier> wasIn, ObjectSet<BlockIdentifier> nowIn) {
         /*
          * We /KNOW/ that we've already checked and dealt with blocks we've left.
          * So we're only entering a new block if |nowIn|>|wasIn|.
          */
         if (nowIn.size() <= wasIn.size()) return null;
-        Set<BlockIdentifier> nowCopy = new ObjectOpenHashSet<>(nowIn);
+        ObjectSet<BlockIdentifier> nowCopy = new ObjectOpenHashSet<>(nowIn);
         wasIn.forEach(nowCopy::remove);
         if (nowCopy.size() != 1) {
 //            logger.warning("From " + wasIn + " to " + nowIn + " = " + nowCopy);
@@ -418,7 +418,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
     }
 
     private static void processEndingBlocks(
-            final Set<BlockIdentifier> endOfTheseBlocks,
+            final ObjectSet<BlockIdentifier> endOfTheseBlocks,
             final Stack<BlockIdentifier> blocksCurrentlyIn,
             final Stack<StackedBlock> stackedBlocks,
             final MutableProcessingBlockState mutableProcessingBlockState) {
@@ -477,7 +477,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
              *
              * If we've started a new block.... start that.
              */
-            Set<BlockIdentifier> endOfTheseBlocks = getEndingBlocks(blocksCurrentlyIn, container.blockMembership);
+            ObjectSet<BlockIdentifier> endOfTheseBlocks = getEndingBlocks(blocksCurrentlyIn, container.blockMembership);
             if (!endOfTheseBlocks.isEmpty()) {
                 processEndingBlocks(endOfTheseBlocks, blocksCurrentlyIn, stackedBlocks, mutableProcessingBlockState);
             }
@@ -573,9 +573,9 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
     }
 
     private static StructuredStatement transformStructuredGotoWithScope(StructuredScope scope, StructuredStatement stm,
-                                                                        Stack<Triplet<StructuredStatement, BlockIdentifier, Set<Op04StructuredStatement>>> breaktargets
+                                                                        Stack<Triplet<StructuredStatement, BlockIdentifier, ObjectSet<Op04StructuredStatement>>> breaktargets
     ) {
-        Set<Op04StructuredStatement> nextFallThrough = scope.getNextFallThrough(stm);
+        ObjectSet<Op04StructuredStatement> nextFallThrough = scope.getNextFallThrough(stm);
         ObjectList<Op04StructuredStatement> targets = stm.getContainer().getTargets();
         // Targets is an invalid concept for op04 really, should get rid of it.
         Op04StructuredStatement target = targets.isEmpty() ? null : targets.get(0);
@@ -592,7 +592,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
             }
         } else if (!breaktargets.isEmpty()) {
             // Ok - it doesn't.  But can we get there by breaking out of one of the enclosing blocks?
-            Triplet<StructuredStatement, BlockIdentifier, Set<Op04StructuredStatement>> breakTarget = breaktargets.peek();
+            Triplet<StructuredStatement, BlockIdentifier, ObjectSet<Op04StructuredStatement>> breakTarget = breaktargets.peek();
             if (breakTarget.getThird().contains(target)) {
                 return new StructuredBreak(BytecodeLoc.TODO, breakTarget.getSecond(), true);
             }
@@ -603,9 +603,9 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
 
     private static abstract class ScopeDescendingTransformer implements StructuredStatementTransformer {
 
-        private final Stack<Triplet<StructuredStatement, BlockIdentifier, Set<Op04StructuredStatement>>> targets = new Stack<>();
+        private final Stack<Triplet<StructuredStatement, BlockIdentifier, ObjectSet<Op04StructuredStatement>>> targets = new Stack<>();
 
-        protected abstract StructuredStatement doTransform(StructuredStatement statement, Stack<Triplet<StructuredStatement, BlockIdentifier, Set<Op04StructuredStatement>>> targets, StructuredScope scope);
+        protected abstract StructuredStatement doTransform(StructuredStatement statement, Stack<Triplet<StructuredStatement, BlockIdentifier, ObjectSet<Op04StructuredStatement>>> targets, StructuredScope scope);
 
         @Override
         public StructuredStatement transform(final StructuredStatement in, StructuredScope scope) {
@@ -615,7 +615,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
              */
             final BlockIdentifier breakableBlock = in.getBreakableBlockOrNull();
             if (breakableBlock != null) {
-                final Set<Op04StructuredStatement> next = scope.getNextFallThrough(in);
+                final ObjectSet<Op04StructuredStatement> next = scope.getNextFallThrough(in);
                 targets.push(Triplet.make(in, breakableBlock, next));
             }
             StructuredStatement out = in;
@@ -637,7 +637,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
     // Walk block children in reverse - this allows us to skip over repeated 'last' statements
     private static class StructuredGotoRemover extends ScopeDescendingTransformer {
         @Override
-        protected StructuredStatement doTransform(StructuredStatement statement, Stack<Triplet<StructuredStatement, BlockIdentifier, Set<Op04StructuredStatement>>> targets, StructuredScope scope) {
+        protected StructuredStatement doTransform(StructuredStatement statement, Stack<Triplet<StructuredStatement, BlockIdentifier, ObjectSet<Op04StructuredStatement>>> targets, StructuredScope scope) {
             if (statement instanceof UnstructuredGoto ||
                     statement instanceof UnstructuredAnonymousBreak) {
                 statement = transformStructuredGotoWithScope(scope, statement, targets);
@@ -648,7 +648,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
 
     private static class NamedBreakRemover extends ScopeDescendingTransformer {
         @Override
-        protected StructuredStatement doTransform(StructuredStatement statement, Stack<Triplet<StructuredStatement, BlockIdentifier, Set<Op04StructuredStatement>>> targets, StructuredScope scope) {
+        protected StructuredStatement doTransform(StructuredStatement statement, Stack<Triplet<StructuredStatement, BlockIdentifier, ObjectSet<Op04StructuredStatement>>> targets, StructuredScope scope) {
             if (statement instanceof StructuredBreak) {
                 statement = ((StructuredBreak) statement).maybeTightenToLocal(targets);
             }
@@ -849,7 +849,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
     public static boolean checkTypeClashes(Op04StructuredStatement block, BytecodeMeta bytecodeMeta) {
         LValueTypeClashCheck clashCheck = new LValueTypeClashCheck();
         clashCheck.processOp04Statement(block);
-        Set<Integer> clashes = clashCheck.getClashes();
+        ObjectSet<Integer> clashes = clashCheck.getClashes();
         if (!clashes.isEmpty()) {
             bytecodeMeta.informLivenessClashes(clashes);
             return true;
@@ -905,7 +905,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
         applyLValueReplacer(replacements, root);
     }
 
-    private static void removeMethodScopedSyntheticConstructorOuterArgs(Method method, Op04StructuredStatement root, Set<MethodPrototype> processed) {
+    private static void removeMethodScopedSyntheticConstructorOuterArgs(Method method, Op04StructuredStatement root, ObjectSet<MethodPrototype> processed) {
         final MethodPrototype prototype = method.getMethodPrototype();
 
         if (!processed.add(prototype)) return;
@@ -927,7 +927,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
                 this.idx = idx;
             }
 
-            private final Set<Expression> captures = new HashSet<>();
+            private final ObjectSet<Expression> captures = new ObjectOpenHashSet<>();
         }
 
         Map<MethodPrototype, MethodPrototype> protos = new IdentityHashMap<>();
@@ -1100,7 +1100,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
     /*
      * Remove (and rewrite) references to this$x
      */
-    public static void fixInnerClassConstructorSyntheticOuterArgs(ClassFile classFile, Method method, Op04StructuredStatement root, Set<MethodPrototype> processed) {
+    public static void fixInnerClassConstructorSyntheticOuterArgs(ClassFile classFile, Method method, Op04StructuredStatement root, ObjectSet<MethodPrototype> processed) {
         if (classFile.isInnerClass()) {
             boolean instance = !classFile.testAccessFlag(AccessFlag.ACC_STATIC);
             removeAnonymousSyntheticConstructorOuterArgs(method, root, instance);

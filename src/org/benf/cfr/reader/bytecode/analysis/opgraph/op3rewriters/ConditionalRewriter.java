@@ -27,7 +27,7 @@ import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
 import java.util.Collections;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import java.util.function.Predicate;
 
 public class ConditionalRewriter {
@@ -48,7 +48,7 @@ public class ConditionalRewriter {
         Options options
     ) {
         boolean success;
-        Set<Op03SimpleStatement> ignoreTheseJumps = new ObjectOpenHashSet<>();
+        ObjectSet<Op03SimpleStatement> ignoreTheseJumps = new ObjectOpenHashSet<>();
         boolean reduceSimpleScope = options.getOption(OptionsImpl.REDUCE_COND_SCOPE) == Troolean.TRUE;
         do {
             success = false;
@@ -139,7 +139,7 @@ public class ConditionalRewriter {
 
         if (didx <= cidx) return false;
 
-        Set<Op03SimpleStatement> permittedSources = new ObjectOpenHashSet<>(new Op03SimpleStatement[]{ ifStatement });
+        ObjectSet<Op03SimpleStatement> permittedSources = new ObjectOpenHashSet<>(new Op03SimpleStatement[]{ ifStatement });
         if (!isRangeOnlyReachable(aidx, bidx, cidx, statements, permittedSources)) return false;
         if (!isRangeOnlyReachable(bidx, cidx, didx, statements, permittedSources)) return false;
 
@@ -212,10 +212,10 @@ public class ConditionalRewriter {
         int endIdx,
         int tgtIdx,
         ObjectList<Op03SimpleStatement> statements,
-        Set<Op03SimpleStatement> permittedSources
+        ObjectSet<Op03SimpleStatement> permittedSources
     ) {
 
-        Set<Op03SimpleStatement> reachable = new ObjectOpenHashSet<>();
+        ObjectSet<Op03SimpleStatement> reachable = new ObjectOpenHashSet<>();
         final Op03SimpleStatement startStatement = statements.get(startIdx);
         final Op03SimpleStatement endStatement = statements.get(endIdx);
         final Op03SimpleStatement tgtStatement = statements.get(tgtIdx);
@@ -279,8 +279,8 @@ lbl10: // 1 sources:
      * generates this kind of stuff.
      */
     private static boolean detectAndRemarkJumpIntoOther(
-        Set<BlockIdentifier> blocksAtStart,
-        Set<BlockIdentifier> blocksAtEnd,
+        ObjectSet<BlockIdentifier> blocksAtStart,
+        ObjectSet<BlockIdentifier> blocksAtEnd,
         Op03SimpleStatement realEnd,
         Op03SimpleStatement ifStatement
     ) {
@@ -339,7 +339,7 @@ lbl10: // 1 sources:
         Op03SimpleStatement ifStatement,
         ObjectList<Op03SimpleStatement> statements,
         BlockIdentifierFactory blockIdentifierFactory,
-        Set<Op03SimpleStatement> ignoreTheseJumps,
+        ObjectSet<Op03SimpleStatement> ignoreTheseJumps,
         boolean reduceSimpleScope
     ) {
         Op03SimpleStatement takenTarget = ifStatement.getTargets().get(1);
@@ -348,7 +348,7 @@ lbl10: // 1 sources:
         int idxNotTaken = statements.indexOf(notTakenTarget);
         IfStatement innerIfStatement = (IfStatement) ifStatement.getStatement();
 
-        Set<Op03SimpleStatement> ignoreLocally = new ObjectOpenHashSet<>();
+        ObjectSet<Op03SimpleStatement> ignoreLocally = new ObjectOpenHashSet<>();
 
         boolean takenAction = false;
 
@@ -365,7 +365,7 @@ lbl10: // 1 sources:
         ObjectList<Op03SimpleStatement> elseBranch = null;
         // Consider the try blocks we're in at this point.  (the ifStatemenet).
         // If we leave any of them, we've left the if.
-        Set<BlockIdentifier> blocksAtStart = ifStatement.getBlockIdentifiers();
+        ObjectSet<BlockIdentifier> blocksAtStart = ifStatement.getBlockIdentifiers();
         if (idxCurrent == idxEnd) {
             // It's a trivial tautology? We can't nop it out unless it's side effect free.
             // Instead insert a comment.
@@ -392,7 +392,7 @@ lbl10: // 1 sources:
             innerIfStatement.setJumpType(JumpType.GOTO_OUT_OF_IF);
             return true;
         }
-        Set<Op03SimpleStatement> validForwardParents = new ObjectOpenHashSet<>();
+        ObjectSet<Op03SimpleStatement> validForwardParents = new ObjectOpenHashSet<>();
         validForwardParents.add(ifStatement);
         /*
          * Find the (possible) end of the if block, which is a forward unconditional jump.
@@ -408,7 +408,7 @@ lbl10: // 1 sources:
 
         Op03SimpleStatement statementStart = statements.get(idxCurrent);
         Predicate<BlockIdentifier> tryBlockFilter = in -> in.getBlockType() == BlockType.TRYBLOCK;
-        Set<BlockIdentifier> startTryBlocks = Functional.filterSet(
+        ObjectSet<BlockIdentifier> startTryBlocks = Functional.filterSet(
             statementStart.getBlockIdentifiers(),
             tryBlockFilter
         );
@@ -609,7 +609,7 @@ lbl10: // 1 sources:
         }
 
         Op03SimpleStatement realEnd = statements.get(idxEnd);
-        Set<BlockIdentifier> blocksAtEnd = realEnd.getBlockIdentifiers();
+        ObjectSet<BlockIdentifier> blocksAtEnd = realEnd.getBlockIdentifiers();
         // If we've changed the blocks we're in, that means we've jumped into a block.
         // The only way we can cope with this, is if we're jumping into a block which we subsequently change
         // to be an anonymous escape.
@@ -725,17 +725,17 @@ lbl10: // 1 sources:
              * both a&b could be pushed after the block!
              */
             // First - detect if the "if" block-to-be has any foreign sources.
-            Set<Op03SimpleStatement> allIfSources = Misc.collectAllSources(ifBranch);
+            ObjectSet<Op03SimpleStatement> allIfSources = Misc.collectAllSources(ifBranch);
             ifBranch.forEach(allIfSources::remove);
             allIfSources.remove(ifStatement);
             if (allIfSources.isEmpty()) break doneElse;
 
             Op03SimpleStatement elseStart = elseBranch.get(0);
-            Pair<Set<Op03SimpleStatement>, Set<Op03SimpleStatement>> reachinfo = Misc.GraphVisitorBlockReachable.getBlockReachableAndExits(
+            Pair<ObjectSet<Op03SimpleStatement>, ObjectSet<Op03SimpleStatement>> reachinfo = Misc.GraphVisitorBlockReachable.getBlockReachableAndExits(
                 elseStart,
                 elseBlockLabel
             );
-            Set<Op03SimpleStatement> reachableElse = reachinfo.getFirst();
+            ObjectSet<Op03SimpleStatement> reachableElse = reachinfo.getFirst();
 
             if (!(reachableElse.size() == elseBranch.size() && reachinfo.getSecond().isEmpty())) break doneElse;
 

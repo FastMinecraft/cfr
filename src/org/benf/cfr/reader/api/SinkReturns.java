@@ -1,7 +1,7 @@
 package org.benf.cfr.reader.api;
 
 import java.util.NavigableMap;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 /**
  * Sinks will accept (as defined by {@link org.benf.cfr.reader.api.OutputSinkFactory.SinkClass} various types
@@ -163,6 +163,6 @@ public interface SinkReturns {
 
         Object getRawValue();
 
-        Set<TokenTypeFlags> getFlags();
+        ObjectSet<TokenTypeFlags> getFlags();
     }
 }

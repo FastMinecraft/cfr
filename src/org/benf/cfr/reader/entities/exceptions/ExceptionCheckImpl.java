@@ -13,16 +13,16 @@ import org.benf.cfr.reader.util.collections.SetUtil;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class ExceptionCheckImpl implements ExceptionCheck {
-    private final Set<JavaRefTypeInstance> caughtChecked = new ObjectOpenHashSet<>();
-    private final Set<JavaRefTypeInstance> caughtUnchecked = new ObjectOpenHashSet<>();
+    private final ObjectSet<JavaRefTypeInstance> caughtChecked = new ObjectOpenHashSet<>();
+    private final ObjectSet<JavaRefTypeInstance> caughtUnchecked = new ObjectOpenHashSet<>();
     private final boolean mightUseUnchecked;
     private final boolean missingInfo;
     private final DCCommonState dcCommonState;
 
-    public ExceptionCheckImpl(DCCommonState dcCommonState, Set<JavaRefTypeInstance> caught) {
+    public ExceptionCheckImpl(DCCommonState dcCommonState, ObjectSet<JavaRefTypeInstance> caught) {
         this.dcCommonState = dcCommonState;
         JavaRefTypeInstance runtimeExceptionType = dcCommonState.getClassTypeOrNull(TypeConstants.runtimeExceptionPath);
         if (runtimeExceptionType == null) {
@@ -57,7 +57,7 @@ public class ExceptionCheckImpl implements ExceptionCheck {
         missingInfo = lmissinginfo;
     }
 
-    private boolean checkAgainstInternal(Set<? extends JavaTypeInstance> thrown) {
+    private boolean checkAgainstInternal(ObjectSet<? extends JavaTypeInstance> thrown) {
         if (thrown.isEmpty()) return false;
 
         for (JavaTypeInstance thrownType : thrown) {
@@ -85,7 +85,7 @@ public class ExceptionCheckImpl implements ExceptionCheck {
     }
 
     @Override
-    public boolean checkAgainst(Set<? extends JavaTypeInstance> thrown) {
+    public boolean checkAgainst(ObjectSet<? extends JavaTypeInstance> thrown) {
         try {
             return checkAgainstInternal(thrown);
         } catch (Exception e) {

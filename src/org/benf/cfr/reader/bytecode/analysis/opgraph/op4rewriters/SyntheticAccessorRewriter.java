@@ -36,7 +36,7 @@ import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetUtil;
 
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class SyntheticAccessorRewriter extends AbstractExpressionRewriter implements Op04Rewriter {
 
@@ -112,10 +112,10 @@ public class SyntheticAccessorRewriter extends AbstractExpressionRewriter implem
     private static final String SUPER_RETINVOKE = "superretinv";
 
     private static boolean validRelationship(JavaTypeInstance type1, JavaTypeInstance type2) {
-        Set<JavaTypeInstance> parents1 = new ObjectOpenHashSet<>();
+        ObjectSet<JavaTypeInstance> parents1 = new ObjectOpenHashSet<>();
         type1.getInnerClassHereInfo().collectTransitiveDegenericParents(parents1);
         parents1.add(type1);
-        Set<JavaTypeInstance> parents2 = new ObjectOpenHashSet<>();
+        ObjectSet<JavaTypeInstance> parents2 = new ObjectOpenHashSet<>();
         type2.getInnerClassHereInfo().collectTransitiveDegenericParents(parents2);
         parents2.add(type2);
         return SetUtil.hasIntersection(parents1, parents2);

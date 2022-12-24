@@ -10,7 +10,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.expression.SuperFunctionInvok
 import org.benf.cfr.reader.bytecode.analysis.parse.wildcard.WildcardMatch;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class EnumSuperRewriter extends RedundantSuperRewriter {
     @Override
@@ -32,8 +32,8 @@ public class EnumSuperRewriter extends RedundantSuperRewriter {
         return ((LValueExpression) e).getLValue();
     }
 
-    protected Set<LValue> getDeclarationsToNop(WildcardMatch wcm) {
-        Set<LValue> res = new ObjectOpenHashSet<>();
+    protected ObjectSet<LValue> getDeclarationsToNop(WildcardMatch wcm) {
+        ObjectSet<LValue> res = new ObjectOpenHashSet<>();
         res.add(getLValue(wcm, "enum_a"));
         res.add(getLValue(wcm, "enum_b"));
         return res;

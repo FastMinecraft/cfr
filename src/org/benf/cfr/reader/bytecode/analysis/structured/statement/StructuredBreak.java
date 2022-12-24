@@ -15,7 +15,7 @@ import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import java.util.Stack;
 
 public class StructuredBreak extends AbstractStructuredStatement {
@@ -85,7 +85,7 @@ public class StructuredBreak extends AbstractStructuredStatement {
     public void rewriteExpressions(ExpressionRewriter expressionRewriter) {
     }
 
-    public StructuredBreak maybeTightenToLocal(Stack<Triplet<StructuredStatement, BlockIdentifier, Set<Op04StructuredStatement>>> scopes) {
+    public StructuredBreak maybeTightenToLocal(Stack<Triplet<StructuredStatement, BlockIdentifier, ObjectSet<Op04StructuredStatement>>> scopes) {
         if (localBreak) return this;
         /*
          * Can't improve if no targets.
@@ -97,17 +97,17 @@ public class StructuredBreak extends AbstractStructuredStatement {
          * ok, it's not local.  Go up the scopes, and find the enclosing block, then see if the innermost breakable also
          * falls through to the same target.  If so, we can convert it to a local break.
          */
-        Triplet<StructuredStatement, BlockIdentifier, Set<Op04StructuredStatement>> local = scopes.peek();
+        Triplet<StructuredStatement, BlockIdentifier, ObjectSet<Op04StructuredStatement>> local = scopes.peek();
         if (local.getSecond() == breakBlock) {
             // well this is wrong.  Should be marked as a local break!
             return this;
         }
         for (int i = scopes.size() - 2; i >= 0; i--) {
-            Triplet<StructuredStatement, BlockIdentifier, Set<Op04StructuredStatement>> scope = scopes.get(i);
+            Triplet<StructuredStatement, BlockIdentifier, ObjectSet<Op04StructuredStatement>> scope = scopes.get(i);
             if (scope.getSecond() == breakBlock) {
                 // Ok, this is the actual block we're breaking out of.
-                Set<Op04StructuredStatement> localNext = local.getThird();
-                Set<Op04StructuredStatement> actualNext = scope.getThird();
+                ObjectSet<Op04StructuredStatement> localNext = local.getThird();
+                ObjectSet<Op04StructuredStatement> actualNext = scope.getThird();
                 if (localNext.containsAll(actualNext)) {
                     breakBlock.releaseForeignRef();
                     return new StructuredBreak(getLoc(), local.getSecond(), true);

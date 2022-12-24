@@ -12,12 +12,12 @@ import org.benf.cfr.reader.state.TypeUsageInformation;
 import org.benf.cfr.reader.state.TypeUsageInformationEmpty;
 
 import java.io.BufferedOutputStream;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class ToStringDumper extends AbstractDumper {
     private final StringBuilder sb = new StringBuilder();
     private final TypeUsageInformation typeUsageInformation = new TypeUsageInformationEmpty();
-    private final Set<JavaTypeInstance> emitted = new ObjectOpenHashSet<>();
+    private final ObjectSet<JavaTypeInstance> emitted = new ObjectOpenHashSet<>();
 
     public static String toString(Dumpable d) {
         // TODO: By using a new context here, we explicitly reset tab etc.

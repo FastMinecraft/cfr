@@ -14,7 +14,7 @@ import org.benf.cfr.reader.util.output.TypeContext;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public enum RawJavaType implements JavaTypeInstance {
     BOOLEAN("boolean", "bl", StackType.INT, true, TypeConstants.boxingNameBoolean, false, false, 0, 1),
@@ -41,7 +41,7 @@ public enum RawJavaType implements JavaTypeInstance {
     private final int intMin;
     private final int intMax;
 
-    private static final Map<RawJavaType, Set<RawJavaType>> implicitCasts = MapFactory.newMap();
+    private static final Map<RawJavaType, ObjectSet<RawJavaType>> implicitCasts = MapFactory.newMap();
     private static final Map<String, RawJavaType> boxingTypes = MapFactory.newMap();
     private static final Map<String, RawJavaType> podLookup = MapFactory.newMap();
 
@@ -240,7 +240,7 @@ public enum RawJavaType implements JavaTypeInstance {
 
     private boolean implicitlyCastsTo(RawJavaType other) {
         if (other == this) return true;
-        Set<RawJavaType> tgt = implicitCasts.get(this);
+        ObjectSet<RawJavaType> tgt = implicitCasts.get(this);
         if (tgt == null) return false;
         return tgt.contains(other);
     }

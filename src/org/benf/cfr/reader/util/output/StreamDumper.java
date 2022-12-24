@@ -12,14 +12,14 @@ import org.benf.cfr.reader.state.TypeUsageInformation;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public abstract class StreamDumper extends AbstractDumper {
     private final TypeUsageInformation typeUsageInformation;
     protected final Options options;
     protected final IllegalIdentifierDump illegalIdentifierDump;
     private final boolean convertUTF;
-    protected final Set<JavaTypeInstance> emitted;
+    protected final ObjectSet<JavaTypeInstance> emitted;
 
     StreamDumper(TypeUsageInformation typeUsageInformation, Options options, IllegalIdentifierDump illegalIdentifierDump, MovableDumperContext context) {
         super(context);
@@ -30,7 +30,7 @@ public abstract class StreamDumper extends AbstractDumper {
         this.emitted = new ObjectOpenHashSet<>();
     }
 
-    StreamDumper(TypeUsageInformation typeUsageInformation, Options options, IllegalIdentifierDump illegalIdentifierDump, MovableDumperContext context, Set<JavaTypeInstance> emitted) {
+    StreamDumper(TypeUsageInformation typeUsageInformation, Options options, IllegalIdentifierDump illegalIdentifierDump, MovableDumperContext context, ObjectSet<JavaTypeInstance> emitted) {
         super(context);
         this.typeUsageInformation = typeUsageInformation;
         this.options = options;

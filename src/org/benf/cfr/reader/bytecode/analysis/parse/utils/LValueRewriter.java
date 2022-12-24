@@ -6,7 +6,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.StatementContainer;
 
 import java.util.Collection;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public interface LValueRewriter<T> {
     Expression getLValueReplacement(LValue lValue, SSAIdentifiers<LValue> ssaIdentifiers, StatementContainer<T> statementContainer);
@@ -15,7 +15,7 @@ public interface LValueRewriter<T> {
 
     void checkPostConditions(LValue lValue, Expression rValue);
 
-    LValueRewriter getWithFixed(Set<SSAIdent> fixed);
+    LValueRewriter getWithFixed(ObjectSet<SSAIdent> fixed);
 
     boolean needLR();
 

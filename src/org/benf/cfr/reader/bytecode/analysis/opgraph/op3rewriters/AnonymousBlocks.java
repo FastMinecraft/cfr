@@ -15,7 +15,7 @@ import org.benf.cfr.reader.util.collections.Functional;
 
 import java.util.Collection;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class AnonymousBlocks {
     public static void labelAnonymousBlocks(ObjectList<Op03SimpleStatement> statements, BlockIdentifierFactory blockIdentifierFactory) {
@@ -30,7 +30,7 @@ public class AnonymousBlocks {
         /*
          * Collect the unique set of targets for the anonymous breaks.
          */
-        Set<Op03SimpleStatement> targets = new ObjectLinkedOpenHashSet<>();
+        ObjectSet<Op03SimpleStatement> targets = new ObjectLinkedOpenHashSet<>();
         for (Op03SimpleStatement anonBreak : anonBreaks) {
             JumpingStatement jumpingStatement = (JumpingStatement) anonBreak.getStatement();
             Op03SimpleStatement anonBreakTarget = (Op03SimpleStatement) jumpingStatement.getJumpTarget().getContainer();

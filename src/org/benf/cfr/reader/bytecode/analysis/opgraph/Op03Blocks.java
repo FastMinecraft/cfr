@@ -1,9 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.*;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters.Cleaner;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters.ExactTypeFilter;
@@ -39,7 +36,7 @@ public class Op03Blocks {
          *
          * We can't do a naive 'emit with 0 parents because of loops.
          */
-        LinkedHashSet<Block3> allBlocks = new LinkedHashSet<>(in);
+        ObjectSet<Block3> allBlocks = new ObjectLinkedOpenHashSet<>(in);
 
         /* in a simple top sort, you take a node with 0 parents, emit it, remove it as parent from all
          * its children, rinse and repeat.  We can't do that immediately, because we have cycles.
@@ -47,7 +44,7 @@ public class Op03Blocks {
          * v1 - try simple top sort, but when we have no candidates, emit next candidate with only existing
          * later parents.
          */
-        Set<Block3> ready = new TreeSet<>();
+        Set<Block3> ready = new ObjectRBTreeSet<>();
         ready.add(in.get(0));
 
         ObjectList<Block3> output = new ObjectArrayList<>(in.size());
@@ -79,7 +76,7 @@ public class Op03Blocks {
                     }
                 } else {
                     if (child.getStart().getBlockIdentifiers().equals(fromSet)) {
-                        if (notReadyInThis == null) notReadyInThis = new TreeSet<>();
+                        if (notReadyInThis == null) notReadyInThis = new ObjectRBTreeSet<>();
                         notReadyInThis.add(child);
                     }
                 }

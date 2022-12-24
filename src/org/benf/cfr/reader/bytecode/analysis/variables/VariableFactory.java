@@ -12,12 +12,12 @@ import org.benf.cfr.reader.util.collections.MapFactory;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class VariableFactory {
     private final VariableNamer variableNamer;
     private final Map<Integer, InferredJavaType> typedArgs;
-    private final Set<Integer> clashes;
+    private final ObjectSet<Integer> clashes;
     private final Method method;
     private int ignored;
 

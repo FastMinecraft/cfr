@@ -23,11 +23,11 @@ import org.benf.cfr.reader.bytecode.analysis.types.RawJavaType;
 import org.benf.cfr.reader.bytecode.analysis.types.StackType;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class LValueTypeClashCheck implements LValueScopeDiscoverer, StructuredStatementTransformer {
 
-    private final Set<Integer> clashes = new ObjectOpenHashSet<>();
+    private final ObjectSet<Integer> clashes = new ObjectOpenHashSet<>();
 
     @Override
     public void processOp04Statement(Op04StructuredStatement statement) {
@@ -133,7 +133,7 @@ public class LValueTypeClashCheck implements LValueScopeDiscoverer, StructuredSt
         return false;
     }
 
-    public Set<Integer> getClashes() {
+    public ObjectSet<Integer> getClashes() {
         return clashes;
     }
 

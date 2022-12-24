@@ -19,7 +19,7 @@ import org.benf.cfr.reader.util.collections.Functional;
 
 import java.util.Collections;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 /*
  * Java 12 generates significantly smaller resource blocks for statements where
@@ -156,7 +156,7 @@ public class TryResourcesTransformerJ12 extends TryResourcesTransformerBase {
     }
 
     private ObjectList<Op04StructuredStatement> getCloseStatementAfter(StructuredTry structuredTry, StructuredScope scope, WildcardMatch wcm, TryResourcesMatchResultCollector collector) {
-        Set<Op04StructuredStatement> next = scope.getNextFallThrough(structuredTry);
+        ObjectSet<Op04StructuredStatement> next = scope.getNextFallThrough(structuredTry);
 
         ObjectList<Op04StructuredStatement> toRemove = Functional.filter(next,
             in -> !(in.getStatement() instanceof StructuredComment)

@@ -20,13 +20,13 @@ import org.benf.cfr.reader.util.collections.SetUtil;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class RemoveDeterministicJumps {
 
     public static ObjectList<Op03SimpleStatement> apply(Method method, ObjectList<Op03SimpleStatement> statements) {
         boolean success = false;
-        Set<BlockIdentifier> ignoreInThese = FinallyRewriter.getBlocksAffectedByFinally(statements);
+        ObjectSet<BlockIdentifier> ignoreInThese = FinallyRewriter.getBlocksAffectedByFinally(statements);
 
         for (Op03SimpleStatement stm : statements) {
             if (!(stm.getStatement() instanceof AssignmentSimple)) continue;
@@ -44,7 +44,7 @@ public class RemoveDeterministicJumps {
     private static boolean propagateLiteralReturn(@SuppressWarnings("unused") Method method,
                                                   Op03SimpleStatement original, Map<LValue, Literal> display) {
         Op03SimpleStatement current = original;
-        Set<Op03SimpleStatement> seen = new ObjectOpenHashSet<>();
+        ObjectSet<Op03SimpleStatement> seen = new ObjectOpenHashSet<>();
         int nAssigns = 0;
 
         boolean adjustedOrig = false;
@@ -209,7 +209,7 @@ public class RemoveDeterministicJumps {
  */
     private static boolean propagateLiteralReturn(@SuppressWarnings("unused") Method method, Op03SimpleStatement original, final Op03SimpleStatement orignext, final LValue originalLValue, final Expression originalRValue, Map<LValue, Literal> display) {
         Op03SimpleStatement current = orignext;
-        Set<Op03SimpleStatement> seen = new ObjectOpenHashSet<>();
+        ObjectSet<Op03SimpleStatement> seen = new ObjectOpenHashSet<>();
         do {
             if (!seen.add(current)) return false;
             Class<?> cls = current.getStatement().getClass();
@@ -301,7 +301,7 @@ public class RemoveDeterministicJumps {
 
         ObjectList<Op03SimpleStatement> assignmentSimples = Functional.filter(statements,
             new TypeFilter<>(AssignmentSimple.class));
-        Set<BlockIdentifier> affectedByFinally = FinallyRewriter.getBlocksAffectedByFinally(statements);
+        ObjectSet<BlockIdentifier> affectedByFinally = FinallyRewriter.getBlocksAffectedByFinally(statements);
 
         for (Op03SimpleStatement stm : assignmentSimples) {
             if (SetUtil.hasIntersection(affectedByFinally, stm.getBlockIdentifiers())) continue;

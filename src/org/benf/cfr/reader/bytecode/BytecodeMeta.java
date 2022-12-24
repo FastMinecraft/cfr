@@ -12,7 +12,7 @@ import org.benf.cfr.reader.util.getopt.PermittedOptionProvider;
 import java.util.EnumSet;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import java.util.function.Function;
 
 public class BytecodeMeta {
@@ -31,7 +31,7 @@ public class BytecodeMeta {
 
     private final EnumSet<CodeInfoFlag> flags = EnumSet.noneOf(CodeInfoFlag.class);
 
-    private final Set<Integer> livenessClashes = new ObjectOpenHashSet<>();
+    private final ObjectSet<Integer> livenessClashes = new ObjectOpenHashSet<>();
     private final Map<Integer, JavaTypeInstance> iteratedTypeHints = MapFactory.newMap();
     private final Options options;
 
@@ -56,7 +56,7 @@ public class BytecodeMeta {
 
     public void set(CodeInfoFlag flag) {flags.add(flag);}
 
-    public void informLivenessClashes(Set<Integer> slots) {
+    public void informLivenessClashes(ObjectSet<Integer> slots) {
         flags.add(CodeInfoFlag.LIVENESS_CLASH);
         livenessClashes.addAll(slots);
     }
@@ -81,7 +81,7 @@ public class BytecodeMeta {
         return iteratedTypeHints;
     }
 
-    public Set<Integer> getLivenessClashes() {
+    public ObjectSet<Integer> getLivenessClashes() {
         return livenessClashes;
     }
 

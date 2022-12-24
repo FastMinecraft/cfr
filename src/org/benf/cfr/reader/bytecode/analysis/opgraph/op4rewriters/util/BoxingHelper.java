@@ -11,11 +11,11 @@ import org.benf.cfr.reader.bytecode.analysis.types.TypeConstants;
 import org.benf.cfr.reader.util.collections.MapFactory;
 
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class BoxingHelper {
     @SuppressWarnings("unchecked")
-    private static final Set<Pair<String, String>> unboxing = new ObjectOpenHashSet<>((Pair<String, String>[]) new Pair[]{ Pair.make(
+    private static final ObjectSet<Pair<String, String>> unboxing = new ObjectOpenHashSet<>((Pair<String, String>[]) new Pair[]{ Pair.make(
         TypeConstants.boxingNameInt,
         "intValue"
     ), Pair.make(TypeConstants.boxingNameLong, "longValue"), Pair.make(
@@ -29,7 +29,7 @@ public class BoxingHelper {
     private static final Map<String, String> unboxingByRawName;
 
     @SuppressWarnings("unchecked")
-    private static final Set<Pair<String, String>> boxing;
+    private static final ObjectSet<Pair<String, String>> boxing;
 
     static {
         boxing = new ObjectOpenHashSet<>((Pair<String, String>[]) new Pair[]{ Pair.make(

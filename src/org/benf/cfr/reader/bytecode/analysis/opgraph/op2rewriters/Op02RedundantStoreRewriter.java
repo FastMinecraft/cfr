@@ -11,7 +11,7 @@ import org.benf.cfr.reader.util.collections.SetUtil;
 import java.util.HashSet;
 import java.util.Iterator;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class Op02RedundantStoreRewriter {
     private static final Op02RedundantStoreRewriter INSTANCE = new Op02RedundantStoreRewriter();
@@ -58,7 +58,7 @@ public class Op02RedundantStoreRewriter {
         int[] loadsSinceStore = new int[maxLocals];
         int lastCutOff = 0;
         int nopCount = 0;
-        Set<BlockIdentifier> currentBlocks = new HashSet<>();
+        ObjectSet<BlockIdentifier> currentBlocks = new ObjectOpenHashSet<>();
 
         for (int x=0, maxm1=instrs.size()-1;x<maxm1;++x) {
             Op02WithProcessedDataAndRefs instr = instrs.get(x);
@@ -70,7 +70,7 @@ public class Op02RedundantStoreRewriter {
             }
             if (!SetUtil.equals(currentBlocks, instr.getContainedInTheseBlocks())) {
                 lastCutOff = x;
-                currentBlocks = new HashSet<>(instr.getContainedInTheseBlocks());
+                currentBlocks = new ObjectOpenHashSet<>(instr.getContainedInTheseBlocks());
             }
             JVMInstr jvmInstr = instr.getInstr();
             Pair<JavaTypeInstance, Integer> stored = instr.getStorageType();
@@ -173,7 +173,7 @@ public class Op02RedundantStoreRewriter {
      * If we *never* _load0, then _store0 is never useful.
      */
     private void removeUnreadStores(ObjectList<Op02WithProcessedDataAndRefs> instrs) {
-        Set<Integer> retrieves = new ObjectOpenHashSet<>();
+        ObjectSet<Integer> retrieves = new ObjectOpenHashSet<>();
         for (Op02WithProcessedDataAndRefs op : instrs) {
             Integer idx = op.getRetrieveIdx();
             if (idx == null) continue;

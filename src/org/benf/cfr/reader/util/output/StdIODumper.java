@@ -6,14 +6,14 @@ import org.benf.cfr.reader.state.TypeUsageInformation;
 import org.benf.cfr.reader.util.getopt.Options;
 
 import java.io.BufferedOutputStream;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class StdIODumper extends StreamDumper {
     StdIODumper(TypeUsageInformation typeUsageInformation, Options options, IllegalIdentifierDump illegalIdentifierDump, MovableDumperContext context) {
         super(typeUsageInformation, options, illegalIdentifierDump, context);
     }
 
-    private StdIODumper(TypeUsageInformation typeUsageInformation, Options options, IllegalIdentifierDump illegalIdentifierDump, MovableDumperContext context, Set<JavaTypeInstance> emitted) {
+    private StdIODumper(TypeUsageInformation typeUsageInformation, Options options, IllegalIdentifierDump illegalIdentifierDump, MovableDumperContext context, ObjectSet<JavaTypeInstance> emitted) {
         super(typeUsageInformation, options, illegalIdentifierDump, context, emitted);
     }
 

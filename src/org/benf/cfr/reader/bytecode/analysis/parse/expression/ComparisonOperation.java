@@ -24,7 +24,7 @@ import org.benf.cfr.reader.util.Troolean;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class ComparisonOperation extends AbstractExpression implements ConditionalExpression, BoxingProcessor {
     private Expression lhs;
@@ -171,15 +171,15 @@ public class ComparisonOperation extends AbstractExpression implements Condition
         return this;
     }
 
-    private void addIfLValue(Expression expression, Set<LValue> res) {
+    private void addIfLValue(Expression expression, ObjectSet<LValue> res) {
         if (expression instanceof LValueExpression) {
             res.add(((LValueExpression) expression).getLValue());
         }
     }
 
     @Override
-    public Set<LValue> getLoopLValues() {
-        Set<LValue> res = new ObjectOpenHashSet<>();
+    public ObjectSet<LValue> getLoopLValues() {
+        ObjectSet<LValue> res = new ObjectOpenHashSet<>();
         addIfLValue(lhs, res);
         addIfLValue(rhs, res);
         return res;

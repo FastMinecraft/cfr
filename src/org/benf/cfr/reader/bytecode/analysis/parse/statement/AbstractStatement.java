@@ -15,7 +15,7 @@ import org.benf.cfr.reader.util.output.Dumper;
 import org.benf.cfr.reader.util.output.ToStringDumper;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public abstract class AbstractStatement implements Statement {
     private BytecodeLoc loc;
@@ -115,7 +115,7 @@ public abstract class AbstractStatement implements Statement {
     }
 
     @Override
-    public Set<LValue> wantsLifetimeHint() {
+    public ObjectSet<LValue> wantsLifetimeHint() {
         return null;
     }
 

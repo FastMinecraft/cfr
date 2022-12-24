@@ -13,7 +13,7 @@ import org.benf.cfr.reader.util.collections.CollectionUtils;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class ClassFileDumperModule extends AbstractClassFileDumper {
 
@@ -30,7 +30,7 @@ public class ClassFileDumperModule extends AbstractClassFileDumper {
 
         AttributeModule module = classFile.getAttributes().getByName(AttributeModule.ATTRIBUTE_NAME);
         ConstantPool cp = module.getCp();
-        Set<AttributeModule.ModuleFlags> flags = module.getFlags();
+        ObjectSet<AttributeModule.ModuleFlags> flags = module.getFlags();
         d.print(CollectionUtils.joinPostFix(flags, " "));
         d.print("module ").print(module.getModuleName()).print(" {").newln();
         d.indent(1);
@@ -56,7 +56,7 @@ public class ClassFileDumperModule extends AbstractClassFileDumper {
         }
         boolean effect = false;
         for (AttributeModule.Require r : l) {
-            Set<AttributeModule.ModuleContentFlags> flags = r.getFlags();
+            ObjectSet<AttributeModule.ModuleContentFlags> flags = r.getFlags();
             if (flags.contains(AttributeModule.ModuleContentFlags.MANDATED)) {
                 continue;
             }
@@ -86,7 +86,7 @@ public class ClassFileDumperModule extends AbstractClassFileDumper {
         }
         boolean effect = false;
         for (AttributeModule.ExportOpen r : l) {
-            Set<AttributeModule.ModuleContentFlags> flags = r.getFlags();
+            ObjectSet<AttributeModule.ModuleContentFlags> flags = r.getFlags();
             if (flags.contains(AttributeModule.ModuleContentFlags.MANDATED)) {
                 continue;
             }

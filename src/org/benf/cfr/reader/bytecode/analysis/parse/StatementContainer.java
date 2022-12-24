@@ -4,7 +4,7 @@ import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.SSAIdentifiers;
 
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public interface StatementContainer<T> {
     T getStatement();
@@ -23,11 +23,11 @@ public interface StatementContainer<T> {
 
     SSAIdentifiers<LValue> getSSAIdentifiers();
 
-    Set<BlockIdentifier> getBlockIdentifiers();
+    ObjectSet<BlockIdentifier> getBlockIdentifiers();
 
     BlockIdentifier getBlockStarted();
 
-    Set<BlockIdentifier> getBlocksEnded();
+    ObjectSet<BlockIdentifier> getBlocksEnded();
 
     void copyBlockInformationFrom(StatementContainer<T> other);
 

@@ -26,15 +26,15 @@ import org.benf.cfr.reader.util.collections.SetUtil;
 import java.util.Collection;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Statement>, LValueAssignmentCollector<Statement> {
     //
     // Found states that key can be replaced with value.
     //
     private final Map<StackSSALabel, ExpressionStatementPair> found;
-    private final Set<StackSSALabel> blacklisted;
-    private final Set<LValue> keepConstant;
+    private final ObjectSet<StackSSALabel> blacklisted;
+    private final ObjectSet<LValue> keepConstant;
 
     //
     // A chain of dup, copy assign can be considered to be an alias set.
@@ -67,7 +67,7 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
         mutableFound = MapFactory.newMap();
     }
 
-    public LValueAssignmentAndAliasCondenser(LValueAssignmentAndAliasCondenser other, Set<LValue> keepConstant) {
+    public LValueAssignmentAndAliasCondenser(LValueAssignmentAndAliasCondenser other, ObjectSet<LValue> keepConstant) {
         this.keepConstant = keepConstant;
         this.found = other.found;
         this.blacklisted = other.blacklisted;
@@ -102,9 +102,9 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
 
     private final Map<Expression, Expression> cache = MapFactory.newMap();
 
-    private Set<LValue> findAssignees(Statement s) {
+    private ObjectSet<LValue> findAssignees(Statement s) {
         if (!(s instanceof AssignmentSimple assignmentSimple)) return null;
-        Set<LValue> res = new ObjectOpenHashSet<>();
+        ObjectSet<LValue> res = new ObjectOpenHashSet<>();
         res.add(assignmentSimple.getCreatedLValue());
         Expression rvalue = assignmentSimple.getRValue();
         while (rvalue instanceof AssignmentExpression assignmentExpression) {
@@ -115,7 +115,7 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
     }
 
     @Override
-    public LValueRewriter getWithFixed(Set<SSAIdent> fixed) {
+    public LValueRewriter getWithFixed(ObjectSet<SSAIdent> fixed) {
         return this;
     }
 
@@ -152,7 +152,7 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
         // This is only valid if res has a single possible value in ssaIdentifiers, and it's the same as in replacementIdentifiers.
         Expression res = pair.expression;
 
-        Set<LValue> changes = null;
+        ObjectSet<LValue> changes = null;
         if (replacementIdentifiers != null) {
             if (!this.keepConstant.isEmpty()) {
                 for (LValue l : this.keepConstant) {
@@ -170,7 +170,7 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
                 if (!ssaIdentifiers.isValidReplacement(resLValue, replacementIdentifiers)) {
                     /* Second chance - self assignment in the source.
                     */
-                    Set<LValue> assignees = findAssignees(lvSc.getStatement());
+                    ObjectSet<LValue> assignees = findAssignees(lvSc.getStatement());
                     if (assignees != null) {
                         if (assignees.contains(resLValue)) {
                             Op03SimpleStatement lv03 = (Op03SimpleStatement) lvSc;
@@ -349,7 +349,7 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
         );
 
         @Override
-        public LValueRewriter getWithFixed(Set<SSAIdent> fixed) {
+        public LValueRewriter getWithFixed(ObjectSet<SSAIdent> fixed) {
             return this;
         }
 
@@ -495,7 +495,7 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
 
     public class MutationRewriterFirstPass implements LValueRewriter<Statement> {
 
-        private final Map<VersionedLValue, Set<StatementContainer>> mutableUseFound = MapFactory.newLazyMap(arg -> new ObjectOpenHashSet<>());
+        private final Map<VersionedLValue, ObjectSet<StatementContainer>> mutableUseFound = MapFactory.newLazyMap(arg -> new ObjectOpenHashSet<>());
 
         /* Bit cheeky, we'll never actually replace here, but use this pass to collect info. */
         @Override
@@ -522,7 +522,7 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
         }
 
         @Override
-        public LValueRewriter getWithFixed(Set fixed) {
+        public LValueRewriter getWithFixed(ObjectSet fixed) {
             return this;
         }
 
@@ -545,7 +545,7 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
          *
          * todo : StatementContainer doesn't have children.
          */
-        private StatementContainer getUniqueParent(StatementContainer start, final Set<StatementContainer> seen) {
+        private StatementContainer getUniqueParent(StatementContainer start, final ObjectSet<StatementContainer> seen) {
             Op03SimpleStatement o3current = (Op03SimpleStatement) start;
 
             while (true) {
@@ -568,7 +568,7 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
              * declaration statement).
              */
             Map<VersionedLValue, StatementContainer> replacableUses = MapFactory.newMap();
-            for (Map.Entry<VersionedLValue, Set<StatementContainer>> entry : mutableUseFound.entrySet()) {
+            for (Map.Entry<VersionedLValue, ObjectSet<StatementContainer>> entry : mutableUseFound.entrySet()) {
                 ExpressionStatementPair definition = mutableFound.get(entry.getKey());
                 StatementContainer uniqueParent = getUniqueParent(definition.statementContainer, entry.getValue());
                 if (uniqueParent != null) {
@@ -582,10 +582,10 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
         }
     }
 
-    private static final Set<SSAIdent> emptyFixed = new ObjectOpenHashSet<>();
+    private static final ObjectSet<SSAIdent> emptyFixed = new ObjectOpenHashSet<>();
 
     public class MutationRewriterSecondPass implements LValueRewriter<Statement> {
-        private final Set<SSAIdent> fixed;
+        private final ObjectSet<SSAIdent> fixed;
         private final Map<VersionedLValue, StatementContainer> mutableReplacable;
 
         private MutationRewriterSecondPass(Map<VersionedLValue, StatementContainer> mutableReplacable) {
@@ -593,7 +593,7 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
             this.fixed = emptyFixed;
         }
 
-        private MutationRewriterSecondPass(Map<VersionedLValue, StatementContainer> mutableReplacable, Set<SSAIdent> fixed) {
+        private MutationRewriterSecondPass(Map<VersionedLValue, StatementContainer> mutableReplacable, ObjectSet<SSAIdent> fixed) {
             this.mutableReplacable = mutableReplacable;
             this.fixed = fixed;
         }
@@ -620,7 +620,7 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
                     if (replacement == statementContainer) return null;
 
                     SSAIdentifiers<LValue> previousIdents = replacement.getSSAIdentifiers();
-                    Set<LValue> fixedPrevious = previousIdents.getFixedHere();
+                    ObjectSet<LValue> fixedPrevious = previousIdents.getFixedHere();
                     if (SetUtil.hasIntersection(this.fixed, fixedPrevious)) {
                         return null;
                     }
@@ -650,7 +650,7 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
         }
 
         @Override
-        public LValueRewriter getWithFixed(Set<SSAIdent> fixed) {
+        public LValueRewriter getWithFixed(ObjectSet<SSAIdent> fixed) {
             ObjectOpenHashSet<SSAIdent> res = new ObjectOpenHashSet<>(this.fixed);
             res.addAll(fixed);
             return new MutationRewriterSecondPass(this.mutableReplacable, res);

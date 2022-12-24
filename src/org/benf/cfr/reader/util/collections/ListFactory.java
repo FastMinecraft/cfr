@@ -8,11 +8,11 @@ import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
 
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class ListFactory {
     public static <X> ObjectList<X> uniqueList(Collection<X> list) {
-        return new ObjectArrayList<>((Set<X>) new ObjectLinkedOpenHashSet<X>(list));
+        return new ObjectArrayList<>((ObjectSet<X>) new ObjectLinkedOpenHashSet<X>(list));
     }
 
     /** Note that you can't expect to mutate the result. */

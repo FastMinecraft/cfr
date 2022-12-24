@@ -3,6 +3,7 @@ package org.benf.cfr.reader.entities.exceptions;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectRBTreeSet;
 import org.benf.cfr.reader.util.collections.MapFactory;
 
 import java.util.*;
@@ -69,7 +70,7 @@ public class IntervalOverlapper {
         ObjectList<ExceptionTableEntry> output = new ObjectArrayList<>();
         // by definition, startsbefore and endsafter won't overlap.
         if (!overlapStartsBefore.isEmpty()) {
-            Set<Integer> blockEnds = new TreeSet<>();
+            Set<Integer> blockEnds = new ObjectRBTreeSet<>();
             for (ExceptionTableEntry e2 : overlapStartsBefore) {
                 blockEnds.add(e2.getBytecodeIndexTo());
                 starts.get(e2.getBytecodeIndexFrom()).remove(e2);
@@ -99,7 +100,7 @@ public class IntervalOverlapper {
         }
 
         if (!overlapEndsAfter.isEmpty()) {
-            Set<Integer> blockStarts = new TreeSet<>();
+            Set<Integer> blockStarts = new ObjectRBTreeSet<>();
             for (ExceptionTableEntry e2 : overlapStartsBefore) {
                 blockStarts.add(e2.getBytecodeIndexFrom());
                 starts.get(e2.getBytecodeIndexFrom()).remove(e2);

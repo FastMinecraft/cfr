@@ -4,6 +4,8 @@ import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.entities.AccessFlag;
 import org.benf.cfr.reader.util.annotation.Nullable;
 
+import it.unimi.dsi.fastutil.objects.ObjectSet;
+
 import java.util.Set;
 
 public class InnerClassAttributeInfo {

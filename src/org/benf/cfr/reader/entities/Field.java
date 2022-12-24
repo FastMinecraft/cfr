@@ -34,6 +34,8 @@ import org.benf.cfr.reader.util.output.Dumper;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 
+import it.unimi.dsi.fastutil.objects.ObjectSet;
+
 import java.util.Set;
 
 
@@ -211,7 +213,7 @@ public class Field implements KnowsRawSize, TypeUsageCollectable {
             componentAnnotations = new ObjectArrayList<>(componentAnnotations);
 
             // First collect the type of all annotations with target RECORD_COMPONENT
-            Set<JavaTypeInstance> componentAnnotationTypes = Functional.mapToSet(componentAnnotations,
+            ObjectSet<JavaTypeInstance> componentAnnotationTypes = Functional.mapToSet(componentAnnotations,
                 AnnotationTableEntry::getClazz
             );
 

@@ -17,15 +17,15 @@ import org.benf.cfr.reader.util.output.Dumper;
 import org.benf.cfr.reader.util.output.TypeContext;
 
 import java.io.BufferedOutputStream;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class TypeUsageCollectingDumper implements Dumper {
 
     private final Options options;
     private final JavaRefTypeInstance analysisType;
-    private final Set<JavaRefTypeInstance> refTypeInstanceSet = new ObjectOpenHashSet<>();
-    private final Set<JavaTypeInstance> emitted = new ObjectOpenHashSet<>();
-    private final Set<DetectedStaticImport> staticImports = new ObjectOpenHashSet<>();
+    private final ObjectSet<JavaRefTypeInstance> refTypeInstanceSet = new ObjectOpenHashSet<>();
+    private final ObjectSet<JavaTypeInstance> emitted = new ObjectOpenHashSet<>();
+    private final ObjectSet<DetectedStaticImport> staticImports = new ObjectOpenHashSet<>();
 
     public void addStaticUsage(JavaRefTypeInstance clazz, String name) {
         staticImports.add(new DetectedStaticImport(clazz, name));

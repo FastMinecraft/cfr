@@ -30,7 +30,7 @@ import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.util.collections.SetUtil;
 
 import java.util.List;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 /*
  * Java 9 has made try-with-resources much cleaner.
@@ -176,7 +176,7 @@ public abstract class TryResourcesTransformerBase implements StructuredStatement
     }
 
     private static class LValueUsageCheckingRewriter extends AbstractExpressionRewriter {
-        final Set<LValue> used = new ObjectOpenHashSet<>();
+        final ObjectSet<LValue> used = new ObjectOpenHashSet<>();
 
         @Override
         public LValue rewriteExpression(

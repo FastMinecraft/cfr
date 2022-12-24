@@ -9,6 +9,8 @@ import org.benf.cfr.reader.util.CannotLoadClassException;
 import org.benf.cfr.reader.util.DecompilerComment;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
+import it.unimi.dsi.fastutil.objects.ObjectSet;
+
 import java.util.Set;
 
 /*

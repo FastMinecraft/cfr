@@ -16,7 +16,7 @@ import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class BooleanExpression extends AbstractExpression implements ConditionalExpression {
     private Expression inner;
@@ -98,15 +98,15 @@ public class BooleanExpression extends AbstractExpression implements Conditional
         return this;
     }
 
-    protected void addIfLValue(Expression expression, Set<LValue> res) {
+    protected void addIfLValue(Expression expression, ObjectSet<LValue> res) {
         if (expression instanceof LValueExpression) {
             res.add(((LValueExpression) expression).getLValue());
         }
     }
 
     @Override
-    public Set<LValue> getLoopLValues() {
-        Set<LValue> res = new ObjectOpenHashSet<>();
+    public ObjectSet<LValue> getLoopLValues() {
+        ObjectSet<LValue> res = new ObjectOpenHashSet<>();
         addIfLValue(inner, res);
         return res;
     }

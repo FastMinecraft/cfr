@@ -1,9 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.utils.finalhelp;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.*;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.MemberFunctionInvokation;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.*;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
@@ -49,7 +46,7 @@ public record FinallyGraphHelper(FinallyCatchBody finallyCatchBody) {
         Op03SimpleStatement finalThrowProxy = null;
         Op03SimpleStatement finalThrow = finallyCatchBody.getThrowOp();
         Map<Op03SimpleStatement, Op03SimpleStatement> matched = new IdentityHashMap<>();
-        Set<Op03SimpleStatement> toRemove = new ObjectLinkedOpenHashSet<>();
+        ObjectSet<Op03SimpleStatement> toRemove = new ObjectLinkedOpenHashSet<>();
         LinkedList<Pair<Op03SimpleStatement, Op03SimpleStatement>> pending = new LinkedList<>();
         if (finallyCatchBody.isEmpty()) {
             return new Result(toRemove, null, null);

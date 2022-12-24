@@ -2,6 +2,8 @@ package org.benf.cfr.reader.util.collections;
 
 import java.util.Collection;
 import java.util.Map;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
+
 import java.util.Set;
 import java.util.function.Function;
 

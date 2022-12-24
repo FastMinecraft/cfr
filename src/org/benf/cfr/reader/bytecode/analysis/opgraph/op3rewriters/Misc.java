@@ -23,7 +23,7 @@ import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 import java.util.Collection;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -39,7 +39,7 @@ public class Misc {
         statements.addAll(newStatements);
     }
 
-    public static Op03SimpleStatement getLastInRangeByIndex(Set<Op03SimpleStatement> stms) {
+    public static Op03SimpleStatement getLastInRangeByIndex(ObjectSet<Op03SimpleStatement> stms) {
         ObjectList<Op03SimpleStatement> lst = new ObjectArrayList<>(stms);
         lst.sort(new CompareByIndex(false));
         return lst.get(0);
@@ -122,7 +122,7 @@ public class Misc {
 
 
     private record GraphVisitorReachableInThese(
-        Set<Integer> reachable,
+        ObjectSet<Integer> reachable,
         Map<Op03SimpleStatement, Integer> instrToIdx
     ) implements BiConsumer<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>> {
         @Override
@@ -144,7 +144,7 @@ public class Misc {
             instrToIdx.put(statement, x);
         }
 
-        Set<Integer> reachableNodes = new ObjectRBTreeSet<>();
+        ObjectSet<Integer> reachableNodes = new ObjectRBTreeSet<>();
         GraphVisitorReachableInThese graphVisitorCallee = new GraphVisitorReachableInThese(reachableNodes, instrToIdx);
         GraphVisitor<Op03SimpleStatement> visitor = new GraphVisitorDFS<>(statements.get(start), graphVisitorCallee);
         visitor.process();
@@ -171,9 +171,9 @@ public class Misc {
 
     }
 
-    static Set<Op03SimpleStatement> followNopGotoBackwards(Op03SimpleStatement eventualtarget) {
+    static ObjectSet<Op03SimpleStatement> followNopGotoBackwards(Op03SimpleStatement eventualtarget) {
 
-        final Set<Op03SimpleStatement> result = new ObjectOpenHashSet<>();
+        final ObjectSet<Op03SimpleStatement> result = new ObjectOpenHashSet<>();
 
         new GraphVisitorDFS<>(eventualtarget, (arg1, arg2) -> {
             for (Op03SimpleStatement source : arg1.getSources()) {
@@ -233,7 +233,7 @@ public class Misc {
         boolean skipLabels
     ) {
         if (in == null) return null;
-        Set<Op03SimpleStatement> seen = new ObjectOpenHashSet<>();
+        ObjectSet<Op03SimpleStatement> seen = new ObjectOpenHashSet<>();
         if (until != null) {
             seen.add(until);
         }
@@ -253,7 +253,7 @@ public class Misc {
         }
     }
 
-    static boolean findHiddenIter(Statement statement, LValue lValue, Expression rValue, Set<Expression> poison) {
+    static boolean findHiddenIter(Statement statement, LValue lValue, Expression rValue, ObjectSet<Expression> poison) {
         AssignmentExpression needle = new AssignmentExpression(statement.getLoc(), lValue, rValue);
         NOPSearchingExpressionRewriter finder = new NOPSearchingExpressionRewriter(needle, poison);
 
@@ -285,7 +285,7 @@ public class Misc {
         ObjectList<Op03SimpleStatement> statements
     ) {
         for (Op03SimpleStatement s : statements) {
-            Set<BlockIdentifier> contained = s.getBlockIdentifiers();
+            ObjectSet<BlockIdentifier> contained = s.getBlockIdentifiers();
             if (contained.contains(b1)) {
                 if (!contained.contains(b2)) {
                     return b1;
@@ -305,8 +305,8 @@ public class Misc {
 
         private final Op03SimpleStatement start;
         private final BlockIdentifier blockIdentifier;
-        private final Set<Op03SimpleStatement> found = new ObjectOpenHashSet<>();
-        private final Set<Op03SimpleStatement> exits = new ObjectOpenHashSet<>();
+        private final ObjectSet<Op03SimpleStatement> found = new ObjectOpenHashSet<>();
+        private final ObjectSet<Op03SimpleStatement> exits = new ObjectOpenHashSet<>();
 
         private GraphVisitorBlockReachable(Op03SimpleStatement start, BlockIdentifier blockIdentifier) {
             this.start = start;
@@ -323,7 +323,7 @@ public class Misc {
             }
         }
 
-        private Set<Op03SimpleStatement> privGetBlockReachable() {
+        private ObjectSet<Op03SimpleStatement> privGetBlockReachable() {
             GraphVisitorDFS<Op03SimpleStatement> reachableInBlock = new GraphVisitorDFS<>(
                 start,
                 this
@@ -332,12 +332,12 @@ public class Misc {
             return found;
         }
 
-        static Set<Op03SimpleStatement> getBlockReachable(Op03SimpleStatement start, BlockIdentifier blockIdentifier) {
+        static ObjectSet<Op03SimpleStatement> getBlockReachable(Op03SimpleStatement start, BlockIdentifier blockIdentifier) {
             GraphVisitorBlockReachable r = new GraphVisitorBlockReachable(start, blockIdentifier);
             return r.privGetBlockReachable();
         }
 
-        private Pair<Set<Op03SimpleStatement>, Set<Op03SimpleStatement>> privGetBlockReachableAndExits() {
+        private Pair<ObjectSet<Op03SimpleStatement>, ObjectSet<Op03SimpleStatement>> privGetBlockReachableAndExits() {
             GraphVisitorDFS<Op03SimpleStatement> reachableInBlock = new GraphVisitorDFS<>(
                 start,
                 this
@@ -346,7 +346,7 @@ public class Misc {
             return Pair.make(found, exits);
         }
 
-        static Pair<Set<Op03SimpleStatement>, Set<Op03SimpleStatement>> getBlockReachableAndExits(
+        static Pair<ObjectSet<Op03SimpleStatement>, ObjectSet<Op03SimpleStatement>> getBlockReachableAndExits(
             Op03SimpleStatement start,
             BlockIdentifier blockIdentifier
         ) {
@@ -355,8 +355,8 @@ public class Misc {
         }
     }
 
-    static Set<Op03SimpleStatement> collectAllSources(Collection<Op03SimpleStatement> statements) {
-        Set<Op03SimpleStatement> result = new ObjectOpenHashSet<>();
+    static ObjectSet<Op03SimpleStatement> collectAllSources(Collection<Op03SimpleStatement> statements) {
+        ObjectSet<Op03SimpleStatement> result = new ObjectOpenHashSet<>();
         for (Op03SimpleStatement statement : statements) {
             result.addAll(statement.getSources());
         }

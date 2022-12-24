@@ -15,7 +15,7 @@ import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class FinallyRewriter {
     public static void identifyFinally(Options options, Method method, ObjectList<Op03SimpleStatement> in, BlockIdentifierFactory blockIdentifierFactory) {
@@ -24,7 +24,7 @@ public class FinallyRewriter {
          * a common block of code (either before a throw, return or goto.)
          * Be careful, if a finally block contains a throw, this will mess up...
          */
-        final Set<Op03SimpleStatement> analysedTries = new ObjectOpenHashSet<>();
+        final ObjectSet<Op03SimpleStatement> analysedTries = new ObjectOpenHashSet<>();
         boolean continueLoop;
         do {
             ObjectList<Op03SimpleStatement> tryStarts = Functional.filter(in, in1 -> in1.getStatement() instanceof TryStatement && !analysedTries.contains(in1));
@@ -38,11 +38,11 @@ public class FinallyRewriter {
         } while (continueLoop);
     }
 
-    static Set<BlockIdentifier> getBlocksAffectedByFinally(ObjectList<Op03SimpleStatement> statements) {
-        Set<BlockIdentifier> res = new ObjectOpenHashSet<>();
+    static ObjectSet<BlockIdentifier> getBlocksAffectedByFinally(ObjectList<Op03SimpleStatement> statements) {
+        ObjectSet<BlockIdentifier> res = new ObjectOpenHashSet<>();
         for (Op03SimpleStatement stm : statements) {
             if (stm.getStatement() instanceof TryStatement tryStatement) {
-                Set<BlockIdentifier> newBlocks = new ObjectOpenHashSet<>();
+                ObjectSet<BlockIdentifier> newBlocks = new ObjectOpenHashSet<>();
                 boolean found = false;
                 newBlocks.add(tryStatement.getBlockIdentifier());
                 for (Op03SimpleStatement tgt : stm.getTargets()) {

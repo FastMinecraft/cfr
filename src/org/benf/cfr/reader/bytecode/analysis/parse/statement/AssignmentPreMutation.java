@@ -16,7 +16,7 @@ import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredExpr
 import org.benf.cfr.reader.entities.exceptions.ExceptionCheck;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 /**
  * In an assignment prechange, the LHS is by definition equal to the RHS after the statement.
@@ -142,7 +142,7 @@ public class AssignmentPreMutation extends AbstractAssignment {
         // IS NOT
         // a += (b = (a+=2))
         lvalue = lvalue.replaceSingleUsageLValues(lValueRewriter, ssaIdentifiers, getContainer());
-        Set<LValue> fixed = getContainer().getSSAIdentifiers().getFixedHere();
+        ObjectSet<LValue> fixed = getContainer().getSSAIdentifiers().getFixedHere();
         // anything in fixed CANNOT be assigned to inside rvalue.
         lValueRewriter = lValueRewriter.getWithFixed(fixed);
         rvalue = (AbstractAssignmentExpression) rvalue.replaceSingleUsageLValues(lValueRewriter, ssaIdentifiers, getContainer());

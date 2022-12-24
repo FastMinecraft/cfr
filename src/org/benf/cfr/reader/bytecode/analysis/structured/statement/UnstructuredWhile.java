@@ -10,15 +10,15 @@ import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.LinkedList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import java.util.Vector;
 
 public class UnstructuredWhile extends AbstractUnStructuredStatement {
     private final ConditionalExpression condition;
     private final BlockIdentifier blockIdentifier;
-    private final Set<BlockIdentifier> blocksEndedAfter;
+    private final ObjectSet<BlockIdentifier> blocksEndedAfter;
 
-    public UnstructuredWhile(BytecodeLoc loc, ConditionalExpression condition, BlockIdentifier blockIdentifier, Set<BlockIdentifier> blocksEndedAfter) {
+    public UnstructuredWhile(BytecodeLoc loc, ConditionalExpression condition, BlockIdentifier blockIdentifier, ObjectSet<BlockIdentifier> blocksEndedAfter) {
         super(loc);
         this.condition = condition;
         this.blockIdentifier = blockIdentifier;

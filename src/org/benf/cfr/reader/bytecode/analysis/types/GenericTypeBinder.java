@@ -8,7 +8,7 @@ import org.benf.cfr.reader.util.collections.MapFactory;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 /**
  * FIXME - this class has multiple ways of implementing the same thing - definitely feels redundant!
@@ -213,7 +213,7 @@ public class GenericTypeBinder {
     }
 
     public GenericTypeBinder mergeWith(GenericTypeBinder other, boolean mergeToCommonClass) {
-        Set<String> keys = new ObjectOpenHashSet<>(nameToBoundType.keySet());
+        ObjectSet<String> keys = new ObjectOpenHashSet<>(nameToBoundType.keySet());
         keys.addAll(other.nameToBoundType.keySet());
         Map<String, JavaTypeInstance> res = MapFactory.newMap();
         for (String key : keys) {

@@ -17,7 +17,7 @@ import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredBrea
 import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredComment;
 import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredContinue;
 
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class ControlFlowCleaningTransformer implements StructuredStatementTransformer, ExpressionRewriter {
 
@@ -38,7 +38,7 @@ public class ControlFlowCleaningTransformer implements StructuredStatementTransf
 
         if (scope.get(0) instanceof Block) {
             if (in instanceof StructuredBreak inb) {
-                Set<Op04StructuredStatement> falls = scope.getNextFallThrough(in);
+                ObjectSet<Op04StructuredStatement> falls = scope.getNextFallThrough(in);
                 /*
                  * If one of these is also a break, AND all of these have the same target as this, this is redundant.
                  * (we check that all of them are in the scope).
@@ -55,7 +55,7 @@ public class ControlFlowCleaningTransformer implements StructuredStatementTransf
             }
             if (in instanceof StructuredContinue cont) {
 
-                Set<Op04StructuredStatement> falls = scope.getNextFallThrough(in);
+                ObjectSet<Op04StructuredStatement> falls = scope.getNextFallThrough(in);
                 for (Op04StructuredStatement fall : falls) {
                     StructuredStatement stm = fall.getStatement();
                     if (stm instanceof StructuredContinue stmb) {

@@ -44,7 +44,7 @@ import org.benf.cfr.reader.util.output.Dumper;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, Dumpable, StatementContainer<Statement>, IndexedStatement {
     private final ObjectList<Op03SimpleStatement> sources = new ObjectArrayList<>();
@@ -68,7 +68,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
     //
     // This statement is CONTAINED in the following blocks.
     //
-    private final Set<BlockIdentifier> containedInBlocks = new ObjectOpenHashSet<>();
+    private final ObjectSet<BlockIdentifier> containedInBlocks = new ObjectOpenHashSet<>();
 
     public Op03SimpleStatement(Op02WithProcessedDataAndRefs original, Statement statement) {
         this.containedStatement = statement;
@@ -79,7 +79,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
         statement.setContainer(this);
     }
 
-    public Op03SimpleStatement(Set<BlockIdentifier> containedIn, Statement statement, InstrIndex index) {
+    public Op03SimpleStatement(ObjectSet<BlockIdentifier> containedIn, Statement statement, InstrIndex index) {
         this.containedStatement = statement;
         this.isNop = false;
         this.index = index;
@@ -88,7 +88,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
         statement.setContainer(this);
     }
 
-    public Op03SimpleStatement(Set<BlockIdentifier> containedIn, Statement statement, SSAIdentifiers<LValue> ssaIdentifiers, InstrIndex index) {
+    public Op03SimpleStatement(ObjectSet<BlockIdentifier> containedIn, Statement statement, SSAIdentifiers<LValue> ssaIdentifiers, InstrIndex index) {
         this.containedStatement = statement;
         this.isNop = false;
         this.index = index;
@@ -250,7 +250,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
     }
 
     @Override
-    public Set<BlockIdentifier> getBlockIdentifiers() {
+    public ObjectSet<BlockIdentifier> getBlockIdentifiers() {
         return containedInBlocks;
     }
 
@@ -263,10 +263,10 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
      * TODO : I think this is probably redundant (and not accurate)
      */
     @Override
-    public Set<BlockIdentifier> getBlocksEnded() {
+    public ObjectSet<BlockIdentifier> getBlocksEnded() {
         if (linearlyPrevious == null) return new ObjectOpenHashSet<>();
         Collection<BlockIdentifier> content = linearlyPrevious.getBlockIdentifiers();
-        Set<BlockIdentifier> in = new ObjectOpenHashSet<>(content);
+        ObjectSet<BlockIdentifier> in = new ObjectOpenHashSet<>(content);
         in.removeAll(getBlockIdentifiers());
         in.removeIf(blockIdentifier -> !blockIdentifier.getBlockType().isBreakable());
         return in;
@@ -414,7 +414,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
                     }
                 }
                 if (pullOutJump) {
-                    Set<BlockIdentifier> backJumpContainedIn = new ObjectOpenHashSet<>(containedInBlocks);
+                    ObjectSet<BlockIdentifier> backJumpContainedIn = new ObjectOpenHashSet<>(containedInBlocks);
                     backJumpContainedIn.remove(blockIdentifier);
                     Op03SimpleStatement backJump = new Op03SimpleStatement(
                         backJumpContainedIn,
@@ -596,9 +596,9 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
 
         ObjectList<Op03SimpleStatement> wantsHint = new ObjectArrayList<>();
 
-        Set<LValue> wanted = new ObjectOpenHashSet<>();
+        ObjectSet<LValue> wanted = new ObjectOpenHashSet<>();
         for (Op03SimpleStatement stm : statements) {
-            Set<LValue> hints = stm.getStatement().wantsLifetimeHint();
+            ObjectSet<LValue> hints = stm.getStatement().wantsLifetimeHint();
             if (hints == null) continue;
             wantsHint.add(stm);
             wanted.addAll(hints);
@@ -606,8 +606,8 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
         if (wanted.isEmpty()) return;
 
         class RemoveState {
-            private Set<LValue> write;
-            private Set<LValue> read;
+            private ObjectSet<LValue> write;
+            private ObjectSet<LValue> read;
         }
 
         Map<Op03SimpleStatement, RemoveState> state = MapFactory.newIdentityMap();
@@ -621,8 +621,8 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
             // If there's a write without a read, we can propagate that information back to the last points lvalue was
             // read. (by removing SSA ident information altogether from that block.)
             // we can only do this if we are able to remove it for all children.
-            Set<LValue> writes = rw.getWritten();
-            Set<LValue> reads = rw.getRead();
+            ObjectSet<LValue> writes = rw.getWritten();
+            ObjectSet<LValue> reads = rw.getRead();
             writes.retainAll(wanted);
             reads.retainAll(wanted);
             writes.removeAll(reads);
@@ -640,7 +640,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
         while (!toProcess.isEmpty()) {
             Op03SimpleStatement node = toProcess.removeFirst();
             RemoveState r = state.get(node);
-            Set<LValue> tmp = new ObjectOpenHashSet<>();
+            ObjectSet<LValue> tmp = new ObjectOpenHashSet<>();
             // Strictly speaking, all exception handlers that can see this are 'targets'.
             // However, this doesn't break any current usages ;)
             for (Op03SimpleStatement target : node.targets) {
@@ -657,7 +657,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
         }
 
         for (Op03SimpleStatement hint : wantsHint) {
-            Set<LValue> lvs = hint.getStatement().wantsLifetimeHint();
+            ObjectSet<LValue> lvs = hint.getStatement().wantsLifetimeHint();
             for (LValue lv : lvs) {
                 boolean usedInChildren = false;
                 for (Op03SimpleStatement target : hint.getTargets()) {
@@ -734,7 +734,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
         return JumpType.NONE;
     }
 
-    private Set<BlockIdentifier> possibleExitsFor = null;
+    private ObjectSet<BlockIdentifier> possibleExitsFor = null;
 
     public void addPossibleExitFor(BlockIdentifier ident) {
         if (possibleExitsFor == null) possibleExitsFor = new ObjectLinkedOpenHashSet<>();
@@ -805,7 +805,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
     public String toString() {
         BytecodeLoc loc = getStatement().getCombinedLoc();
 
-        Set<Integer> blockIds = new ObjectOpenHashSet<>();
+        ObjectSet<Integer> blockIds = new ObjectOpenHashSet<>();
         for (BlockIdentifier b : containedInBlocks) {
             blockIds.add(b.getIndex());
         }

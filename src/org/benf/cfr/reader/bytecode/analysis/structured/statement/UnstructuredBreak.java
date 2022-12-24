@@ -7,14 +7,14 @@ import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import java.util.Vector;
 
 public class UnstructuredBreak extends AbstractUnStructuredStatement {
 
-    private final Set<BlockIdentifier> blocksEnding;
+    private final ObjectSet<BlockIdentifier> blocksEnding;
 
-    public UnstructuredBreak(BytecodeLoc loc, Set<BlockIdentifier> blocksEnding) {
+    public UnstructuredBreak(BytecodeLoc loc, ObjectSet<BlockIdentifier> blocksEnding) {
         super(loc);
         this.blocksEnding = blocksEnding;
     }

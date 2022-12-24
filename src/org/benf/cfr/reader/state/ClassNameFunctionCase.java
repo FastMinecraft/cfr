@@ -1,15 +1,16 @@
 package org.benf.cfr.reader.state;
 
+import it.unimi.dsi.fastutil.objects.ObjectRBTreeSet;
 import org.benf.cfr.reader.util.collections.MapFactory;
 
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import java.util.TreeSet;
 
 public class ClassNameFunctionCase implements ClassNameFunction {
     @Override
     public Map<String, String> apply(Map<String, String> names) {
-        Set<String> caseInTest = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        ObjectSet<String> caseInTest = new ObjectRBTreeSet<>(String.CASE_INSENSITIVE_ORDER);
         Map<String, String> applied = MapFactory.newOrderedMap();
         for (Map.Entry<String, String> entry : names.entrySet()) {
             String original = entry.getKey();
@@ -22,7 +23,7 @@ public class ClassNameFunctionCase implements ClassNameFunction {
         return applied;
     }
 
-    private static String deDup(String potDup, Set<String> caseInTest) {
+    private static String deDup(String potDup, ObjectSet<String> caseInTest) {
         String n = potDup.toLowerCase();
         String name = n.substring(0, n.length()-6);
         int next = 0;

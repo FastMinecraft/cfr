@@ -3,7 +3,8 @@ package org.benf.cfr.reader.state;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 import java.util.Collections;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
+import it.unimi.dsi.fastutil.objects.ObjectSets;
 
 public class OsInfo {
 
@@ -18,13 +19,13 @@ public class OsInfo {
         WINDOWS(true,
                 new ObjectOpenHashSet<>(new String[]{ "con", "aux", "prn", "nul", "com1", "com2", "com3", "com4", "com5", "com6", "com7", "com8", "com9", "lpt1", "lpt2", "lpt3", "lpt4", "lpt5", "lpt6", "lpt7", "lpt8", "lpt9", "conin$", "conout$" })
         ),
-        OSX(true, Collections.emptySet()),
-        OTHER(false, Collections.emptySet()); // I'm assuming other behaves.  If it doesn't, add it.
+        OSX(true, ObjectSets.emptySet()),
+        OTHER(false, ObjectSets.emptySet()); // I'm assuming other behaves.  If it doesn't, add it.
 
         private final boolean caseInsensitive;
-        private final Set<String> illegalNames;
+        private final ObjectSet<String> illegalNames;
 
-        OS(boolean caseInsensitive, Set<String> illegalNames) {
+        OS(boolean caseInsensitive, ObjectSet<String> illegalNames) {
             this.caseInsensitive = caseInsensitive;
             this.illegalNames = illegalNames;
         }
@@ -33,7 +34,7 @@ public class OsInfo {
             return caseInsensitive;
         }
 
-        public Set<String> getIllegalNames() {
+        public ObjectSet<String> getIllegalNames() {
             return illegalNames;
         }
     }

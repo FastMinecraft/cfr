@@ -21,7 +21,7 @@ import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class IterLoopRewriter {
@@ -140,7 +140,7 @@ public class IterLoopRewriter {
             // If the assignment's been pushed down into a conditional, we could have
             // if ((i = a[x]) > 3).  This is why we've avoided pushing that down. :(
             Expression[] content = new Expression[]{ new LValueExpression(originalLoopVariable) };
-            Set<Expression> poison = new ObjectOpenHashSet<>(content);
+            ObjectSet<Expression> poison = new ObjectOpenHashSet<>(content);
             if (!Misc.findHiddenIter(loopStart.getStatement(), sugariterWC, arrIndex, poison)) {
                 return;
             }
@@ -161,7 +161,7 @@ public class IterLoopRewriter {
          * even USED anywhere else.
          */
         LValueUsageCollectorSimple usageCollector = new LValueUsageCollectorSimple();
-        final Set<LValue> cantUpdate = new ObjectOpenHashSet<>(new LValue[]{ originalArray, originalLoopBound, originalLoopVariable });
+        final ObjectSet<LValue> cantUpdate = new ObjectOpenHashSet<>(new LValue[]{ originalArray, originalLoopBound, originalLoopVariable });
 
         for (Op03SimpleStatement inBlock : statementsInBlock) {
             if (inBlock == loopStart) continue;
@@ -333,7 +333,7 @@ public class IterLoopRewriter {
         }  else {
             // Try seeing if it's a hidden iter, which has been pushed inside a conditional
             Expression[] content = new Expression[]{ new LValueExpression(iterable) };
-            Set<Expression> poison = new ObjectOpenHashSet<>(content);
+            ObjectSet<Expression> poison = new ObjectOpenHashSet<>(content);
             if (!Misc.findHiddenIter(loopStart.getStatement(), sugariterWC, nextCall, poison)) {
                 return;
             }

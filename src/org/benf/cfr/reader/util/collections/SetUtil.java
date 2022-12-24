@@ -3,13 +3,15 @@ package org.benf.cfr.reader.util.collections;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.util.Collection;
+import java.util.Set;
+
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class SetUtil {
-    public static <X> boolean equals (Set<? extends X> b, Collection<? extends X> a) {
+    public static <X> boolean equals (ObjectSet<? extends X> b, Collection<? extends X> a) {
         if (a.size() != b.size()) return false;
         for (X x : a) {
             if (!b.contains(x)) return false;
@@ -26,20 +28,20 @@ public class SetUtil {
     }
 
     // Note - this could return the original set, so don't use it if you want to mutate the set!
-    public static <X> Set<X> originalIntersectionOrNull(Set<X> a, Set<? extends X> b) {
+    public static <X> ObjectSet<X> originalIntersectionOrNull(ObjectSet<X> a, ObjectSet<? extends X> b) {
         if (a==null||b==null) return null;
         if (a.equals(b)) return a;
         return intersectionOrNull(a,b);
     }
 
-    public static <X> Set<X> intersectionOrNull(Set<? extends X> a, Set<? extends X> b) {
+    public static <X> ObjectSet<X> intersectionOrNull(ObjectSet<? extends X> a, ObjectSet<? extends X> b) {
         if (a==null||b==null) return null;
         if (b.size() < a.size()) {
-            Set<? extends X> tmp = a;
+            ObjectSet<? extends X> tmp = a;
             a = b;
             b = tmp;
         }
-        Set<X> res = null;
+        ObjectSet<X> res = null;
         for (X x : a) {
             if (b.contains(x)) {
                 if (res == null) res = new ObjectOpenHashSet<>();
@@ -49,8 +51,8 @@ public class SetUtil {
         return res;
     }
 
-    public static <X> Set<X> difference(Set<? extends X> a, Set<? extends X> b) {
-        Set<X> res = new ObjectOpenHashSet<>();
+    public static <X> ObjectSet<X> difference(Set<? extends X> a, Set<? extends X> b) {
+        ObjectSet<X> res = new ObjectOpenHashSet<>();
         for (X a1 : a) {
             if (!b.contains(a1)) res.add(a1);
         }

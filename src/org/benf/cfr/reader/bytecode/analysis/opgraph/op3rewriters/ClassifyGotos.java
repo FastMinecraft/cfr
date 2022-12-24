@@ -1,7 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.objects.*;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.CatchStatement;
@@ -14,16 +13,14 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.JumpType;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.util.collections.*;
 
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import java.util.Set;
 
 class ClassifyGotos {
     static void classifyGotos(ObjectList<Op03SimpleStatement> in) {
         ObjectList<Pair<Op03SimpleStatement, Integer>> gotos = new ObjectArrayList<>();
-        Map<BlockIdentifier, Op03SimpleStatement> tryStatementsByBlock = MapFactory.newMap();
+        Object2ObjectMap<BlockIdentifier, Op03SimpleStatement> tryStatementsByBlock = new Object2ObjectOpenHashMap<>();
         Map<BlockIdentifier, ObjectList<BlockIdentifier>> catchStatementsByBlock = MapFactory.newMap();
-        Map<BlockIdentifier, Set<BlockIdentifier>> catchToTries = MapFactory.newLazyMap(arg -> new ObjectLinkedOpenHashSet<>());
+        Map<BlockIdentifier, ObjectSet<BlockIdentifier>> catchToTries = MapFactory.newLazyMap(arg -> new ObjectLinkedOpenHashSet<>());
         for (int x = 0, len = in.size(); x < len; ++x) {
             Op03SimpleStatement stm = in.get(x);
             Statement statement = stm.getStatement();
@@ -65,23 +62,23 @@ class ClassifyGotos {
         }
     }
 
-    private static boolean classifyTryLeaveGoto(Op03SimpleStatement gotoStm, int idx, Set<BlockIdentifier> tryBlockIdents, Map<BlockIdentifier, Op03SimpleStatement> tryStatementsByBlock, Map<BlockIdentifier, ObjectList<BlockIdentifier>> catchStatementByBlock, ObjectList<Op03SimpleStatement> in) {
-        Set<BlockIdentifier> blocks = gotoStm.getBlockIdentifiers();
+    private static boolean classifyTryLeaveGoto(Op03SimpleStatement gotoStm, int idx, ObjectSet<BlockIdentifier> tryBlockIdents, Map<BlockIdentifier, Op03SimpleStatement> tryStatementsByBlock, Map<BlockIdentifier, ObjectList<BlockIdentifier>> catchStatementByBlock, ObjectList<Op03SimpleStatement> in) {
+        ObjectSet<BlockIdentifier> blocks = gotoStm.getBlockIdentifiers();
         return classifyTryCatchLeaveGoto(gotoStm, blocks, idx, tryBlockIdents, tryStatementsByBlock, catchStatementByBlock, in);
     }
 
-    private static void classifyCatchLeaveGoto(Op03SimpleStatement gotoStm, int idx, Set<BlockIdentifier> tryBlockIdents, Map<BlockIdentifier, Op03SimpleStatement> tryStatementsByBlock, Map<BlockIdentifier, ObjectList<BlockIdentifier>> catchStatementByBlock, Map<BlockIdentifier, Set<BlockIdentifier>> catchBlockToTryBlocks, ObjectList<Op03SimpleStatement> in) {
-        Set<BlockIdentifier> inBlocks = gotoStm.getBlockIdentifiers();
+    private static void classifyCatchLeaveGoto(Op03SimpleStatement gotoStm, int idx, ObjectSet<BlockIdentifier> tryBlockIdents, Map<BlockIdentifier, Op03SimpleStatement> tryStatementsByBlock, Map<BlockIdentifier, ObjectList<BlockIdentifier>> catchStatementByBlock, Map<BlockIdentifier, ObjectSet<BlockIdentifier>> catchBlockToTryBlocks, ObjectList<Op03SimpleStatement> in) {
+        ObjectSet<BlockIdentifier> inBlocks = gotoStm.getBlockIdentifiers();
 
         /*
          * Map blocks to the union of the TRY blocks we're in catch blocks of.
          */
-        Set<BlockIdentifier> blocks = new ObjectLinkedOpenHashSet<>();
+        ObjectSet<BlockIdentifier> blocks = new ObjectLinkedOpenHashSet<>();
         for (BlockIdentifier block : inBlocks) {
             //
             // In case it's a lazy map, 2 stage lookup and fetch.
             if (catchBlockToTryBlocks.containsKey(block)) {
-                Set<BlockIdentifier> catchToTries = catchBlockToTryBlocks.get(block);
+                ObjectSet<BlockIdentifier> catchToTries = catchBlockToTryBlocks.get(block);
                 blocks.addAll(catchToTries);
             }
         }
@@ -94,17 +91,17 @@ class ClassifyGotos {
      * Attempt to determine if a goto is jumping over catch blocks - if it is, we can mark it as a GOTO_OUT_OF_TRY
      * (the same holds for a goto inside a catch, we use the same marker).
      */
-    private static boolean classifyTryCatchLeaveGoto(Op03SimpleStatement gotoStm, Set<BlockIdentifier> blocks, int idx, Set<BlockIdentifier> tryBlockIdents, Map<BlockIdentifier, Op03SimpleStatement> tryStatementsByBlock, Map<BlockIdentifier, ObjectList<BlockIdentifier>> catchStatementByBlock, ObjectList<Op03SimpleStatement> in) {
+    private static boolean classifyTryCatchLeaveGoto(Op03SimpleStatement gotoStm, ObjectSet<BlockIdentifier> blocks, int idx, ObjectSet<BlockIdentifier> tryBlockIdents, Map<BlockIdentifier, Op03SimpleStatement> tryStatementsByBlock, Map<BlockIdentifier, ObjectList<BlockIdentifier>> catchStatementByBlock, ObjectList<Op03SimpleStatement> in) {
         if (idx >= in.size() - 1) return false;
 
         GotoStatement gotoStatement = (GotoStatement) gotoStm.getStatement();
 
-        Set<BlockIdentifier> tryBlocks = SetUtil.intersectionOrNull(blocks, tryBlockIdents);
+        ObjectSet<BlockIdentifier> tryBlocks = SetUtil.intersectionOrNull(blocks, tryBlockIdents);
         if (tryBlocks == null) return false;
 
 
         Op03SimpleStatement after = in.get(idx + 1);
-        Set<BlockIdentifier> afterBlocks = SetUtil.intersectionOrNull(after.getBlockIdentifiers(), tryBlockIdents);
+        ObjectSet<BlockIdentifier> afterBlocks = SetUtil.intersectionOrNull(after.getBlockIdentifiers(), tryBlockIdents);
 
         if (afterBlocks != null) tryBlocks.removeAll(afterBlocks);
         if (tryBlocks.size() != 1) return false;
@@ -125,7 +122,7 @@ class ClassifyGotos {
          * Not in any of the catch blocks.
          */
         Op03SimpleStatement gotoTgt = gotoStm.getTargets().get(0);
-        Set<BlockIdentifier> gotoTgtIdents = gotoTgt.getBlockIdentifiers();
+        ObjectSet<BlockIdentifier> gotoTgtIdents = gotoTgt.getBlockIdentifiers();
         if (SetUtil.hasIntersection(gotoTgtIdents, catchForThis)) return false;
         int idxtgt = in.indexOf(gotoTgt);
         if (idxtgt == 0) return false;
@@ -171,8 +168,8 @@ class ClassifyGotos {
                 Op03SimpleStatement targetStatement = (Op03SimpleStatement) jumpingStatement.getJumpTarget().getContainer();
                 boolean isForwardJump = targetStatement.getIndex().isBackJumpTo(statement);
                 if (isForwardJump) {
-                    Set<BlockIdentifier> targetBlocks = targetStatement.getBlockIdentifiers();
-                    Set<BlockIdentifier> srcBlocks = statement.getBlockIdentifiers();
+                    ObjectSet<BlockIdentifier> targetBlocks = targetStatement.getBlockIdentifiers();
+                    ObjectSet<BlockIdentifier> srcBlocks = statement.getBlockIdentifiers();
                     if (targetBlocks.size() < srcBlocks.size() + agressiveOffset  && srcBlocks.containsAll(targetBlocks)) {
                         /*
                          * Remove all the switch blocks from srcBlocks.

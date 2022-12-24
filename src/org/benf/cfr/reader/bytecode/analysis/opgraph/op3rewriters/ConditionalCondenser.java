@@ -24,7 +24,7 @@ import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 
 import java.util.Collection;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class ConditionalCondenser {
 
@@ -123,7 +123,7 @@ public class ConditionalCondenser {
         boolean eclipseHeuristic = testEclipse && ifStatement.getTargets().get(1).getIndex().isBackJumpFrom(ifStatement);
         if (!eclipseHeuristic) {
             Op03SimpleStatement statement = ifStatement;
-            Set<Op03SimpleStatement> visited = new ObjectOpenHashSet<>();
+            ObjectSet<Op03SimpleStatement> visited = new ObjectOpenHashSet<>();
             verify:
             do {
                 if (statement.getSources().size() > 1) {
@@ -174,10 +174,10 @@ public class ConditionalCondenser {
             LValueUsageCollectorSimple assignmentLVC = new LValueUsageCollectorSimple();
             assignmentExpression.collectUsedLValues(assignmentLVC);
             Collection<LValue> content1 = assignmentLVC.getUsedLValues();
-            Set<LValue> used = new ObjectOpenHashSet<>(content1);
+            ObjectSet<LValue> used = new ObjectOpenHashSet<>(content1);
             used.remove(lValue);
             Collection<LValue> content = lvc.getUsedLValues();
-            Set<LValue> usedComparison = new ObjectOpenHashSet<>(content);
+            ObjectSet<LValue> usedComparison = new ObjectOpenHashSet<>(content);
 
             // Avoid situation where we have
             // a = x
@@ -186,7 +186,7 @@ public class ConditionalCondenser {
             SSAIdentifiers<LValue> beforeSSA = source.getSSAIdentifiers();
             SSAIdentifiers<LValue> afterSSA = ifStatement.getSSAIdentifiers();
 
-            Set<LValue> intersection  = SetUtil.intersectionOrNull(used, usedComparison);
+            ObjectSet<LValue> intersection  = SetUtil.intersectionOrNull(used, usedComparison);
             if (intersection != null) {
                 // If there's an intersection, we require the ssa idents for before/after to be the same.
                 for (LValue intersect : intersection) {

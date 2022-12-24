@@ -1,15 +1,15 @@
 package org.benf.cfr.reader.util.graph;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.Set;
 import java.util.function.BiConsumer;
 
 public abstract class AbstractGraphVisitorFI<T> implements GraphVisitor<T> {
     private final LinkedList<T> toVisit = new LinkedList<>();
-    private final Set<T> visited = new ObjectOpenHashSet<>();
+    private final ObjectSet<T> visited = new ObjectOpenHashSet<>();
     private final BiConsumer<T, GraphVisitor<T>> callee;
     private boolean aborted = false;
 

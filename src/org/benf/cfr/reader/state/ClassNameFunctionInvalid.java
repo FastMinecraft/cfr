@@ -1,17 +1,18 @@
 package org.benf.cfr.reader.state;
 
+import it.unimi.dsi.fastutil.objects.ObjectRBTreeSet;
 import org.benf.cfr.reader.util.collections.MapFactory;
 
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import java.util.TreeSet;
 
 public class ClassNameFunctionInvalid implements ClassNameFunction {
-    private final Set<String> illegalNames;
+    private final ObjectSet<String> illegalNames;
 
-    ClassNameFunctionInvalid(boolean caseInsensitive, Set<String> illegalNames) {
+    ClassNameFunctionInvalid(boolean caseInsensitive, ObjectSet<String> illegalNames) {
         if (caseInsensitive) {
-            Set<String> ciNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+            ObjectSet<String> ciNames = new ObjectRBTreeSet<>(String.CASE_INSENSITIVE_ORDER);
             ciNames.addAll(illegalNames);
             illegalNames = ciNames;
         }

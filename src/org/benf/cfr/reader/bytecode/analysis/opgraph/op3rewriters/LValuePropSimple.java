@@ -14,7 +14,7 @@ import org.benf.cfr.reader.util.collections.MapFactory;
 import java.util.Collection;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 /*
  * A first pass of lvalue collapsing.
@@ -152,7 +152,7 @@ public class LValuePropSimple {
                         }
 
                         @Override
-                        public LValueRewriter getWithFixed(Set fixed) {
+                        public LValueRewriter getWithFixed(ObjectSet fixed) {
                             return this;
                         }
                     };

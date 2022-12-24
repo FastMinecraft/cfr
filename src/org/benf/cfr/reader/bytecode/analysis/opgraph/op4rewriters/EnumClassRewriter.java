@@ -38,7 +38,7 @@ import java.util.Collection;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class EnumClassRewriter {
 
@@ -163,7 +163,7 @@ public class EnumClassRewriter {
             Collection<String> content = Functional.map(classFile.getFields(),
                 ClassFileField::getFieldName
             );
-            Set<String> fieldNames = new ObjectOpenHashSet<>(content);
+            ObjectSet<String> fieldNames = new ObjectOpenHashSet<>(content);
 
             ObjectList<Pair<StaticVariable, String>> renames = new ObjectArrayList<>();
 

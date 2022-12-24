@@ -50,11 +50,11 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class RecordRewriter {
-    private static final Set<AccessFlag> recordFieldFlags = new ObjectOpenHashSet<>(new AccessFlag[]{ AccessFlag.ACC_FINAL, AccessFlag.ACC_PRIVATE });
-    private static final Set<AccessFlagMethod> recordGetterFlags = new ObjectOpenHashSet<>(new AccessFlagMethod[]{ AccessFlagMethod.ACC_PUBLIC });
+    private static final ObjectSet<AccessFlag> recordFieldFlags = new ObjectOpenHashSet<>(new AccessFlag[]{ AccessFlag.ACC_FINAL, AccessFlag.ACC_PRIVATE });
+    private static final ObjectSet<AccessFlagMethod> recordGetterFlags = new ObjectOpenHashSet<>(new AccessFlagMethod[]{ AccessFlagMethod.ACC_PUBLIC });
 
     public static void rewrite(ClassFile classFile, DCCommonState state) {
         if (!TypeConstants.RECORD.equals(classFile.getBaseClassType())) return;

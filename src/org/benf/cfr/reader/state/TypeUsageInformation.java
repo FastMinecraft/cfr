@@ -5,16 +5,16 @@ import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.util.output.IllegalIdentifierDump;
 import org.benf.cfr.reader.util.output.TypeContext;
 
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public interface TypeUsageInformation {
     JavaRefTypeInstance getAnalysisType();
 
-    Set<JavaRefTypeInstance> getShortenedClassTypes();
+    ObjectSet<JavaRefTypeInstance> getShortenedClassTypes();
 
-    Set<JavaRefTypeInstance> getUsedClassTypes();
+    ObjectSet<JavaRefTypeInstance> getUsedClassTypes();
 
-    Set<JavaRefTypeInstance> getUsedInnerClassTypes();
+    ObjectSet<JavaRefTypeInstance> getUsedInnerClassTypes();
 
     boolean hasLocalInstance(JavaRefTypeInstance type);
 
@@ -30,5 +30,5 @@ public interface TypeUsageInformation {
 
     boolean isStaticImport(JavaTypeInstance clazz, String fixedName);
 
-    Set<DetectedStaticImport> getDetectedStaticImports();
+    ObjectSet<DetectedStaticImport> getDetectedStaticImports();
 }

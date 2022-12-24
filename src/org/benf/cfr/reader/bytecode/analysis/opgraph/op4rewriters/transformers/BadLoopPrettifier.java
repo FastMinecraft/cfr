@@ -10,7 +10,7 @@ import org.benf.cfr.reader.bytecode.analysis.structured.statement.*;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 
 import java.util.List;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class BadLoopPrettifier implements StructuredStatementTransformer {
 
@@ -63,7 +63,7 @@ public class BadLoopPrettifier implements StructuredStatementTransformer {
             // As long as it's breaking out of the right block!
             if (!breakStatement.getBreakBlock().equals(blockIdent)) return in;
         } else if (structuredExit instanceof StructuredReturn) {
-            Set<Op04StructuredStatement> fallthrough = scope.getNextFallThrough(in);
+            ObjectSet<Op04StructuredStatement> fallthrough = scope.getNextFallThrough(in);
             if (!fallthrough.isEmpty()) {
                 return in;
             }

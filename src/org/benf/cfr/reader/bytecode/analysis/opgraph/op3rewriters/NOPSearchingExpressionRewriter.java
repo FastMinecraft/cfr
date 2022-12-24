@@ -6,16 +6,16 @@ import org.benf.cfr.reader.bytecode.analysis.parse.rewriters.AbstractExpressionR
 import org.benf.cfr.reader.bytecode.analysis.parse.rewriters.ExpressionRewriterFlags;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.SSAIdentifiers;
 
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class NOPSearchingExpressionRewriter extends AbstractExpressionRewriter {
 
     private final Expression needle;
-    private final Set<Expression> poison;
+    private final ObjectSet<Expression> poison;
     private boolean found = false;
     private boolean poisoned = false;
 
-    public NOPSearchingExpressionRewriter(Expression needle, Set<Expression> poison) {
+    public NOPSearchingExpressionRewriter(Expression needle, ObjectSet<Expression> poison) {
         this.needle = needle;
         this.poison = poison;
     }

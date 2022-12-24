@@ -5,10 +5,10 @@ import org.benf.cfr.reader.util.output.Dumpable;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.Collection;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class DecompilerComments implements Dumpable {
-    private final Set<DecompilerComment> comments = new ObjectLinkedOpenHashSet<>();
+    private final ObjectSet<DecompilerComment> comments = new ObjectLinkedOpenHashSet<>();
 
     public DecompilerComments() {
     }

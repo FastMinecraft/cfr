@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.state;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSets;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.entities.ClassFile;
@@ -10,7 +11,7 @@ import org.benf.cfr.reader.util.output.TypeContext;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 /**
  * Strips the outer class name off anything which preceeds this inner class.
@@ -20,8 +21,8 @@ public class InnerClassTypeUsageInformation implements TypeUsageInformation {
     private final TypeUsageInformation delegate;
     private final JavaRefTypeInstance analysisInnerClass;
     private final Map<JavaRefTypeInstance, String> localTypeNames = MapFactory.newMap();
-    private final Set<String> usedLocalTypeNames = new ObjectOpenHashSet<>();
-    private final Set<JavaRefTypeInstance> usedInnerClassTypes = new ObjectOpenHashSet<>();
+    private final ObjectSet<String> usedLocalTypeNames = new ObjectOpenHashSet<>();
+    private final ObjectSet<JavaRefTypeInstance> usedInnerClassTypes = new ObjectOpenHashSet<>();
 
     public InnerClassTypeUsageInformation(TypeUsageInformation delegate, JavaRefTypeInstance analysisInnerClass) {
         this.delegate = delegate;
@@ -49,7 +50,7 @@ public class InnerClassTypeUsageInformation implements TypeUsageInformation {
     }
 
     private void initializeFrom() {
-        Set<JavaRefTypeInstance> outerInners = delegate.getUsedInnerClassTypes();
+        ObjectSet<JavaRefTypeInstance> outerInners = delegate.getUsedInnerClassTypes();
         for (JavaRefTypeInstance outerInner : outerInners) {
             if (outerInner.getInnerClassHereInfo().isTransitiveInnerClassOf(analysisInnerClass)) {
                 usedInnerClassTypes.add(outerInner);
@@ -63,12 +64,12 @@ public class InnerClassTypeUsageInformation implements TypeUsageInformation {
     }
 
     @Override
-    public Set<JavaRefTypeInstance> getUsedClassTypes() {
+    public ObjectSet<JavaRefTypeInstance> getUsedClassTypes() {
         return delegate.getUsedClassTypes();
     }
 
     @Override
-    public Set<JavaRefTypeInstance> getUsedInnerClassTypes() {
+    public ObjectSet<JavaRefTypeInstance> getUsedInnerClassTypes() {
         return usedInnerClassTypes;
     }
 
@@ -115,8 +116,8 @@ public class InnerClassTypeUsageInformation implements TypeUsageInformation {
     }
 
     @Override
-    public Set<DetectedStaticImport> getDetectedStaticImports() {
-        return Collections.emptySet();
+    public ObjectSet<DetectedStaticImport> getDetectedStaticImports() {
+        return ObjectSets.emptySet();
     }
 
     @Override
@@ -125,7 +126,7 @@ public class InnerClassTypeUsageInformation implements TypeUsageInformation {
     }
 
     @Override
-    public Set<JavaRefTypeInstance> getShortenedClassTypes() {
+    public ObjectSet<JavaRefTypeInstance> getShortenedClassTypes() {
         return delegate.getShortenedClassTypes();
     }
 }

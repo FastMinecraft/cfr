@@ -10,7 +10,7 @@ import java.util.LinkedList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 
 import java.util.List;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class StructuredScope {
 
@@ -72,9 +72,9 @@ public class StructuredScope {
         return null;
     }
 
-    public Set<Op04StructuredStatement> getNextFallThrough(StructuredStatement structuredStatement) {
+    public ObjectSet<Op04StructuredStatement> getNextFallThrough(StructuredStatement structuredStatement) {
         Op04StructuredStatement current = structuredStatement.getContainer();
-        Set<Op04StructuredStatement> res = new ObjectOpenHashSet<>();
+        ObjectSet<Op04StructuredStatement> res = new ObjectOpenHashSet<>();
         int idx = -1;
         for (AtLevel atLevel : scope) {
             idx++;
@@ -97,7 +97,7 @@ public class StructuredScope {
         return res;
     }
 
-    public Set<Op04StructuredStatement> getDirectFallThrough() {
+    public ObjectSet<Op04StructuredStatement> getDirectFallThrough() {
         AtLevel atLevel = scope.getFirst();
         if (atLevel.statement instanceof Block) {
             if (atLevel.next != -1) {

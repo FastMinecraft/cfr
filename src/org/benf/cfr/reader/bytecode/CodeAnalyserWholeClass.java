@@ -25,6 +25,8 @@ import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
+
 import java.util.Set;
 import java.util.function.Function;
 
@@ -156,7 +158,7 @@ public class CodeAnalyserWholeClass {
      */
     private static void fixInnerClassConstructorSyntheticOuterArgs(ClassFile classFile) {
         if (classFile.isInnerClass()) {
-            Set<MethodPrototype> processed = new ObjectOpenHashSet<>();
+            ObjectSet<MethodPrototype> processed = new ObjectOpenHashSet<>();
             for (Method method : classFile.getConstructors()) {
                 Op04StructuredStatement.fixInnerClassConstructorSyntheticOuterArgs(
                     classFile,

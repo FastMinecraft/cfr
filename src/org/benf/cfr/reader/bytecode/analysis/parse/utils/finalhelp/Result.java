@@ -3,13 +3,13 @@ package org.benf.cfr.reader.bytecode.analysis.parse.utils.finalhelp;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 
 import java.util.Objects;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class Result {
     public static final Result FAIL = new Result();
 
     private final boolean res;
-    private final Set<Op03SimpleStatement> toRemove;
+    private final ObjectSet<Op03SimpleStatement> toRemove;
     private final Op03SimpleStatement start;
     private final Op03SimpleStatement afterEnd; // throwProxy
 
@@ -20,7 +20,7 @@ public class Result {
         this.afterEnd = null;
     }
 
-    public Result(Set<Op03SimpleStatement> toRemove, Op03SimpleStatement start, Op03SimpleStatement afterEnd) {
+    public Result(ObjectSet<Op03SimpleStatement> toRemove, Op03SimpleStatement start, Op03SimpleStatement afterEnd) {
         this.res = true;
         this.toRemove = toRemove;
         this.start = start;
@@ -49,7 +49,7 @@ public class Result {
         return result;
     }
 
-    public Set<Op03SimpleStatement> getToRemove() {
+    public ObjectSet<Op03SimpleStatement> getToRemove() {
         return toRemove;
     }
 

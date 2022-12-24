@@ -20,7 +20,7 @@ import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import java.util.Collection;
 import java.util.Collections;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 class WhileRewriter {
 
@@ -118,8 +118,8 @@ class WhileRewriter {
         }
     }
 
-    private static Set<LValue> findForInvariants(Op03SimpleStatement start, BlockIdentifier whileLoop) {
-        Set<LValue> res = new ObjectLinkedOpenHashSet<>();
+    private static ObjectSet<LValue> findForInvariants(Op03SimpleStatement start, BlockIdentifier whileLoop) {
+        ObjectSet<LValue> res = new ObjectLinkedOpenHashSet<>();
         Op03SimpleStatement current = start;
         while (current.getBlockIdentifiers().contains(whileLoop)) {
             /* Note that here we're checking for assignments to determine what is suitable for lifting into a
@@ -154,7 +154,7 @@ class WhileRewriter {
         //
         WhileStatement whileStatement = (WhileStatement) statement.getStatement();
         ConditionalExpression condition = whileStatement.getCondition();
-        Set<LValue> loopVariablePossibilities = condition.getLoopLValues();
+        ObjectSet<LValue> loopVariablePossibilities = condition.getLoopLValues();
         // If we can't find a possible invariant, no point proceeding.
         if (loopVariablePossibilities.isEmpty()) {
             return;
@@ -164,9 +164,9 @@ class WhileRewriter {
         // For each of the back calling targets, find a CONSTANT inc/dec
         // * which is in the loop arena
         // * before any instruction which has multiple parents.
-        Set<LValue> reverseOrderedMutatedPossibilities = null;
+        ObjectSet<LValue> reverseOrderedMutatedPossibilities = null;
         for (Op03SimpleStatement source : backSources) {
-            Set<LValue> incrPoss = findForInvariants(source, whileBlockIdentifier);
+            ObjectSet<LValue> incrPoss = findForInvariants(source, whileBlockIdentifier);
             if (reverseOrderedMutatedPossibilities == null) {
                 reverseOrderedMutatedPossibilities = incrPoss;
             } else {

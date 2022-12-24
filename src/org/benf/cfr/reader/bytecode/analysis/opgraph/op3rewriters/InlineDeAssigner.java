@@ -3,6 +3,7 @@ package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
@@ -45,9 +46,8 @@ public class InlineDeAssigner {
     }
 
     private static class Deassigner extends AbstractExpressionRewriter {
-
-        final Set<LValue> read = new ObjectOpenHashSet<>();
-        final Set<LValue> write = new ObjectOpenHashSet<>();
+        final ObjectSet<LValue> read = new ObjectOpenHashSet<>();
+        final ObjectSet<LValue> write = new ObjectOpenHashSet<>();
 
         final ObjectList<AssignmentExpression> extracted = new ObjectArrayList<>();
 

@@ -17,15 +17,15 @@ import org.benf.cfr.reader.util.collections.*;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class GenericInferer {
 
     private static class GenericInferData {
         final GenericTypeBinder binder;
-        final Set<JavaGenericPlaceholderTypeInstance> nullPlaceholders;
+        final ObjectSet<JavaGenericPlaceholderTypeInstance> nullPlaceholders;
 
-        private GenericInferData(GenericTypeBinder binder, Set<JavaGenericPlaceholderTypeInstance> nullPlaceholders) {
+        private GenericInferData(GenericTypeBinder binder, ObjectSet<JavaGenericPlaceholderTypeInstance> nullPlaceholders) {
             this.binder = binder;
             this.nullPlaceholders = nullPlaceholders;
         }
@@ -46,7 +46,7 @@ public class GenericInferer {
             GenericTypeBinder newBinder = binder.mergeWith(other.binder, true);
             if (newBinder == null) return new GenericInferData(null);
 
-            Set<JavaGenericPlaceholderTypeInstance> newNullPlaceHolders = SetUtil.originalIntersectionOrNull(nullPlaceholders, other.nullPlaceholders);
+            ObjectSet<JavaGenericPlaceholderTypeInstance> newNullPlaceHolders = SetUtil.originalIntersectionOrNull(nullPlaceholders, other.nullPlaceholders);
             return new GenericInferData(newBinder, newNullPlaceHolders);
         }
 
@@ -79,7 +79,7 @@ public class GenericInferer {
          * this would be better done inside the generic type binder, but
          * I'd like to keep it here, for now...
          */
-        Set<JavaGenericPlaceholderTypeInstance> nullBindings = null;
+        ObjectSet<JavaGenericPlaceholderTypeInstance> nullBindings = null;
         for (int x=0,len=args.size();x<len;++x) {
             if (nulls.get(x)) {
                 JavaTypeInstance t = args.get(x).getInferredJavaType().getJavaTypeInstance();

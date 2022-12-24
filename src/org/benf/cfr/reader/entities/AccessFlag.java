@@ -1,11 +1,13 @@
 package org.benf.cfr.reader.entities;
 
+import it.unimi.dsi.fastutil.objects.ObjectRBTreeSet;
 import org.benf.cfr.reader.entities.attributes.AttributeMap;
 import org.benf.cfr.reader.entities.attributes.AttributeSynthetic;
 
 import java.util.EnumSet;
 import java.util.Set;
-import java.util.TreeSet;
+
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public enum AccessFlag {
     ACC_PUBLIC("public"),
@@ -36,7 +38,7 @@ public enum AccessFlag {
     }
 
     public static Set<AccessFlag> build(int raw) {
-        Set<AccessFlag> res = new TreeSet<>();
+        ObjectSet<AccessFlag> res = new ObjectRBTreeSet<>();
 
         // Because we're decoding a C++ style enum.
         if (0 != (raw & 0x1)) res.add(ACC_PUBLIC);

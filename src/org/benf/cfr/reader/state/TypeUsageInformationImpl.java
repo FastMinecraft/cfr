@@ -3,6 +3,7 @@ package org.benf.cfr.reader.state;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.analysis.types.InnerClassInfo;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
@@ -21,17 +22,17 @@ import java.util.function.Predicate;
 
 public class TypeUsageInformationImpl implements TypeUsageInformation {
     private final IllegalIdentifierDump iid;
-    private final Set<DetectedStaticImport> staticImports;
+    private final ObjectSet<DetectedStaticImport> staticImports;
     private final JavaRefTypeInstance analysisType;
-    private final Set<JavaRefTypeInstance> usedRefTypes = new ObjectLinkedOpenHashSet<>();
-    private final Set<JavaRefTypeInstance> shortenedRefTypes = new ObjectLinkedOpenHashSet<>();
-    private final Set<JavaRefTypeInstance> usedLocalInnerTypes = new ObjectLinkedOpenHashSet<>();
+    private final ObjectSet<JavaRefTypeInstance> usedRefTypes = new ObjectLinkedOpenHashSet<>();
+    private final ObjectSet<JavaRefTypeInstance> shortenedRefTypes = new ObjectLinkedOpenHashSet<>();
+    private final ObjectSet<JavaRefTypeInstance> usedLocalInnerTypes = new ObjectLinkedOpenHashSet<>();
     private final Map<JavaRefTypeInstance, String> displayName = MapFactory.newMap();
     private final Map<String, LinkedList<JavaRefTypeInstance>> shortNames = MapFactory.newLazyMap(arg -> new LinkedList<>());
     private final Predicate<String> allowShorten;
     private final Map<String, Boolean> clashNames = MapFactory.newLazyMap(this::fieldClash);
 
-    public TypeUsageInformationImpl(Options options, JavaRefTypeInstance analysisType, Set<JavaRefTypeInstance> usedRefTypes, Set<DetectedStaticImport> staticImports) {
+    public TypeUsageInformationImpl(Options options, JavaRefTypeInstance analysisType, ObjectSet<JavaRefTypeInstance> usedRefTypes, ObjectSet<DetectedStaticImport> staticImports) {
         this.allowShorten = MiscUtils.mkRegexFilter(options.getOption(OptionsImpl.IMPORT_FILTER), true);
         this.analysisType = analysisType;
         this.iid = IllegalIdentifierDump.Factory.getOrNull(options);
@@ -62,7 +63,7 @@ public class TypeUsageInformationImpl implements TypeUsageInformation {
         return clazz.getRawName(iid);
     }
 
-    private void initialiseFrom(Set<JavaRefTypeInstance> usedRefTypes) {
+    private void initialiseFrom(ObjectSet<JavaRefTypeInstance> usedRefTypes) {
         ObjectList<JavaRefTypeInstance> usedRefs = new ObjectArrayList<>(usedRefTypes);
         usedRefs.sort((a, b) -> a.getRawName(iid).compareTo(b.getRawName(iid)));
         this.usedRefTypes.addAll(usedRefs);
@@ -185,17 +186,17 @@ public class TypeUsageInformationImpl implements TypeUsageInformation {
     }
 
     @Override
-    public Set<JavaRefTypeInstance> getUsedClassTypes() {
+    public ObjectSet<JavaRefTypeInstance> getUsedClassTypes() {
         return usedRefTypes;
     }
 
     @Override
-    public Set<JavaRefTypeInstance> getShortenedClassTypes() {
+    public ObjectSet<JavaRefTypeInstance> getShortenedClassTypes() {
         return shortenedRefTypes;
     }
 
     @Override
-    public Set<JavaRefTypeInstance> getUsedInnerClassTypes() {
+    public ObjectSet<JavaRefTypeInstance> getUsedInnerClassTypes() {
         return usedLocalInnerTypes;
     }
 
@@ -210,7 +211,7 @@ public class TypeUsageInformationImpl implements TypeUsageInformation {
     }
 
     @Override
-    public Set<DetectedStaticImport> getDetectedStaticImports() {
+    public ObjectSet<DetectedStaticImport> getDetectedStaticImports() {
         return staticImports;
     }
 

@@ -1,9 +1,9 @@
 package org.benf.cfr.reader.bytecode.analysis.types;
 
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public interface InnerClassInfo {
-    void collectTransitiveDegenericParents(Set<JavaTypeInstance> parents);
+    void collectTransitiveDegenericParents(ObjectSet<JavaTypeInstance> parents);
 
     boolean isInnerClass();
 
@@ -40,7 +40,7 @@ public interface InnerClassInfo {
         }
 
         @Override
-        public void collectTransitiveDegenericParents(Set<JavaTypeInstance> parents) {
+        public void collectTransitiveDegenericParents(ObjectSet<JavaTypeInstance> parents) {
         }
 
         @Override

@@ -1,8 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import it.unimi.dsi.fastutil.objects.*;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
@@ -29,8 +27,6 @@ import org.benf.cfr.reader.util.DecompilerComment;
 import org.benf.cfr.reader.util.DecompilerComments;
 
 import java.util.Collection;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
 
 /*
  * Consider the (EXTREMELY unlikely, but occasional)
@@ -101,8 +97,8 @@ public class JumpsIntoDoRewriter {
             if (prevStm instanceof IfStatement prevIf && prev.getTargets().get(1).getBlockIdentifiers().contains(doBlockIdentifier)) {
                 Op03SimpleStatement prevTgt = prev.getTargets().get(1);
                 // it's implicit that the fall through is the do statement.
-                Set<BlockIdentifier> prevTgtIdents = prevTgt.getBlockIdentifiers();
-                Set<BlockIdentifier> ifStmIdents = prev.getBlockIdentifiers();
+                ObjectSet<BlockIdentifier> prevTgtIdents = prevTgt.getBlockIdentifiers();
+                ObjectSet<BlockIdentifier> ifStmIdents = prev.getBlockIdentifiers();
                 // The two must be the same other than this ONE identifier.
                 if (!(prevTgtIdents.size() == ifStmIdents.size() + 1 &&
                     prevTgtIdents.containsAll(ifStmIdents) &&
@@ -122,7 +118,7 @@ public class JumpsIntoDoRewriter {
                 prevTgt.removeSource(prev);
                 prev.removeTarget(prevTgt);
                 Collection<BlockIdentifier> content = doS.getBlockIdentifiers();
-                Set<BlockIdentifier> newBlocks = new ObjectOpenHashSet<>(content);
+                ObjectSet<BlockIdentifier> newBlocks = new ObjectOpenHashSet<>(content);
                 newBlocks.add(doBlockIdentifier);
                 Op03SimpleStatement newStm = new Op03SimpleStatement(newBlocks, newIf, doId, doS.getIndex().justAfter());
                 Collection<Op03SimpleStatement> original = afterDo.getSources();
@@ -150,10 +146,10 @@ public class JumpsIntoDoRewriter {
         outer: for (int idx=op03SimpleParseNodes.size()-1;idx>=0;--idx) {
             Op03SimpleStatement stm = op03SimpleParseNodes.get(idx);
             if (stm.getStatement() instanceof DoStatement) {
-                Set<Op03SimpleStatement> externals = new ReferenceOpenHashSet<>();
+                ReferenceSet<Op03SimpleStatement> externals = new ReferenceOpenHashSet<>();
                 BlockIdentifier doBlock = ((DoStatement) stm.getStatement()).getBlockIdentifier();
                 Collection<BlockIdentifier> content = stm.getBlockIdentifiers();
-                Set<BlockIdentifier> originalDoIdentifiers = new ObjectOpenHashSet<>(content);
+                ObjectSet<BlockIdentifier> originalDoIdentifiers = new ObjectOpenHashSet<>(content);
                 for (int z = idx+1; z<op03SimpleParseNodes.size(); ++z) {
                     Op03SimpleStatement s2 = op03SimpleParseNodes.get(z);
                     if (!s2.getBlockIdentifiers().contains(doBlock)) break;
@@ -176,7 +172,7 @@ public class JumpsIntoDoRewriter {
                     Op03SimpleStatement first = extList.get(0);
                     int fistIdx = op03SimpleParseNodes.indexOf(first);
                     if (fistIdx > idx) continue;
-                    Set<Op03SimpleStatement> candidates = new ReferenceOpenHashSet<>();
+                    ReferenceSet<Op03SimpleStatement> candidates = new ReferenceOpenHashSet<>();
                     for (int i=fistIdx;i<=idx;++i) {
                         candidates.add(op03SimpleParseNodes.get(i));
                     }

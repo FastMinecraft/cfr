@@ -1,8 +1,6 @@
 package org.benf.cfr.reader.state;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.*;
 import org.benf.cfr.reader.apiunreleased.ClassFileSource2;
 import org.benf.cfr.reader.apiunreleased.JarContent;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
@@ -24,7 +22,6 @@ import org.benf.cfr.reader.util.getopt.Options;
 import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.regex.Matcher;
@@ -35,11 +32,11 @@ public class DCCommonState {
     private final ClassFileSource2 classFileSource;
     private final Options options;
     private final Map<String, ClassFile> classFileCache;
-    private Set<JavaTypeInstance> versionCollisions;
-    private final transient LinkedHashSet<String> couldNotLoadClasses = new LinkedHashSet<>();
+    private ObjectSet<JavaTypeInstance> versionCollisions;
+    private final transient ObjectSet<String> couldNotLoadClasses = new ObjectLinkedOpenHashSet<>();
     private final ObfuscationMapping obfuscationMapping;
     private final OverloadMethodSetCache overloadMethodSetCache;
-    private final Set<JavaTypeInstance> permittedSealed;
+    private final ObjectSet<JavaTypeInstance> permittedSealed;
 
     public DCCommonState(Options options, ClassFileSource2 classFileSource) {
         this.options = options;
@@ -75,11 +72,11 @@ public class DCCommonState {
         this.permittedSealed = dcCommonState.permittedSealed;
     }
 
-    public void setCollisions(Set<JavaTypeInstance> versionCollisions) {
+    public void setCollisions(ObjectSet<JavaTypeInstance> versionCollisions) {
         this.versionCollisions = versionCollisions;
     }
 
-    public Set<JavaTypeInstance> getVersionCollisions() {
+    public ObjectSet<JavaTypeInstance> getVersionCollisions() {
         return versionCollisions;
     }
 
@@ -92,7 +89,7 @@ public class DCCommonState {
     }
 
     @SuppressWarnings("unused")
-    public Set<String> getCouldNotLoadClasses() {
+    public ObjectSet<String> getCouldNotLoadClasses() {
         return couldNotLoadClasses;
     }
 

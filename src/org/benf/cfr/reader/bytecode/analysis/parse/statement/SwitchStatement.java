@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.statement;
 
+import it.unimi.dsi.fastutil.objects.ObjectSets;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
@@ -14,7 +15,7 @@ import org.benf.cfr.reader.bytecode.analysis.structured.statement.UnstructuredSw
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.Collections;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class SwitchStatement extends AbstractStatement {
     private Expression switchOn;
@@ -91,9 +92,9 @@ public class SwitchStatement extends AbstractStatement {
     }
 
     @Override
-    public Set<LValue> wantsLifetimeHint() {
+    public ObjectSet<LValue> wantsLifetimeHint() {
         if (switchOn instanceof LValueExpression) {
-            return Collections.singleton(((LValueExpression) switchOn).getLValue());
+            return ObjectSets.singleton(((LValueExpression) switchOn).getLValue());
         }
         return null;
     }

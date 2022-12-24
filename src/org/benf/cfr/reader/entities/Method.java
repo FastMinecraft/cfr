@@ -1,8 +1,6 @@
 package org.benf.cfr.reader.entities;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectLists;
+import it.unimi.dsi.fastutil.objects.*;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.types.annotated.JavaAnnotatedTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.variables.Ident;
@@ -99,7 +97,7 @@ public class Method implements KnowsRawSize, TypeUsageCollectable {
     private DecompilerComments comments;
     private final Map<JavaRefTypeInstance, String> localClasses = MapFactory.newOrderedMap();
     private boolean isOverride;
-    private transient Set<JavaTypeInstance> thrownTypes = null;
+    private transient ObjectSet<JavaTypeInstance> thrownTypes = null;
 
     public Method(ByteData raw, ClassFile classFile, final ConstantPool cp, final DCCommonState dcCommonState, final ClassFileVersion classFileVersion) {
         Options options = dcCommonState.getOptions();
@@ -428,9 +426,9 @@ public class Method implements KnowsRawSize, TypeUsageCollectable {
         }
     }
 
-    public Set<JavaTypeInstance> getThrownTypes() {
+    public ObjectSet<JavaTypeInstance> getThrownTypes() {
         if (thrownTypes == null) {
-            thrownTypes = new LinkedHashSet<>(getDeclaredThrownTypes());
+            thrownTypes = new ObjectLinkedOpenHashSet<>(getDeclaredThrownTypes());
         }
         return thrownTypes;
     }

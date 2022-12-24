@@ -14,7 +14,7 @@ import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.state.ClassCache;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 /**
  * We may have deep inner classes, with references to each other.
@@ -32,8 +32,8 @@ public class ScopeHidingVariableRewriter implements Op04Rewriter {
     private final Method method;
     private final ClassCache classCache;
 
-    private final Set<String> outerNames = new ObjectOpenHashSet<>();
-    private final Set<String> usedNames = new ObjectOpenHashSet<>();
+    private final ObjectSet<String> outerNames = new ObjectOpenHashSet<>();
+    private final ObjectSet<String> usedNames = new ObjectOpenHashSet<>();
     /*
      * Collect collisions in a first pass, so that we can avoid uneccesarily
      */

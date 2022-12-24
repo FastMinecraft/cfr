@@ -9,7 +9,7 @@ import org.benf.cfr.reader.entities.exceptions.ExceptionCheck;
 import org.benf.cfr.reader.util.output.Dumpable;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 /*
  * statement =
@@ -57,7 +57,7 @@ public interface Statement extends Dumpable, ComparableUnderEC, DeepCloneable<St
 
     boolean canThrow(ExceptionCheck caught);
 
-    Set<LValue> wantsLifetimeHint();
+    ObjectSet<LValue> wantsLifetimeHint();
 
     void setLifetimeHint(LValue lv, boolean usedInChildren);
 }

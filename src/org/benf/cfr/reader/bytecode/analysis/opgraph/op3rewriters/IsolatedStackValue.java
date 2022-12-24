@@ -13,7 +13,7 @@ import org.benf.cfr.reader.util.collections.MapFactory;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 class IsolatedStackValue {
     static void nopIsolatedStackValues(ObjectList<Op03SimpleStatement> statements) {
@@ -21,7 +21,7 @@ class IsolatedStackValue {
         // We can nop both the assignment and the consumption if the consumption is
         // an expression statement.
 
-        Set<StackSSALabel> blackList = new ObjectOpenHashSet<>();
+        ObjectSet<StackSSALabel> blackList = new ObjectOpenHashSet<>();
         Map<StackSSALabel, Op03SimpleStatement> consumptions = MapFactory.newMap();
         Map<StackSSALabel, Op03SimpleStatement> assignments = MapFactory.newMap();
 

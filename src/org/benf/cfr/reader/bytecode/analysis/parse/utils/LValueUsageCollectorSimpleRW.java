@@ -3,11 +3,11 @@ package org.benf.cfr.reader.bytecode.analysis.parse.utils;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
 
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class LValueUsageCollectorSimpleRW implements LValueUsageCollector {
-    private final Set<LValue> read = new ObjectOpenHashSet<>();
-    private final Set<LValue> write = new ObjectOpenHashSet<>();
+    private final ObjectSet<LValue> read = new ObjectOpenHashSet<>();
+    private final ObjectSet<LValue> write = new ObjectOpenHashSet<>();
 
     @Override
     public void collect(LValue lValue, ReadWrite rw) {
@@ -23,11 +23,11 @@ public class LValueUsageCollectorSimpleRW implements LValueUsageCollector {
         }
     }
 
-    public Set<LValue> getRead() {
+    public ObjectSet<LValue> getRead() {
         return read;
     }
 
-    public Set<LValue> getWritten() {
+    public ObjectSet<LValue> getWritten() {
         return write;
     }
 }

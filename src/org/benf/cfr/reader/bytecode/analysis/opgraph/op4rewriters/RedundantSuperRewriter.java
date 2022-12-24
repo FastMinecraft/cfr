@@ -14,7 +14,7 @@ import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredExpr
 import org.benf.cfr.reader.util.collections.Functional;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class RedundantSuperRewriter implements Op04Rewriter {
 
@@ -25,7 +25,7 @@ public class RedundantSuperRewriter implements Op04Rewriter {
         return null;
     }
 
-    protected Set<LValue> getDeclarationsToNop(WildcardMatch wcm) {
+    protected ObjectSet<LValue> getDeclarationsToNop(WildcardMatch wcm) {
         return null;
     }
 
@@ -70,7 +70,7 @@ public class RedundantSuperRewriter implements Op04Rewriter {
 
             if (canBeNopped(superInvokation)) {
                 statement.getContainer().nopOut();
-                Set<LValue> declarationsToNop = getDeclarationsToNop(wcm);
+                ObjectSet<LValue> declarationsToNop = getDeclarationsToNop(wcm);
                 if (declarationsToNop != null) {
                     ObjectList<StructuredStatement> decls = Functional.filter(structuredStatements,
                         in -> (in instanceof StructuredDefinition)

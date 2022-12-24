@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSets;
 import org.benf.cfr.reader.bytecode.BytecodeMeta;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
@@ -12,7 +13,7 @@ import org.benf.cfr.reader.util.collections.Functional;
 
 import java.util.Collections;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class LoopLivenessClash {
 
@@ -51,7 +52,7 @@ public class LoopLivenessClash {
         LValue hiddenList = forIterStatement.getHiddenList();
         if (hiddenList != null && hiddenList.getInferredJavaType().isClash()) {
             if (hiddenList instanceof LocalVariable) {
-                bytecodeMeta.informLivenessClashes(Collections.singleton(((LocalVariable) hiddenList) .getIdx()));
+                bytecodeMeta.informLivenessClashes(ObjectSets.singleton(((LocalVariable) hiddenList).getIdx()));
                 res = true;
             }
         }
@@ -87,7 +88,7 @@ public class LoopLivenessClash {
         /*
          * We're not iterating over the right thing.
          */
-        Set<Integer> clashes = new ObjectOpenHashSet<>();
+        ObjectSet<Integer> clashes = new ObjectOpenHashSet<>();
         clashes.add(lvIter.getIdx());
         bytecodeMeta.informLivenessClashes(clashes);
         return true;

@@ -10,7 +10,7 @@ import org.benf.cfr.reader.util.collections.Functional;
 
 import java.util.Collection;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class MonitorRewriter {
     public static void commentMonitors(ObjectList<Op03SimpleStatement> statements) {
@@ -30,12 +30,12 @@ public class MonitorRewriter {
              */
             Op03SimpleStatement target = monitor.getTargets().get(0);
             Collection<BlockIdentifier> content = monitor.getBlockIdentifiers();
-            Set<BlockIdentifier> monitorLast = new ObjectOpenHashSet<>(content);
+            ObjectSet<BlockIdentifier> monitorLast = new ObjectOpenHashSet<>(content);
             monitorLast.removeAll(target.getBlockIdentifiers());
             if (monitorLast.isEmpty()) continue;
             Collection<Op03SimpleStatement> original = monitor.getSources();
             for (Op03SimpleStatement source : new ObjectArrayList<>(original)) {
-                Set<BlockIdentifier> sourceBlocks = source.getBlockIdentifiers();
+                ObjectSet<BlockIdentifier> sourceBlocks = source.getBlockIdentifiers();
                 if (!sourceBlocks.containsAll(monitorLast)) {
                     /*
                      * Let's redirect source to point to AFTER monitor statement.

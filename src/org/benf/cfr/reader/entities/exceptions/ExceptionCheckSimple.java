@@ -4,7 +4,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.AbstractMemberFunctionInvokation;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class ExceptionCheckSimple implements ExceptionCheck {
     public static final ExceptionCheck INSTANCE = new ExceptionCheckSimple();
@@ -13,7 +13,7 @@ public class ExceptionCheckSimple implements ExceptionCheck {
     }
 
     @Override
-    public boolean checkAgainst(Set<? extends JavaTypeInstance> thrown) {
+    public boolean checkAgainst(ObjectSet<? extends JavaTypeInstance> thrown) {
         return true;
     }
 

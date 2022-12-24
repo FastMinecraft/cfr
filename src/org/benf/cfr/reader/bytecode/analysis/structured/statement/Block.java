@@ -3,6 +3,7 @@ package org.benf.cfr.reader.bytecode.analysis.structured.statement;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
@@ -260,8 +261,8 @@ public class Block extends AbstractStructuredStatement {
                     iterator.remove();
                 }
                 Block nested = new Block(inner, true, blockIdentifier);
-                Set<BlockIdentifier> outerIdents = getContainer().getBlockIdentifiers();
-                Set<BlockIdentifier> innerIdents = new ObjectOpenHashSet<>(outerIdents);
+                ObjectSet<BlockIdentifier> outerIdents = getContainer().getBlockIdentifiers();
+                ObjectSet<BlockIdentifier> innerIdents = new ObjectOpenHashSet<>(outerIdents);
                 innerIdents.add(blockIdentifier);
                 InstrIndex newIdx = getContainer().getIndex().justAfter();
                 Op04StructuredStatement newStm = new Op04StructuredStatement(
@@ -307,7 +308,7 @@ public class Block extends AbstractStructuredStatement {
 
     public void combineTryCatch() {
 
-        Set<Class<?>> skipThese = new ObjectOpenHashSet<>((Class<?>[]) new Class[]{ StructuredCatch.class, StructuredFinally.class, StructuredTry.class, UnstructuredTry.class });
+        ObjectSet<Class<?>> skipThese = new ObjectOpenHashSet<>((Class<?>[]) new Class[]{ StructuredCatch.class, StructuredFinally.class, StructuredTry.class, UnstructuredTry.class });
 
         int size = containedStatements.size();
         boolean finished = false;
@@ -351,7 +352,7 @@ public class Block extends AbstractStructuredStatement {
                                 continue mainloop;
                             }
                             if (test instanceof StructuredCatch) {
-                                Set<BlockIdentifier> blocks = ((StructuredCatch) test).getPossibleTryBlocks();
+                                ObjectSet<BlockIdentifier> blocks = ((StructuredCatch) test).getPossibleTryBlocks();
                                 if (blocks.contains(tryBlockIdent)) {
                                     //noinspection SuspiciousNameCombination oh yes it should.
                                     x = y;
@@ -369,7 +370,7 @@ public class Block extends AbstractStructuredStatement {
                     if (nextStatement instanceof StructuredComment) {
                         next.nopOut(); // pointless.
                     } else if (nextStatement instanceof StructuredCatch) {
-                        Set<BlockIdentifier> blocks = ((StructuredCatch) nextStatement).getPossibleTryBlocks();
+                        ObjectSet<BlockIdentifier> blocks = ((StructuredCatch) nextStatement).getPossibleTryBlocks();
                         if (!blocks.contains(tryBlockIdent)) {
                             --x;
                             break;
@@ -424,8 +425,8 @@ public class Block extends AbstractStructuredStatement {
         }
     }
 
-    public Set<Op04StructuredStatement> getNextAfter(int x, boolean skipComments) {
-        Set<Op04StructuredStatement> res = new ObjectOpenHashSet<>();
+    public ObjectSet<Op04StructuredStatement> getNextAfter(int x, boolean skipComments) {
+        ObjectSet<Op04StructuredStatement> res = new ObjectOpenHashSet<>();
         if (x == -1 || x > containedStatements.size()) return res;
         while (x != -1 && x < containedStatements.size()) {
             Op04StructuredStatement next = containedStatements.get(x);

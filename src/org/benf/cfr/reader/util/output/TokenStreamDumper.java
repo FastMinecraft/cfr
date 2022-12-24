@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.util.output;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSets;
 import org.benf.cfr.reader.api.OutputSinkFactory;
 import org.benf.cfr.reader.api.SinkReturns;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
@@ -18,7 +19,7 @@ import java.io.BufferedOutputStream;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 import static org.benf.cfr.reader.api.SinkReturns.TokenType.*;
 
@@ -39,7 +40,7 @@ public class TokenStreamDumper extends AbstractDumper {
         arg -> new Object()
     );
 
-    private final Set<JavaTypeInstance> emitted = new ObjectOpenHashSet<>();
+    private final ObjectSet<JavaTypeInstance> emitted = new ObjectOpenHashSet<>();
 
     TokenStreamDumper(OutputSinkFactory.Sink<SinkReturns.Token> sink, int version, JavaTypeInstance classType, MethodErrorCollector methodErrorCollector, TypeUsageInformation typeUsageInformation, Options options, IllegalIdentifierDump illegalIdentifierDump, MovableDumperContext context) {
         super(context);
@@ -75,8 +76,8 @@ public class TokenStreamDumper extends AbstractDumper {
         }
 
         @Override
-        public Set<SinkReturns.TokenTypeFlags> getFlags() {
-            return Collections.emptySet();
+        public ObjectSet<SinkReturns.TokenTypeFlags> getFlags() {
+            return ObjectSets.emptySet();
         }
 
         SinkReturns.Token set(SinkReturns.TokenType type, String text) {
@@ -91,25 +92,25 @@ public class TokenStreamDumper extends AbstractDumper {
         private final SinkReturns.TokenType type;
         private final String value;
         private final Object raw;
-        private final Set<SinkReturns.TokenTypeFlags> flags;
+        private final ObjectSet<SinkReturns.TokenTypeFlags> flags;
 
         Token(SinkReturns.TokenType type, String value, Object raw) {
-            this(type, value, raw, Collections.emptySet());
+            this(type, value, raw, ObjectSets.emptySet());
         }
 
         Token(SinkReturns.TokenType type, String value, Object raw, SinkReturns.TokenTypeFlags flag) {
-            this(type, value, raw, Collections.singleton(flag));
+            this(type, value, raw, ObjectSets.singleton(flag));
         }
 
         Token(SinkReturns.TokenType type, String value, SinkReturns.TokenTypeFlags flag) {
-            this(type, value, null, Collections.singleton(flag));
+            this(type, value, null, ObjectSets.singleton(flag));
         }
 
         Token(SinkReturns.TokenType type, String value, SinkReturns.TokenTypeFlags... flags) {
-            this(type, value, null, new ObjectOpenHashSet<SinkReturns.TokenTypeFlags>(flags));
+            this(type, value, null, new ObjectOpenHashSet<>(flags));
         }
 
-        private Token(SinkReturns.TokenType type, String value, Object raw, Set<SinkReturns.TokenTypeFlags> flags) {
+        private Token(SinkReturns.TokenType type, String value, Object raw, ObjectSet<SinkReturns.TokenTypeFlags> flags) {
             this.type = type;
             this.value = value;
             this.raw = raw;
@@ -132,7 +133,7 @@ public class TokenStreamDumper extends AbstractDumper {
         }
 
         @Override
-        public Set<SinkReturns.TokenTypeFlags> getFlags() {
+        public ObjectSet<SinkReturns.TokenTypeFlags> getFlags() {
             return flags;
         }
     }

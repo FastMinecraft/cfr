@@ -11,7 +11,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.JumpType;
 import org.benf.cfr.reader.util.collections.SetUtil;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class PointlessJumps {
     /* Remove pointless jumps
@@ -62,7 +62,7 @@ public class PointlessJumps {
                     maybeJump.nopOut();
                 } else {
                     // It might still be legit - if we've ended a loop, it's not.
-                    Set<BlockIdentifier> changes = SetUtil.difference(maybeJump.getBlockIdentifiers(),statements.get(x+1).getBlockIdentifiers());
+                    ObjectSet<BlockIdentifier> changes = SetUtil.difference(maybeJump.getBlockIdentifiers(),statements.get(x+1).getBlockIdentifiers());
                     boolean ok = true;
                     for (BlockIdentifier change : changes) {
                         if (change.getBlockType().isLoop()) {

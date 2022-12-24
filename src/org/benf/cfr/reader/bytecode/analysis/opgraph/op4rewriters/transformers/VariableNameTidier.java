@@ -48,7 +48,7 @@ public class VariableNameTidier implements StructuredStatementTransformer {
     }
 
     public VariableNameTidier(Method method, ClassCache classCache) {
-        this(method, new HashSet<>(), classCache);
+        this(method, new ObjectOpenHashSet<>(), classCache);
     }
 
     public void transform(Op04StructuredStatement root) {

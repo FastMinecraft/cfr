@@ -8,7 +8,7 @@ import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import java.util.Collection;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class ClassRenamer {
     private final Map<String, String> classCollisionRenamerToReal = MapFactory.newMap();
@@ -21,7 +21,7 @@ public class ClassRenamer {
     }
 
     public static ClassRenamer create(Options options) {
-        Set<String> invalidNames = OsInfo.OS().getIllegalNames();
+        ObjectSet<String> invalidNames = OsInfo.OS().getIllegalNames();
         // We still fetch the insensitivity flag from options, to allow it to be forced.
         boolean renameCase = (options.getOption(OptionsImpl.CASE_INSENSITIVE_FS_RENAME));
 
