@@ -34,7 +34,7 @@ public class DecodedLookupSwitch implements DecodedSwitch {
             new TreeMap<>(),
             arg -> new IntArrayList()
         );
-        uniqueTargets.get(defaultvalue).add(null);
+        uniqueTargets.get(defaultvalue).add(Integer.MIN_VALUE);
         for (int x = 0; x < numpairs; ++x) {
             int value = bd.getS4At(offset + OFFSET_OF_PAIRS + (x * 8L));
             int target = bd.getS4At(offset + OFFSET_OF_PAIRS + (x * 8L) + 4);
