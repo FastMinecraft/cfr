@@ -5,10 +5,10 @@ import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.TypeUsageCollectable;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
-public record ClassSignature(List<FormalTypeParameter> formalTypeParameters, JavaTypeInstance superClass,
-                             List<JavaTypeInstance> interfaces) implements TypeUsageCollectable {
+public record ClassSignature(ObjectList<FormalTypeParameter> formalTypeParameters, JavaTypeInstance superClass,
+                             ObjectList<JavaTypeInstance> interfaces) implements TypeUsageCollectable {
 
     @Override
     public void collectTypeUsages(TypeUsageCollector collector) {
@@ -21,7 +21,7 @@ public record ClassSignature(List<FormalTypeParameter> formalTypeParameters, Jav
     public JavaTypeInstance getThisGeneralTypeClass(JavaTypeInstance nonGenericInstance, ConstantPool cp) {
         if (nonGenericInstance instanceof JavaGenericBaseInstance) return nonGenericInstance;
         if (formalTypeParameters == null || formalTypeParameters.isEmpty()) return nonGenericInstance;
-        List<JavaTypeInstance> typeParameterNames = new ObjectArrayList<>();
+        ObjectList<JavaTypeInstance> typeParameterNames = new ObjectArrayList<>();
         for (FormalTypeParameter formalTypeParameter : formalTypeParameters) {
             typeParameterNames.add(new JavaGenericPlaceholderTypeInstance(formalTypeParameter.getName(), cp));
         }

@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.state;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.analysis.types.InnerClassInfo;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
@@ -62,11 +63,11 @@ public class TypeUsageInformationImpl implements TypeUsageInformation {
     }
 
     private void initialiseFrom(Set<JavaRefTypeInstance> usedRefTypes) {
-        List<JavaRefTypeInstance> usedRefs = new ObjectArrayList<>(usedRefTypes);
+        ObjectList<JavaRefTypeInstance> usedRefs = new ObjectArrayList<>(usedRefTypes);
         usedRefs.sort((a, b) -> a.getRawName(iid).compareTo(b.getRawName(iid)));
         this.usedRefTypes.addAll(usedRefs);
 
-        Pair<List<JavaRefTypeInstance>, List<JavaRefTypeInstance>> types = Functional.partition(usedRefs,
+        Pair<ObjectList<JavaRefTypeInstance>, ObjectList<JavaRefTypeInstance>> types = Functional.partition(usedRefs,
             in -> in.getInnerClassHereInfo().isTransitiveInnerClassOf(analysisType)
         );
         this.usedLocalInnerTypes.addAll(types.getFirst());
@@ -148,7 +149,7 @@ public class TypeUsageInformationImpl implements TypeUsageInformation {
                 }
             }
 
-            List<PriClass> priClasses = Functional.map(typeList, PriClass::new);
+            ObjectList<PriClass> priClasses = Functional.map(typeList, PriClass::new);
             Collections.sort(priClasses);
 
             displayName.put(priClasses.get(0).type, name);

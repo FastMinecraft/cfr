@@ -16,7 +16,7 @@ import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.entities.ClassFileField;
 import org.benf.cfr.reader.entities.Field;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class InnerClassConstructorRewriter implements Op04Rewriter {
     private final ClassFile classFile;
@@ -31,7 +31,7 @@ public class InnerClassConstructorRewriter implements Op04Rewriter {
 
     @Override
     public void rewrite(Op04StructuredStatement root) {
-        List<StructuredStatement> structuredStatements = MiscStatementTools.linearise(root);
+        ObjectList<StructuredStatement> structuredStatements = MiscStatementTools.linearise(root);
 
         WildcardMatch wcm1 = new WildcardMatch();
 

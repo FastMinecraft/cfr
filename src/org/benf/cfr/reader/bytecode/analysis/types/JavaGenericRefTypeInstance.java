@@ -19,17 +19,17 @@ import org.benf.cfr.reader.util.output.IllegalIdentifierDump;
 import org.benf.cfr.reader.util.output.ToStringDumper;
 import org.benf.cfr.reader.util.output.TypeContext;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 
 public class JavaGenericRefTypeInstance implements JavaGenericBaseInstance, ComparableUnderEC {
     private static final WildcardConstraint WILDCARD_CONSTRAINT = new WildcardConstraint();
 
     private final JavaRefTypeInstance typeInstance;
-    private final List<JavaTypeInstance> genericTypes;
+    private final ObjectList<JavaTypeInstance> genericTypes;
     private final boolean hasUnbound;
 
-    public JavaGenericRefTypeInstance(JavaTypeInstance typeInstance, List<JavaTypeInstance> genericTypes) {
+    public JavaGenericRefTypeInstance(JavaTypeInstance typeInstance, ObjectList<JavaTypeInstance> genericTypes) {
         if (!(typeInstance instanceof JavaRefTypeInstance)) {
             throw new IllegalStateException("Generic sitting on top of non reftype");
         }
@@ -58,7 +58,7 @@ public class JavaGenericRefTypeInstance implements JavaGenericBaseInstance, Comp
     @Override
     public JavaAnnotatedTypeInstance getAnnotatedInstance() {
         JavaAnnotatedTypeInstance typeAnnotated = typeInstance.getAnnotatedInstance();
-        List<JavaAnnotatedTypeInstance> genericTypeAnnotated = new ObjectArrayList<>();
+        ObjectList<JavaAnnotatedTypeInstance> genericTypeAnnotated = new ObjectArrayList<>();
         for (JavaTypeInstance genericType : genericTypes) {
             genericTypeAnnotated.add(genericType.getAnnotatedInstance());
         }
@@ -67,7 +67,7 @@ public class JavaGenericRefTypeInstance implements JavaGenericBaseInstance, Comp
 
     private record Annotated(
         JavaAnnotatedTypeInstance typeAnnotated,
-        List<JavaAnnotatedTypeInstance> genericTypeAnnotated
+        ObjectList<JavaAnnotatedTypeInstance> genericTypeAnnotated
     ) implements JavaAnnotatedTypeInstance {
 
         @Override
@@ -148,7 +148,7 @@ public class JavaGenericRefTypeInstance implements JavaGenericBaseInstance, Comp
 
     @Override
     public JavaTypeInstance getWithoutL01Wildcard() {
-        List<JavaTypeInstance> unwildCarded = new ObjectArrayList<>();
+        ObjectList<JavaTypeInstance> unwildCarded = new ObjectArrayList<>();
         for (JavaTypeInstance type : genericTypes) {
             if (type instanceof JavaWildcardTypeInstance) type = ((JavaWildcardTypeInstance) type).getWithoutL01Wildcard();
             unwildCarded.add(type);
@@ -161,7 +161,7 @@ public class JavaGenericRefTypeInstance implements JavaGenericBaseInstance, Comp
         if (genericTypeBinder == null) {
             return this;
         }
-        List<JavaTypeInstance> res = new ObjectArrayList<>();
+        ObjectList<JavaTypeInstance> res = new ObjectArrayList<>();
         for (JavaTypeInstance genericType : genericTypes) {
             res.add(genericTypeBinder.getBindingFor(genericType));
         }
@@ -212,7 +212,7 @@ public class JavaGenericRefTypeInstance implements JavaGenericBaseInstance, Comp
     }
 
     @Override
-    public List<JavaTypeInstance> getGenericTypes() {
+    public ObjectList<JavaTypeInstance> getGenericTypes() {
         return genericTypes;
     }
 
@@ -360,7 +360,7 @@ public class JavaGenericRefTypeInstance implements JavaGenericBaseInstance, Comp
     @Override
     public JavaTypeInstance deObfuscate(ObfuscationTypeMap obfuscationTypeMap) {
         JavaTypeInstance t = obfuscationTypeMap.get(typeInstance);
-        List<JavaTypeInstance> gs = Functional.map(genericTypes, obfuscationTypeMap.getter());
+        ObjectList<JavaTypeInstance> gs = Functional.map(genericTypes, obfuscationTypeMap.getter());
         return new JavaGenericRefTypeInstance(t, gs);
     }
 

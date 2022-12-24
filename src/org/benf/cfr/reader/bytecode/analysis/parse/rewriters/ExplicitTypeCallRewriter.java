@@ -9,7 +9,7 @@ import org.benf.cfr.reader.bytecode.analysis.types.JavaGenericBaseInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.MethodPrototype;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class ExplicitTypeCallRewriter extends AbstractExpressionRewriter {
 
@@ -36,7 +36,7 @@ public class ExplicitTypeCallRewriter extends AbstractExpressionRewriter {
                         JavaTypeInstance usedType = invokation.getInferredJavaType().getJavaTypeInstance();
                         GenericTypeBinder binder = GenericTypeBinder.extractBaseBindings((JavaGenericBaseInstance) returnType, usedType);
                         if (binder != null) {
-                            List<JavaTypeInstance> types = p.getExplicitGenericUsage(binder);
+                            ObjectList<JavaTypeInstance> types = p.getExplicitGenericUsage(binder);
                             /*
                              * We set these even if they're going to be discarded as too unbound by the illegalGenericRewriter
                              * later.

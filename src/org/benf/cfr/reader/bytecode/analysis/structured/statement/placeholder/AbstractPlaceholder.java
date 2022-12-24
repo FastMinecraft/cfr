@@ -17,12 +17,12 @@ import org.benf.cfr.reader.state.TypeUsageCollector;
 import java.util.function.Predicate;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Vector;
 
 public abstract class AbstractPlaceholder implements StructuredStatement {
     @Override
-    public void linearizeInto(List<StructuredStatement> out) {
+    public void linearizeInto(ObjectList<StructuredStatement> out) {
         throw new UnsupportedOperationException();
     }
 
@@ -130,7 +130,7 @@ public abstract class AbstractPlaceholder implements StructuredStatement {
     }
 
     @Override
-    public List<LValue> findCreatedHere() {
+    public ObjectList<LValue> findCreatedHere() {
         return null;
     }
 

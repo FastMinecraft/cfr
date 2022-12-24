@@ -11,7 +11,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.expression.LValueExpression;
 import org.benf.cfr.reader.bytecode.analysis.parse.lvalue.StackSSALabel;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.AssignmentSimple;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class LValueCondense {
     /*
@@ -26,7 +26,7 @@ public class LValueCondense {
      *
      * Find them by following chains where the RHS is the same.
      */
-    public static void condenseLValueChain1(List<Op03SimpleStatement> statements) {
+    public static void condenseLValueChain1(ObjectList<Op03SimpleStatement> statements) {
 
         for (Op03SimpleStatement statement : statements) {
             Statement stm = statement.getStatement();
@@ -59,7 +59,7 @@ public class LValueCondense {
         }
     }
 
-    public static void condenseLValueChain2(List<Op03SimpleStatement> statements) {
+    public static void condenseLValueChain2(ObjectList<Op03SimpleStatement> statements) {
 
         for (Op03SimpleStatement statement : statements) {
             Statement stm = statement.getStatement();

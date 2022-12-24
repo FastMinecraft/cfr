@@ -1,8 +1,8 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public interface Graph<T> {
-    List<T> getSources();
-    List<T> getTargets();
+    ObjectList<T> getSources();
+    ObjectList<T> getTargets();
 }

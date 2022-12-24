@@ -22,7 +22,7 @@ import org.benf.cfr.reader.util.StringUtils;
 import org.benf.cfr.reader.util.Troolean;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Objects;
 
 /**
@@ -32,8 +32,8 @@ public class LambdaExpressionFallback extends AbstractExpression implements Lamb
 
     private final JavaTypeInstance callClassType;
     private final MethodPrototype lambdaFn;
-    private final List<JavaTypeInstance> targetFnArgTypes;
-    private final List<Expression> curriedArgs;
+    private final ObjectList<JavaTypeInstance> targetFnArgTypes;
+    private final ObjectList<Expression> curriedArgs;
     private boolean instance;
     private final boolean methodRef;
 
@@ -42,7 +42,7 @@ public class LambdaExpressionFallback extends AbstractExpression implements Lamb
         return lambdaFnName.equals(MiscConstants.INIT_METHOD) ? MiscConstants.NEW : lambdaFnName;
     }
 
-    public LambdaExpressionFallback(BytecodeLoc loc, JavaTypeInstance callClassType, InferredJavaType castJavaType, MethodPrototype lambdaFn, List<JavaTypeInstance> targetFnArgTypes, List<Expression> curriedArgs, boolean instance) {
+    public LambdaExpressionFallback(BytecodeLoc loc, JavaTypeInstance callClassType, InferredJavaType castJavaType, MethodPrototype lambdaFn, ObjectList<JavaTypeInstance> targetFnArgTypes, ObjectList<Expression> curriedArgs, boolean instance) {
         super(loc, castJavaType);
         this.callClassType = callClassType;
         this.lambdaFn = lambdaFn;
@@ -73,7 +73,7 @@ public class LambdaExpressionFallback extends AbstractExpression implements Lamb
         this.methodRef = isMethodRef;
     }
 
-    private LambdaExpressionFallback(BytecodeLoc loc, InferredJavaType inferredJavaType, boolean methodRef, boolean instance, List<Expression> curriedArgs, List<JavaTypeInstance> targetFnArgTypes, MethodPrototype lambdaFn, JavaTypeInstance callClassType) {
+    private LambdaExpressionFallback(BytecodeLoc loc, InferredJavaType inferredJavaType, boolean methodRef, boolean instance, ObjectList<Expression> curriedArgs, ObjectList<JavaTypeInstance> targetFnArgTypes, MethodPrototype lambdaFn, JavaTypeInstance callClassType) {
         super(loc, inferredJavaType);
         this.methodRef = methodRef;
         this.instance = instance;
@@ -141,7 +141,7 @@ public class LambdaExpressionFallback extends AbstractExpression implements Lamb
             if (multi) {
                 d.separator("(");
             }
-            List<String> args = new ObjectArrayList<>(n);
+            ObjectList<String> args = new ObjectArrayList<>(n);
             for (int x = 0; x < n; ++x) {
                 if (x > 0) d.separator(", ");
                 String arg = "arg_" + x;

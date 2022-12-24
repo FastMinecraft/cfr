@@ -14,7 +14,7 @@ import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.output.Dumper;
 import org.benf.cfr.reader.util.output.ToStringDumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 public abstract class AbstractStatement implements Statement {
@@ -93,7 +93,7 @@ public abstract class AbstractStatement implements Statement {
     }
 
     @Override
-    public List<Statement> getCompoundParts() {
+    public ObjectList<Statement> getCompoundParts() {
         throw new ConfusedCFRException("Should not be calling getCompoundParts on this statement");
     }
 

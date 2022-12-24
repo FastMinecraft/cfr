@@ -4,7 +4,7 @@ import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.entities.innerclass.InnerClassAttributeInfo;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.function.Function;
 
 public class NullMapping implements ObfuscationMapping {
@@ -33,12 +33,12 @@ public class NullMapping implements ObfuscationMapping {
     }
 
     @Override
-    public List<JavaTypeInstance> get(List<JavaTypeInstance> types) {
+    public ObjectList<JavaTypeInstance> get(ObjectList<JavaTypeInstance> types) {
         return types;
     }
 
     @Override
-    public List<InnerClassAttributeInfo> getInnerClassInfo(JavaTypeInstance classType) {
+    public ObjectList<InnerClassAttributeInfo> getInnerClassInfo(JavaTypeInstance classType) {
         return null;
     }
 }

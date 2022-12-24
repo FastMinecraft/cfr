@@ -8,7 +8,7 @@ import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.DecompilerComment;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -69,7 +69,7 @@ public class StackEntry {
         artificalSourceCount--;
     }
 
-    public List<Long> getSources() {
+    public ObjectList<Long> getSources() {
         return new ObjectArrayList<>(ids);
     }
 

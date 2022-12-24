@@ -16,14 +16,14 @@ import org.benf.cfr.reader.entities.exceptions.ExceptionGroup;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class CatchStatement extends AbstractStatement {
-    private final List<ExceptionGroup.Entry> exceptions;
+    private final ObjectList<ExceptionGroup.Entry> exceptions;
     private BlockIdentifier catchBlockIdent;
     private LValue catching;
 
-    public CatchStatement(BytecodeLoc loc, List<ExceptionGroup.Entry> exceptions, LValue catching) {
+    public CatchStatement(BytecodeLoc loc, ObjectList<ExceptionGroup.Entry> exceptions, LValue catching) {
         super(loc);
         this.exceptions = exceptions;
         this.catching = catching;
@@ -39,7 +39,7 @@ public class CatchStatement extends AbstractStatement {
         return getLoc();
     }
 
-    private static JavaTypeInstance determineType(List<ExceptionGroup.Entry> exceptions) {
+    private static JavaTypeInstance determineType(ObjectList<ExceptionGroup.Entry> exceptions) {
         InferredJavaType ijt = new InferredJavaType();
         ijt.chain(new InferredJavaType(exceptions.get(0).getCatchType(), InferredJavaType.Source.EXCEPTION));
         for (int x = 1, len = exceptions.size(); x < len; ++x) {
@@ -60,7 +60,7 @@ public class CatchStatement extends AbstractStatement {
     }
 
     public void removeCatchBlockFor(final BlockIdentifier tryBlockIdent) {
-        List<ExceptionGroup.Entry> toRemove = Functional.filter(exceptions,
+        ObjectList<ExceptionGroup.Entry> toRemove = Functional.filter(exceptions,
             in -> in.getTryBlockIdentifier().equals(tryBlockIdent)
         );
         exceptions.removeAll(toRemove);
@@ -112,7 +112,7 @@ public class CatchStatement extends AbstractStatement {
     }
 
 
-    public List<ExceptionGroup.Entry> getExceptions() {
+    public ObjectList<ExceptionGroup.Entry> getExceptions() {
         return exceptions;
     }
 

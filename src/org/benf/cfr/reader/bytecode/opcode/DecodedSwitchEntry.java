@@ -2,19 +2,19 @@ package org.benf.cfr.reader.bytecode.opcode;
 
 import org.benf.cfr.reader.util.StringUtils;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class DecodedSwitchEntry {
-    private final List<Integer> value;
+    private final ObjectList<Integer> value;
     // TODO : Not useful past 0p01->Op02 stage.  Create a different interface.
     private final int bytecodeTarget;
 
-    public DecodedSwitchEntry(List<Integer> value, int bytecodeTarget) {
+    public DecodedSwitchEntry(ObjectList<Integer> value, int bytecodeTarget) {
         this.bytecodeTarget = bytecodeTarget;
         this.value = value;
     }
 
-    public List<Integer> getValue() {
+    public ObjectList<Integer> getValue() {
         return value;
     }
 

@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers;
 
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.ResourceReleaseDetector;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.matchutil.*;
@@ -17,7 +18,7 @@ import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.util.collections.Functional;
 
 import java.util.Collections;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 /*
@@ -71,7 +72,7 @@ public class TryResourcesTransformerJ12 extends TryResourcesTransformerBase {
         Op04StructuredStatement finallyBlock = structuredTry.getFinallyBlock();
 
         WildcardMatch wcm = new WildcardMatch();
-        List<StructuredStatement> structuredStatements = MiscStatementTools.linearise(finallyBlock);
+        ObjectList<StructuredStatement> structuredStatements = MiscStatementTools.linearise(finallyBlock);
         if (structuredStatements == null) return null;
 
         WildcardMatch.LValueWildcard throwableLValue = wcm.getLValueWildCard("throwable");
@@ -92,7 +93,7 @@ public class TryResourcesTransformerJ12 extends TryResourcesTransformerBase {
         mi.advance(); // skip structuredCatch
         boolean res = m.match(mi, collector);
         if (!res) return null;
-        return new ResourceMatch(null, collector.resource, collector.throwable, false, Collections.emptyList());
+        return new ResourceMatch(null, collector.resource, collector.throwable, false, ObjectLists.emptyList());
     }
 
     private ResourceMatch getComplexResourceMatch(StructuredTry structuredTry, StructuredScope scope) {
@@ -106,7 +107,7 @@ public class TryResourcesTransformerJ12 extends TryResourcesTransformerBase {
         if (!TypeConstants.THROWABLE.equals(caughtType)) return null;
 
         WildcardMatch wcm = new WildcardMatch();
-        List<StructuredStatement> structuredStatements = MiscStatementTools.linearise(catchBlock);
+        ObjectList<StructuredStatement> structuredStatements = MiscStatementTools.linearise(catchBlock);
         if (structuredStatements == null) return null;
 
         WildcardMatch.LValueWildcard throwableLValue = wcm.getLValueWildCard("throwable");
@@ -133,7 +134,7 @@ public class TryResourcesTransformerJ12 extends TryResourcesTransformerBase {
          * structured.
          * It could be either after the catch, or at the last statement of the try.
          */
-        List<Op04StructuredStatement> toRemove = getCloseStatementAfter(structuredTry, scope, wcm, collector);
+        ObjectList<Op04StructuredStatement> toRemove = getCloseStatementAfter(structuredTry, scope, wcm, collector);
         if (toRemove == null) {
             toRemove = getCloseStatementEndTry(structuredTry, scope, wcm, collector);
             if (toRemove == null) {
@@ -143,21 +144,21 @@ public class TryResourcesTransformerJ12 extends TryResourcesTransformerBase {
         return new ResourceMatch(null, collector.resource, collector.throwable, false, toRemove);
     }
 
-    private List<Op04StructuredStatement> getCloseStatementEndTry(StructuredTry structuredTry, StructuredScope scope, WildcardMatch wcm, TryResourcesMatchResultCollector collector) {
+    private ObjectList<Op04StructuredStatement> getCloseStatementEndTry(StructuredTry structuredTry, StructuredScope scope, WildcardMatch wcm, TryResourcesMatchResultCollector collector) {
         Op04StructuredStatement tryb = structuredTry.getTryBlock();
         StructuredStatement tryStm = tryb.getStatement();
         if (!(tryStm instanceof Block block)) return null;
         Op04StructuredStatement lastInBlock = block.getLast();
         if (getMatchingCloseStatement(wcm, collector, lastInBlock.getStatement())) {
-            return Collections.singletonList(lastInBlock);
+            return ObjectLists.singleton(lastInBlock);
         }
         return null;
     }
 
-    private List<Op04StructuredStatement> getCloseStatementAfter(StructuredTry structuredTry, StructuredScope scope, WildcardMatch wcm, TryResourcesMatchResultCollector collector) {
+    private ObjectList<Op04StructuredStatement> getCloseStatementAfter(StructuredTry structuredTry, StructuredScope scope, WildcardMatch wcm, TryResourcesMatchResultCollector collector) {
         Set<Op04StructuredStatement> next = scope.getNextFallThrough(structuredTry);
 
-        List<Op04StructuredStatement> toRemove = Functional.filter(next,
+        ObjectList<Op04StructuredStatement> toRemove = Functional.filter(next,
             in -> !(in.getStatement() instanceof StructuredComment)
         );
         if (toRemove.size() != 1) return null;
@@ -172,7 +173,7 @@ public class TryResourcesTransformerJ12 extends TryResourcesTransformerBase {
 
     private boolean getMatchingCloseStatement(WildcardMatch wcm, TryResourcesMatchResultCollector collector, StructuredStatement statement) {
         Matcher<StructuredStatement> checkClose = ResourceReleaseDetector.getCloseExpressionMatch(wcm, new LValueExpression(collector.resource));
-        MatchIterator<StructuredStatement> closeStm = new MatchIterator<>(Collections.singletonList(statement));
+        MatchIterator<StructuredStatement> closeStm = new MatchIterator<>(ObjectLists.singleton(statement));
 
         closeStm.advance();
         return checkClose.match(closeStm, new EmptyMatchResultCollector());

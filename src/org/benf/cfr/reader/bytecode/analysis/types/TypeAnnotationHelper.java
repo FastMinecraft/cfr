@@ -11,12 +11,12 @@ import org.benf.cfr.reader.entities.attributes.TypeAnnotationEntryValue;
 import org.benf.cfr.reader.entities.attributes.TypePathPart;
 import org.benf.cfr.reader.util.DecompilerComments;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class TypeAnnotationHelper {
-    private final List<AnnotationTableTypeEntry> entries;
+    private final ObjectList<AnnotationTableTypeEntry> entries;
 
-    private TypeAnnotationHelper(List<AnnotationTableTypeEntry> entries) {
+    private TypeAnnotationHelper(ObjectList<AnnotationTableTypeEntry> entries) {
         this.entries = entries;
     }
 
@@ -25,11 +25,11 @@ public class TypeAnnotationHelper {
             AttributeRuntimeVisibleTypeAnnotations.ATTRIBUTE_NAME,
             AttributeRuntimeInvisibleTypeAnnotations.ATTRIBUTE_NAME
         };
-        List<AnnotationTableTypeEntry> res = new ObjectArrayList<>();
+        ObjectList<AnnotationTableTypeEntry> res = new ObjectArrayList<>();
         for (String key : keys) {
             AttributeTypeAnnotations ann = map.getByName(key);
             if (ann == null) continue;
-            List<AnnotationTableTypeEntry> tmp = ann.getAnnotationsFor(tkeys);
+            ObjectList<AnnotationTableTypeEntry> tmp = ann.getAnnotationsFor(tkeys);
             if (tmp != null) {
                 res.addAll(tmp);
             }
@@ -38,7 +38,7 @@ public class TypeAnnotationHelper {
         return null;
     }
     
-    public static void apply(JavaAnnotatedTypeInstance annotatedTypeInstance, List<? extends AnnotationTableTypeEntry> typeEntries, DecompilerComments comments) {
+    public static void apply(JavaAnnotatedTypeInstance annotatedTypeInstance, ObjectList<? extends AnnotationTableTypeEntry> typeEntries, DecompilerComments comments) {
         if (typeEntries != null) {
             for (AnnotationTableTypeEntry typeEntry : typeEntries) {
                 apply(annotatedTypeInstance, typeEntry, comments);
@@ -48,7 +48,7 @@ public class TypeAnnotationHelper {
     
     private static void apply(JavaAnnotatedTypeInstance annotatedTypeInstance, AnnotationTableTypeEntry typeEntry, DecompilerComments comments) {
         JavaAnnotatedTypeIterator iterator = annotatedTypeInstance.pathIterator();
-        List<TypePathPart> segments = typeEntry.getTypePath().segments();
+        ObjectList<TypePathPart> segments = typeEntry.getTypePath().segments();
         for (TypePathPart part : segments) {
             iterator = part.apply(iterator, comments);
         }
@@ -56,7 +56,7 @@ public class TypeAnnotationHelper {
     }
 
     // TODO : Find usages of this, ensure linear scans are small.
-    public List<AnnotationTableTypeEntry> getEntries() {
+    public ObjectList<AnnotationTableTypeEntry> getEntries() {
         return entries;
     }
 }

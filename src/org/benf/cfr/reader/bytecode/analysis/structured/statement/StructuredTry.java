@@ -14,14 +14,14 @@ import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class StructuredTry extends AbstractStructuredStatement {
     private Op04StructuredStatement tryBlock;
-    private final List<Op04StructuredStatement> catchBlocks = new ObjectArrayList<>();
+    private final ObjectList<Op04StructuredStatement> catchBlocks = new ObjectArrayList<>();
     private Op04StructuredStatement finallyBlock;
     private final BlockIdentifier tryBlockIdentifier;
-    private List<Op04StructuredStatement> resourceBlock;
+    private ObjectList<Op04StructuredStatement> resourceBlock;
 
     public StructuredTry(Op04StructuredStatement tryBlock, BlockIdentifier tryBlockIdentifier) {
         super(BytecodeLoc.NONE);
@@ -36,12 +36,12 @@ public class StructuredTry extends AbstractStructuredStatement {
         return getLoc();
     }
 
-    public void addResources(List<Op04StructuredStatement> resources) {
+    public void addResources(ObjectList<Op04StructuredStatement> resources) {
         if (resourceBlock == null) resourceBlock = new ObjectArrayList<>();
         resourceBlock.addAll(resources);
     }
 
-    public List<Op04StructuredStatement> getResources() {
+    public ObjectList<Op04StructuredStatement> getResources() {
         return resourceBlock;
     }
 
@@ -54,7 +54,7 @@ public class StructuredTry extends AbstractStructuredStatement {
         return tryBlock;
     }
 
-    public List<Op04StructuredStatement> getCatchBlocks() {
+    public ObjectList<Op04StructuredStatement> getCatchBlocks() {
         return catchBlocks;
     }
 
@@ -136,7 +136,7 @@ public class StructuredTry extends AbstractStructuredStatement {
     }
 
     @Override
-    public void linearizeInto(List<StructuredStatement> out) {
+    public void linearizeInto(ObjectList<StructuredStatement> out) {
         out.add(this);
         if (resourceBlock != null) {
             // TODO: Synthetic 'resource' markers?

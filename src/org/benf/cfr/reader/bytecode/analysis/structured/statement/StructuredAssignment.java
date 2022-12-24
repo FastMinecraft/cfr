@@ -21,7 +21,7 @@ import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class StructuredAssignment extends AbstractStructuredStatement implements BoxingProcessor {
 
@@ -75,7 +75,7 @@ public class StructuredAssignment extends AbstractStructuredStatement implements
     }
 
     @Override
-    public void linearizeInto(List<StructuredStatement> out) {
+    public void linearizeInto(ObjectList<StructuredStatement> out) {
         out.add(this);
     }
 
@@ -102,7 +102,7 @@ public class StructuredAssignment extends AbstractStructuredStatement implements
     }
 
     @Override
-    public List<LValue> findCreatedHere() {
+    public ObjectList<LValue> findCreatedHere() {
         if (creator) {
             return ObjectList.of(new LValue[]{ lvalue });
         } else {

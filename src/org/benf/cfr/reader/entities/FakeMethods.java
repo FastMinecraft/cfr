@@ -5,7 +5,7 @@ import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.TypeUsageCollectable;
 import org.benf.cfr.reader.util.collections.MapFactory;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -25,7 +25,7 @@ public class FakeMethods implements TypeUsageCollectable {
         return method;
     }
 
-    public List<FakeMethod> getMethods() {
+    public ObjectList<FakeMethod> getMethods() {
         return new ObjectArrayList<>(fakes.values());
     }
 

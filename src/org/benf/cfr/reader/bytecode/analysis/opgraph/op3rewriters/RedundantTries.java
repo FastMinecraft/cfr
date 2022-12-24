@@ -8,11 +8,11 @@ import org.benf.cfr.reader.util.collections.Functional;
 
 import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class RedundantTries {
-    public static List<Op03SimpleStatement> removeRedundantTries(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> tryStarts = Functional.filter(statements, new TypeFilter<>(TryStatement.class));
+    public static ObjectList<Op03SimpleStatement> removeRedundantTries(ObjectList<Op03SimpleStatement> statements) {
+        ObjectList<Op03SimpleStatement> tryStarts = Functional.filter(statements, new TypeFilter<>(TryStatement.class));
         /*
          * If the try doesn't point at a member of the try, it's been made redundant.
          * Verify that no other references to its' block exist, and remove it.

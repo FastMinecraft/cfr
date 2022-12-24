@@ -11,7 +11,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.SSAIdentifiers;
 import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.types.*;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 
 // Well, this is pretty specific!
@@ -28,7 +28,7 @@ public class LocalInlinedStringConstantRewriter extends AbstractExpressionRewrit
     // TODO : This is a very common pattern - linearize is treated as a util - we should just walk.
     @Override
     public void rewrite(Op04StructuredStatement root) {
-        List<StructuredStatement> structuredStatements = MiscStatementTools.linearise(root);
+        ObjectList<StructuredStatement> structuredStatements = MiscStatementTools.linearise(root);
         if (structuredStatements == null) return;
 
         for (StructuredStatement statement : structuredStatements) {

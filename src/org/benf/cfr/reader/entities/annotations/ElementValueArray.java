@@ -5,12 +5,12 @@ import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.StringUtils;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class ElementValueArray implements ElementValue {
-    private final List<ElementValue> content;
+    private final ObjectList<ElementValue> content;
 
-    public ElementValueArray(List<ElementValue> content) {
+    public ElementValueArray(ObjectList<ElementValue> content) {
         this.content = content;
     }
 

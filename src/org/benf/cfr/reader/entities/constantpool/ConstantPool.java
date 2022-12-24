@@ -10,7 +10,7 @@ import org.benf.cfr.reader.util.bytestream.OffsettingByteData;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.output.LoggerFactory;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
@@ -18,7 +18,7 @@ public class ConstantPool {
     private static final Logger logger = LoggerFactory.create(ConstantPool.class);
 
     private final long length;
-    private final List<ConstantPoolEntry> entries;
+    private final ObjectList<ConstantPoolEntry> entries;
     private final Options options;
     private final DCCommonState dcCommonState;
     private final ClassCache classCache;
@@ -55,11 +55,11 @@ public class ConstantPool {
         return dynamicConstants;
     }
 
-    private record RawTmp(List<ConstantPoolEntry> entries, long rawLength, boolean dynamicConstants) {
+    private record RawTmp(ObjectList<ConstantPoolEntry> entries, long rawLength, boolean dynamicConstants) {
     }
 
     private RawTmp processRaw(ByteData raw, int count) {
-        List<ConstantPoolEntry> tgt = new ObjectArrayList<>(count);
+        ObjectList<ConstantPoolEntry> tgt = new ObjectArrayList<>(count);
         OffsettingByteData data = raw.getOffsettingOffsetData(0);
         boolean dynamicConstant = false;
         logger.info("Processing " + count + " constpool entries.");

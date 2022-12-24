@@ -11,13 +11,13 @@ import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.Collections;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 public class LoopLivenessClash {
 
-    public static boolean detect(List<Op03SimpleStatement> statements, BytecodeMeta bytecodeMeta) {
-        List<Op03SimpleStatement> iters = Functional.filter(statements, new TypeFilter<>(ForIterStatement.class));
+    public static boolean detect(ObjectList<Op03SimpleStatement> statements, BytecodeMeta bytecodeMeta) {
+        ObjectList<Op03SimpleStatement> iters = Functional.filter(statements, new TypeFilter<>(ForIterStatement.class));
         if (iters.isEmpty()) return false;
 
         boolean found = false;
@@ -34,7 +34,7 @@ public class LoopLivenessClash {
         JavaGenericRefTypeInstance iterType = bindingSuperContainer.getBoundSuperForBase(TypeConstants.ITERABLE);
         GenericTypeBinder typeBinder = GenericTypeBinder.extractBindings(iterType,generic);
         JavaGenericRefTypeInstance boundIterable = iterType.getBoundInstance(typeBinder);
-        List<JavaTypeInstance> iterBindings = boundIterable.getGenericTypes();
+        ObjectList<JavaTypeInstance> iterBindings = boundIterable.getGenericTypes();
         if (iterBindings.size() != 1) return null;
         return iterBindings.get(0);
     }

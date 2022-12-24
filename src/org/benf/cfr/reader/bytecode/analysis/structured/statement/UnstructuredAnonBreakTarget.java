@@ -6,7 +6,7 @@ import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class UnstructuredAnonBreakTarget extends AbstractUnStructuredStatement {
     private final BlockIdentifier blockIdentifier;
@@ -32,7 +32,7 @@ public class UnstructuredAnonBreakTarget extends AbstractUnStructuredStatement {
 
     // Lose the comments.
     @Override
-    public void linearizeInto(List<StructuredStatement> out) {
+    public void linearizeInto(ObjectList<StructuredStatement> out) {
     }
 
     public BlockIdentifier getBlockIdentifier() {

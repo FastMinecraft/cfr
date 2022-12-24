@@ -27,7 +27,7 @@ import org.benf.cfr.reader.util.CannotLoadClassException;
 import org.benf.cfr.reader.util.ClassFileVersion;
 import org.benf.cfr.reader.util.collections.MapFactory;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 
 /**
@@ -39,8 +39,8 @@ public class CreationCollector {
     private record StatementPair<X>(X value, StatementContainer location) {
     }
 
-    private final List<Pair<LValue, StatementPair<MemberFunctionInvokation>>> collectedConstructions = new ObjectArrayList<>();
-    private final Map<LValue, List<StatementContainer>> collectedCreations = MapFactory.newLazyMap(arg -> new ObjectArrayList<>());
+    private final ObjectList<Pair<LValue, StatementPair<MemberFunctionInvokation>>> collectedConstructions = new ObjectArrayList<>();
+    private final Map<LValue, ObjectList<StatementContainer>> collectedCreations = MapFactory.newLazyMap(arg -> new ObjectArrayList<>());
 
     private final AnonymousClassUsage anonymousClassUsage;
 
@@ -96,7 +96,7 @@ public class CreationCollector {
             InstrIndex idx = constructionValue.location().getIndex();
             if (lValue != null) {
                 if (!collectedCreations.containsKey(lValue)) continue;
-                List<StatementContainer> creations = collectedCreations.get(lValue);
+                ObjectList<StatementContainer> creations = collectedCreations.get(lValue);
                 boolean found = false;
                 for (StatementContainer creation : creations) {
                     // This is a terrible heuristic.
@@ -213,7 +213,7 @@ public class CreationCollector {
             }
         }
 
-        for (Map.Entry<LValue, List<StatementContainer>> creations : collectedCreations.entrySet()) {
+        for (Map.Entry<LValue, ObjectList<StatementContainer>> creations : collectedCreations.entrySet()) {
             LValue lValue = creations.getKey();
             for (StatementContainer statementContainer : creations.getValue()) {
                 if (lValue instanceof StackSSALabel) {

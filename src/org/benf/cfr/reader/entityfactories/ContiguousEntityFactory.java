@@ -4,7 +4,7 @@ import org.benf.cfr.reader.util.KnowsRawSize;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.bytestream.OffsettingByteData;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.function.Function;
 
 public class ContiguousEntityFactory {
@@ -12,7 +12,7 @@ public class ContiguousEntityFactory {
     public static <X extends KnowsRawSize> long build(
         final ByteData raw,
         int count,
-        List<X> tgt,
+        ObjectList<X> tgt,
         Function<ByteData, X> func
     ) {
         OffsettingByteData data = raw.getOffsettingOffsetData(0);
@@ -28,7 +28,7 @@ public class ContiguousEntityFactory {
         final ByteData raw,
         int count,
         int itemLength,
-        List<X> tgt,
+        ObjectList<X> tgt,
         Function<ByteData, X> func
     ) {
         OffsettingByteData data = raw.getOffsettingOffsetData(0);

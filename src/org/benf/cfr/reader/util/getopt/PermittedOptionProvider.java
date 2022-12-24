@@ -1,11 +1,11 @@
 package org.benf.cfr.reader.util.getopt;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public interface PermittedOptionProvider {
-    List<String> getFlags();
+    ObjectList<String> getFlags();
 
-    List<? extends ArgumentParam<?, ?>> getArguments();
+    ObjectList<? extends ArgumentParam<?, ?>> getArguments();
 
     class ArgumentParam<X, InputType> {
         private final String name;

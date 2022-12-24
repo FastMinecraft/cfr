@@ -31,7 +31,7 @@ import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 
 public class AssertRewriter {
@@ -55,7 +55,7 @@ public class AssertRewriter {
          * where y is static final boolean.
          */
         if (!staticInit.hasCodeAttribute()) return;
-        List<StructuredStatement> statements = MiscStatementTools.linearise(staticInit.getAnalysis());
+        ObjectList<StructuredStatement> statements = MiscStatementTools.linearise(staticInit.getAnalysis());
         if (statements == null) return;
         MatchIterator<StructuredStatement> mi = new MatchIterator<>(statements);
         WildcardMatch wcm1 = new WildcardMatch();
@@ -144,7 +144,7 @@ public class AssertRewriter {
     }
 
     private void rewriteMethods() {
-        List<Method> methods = classFile.getMethods();
+        ObjectList<Method> methods = classFile.getMethods();
         WildcardMatch wcm1 = new WildcardMatch();
         Matcher<StructuredStatement> standardAssertMatcher = buildStandardAssertMatcher(wcm1);
         AssertUseCollector collector = new AssertUseCollector(wcm1);
@@ -168,7 +168,7 @@ public class AssertRewriter {
             handleInfiniteAsserts(top);
 
 
-            List<StructuredStatement> statements = MiscStatementTools.linearise(top);
+            ObjectList<StructuredStatement> statements = MiscStatementTools.linearise(top);
 
             if (statements == null) continue;
 
@@ -331,7 +331,7 @@ public class AssertRewriter {
             if (takenBody.getClass() != Block.class) return;
             Block takenBlock = (Block)takenBody;
             // This will either have a switch ONLY, or a switch and a throw.
-            List<Op04StructuredStatement> switchAndThrow = takenBlock.getFilteredBlockStatements();
+            ObjectList<Op04StructuredStatement> switchAndThrow = takenBlock.getFilteredBlockStatements();
             if (switchAndThrow.isEmpty()) return;
 
             BlockIdentifier outerBlock = block.getBreakableBlockOrNull();
@@ -384,7 +384,7 @@ public class AssertRewriter {
 
         // We know the first statement is a switch - if it doesn't have any breaks in it, then we're safe to
         // roll outer statements in.
-        private List<Op04StructuredStatement> tryCombineSwitch(List<Op04StructuredStatement> content, BlockIdentifier outer, BlockIdentifier swiBlockIdentifier, Block swBodyBlock) {
+        private ObjectList<Op04StructuredStatement> tryCombineSwitch(ObjectList<Op04StructuredStatement> content, BlockIdentifier outer, BlockIdentifier swiBlockIdentifier, Block swBodyBlock) {
             Map<Op04StructuredStatement, StructuredExpressionYield> replacements = MapFactory.newOrderedMap();
             ControlFlowSwitchExpressionTransformer cfset = new ControlFlowSwitchExpressionTransformer(outer, swiBlockIdentifier, replacements);
             content.get(0).transform(cfset, new StructuredScope());
@@ -392,7 +392,7 @@ public class AssertRewriter {
             if (cfset.failed) return content;
             if (cfset.falseFound != 0) return content;
 
-            List<Op04StructuredStatement> cases = swBodyBlock.getFilteredBlockStatements();
+            ObjectList<Op04StructuredStatement> cases = swBodyBlock.getFilteredBlockStatements();
             Op04StructuredStatement lastCase = cases.get(cases.size()-1);
             StructuredStatement ss = lastCase.getStatement();
             if (!(ss instanceof StructuredCase)) return content;
@@ -416,7 +416,7 @@ public class AssertRewriter {
             StructuredStatement test = new StructuredThrow(BytecodeLoc.TODO, constructor);
             if (!test.equals(throwS)) return Pair.make(false, null);
             Expression exceptArg = null;
-            List<Expression> consArg = constructor.getMatch().getArgs();
+            ObjectList<Expression> consArg = constructor.getMatch().getArgs();
             if (consArg.size() == 1) {
                 exceptArg = consArg.get(0);
             } else if (consArg.size() > 1) {
@@ -435,7 +435,7 @@ public class AssertRewriter {
             // break immediate -> yield false
             // break outer -> yield true
             // However, the switch could itself have complex content in it.
-            List<SwitchExpression.Branch> branches = new ObjectArrayList<>();
+            ObjectList<SwitchExpression.Branch> branches = new ObjectArrayList<>();
             Map<Op04StructuredStatement, StructuredExpressionYield> replacements = MapFactory.newOrderedMap();
             if (!getBranches(outer, swiBlockIdentifier, swBodyBlock, branches, replacements, false)) return null;
 
@@ -444,7 +444,7 @@ public class AssertRewriter {
         }
 
         @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-        private boolean getBranches(BlockIdentifier outer, BlockIdentifier swiBlockIdentifier, Block swBodyBlock, List<SwitchExpression.Branch> branches, Map<Op04StructuredStatement, StructuredExpressionYield> replacements, boolean addYieldTrue) {
+        private boolean getBranches(BlockIdentifier outer, BlockIdentifier swiBlockIdentifier, Block swBodyBlock, ObjectList<SwitchExpression.Branch> branches, Map<Op04StructuredStatement, StructuredExpressionYield> replacements, boolean addYieldTrue) {
             for (Op04StructuredStatement statement :  swBodyBlock.getBlockStatements()) {
                 SwitchExpression.Branch branch = getBranch(outer, swiBlockIdentifier, replacements, statement, addYieldTrue);
                 if (branch == null) return false;
@@ -515,7 +515,7 @@ public class AssertRewriter {
                 replacements.put(throwStm.getContainer(), new StructuredExpressionYield(BytecodeLoc.TODO, Literal.FALSE));
             }
 
-            List<SwitchExpression.Branch> branches = new ObjectArrayList<>();
+            ObjectList<SwitchExpression.Branch> branches = new ObjectArrayList<>();
             if (!getBranches(swiBlockIdentifier, swiBlockIdentifier, swBodyBlock, branches, replacements, true)) return null;
             // And add yield true to the end of every branch that could roll off.
 
@@ -526,7 +526,7 @@ public class AssertRewriter {
     }
 
     static class AssertionTrackingControlFlowSwitchExpressionTransformer extends ControlFlowSwitchExpressionTransformer {
-        final List<StructuredStatement> throwSS = new ObjectArrayList<>();
+        final ObjectList<StructuredStatement> throwSS = new ObjectArrayList<>();
 
         AssertionTrackingControlFlowSwitchExpressionTransformer(BlockIdentifier trueBlock, BlockIdentifier falseBlock, Map<Op04StructuredStatement, StructuredExpressionYield> replacements) {
             super(trueBlock, falseBlock, replacements);
@@ -648,7 +648,7 @@ public class AssertRewriter {
         @Override
         public void collectStatement(String name, StructuredStatement statement) {
             WildcardMatch.ConstructorInvokationSimpleWildcard constructor = wcm.getConstructorSimpleWildcard("exception");
-            List<Expression> args = constructor.getMatch().getArgs();
+            ObjectList<Expression> args = constructor.getMatch().getArgs();
             Expression arg = args.size() > 0 ? args.get(0) : null;
             if (arg != null) {
                 // We can remove a spurious cast to Object.

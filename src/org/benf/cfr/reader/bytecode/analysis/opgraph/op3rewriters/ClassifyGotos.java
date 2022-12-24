@@ -13,15 +13,15 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.JumpType;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.util.collections.*;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.Set;
 
 class ClassifyGotos {
-    static void classifyGotos(List<Op03SimpleStatement> in) {
-        List<Pair<Op03SimpleStatement, Integer>> gotos = new ObjectArrayList<>();
+    static void classifyGotos(ObjectList<Op03SimpleStatement> in) {
+        ObjectList<Pair<Op03SimpleStatement, Integer>> gotos = new ObjectArrayList<>();
         Map<BlockIdentifier, Op03SimpleStatement> tryStatementsByBlock = MapFactory.newMap();
-        Map<BlockIdentifier, List<BlockIdentifier>> catchStatementsByBlock = MapFactory.newMap();
+        Map<BlockIdentifier, ObjectList<BlockIdentifier>> catchStatementsByBlock = MapFactory.newMap();
         Map<BlockIdentifier, Set<BlockIdentifier>> catchToTries = MapFactory.newLazyMap(arg -> SetFactory.newOrderedSet());
         for (int x = 0, len = in.size(); x < len; ++x) {
             Op03SimpleStatement stm = in.get(x);
@@ -31,8 +31,8 @@ class ClassifyGotos {
                 TryStatement tryStatement = (TryStatement) statement;
                 BlockIdentifier tryBlockIdent = tryStatement.getBlockIdentifier();
                 tryStatementsByBlock.put(tryBlockIdent, stm);
-                List<Op03SimpleStatement> targets = stm.getTargets();
-                List<BlockIdentifier> catchBlocks = new ObjectArrayList<>();
+                ObjectList<Op03SimpleStatement> targets = stm.getTargets();
+                ObjectList<BlockIdentifier> catchBlocks = new ObjectArrayList<>();
                 catchStatementsByBlock.put(tryStatement.getBlockIdentifier(), catchBlocks);
                 for (int y = 1, len2 = targets.size(); y < len2; ++y) {
                     Statement statement2 = targets.get(y).getStatement();
@@ -64,12 +64,12 @@ class ClassifyGotos {
         }
     }
 
-    private static boolean classifyTryLeaveGoto(Op03SimpleStatement gotoStm, int idx, Set<BlockIdentifier> tryBlockIdents, Map<BlockIdentifier, Op03SimpleStatement> tryStatementsByBlock, Map<BlockIdentifier, List<BlockIdentifier>> catchStatementByBlock, List<Op03SimpleStatement> in) {
+    private static boolean classifyTryLeaveGoto(Op03SimpleStatement gotoStm, int idx, Set<BlockIdentifier> tryBlockIdents, Map<BlockIdentifier, Op03SimpleStatement> tryStatementsByBlock, Map<BlockIdentifier, ObjectList<BlockIdentifier>> catchStatementByBlock, ObjectList<Op03SimpleStatement> in) {
         Set<BlockIdentifier> blocks = gotoStm.getBlockIdentifiers();
         return classifyTryCatchLeaveGoto(gotoStm, blocks, idx, tryBlockIdents, tryStatementsByBlock, catchStatementByBlock, in);
     }
 
-    private static void classifyCatchLeaveGoto(Op03SimpleStatement gotoStm, int idx, Set<BlockIdentifier> tryBlockIdents, Map<BlockIdentifier, Op03SimpleStatement> tryStatementsByBlock, Map<BlockIdentifier, List<BlockIdentifier>> catchStatementByBlock, Map<BlockIdentifier, Set<BlockIdentifier>> catchBlockToTryBlocks, List<Op03SimpleStatement> in) {
+    private static void classifyCatchLeaveGoto(Op03SimpleStatement gotoStm, int idx, Set<BlockIdentifier> tryBlockIdents, Map<BlockIdentifier, Op03SimpleStatement> tryStatementsByBlock, Map<BlockIdentifier, ObjectList<BlockIdentifier>> catchStatementByBlock, Map<BlockIdentifier, Set<BlockIdentifier>> catchBlockToTryBlocks, ObjectList<Op03SimpleStatement> in) {
         Set<BlockIdentifier> inBlocks = gotoStm.getBlockIdentifiers();
 
         /*
@@ -93,7 +93,7 @@ class ClassifyGotos {
      * Attempt to determine if a goto is jumping over catch blocks - if it is, we can mark it as a GOTO_OUT_OF_TRY
      * (the same holds for a goto inside a catch, we use the same marker).
      */
-    private static boolean classifyTryCatchLeaveGoto(Op03SimpleStatement gotoStm, Set<BlockIdentifier> blocks, int idx, Set<BlockIdentifier> tryBlockIdents, Map<BlockIdentifier, Op03SimpleStatement> tryStatementsByBlock, Map<BlockIdentifier, List<BlockIdentifier>> catchStatementByBlock, List<Op03SimpleStatement> in) {
+    private static boolean classifyTryCatchLeaveGoto(Op03SimpleStatement gotoStm, Set<BlockIdentifier> blocks, int idx, Set<BlockIdentifier> tryBlockIdents, Map<BlockIdentifier, Op03SimpleStatement> tryStatementsByBlock, Map<BlockIdentifier, ObjectList<BlockIdentifier>> catchStatementByBlock, ObjectList<Op03SimpleStatement> in) {
         if (idx >= in.size() - 1) return false;
 
         GotoStatement gotoStatement = (GotoStatement) gotoStm.getStatement();
@@ -114,7 +114,7 @@ class ClassifyGotos {
         Op03SimpleStatement tryStatement = tryStatementsByBlock.get(left);
         if (tryStatement == null) return false;
 
-        List<BlockIdentifier> catchForThis = catchStatementByBlock.get(left);
+        ObjectList<BlockIdentifier> catchForThis = catchStatementByBlock.get(left);
         if (catchForThis == null) return false;
 
         /*
@@ -156,7 +156,7 @@ class ClassifyGotos {
     }
 
 
-    static void classifyAnonymousBlockGotos(List<Op03SimpleStatement> in, boolean agressive) {
+    static void classifyAnonymousBlockGotos(ObjectList<Op03SimpleStatement> in, boolean agressive) {
         int agressiveOffset = agressive ? 1 : 0;
 
         /*

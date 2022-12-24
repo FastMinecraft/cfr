@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import org.benf.cfr.reader.bytecode.BytecodeMeta;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
@@ -45,6 +46,8 @@ import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
 import java.util.Collections;
 import java.util.LinkedList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
+
 import java.util.List;
 import java.util.Map;
 
@@ -65,7 +68,7 @@ public class SwitchStringRewriter implements Op04Rewriter {
                 || bytecodeMeta.has(BytecodeMeta.CodeInfoFlag.STRING_SWITCHES))
         ) return;
 
-        List<StructuredStatement> structuredStatements = MiscStatementTools.linearise(root);
+        ObjectList<StructuredStatement> structuredStatements = MiscStatementTools.linearise(root);
         if (structuredStatements == null) return;
 
         rewriteComplex(structuredStatements);
@@ -89,7 +92,7 @@ public class SwitchStringRewriter implements Op04Rewriter {
      *
      * Note that this doesn't pull anything into the switch (so switch expressions will need further work).
      */
-    private void rewriteEmpty(List<StructuredStatement> structuredStatements) {
+    private void rewriteEmpty(ObjectList<StructuredStatement> structuredStatements) {
         MatchIterator<StructuredStatement> mi = new MatchIterator<>(structuredStatements);
 
         WildcardMatch wcm = new WildcardMatch();
@@ -105,7 +108,7 @@ public class SwitchStringRewriter implements Op04Rewriter {
                                 null,
                                 wcm.getBlockIdentifier("switchblock"))),
                 new BeginBlock(null),
-                new StructuredCase(BytecodeLoc.NONE, Collections.emptyList(), null, null, wcm.getBlockIdentifier("case")),
+                new StructuredCase(BytecodeLoc.NONE, ObjectLists.emptyList(), null, null, wcm.getBlockIdentifier("case")),
                 new BeginBlock(null),
                 new EndBlock(null),
                 new EndBlock(null)
@@ -132,7 +135,7 @@ public class SwitchStringRewriter implements Op04Rewriter {
 
     }
 
-    private void rewriteComplex(List<StructuredStatement> structuredStatements) {
+    private void rewriteComplex(ObjectList<StructuredStatement> structuredStatements) {
         // Rather than have a non-greedy kleene star at the start, we cheat and scan for valid start points.
         // switch OB (case OB (if-testalternativevalid OB assign break CB)* if-notvalid break assign break CB)+ CB
         MatchIterator<StructuredStatement> mi = new MatchIterator<>(structuredStatements);
@@ -221,7 +224,7 @@ public class SwitchStringRewriter implements Op04Rewriter {
             throw new FailedRewriteException("Switch body is not a block, is a " + inner.getClass());
         }
 
-        Map<Integer, List<String>> replacements = matchResultCollector.getValidatedHashes();
+        Map<Integer, ObjectList<String>> replacements = matchResultCollector.getValidatedHashes();
         List<Op04StructuredStatement> caseStatements = block.getBlockStatements();
         LinkedList<Op04StructuredStatement> tgt = new LinkedList<>();
 
@@ -231,12 +234,12 @@ public class SwitchStringRewriter implements Op04Rewriter {
             if (!(inner instanceof StructuredCase structuredCase)) {
                 throw new FailedRewriteException("Block member is not a case, it's a " + inner.getClass());
             }
-            List<Expression> values = structuredCase.getValues();
-            List<Expression> transformedValues = new ObjectArrayList<>();
+            ObjectList<Expression> values = structuredCase.getValues();
+            ObjectList<Expression> transformedValues = new ObjectArrayList<>();
 
             for (Expression value : values) {
                 Integer i = getInt(value);
-                List<String> replacementStrings = replacements.get(i);
+                ObjectList<String> replacementStrings = replacements.get(i);
                 if (replacementStrings == null) {
                     throw new FailedRewriteException("No replacements for " + i);
                 }
@@ -318,8 +321,8 @@ public class SwitchStringRewriter implements Op04Rewriter {
         private final WildcardMatch hashCollision; // inner collision protection
 
         private Expression stringExpression = null;
-        private final List<Pair<String, Integer>> pendingHashCode = new ObjectArrayList<>();
-        private final Map<Integer, List<String>> validatedHashes = MapFactory.newLazyMap(arg -> new ObjectArrayList<>());
+        private final ObjectList<Pair<String, Integer>> pendingHashCode = new ObjectArrayList<>();
+        private final Map<Integer, ObjectList<String>> validatedHashes = MapFactory.newLazyMap(arg -> new ObjectArrayList<>());
         private final Map<String, StructuredStatement> collectedStatements = MapFactory.newMap();
         private Expression verify;
         private LValue lvalue;
@@ -378,7 +381,7 @@ public class SwitchStringRewriter implements Op04Rewriter {
             return stringExpression;
         }
 
-        Map<Integer, List<String>> getValidatedHashes() {
+        Map<Integer, ObjectList<String>> getValidatedHashes() {
             return validatedHashes;
         }
 

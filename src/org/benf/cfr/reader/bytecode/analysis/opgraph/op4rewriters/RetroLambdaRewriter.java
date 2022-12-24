@@ -42,7 +42,7 @@ import org.benf.cfr.reader.util.CannotLoadClassException;
 import org.benf.cfr.reader.util.MiscUtils;
 import org.benf.cfr.reader.util.collections.Functional;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 /*
  * It's totally unreasonable to scan everything for possible things that MIGHT LOOK LIKE RETROLAMBDA.
@@ -95,7 +95,7 @@ public class RetroLambdaRewriter extends AbstractExpressionRewriter {
     private Expression considerCandidateInvokation(StaticFunctionInvokation sf) {
         String name = sf.getMethodPrototype().getName();
         if (!(name.equals(lambdaFactoryLabel) || (name.equals(getLambdaName)))) return null;
-        List<Expression> sfArgs = sf.getArgs();
+        ObjectList<Expression> sfArgs = sf.getArgs();
         if (sfArgs.size() != 1) return null;
         Expression sfArg = sfArgs.get(0);
         if (!MiscUtils.isThis(sfArg, mainClazz.getClassType())) return null;
@@ -103,7 +103,7 @@ public class RetroLambdaRewriter extends AbstractExpressionRewriter {
         ClassFile cf = state.getClassFile(sf.getClazz());
         Method lamMeth;
         try {
-            List<Method> m;
+            ObjectList<Method> m;
             m = cf.getMethodByName(name);
             if (m.size() != 1) return null;
             lamMeth = m.get(0);
@@ -114,7 +114,7 @@ public class RetroLambdaRewriter extends AbstractExpressionRewriter {
         Op04StructuredStatement candidate = lamMeth.getAnalysis();
         if (candidate == null) return null;
 
-        List<LocalVariable> args = lamMeth.getMethodPrototype().getComputedParameters();
+        ObjectList<LocalVariable> args = lamMeth.getMethodPrototype().getComputedParameters();
         if (args.size() != 1) return null;
         LocalVariable bound = args.get(0);
 
@@ -125,18 +125,18 @@ public class RetroLambdaRewriter extends AbstractExpressionRewriter {
                 new EndBlock(null)
         );
 
-        List<StructuredStatement> stm = new ObjectArrayList<>();
+        ObjectList<StructuredStatement> stm = new ObjectArrayList<>();
         candidate.linearizeStatementsInto(stm);
         MatchIterator<StructuredStatement> mi = new MatchIterator<>(stm);
         mi.advance();
         if (!matcher.match(mi, new EmptyMatchResultCollector())) return null;
 
         ConstructorInvokationSimple constr = wcm.getConstructorSimpleWildcard("constr").getMatch();
-        List<Expression> constrArgs = constr.getArgs();
+        ObjectList<Expression> constrArgs = constr.getArgs();
         if (constrArgs.size() != 1) return null;
         Expression constrArg = constrArgs.get(0);
         if (!new LValueExpression(bound).equals(constrArg)) return null;
-        List<ClassFileField> fields = cf.getFields();
+        ObjectList<ClassFileField> fields = cf.getFields();
         if (fields.size() != 1) return null;
         // 2a satisfied!
 
@@ -147,7 +147,7 @@ public class RetroLambdaRewriter extends AbstractExpressionRewriter {
         try {
             cfReturn = state.getClassFile(returnType);
             if (!cfReturn.isInterface()) return null;
-            List<Method> interfaceMethods = cfReturn.getMethods();
+            ObjectList<Method> interfaceMethods = cfReturn.getMethods();
             if (interfaceMethods.size() != 1) return null;
         } catch (CannotLoadClassException e) {
             // If we can't find the interface, then is it a final class, with ONE method?
@@ -157,7 +157,7 @@ public class RetroLambdaRewriter extends AbstractExpressionRewriter {
         }
         // 2b satisfied.
 
-        List<Method> methods = Functional.filter(cf.getMethods(),
+        ObjectList<Method> methods = Functional.filter(cf.getMethods(),
             in -> !(in.testAccessFlag(AccessFlagMethod.ACC_STATIC) || in.isConstructor())
         );
         if (methods.size() != 1) return null;
@@ -186,7 +186,7 @@ public class RetroLambdaRewriter extends AbstractExpressionRewriter {
         // By this point we're ok with hiding the synthetic class.
         cf.markHiddenInnerClass();
         if (fullLambdaBody == null) {
-            List<Expression> curried = new ObjectArrayList<>();
+            ObjectList<Expression> curried = new ObjectArrayList<>();
             curried.add(sfArg);
             InferredJavaType ijt = new InferredJavaType(mainLambdaIndirect.getMethodPrototype().getReturnType(), InferredJavaType.Source.TRANSFORM);
             // We can only give a simple lambda which calls the method the external class calls.
@@ -202,8 +202,8 @@ public class RetroLambdaRewriter extends AbstractExpressionRewriter {
         Op04StructuredStatement m2code = method.getAnalysis();
         if (m2code == null) return null;
 
-        List<LocalVariable> m2params = method.getMethodPrototype().getComputedParameters();
-        List<Expression> m3args = new ObjectArrayList<>();
+        ObjectList<LocalVariable> m2params = method.getMethodPrototype().getComputedParameters();
+        ObjectList<Expression> m3args = new ObjectArrayList<>();
         m3args.add(wcm.getExpressionWildCard("field"));
         for (LocalVariable lv : m2params) {
             m3args.add(new LValueExpression(lv));
@@ -218,7 +218,7 @@ public class RetroLambdaRewriter extends AbstractExpressionRewriter {
                 new EndBlock(null)
         );
 
-        List<StructuredStatement> stm2 = new ObjectArrayList<>();
+        ObjectList<StructuredStatement> stm2 = new ObjectArrayList<>();
         m2code.linearizeStatementsInto(stm2);
         MatchIterator<StructuredStatement> mi2 = new MatchIterator<>(stm2);
         mi2.advance();
@@ -227,14 +227,14 @@ public class RetroLambdaRewriter extends AbstractExpressionRewriter {
     }
 
     private Expression getFullLambdaBody(Method mainLambdaIndirect) {
-        List<StructuredStatement> stmStaticLocal = new ObjectArrayList<>();
+        ObjectList<StructuredStatement> stmStaticLocal = new ObjectArrayList<>();
         Op04StructuredStatement lambdaStaticLocal = mainLambdaIndirect.getAnalysis();
         if (lambdaStaticLocal == null) return null;
         lambdaStaticLocal.linearizeStatementsInto(stmStaticLocal);
 
         WildcardMatch wcm = new WildcardMatch();
-        List<LocalVariable> m2params = mainLambdaIndirect.getMethodPrototype().getComputedParameters();
-        List<Expression> m3args = new ObjectArrayList<>();
+        ObjectList<LocalVariable> m2params = mainLambdaIndirect.getMethodPrototype().getComputedParameters();
+        ObjectList<Expression> m3args = new ObjectArrayList<>();
         if (m2params.size() == 0) return null;
         Expression thisPtr = new LValueExpression(m2params.get(0));
         if (!thisPtr.getInferredJavaType().getJavaTypeInstance().equals(mainLambdaIndirect.getClassFile().getClassType())) return null;
@@ -260,7 +260,7 @@ public class RetroLambdaRewriter extends AbstractExpressionRewriter {
 
         Method lambdaBody;
         try {
-            List<Method> methods = mainClazz.getMethodByName(member.getName());
+            ObjectList<Method> methods = mainClazz.getMethodByName(member.getName());
             if (methods.size() != 1) return null;
             lambdaBody = methods.get(0);
         } catch (NoSuchMethodException e) {
@@ -270,9 +270,9 @@ public class RetroLambdaRewriter extends AbstractExpressionRewriter {
         Op04StructuredStatement body = lambdaBody.getAnalysis();
         if (body == null) return null;
 
-        List<LocalVariable> bodyArgs = lambdaBody.getMethodPrototype().getComputedParameters();
-        List<LValue> bodyLV = new ObjectArrayList<>();
-        List<JavaTypeInstance> bodyTypes = new ObjectArrayList<>();
+        ObjectList<LocalVariable> bodyArgs = lambdaBody.getMethodPrototype().getComputedParameters();
+        ObjectList<LValue> bodyLV = new ObjectArrayList<>();
+        ObjectList<JavaTypeInstance> bodyTypes = new ObjectArrayList<>();
         for (LocalVariable arg : bodyArgs) {
             bodyLV.add(arg);
             bodyTypes.add(arg.getInferredJavaType().getJavaTypeInstance());
@@ -285,7 +285,7 @@ public class RetroLambdaRewriter extends AbstractExpressionRewriter {
     private Method getMainLambdaIndirect(StaticFunctionInvokation m2callReal) {
         Method mainLambdaIndirect;
         try {
-            List<Method> indirects = mainClazz.getMethodByName(m2callReal.getName());
+            ObjectList<Method> indirects = mainClazz.getMethodByName(m2callReal.getName());
             if (indirects.size() != 1) return null;
             mainLambdaIndirect = indirects.get(0);
         } catch (NoSuchMethodException e) {

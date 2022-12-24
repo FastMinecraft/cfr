@@ -26,7 +26,7 @@ import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
 import java.util.Collections;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -43,7 +43,7 @@ public class ConditionalRewriter {
     }
 
     public static void identifyNonjumpingConditionals(
-        List<Op03SimpleStatement> statements,
+        ObjectList<Op03SimpleStatement> statements,
         BlockIdentifierFactory blockIdentifierFactory,
         Options options
     ) {
@@ -52,7 +52,7 @@ public class ConditionalRewriter {
         boolean reduceSimpleScope = options.getOption(OptionsImpl.REDUCE_COND_SCOPE) == Troolean.TRUE;
         do {
             success = false;
-            List<Op03SimpleStatement> forwardIfs = Functional.filter(statements, new IsForwardIf());
+            ObjectList<Op03SimpleStatement> forwardIfs = Functional.filter(statements, new IsForwardIf());
             Collections.reverse(forwardIfs);
             for (Op03SimpleStatement forwardIf : forwardIfs) {
                 if (considerAsTrivialIf(forwardIf, statements) ||
@@ -70,7 +70,7 @@ public class ConditionalRewriter {
         } while (success);
     }
 
-    private static boolean considerAsTrivialIf(Op03SimpleStatement ifStatement, List<Op03SimpleStatement> statements) {
+    private static boolean considerAsTrivialIf(Op03SimpleStatement ifStatement, ObjectList<Op03SimpleStatement> statements) {
         Op03SimpleStatement takenTarget = ifStatement.getTargets().get(1);
         Op03SimpleStatement notTakenTarget = ifStatement.getTargets().get(0);
         int idxTaken = statements.indexOf(takenTarget);
@@ -113,7 +113,7 @@ public class ConditionalRewriter {
      *
      * Which, in turn, may allow us to make some more interesting choices later.
      */
-    private static boolean considerAsDexIf(Op03SimpleStatement ifStatement, List<Op03SimpleStatement> statements) {
+    private static boolean considerAsDexIf(Op03SimpleStatement ifStatement, ObjectList<Op03SimpleStatement> statements) {
         Statement innerStatement = ifStatement.getStatement();
         if (innerStatement.getClass() != IfStatement.class) {
             return false;
@@ -147,15 +147,15 @@ public class ConditionalRewriter {
          * Looks like a legitimate reordering - rewrite statements.  Pick up the entire block, and
          * move as per above.
          */
-        List<Op03SimpleStatement> alist = statements.subList(aidx, bidx);
-        List<Op03SimpleStatement> blist = statements.subList(bidx, cidx);
+        ObjectList<Op03SimpleStatement> alist = statements.subList(aidx, bidx);
+        ObjectList<Op03SimpleStatement> blist = statements.subList(bidx, cidx);
 
         /*
          * Nop out the last entry of alist.
          */
         alist.get(alist.size() - 1).nopOut();
 
-        List<Op03SimpleStatement> ifTargets = ifStatement.getTargets();
+        ObjectList<Op03SimpleStatement> ifTargets = ifStatement.getTargets();
         // Swap targets.
         Op03SimpleStatement tgtA = ifTargets.get(0);
         Op03SimpleStatement tgtB = ifTargets.get(1);
@@ -163,7 +163,7 @@ public class ConditionalRewriter {
         ifTargets.set(1, tgtA);
         innerIfStatement.setCondition(innerIfStatement.getCondition().getNegated().simplify());
 
-        List<Op03SimpleStatement> acopy = new ObjectArrayList<>(alist);
+        ObjectList<Op03SimpleStatement> acopy = new ObjectArrayList<>(alist);
         blist.addAll(acopy);
         alist = statements.subList(aidx, bidx);
         alist.clear();
@@ -174,7 +174,7 @@ public class ConditionalRewriter {
     }
 
 
-    private static int findOverIdx(int startNext, List<Op03SimpleStatement> statements) {
+    private static int findOverIdx(int startNext, ObjectList<Op03SimpleStatement> statements) {
         /*
          * Find a forward goto before b.
          */
@@ -211,7 +211,7 @@ public class ConditionalRewriter {
         int startIdx,
         int endIdx,
         int tgtIdx,
-        List<Op03SimpleStatement> statements,
+        ObjectList<Op03SimpleStatement> statements,
         Set<Op03SimpleStatement> permittedSources
     ) {
 
@@ -286,18 +286,18 @@ lbl10: // 1 sources:
     ) {
         if (blocksAtEnd.size() != blocksAtStart.size() + 1) return false;
 
-        List<BlockIdentifier> diff = SetUtil.differenceAtakeBtoList(blocksAtEnd, blocksAtStart);
+        ObjectList<BlockIdentifier> diff = SetUtil.differenceAtakeBtoList(blocksAtEnd, blocksAtStart);
         BlockIdentifier testBlock = diff.get(0);
         if (testBlock.getBlockType() != BlockType.SIMPLE_IF_TAKEN) return false;
 
         // If the difference is a simple-if, AND the statement AFTER realEnd is the target of BOTH
         // realEnd AND the source if statement... AND the if statement is inside our potential range,
         // we can convert THAT to a block exit, and remove that conditional.
-        List<Op03SimpleStatement> realEndTargets = realEnd.getTargets();
+        ObjectList<Op03SimpleStatement> realEndTargets = realEnd.getTargets();
         if (!(realEndTargets.size() == 1 && realEndTargets.get(0).getLinearlyPrevious() == realEnd)) return false;
 
         Op03SimpleStatement afterRealEnd = realEndTargets.get(0);
-        List<Op03SimpleStatement> areSources = afterRealEnd.getSources();
+        ObjectList<Op03SimpleStatement> areSources = afterRealEnd.getSources();
         if (areSources.size() != 2) return false;
         Op03SimpleStatement other = areSources.get(0) == realEnd ? areSources.get(1) : areSources.get(0);
         // If other is the conditional for testBlock, we can change that jump into a break, as long as
@@ -337,7 +337,7 @@ lbl10: // 1 sources:
      */
     private static boolean considerAsSimpleIf(
         Op03SimpleStatement ifStatement,
-        List<Op03SimpleStatement> statements,
+        ObjectList<Op03SimpleStatement> statements,
         BlockIdentifierFactory blockIdentifierFactory,
         Set<Op03SimpleStatement> ignoreTheseJumps,
         boolean reduceSimpleScope
@@ -361,8 +361,8 @@ lbl10: // 1 sources:
         boolean maybeSimpleIfElse = false;
         GotoStatement leaveIfBranchGoto = null;
         Op03SimpleStatement leaveIfBranchHolder = null;
-        List<Op03SimpleStatement> ifBranch = new ObjectArrayList<>();
-        List<Op03SimpleStatement> elseBranch = null;
+        ObjectList<Op03SimpleStatement> ifBranch = new ObjectArrayList<>();
+        ObjectList<Op03SimpleStatement> elseBranch = null;
         // Consider the try blocks we're in at this point.  (the ifStatemenet).
         // If we leave any of them, we've left the if.
         Set<BlockIdentifier> blocksAtStart = ifStatement.getBlockIdentifiers();
@@ -517,7 +517,7 @@ lbl10: // 1 sources:
                     }
                     // We can try to rewrite this block to have an indirect jump via the end of the block,
                     // if that's appropriate.
-                    List<Op03SimpleStatement> targets = statementCurrent.getTargets();
+                    ObjectList<Op03SimpleStatement> targets = statementCurrent.getTargets();
 
                     Op03SimpleStatement eventualTarget = stmtLastBlockRewrite.getTargets().get(0);
                     boolean found = false;
@@ -621,7 +621,7 @@ lbl10: // 1 sources:
              * and we'll jump into a case statement - the statement LINEARLY BEFORE that will be in the missing block.
              */
             if (blocksAtStart.size() == blocksAtEnd.size() + 1) {
-                List<BlockIdentifier> change = SetUtil.differenceAtakeBtoList(blocksAtStart, blocksAtEnd);
+                ObjectList<BlockIdentifier> change = SetUtil.differenceAtakeBtoList(blocksAtStart, blocksAtEnd);
                 // size == 1 already verified, but...
                 if (change.size() == 1 && change.get(0).getBlockType() == BlockType.CASE) {
                     if (takenTarget.getStatement() instanceof CaseStatement) {
@@ -680,7 +680,7 @@ lbl10: // 1 sources:
             }
 
             // If statement now should have only one target.
-            List<Op03SimpleStatement> tmp = ListFactory.uniqueList(ifStatement.getTargets());
+            ObjectList<Op03SimpleStatement> tmp = ListFactory.uniqueList(ifStatement.getTargets());
             ifStatement.getTargets().clear();
             ifStatement.getTargets().addAll(tmp);
             if (ifStatement.getTargets().size() != 1) {
@@ -741,7 +741,7 @@ lbl10: // 1 sources:
 
             // Ok - invert the test, move the if statements after, relabel.
             innerIfStatement.negateCondition();
-            List<Op03SimpleStatement> targets = ifStatement.getTargets();
+            ObjectList<Op03SimpleStatement> targets = ifStatement.getTargets();
             Op03SimpleStatement tgt0 = targets.get(0);
             Op03SimpleStatement tgt1 = targets.get(1);
             targets.clear();
@@ -749,7 +749,7 @@ lbl10: // 1 sources:
             targets.add(tgt0);
 
             leaveIfBranchGoto = null;
-            List<Op03SimpleStatement> oldIfBranch = ifBranch;
+            ObjectList<Op03SimpleStatement> oldIfBranch = ifBranch;
             ifBranch = elseBranch;
             ifBranch.sort(new CompareByIndex());
             Op03SimpleStatement last = ifBranch.get(ifBranch.size() - 1);
@@ -795,8 +795,8 @@ lbl10: // 1 sources:
 
 
     private static DiscoveredTernary testForTernary(
-        List<Op03SimpleStatement> ifBranch,
-        List<Op03SimpleStatement> elseBranch,
+        ObjectList<Op03SimpleStatement> ifBranch,
+        ObjectList<Op03SimpleStatement> elseBranch,
         Op03SimpleStatement leaveIfBranch
     ) {
         if (ifBranch == null || elseBranch == null) return null;

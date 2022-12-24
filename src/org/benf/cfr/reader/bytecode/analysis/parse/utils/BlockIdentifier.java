@@ -4,7 +4,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.util.collections.Functional;
 
 import java.util.Collections;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 public class BlockIdentifier implements Comparable<BlockIdentifier> {
@@ -56,7 +56,7 @@ public class BlockIdentifier implements Comparable<BlockIdentifier> {
     }
 
     public static BlockIdentifier getOutermostContainedIn(Set<BlockIdentifier> endingBlocks, final Set<BlockIdentifier> blocksInAtThisPoint) {
-        List<BlockIdentifier> containedIn = Functional.filter(
+        ObjectList<BlockIdentifier> containedIn = Functional.filter(
             new ObjectArrayList<BlockIdentifier>(endingBlocks),
             blocksInAtThisPoint::contains
         );
@@ -66,7 +66,7 @@ public class BlockIdentifier implements Comparable<BlockIdentifier> {
     }
 
     /* Given a scope heirachy, which is the innermost one which can be broken out of? */
-    public static BlockIdentifier getInnermostBreakable(List<BlockIdentifier> blocks) {
+    public static BlockIdentifier getInnermostBreakable(ObjectList<BlockIdentifier> blocks) {
         BlockIdentifier res = null;
         for (BlockIdentifier block : blocks) {
             if (block.blockType.isBreakable()) res = block;
@@ -77,7 +77,7 @@ public class BlockIdentifier implements Comparable<BlockIdentifier> {
     /* Given a scope heirachy, and a list of blocks which are ending, which is the outermost block which is ending?
      * i.e. we want the earliest block in blocks which is also in blocksEnding.
      */
-    public static BlockIdentifier getOutermostEnding(List<BlockIdentifier> blocks, Set<BlockIdentifier> blocksEnding) {
+    public static BlockIdentifier getOutermostEnding(ObjectList<BlockIdentifier> blocks, Set<BlockIdentifier> blocksEnding) {
         for (BlockIdentifier blockIdentifier : blocks) {
             if (blocksEnding.contains(blockIdentifier)) return blockIdentifier;
         }

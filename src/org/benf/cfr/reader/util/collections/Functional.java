@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.util.collections;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 
 import java.util.*;
@@ -16,14 +17,14 @@ public class Functional {
         }
     }
 
-    public static <X> List<X> filterOptimistic(List<X> input, Predicate<X> predicate) {
-        List<X> res = null;
-        for (int x=0;x<input.size();++x) {
+    public static <X> ObjectList<X> filterOptimistic(ObjectList<X> input, Predicate<X> predicate) {
+        ObjectList<X> res = null;
+        for (int x = 0; x < input.size(); ++x) {
             X item = input.get(x);
             if (!predicate.test(item)) {
                 if (res == null) {
-                    res = new ArrayList<>();
-                    for (int y=0;y<x;++y) {
+                    res = new ObjectArrayList<>(input.size());
+                    for (int y = 0; y < x; ++y) {
                         res.add(input.get(y));
                     }
                 }
@@ -36,8 +37,8 @@ public class Functional {
         return res == null ? input : res;
     }
 
-    public static <X> List<X> filter(Collection<X> input, Predicate<X> predicate) {
-        List<X> result = new ObjectArrayList<>();
+    public static <X> ObjectList<X> filter(Collection<X> input, Predicate<X> predicate) {
+        ObjectList<X> result = new ObjectArrayList<>();
         for (X item : input) {
             if (predicate.test(item)) result.add(item);
         }
@@ -45,7 +46,7 @@ public class Functional {
     }
 
     public static <X> X findOrNull(Collection<X> input, Predicate<X> predicate) {
-        List<X> result = new ObjectArrayList<>();
+        ObjectList<X> result = new ObjectArrayList<>();
         for (X item : input) {
             if (predicate.test(item)) return item;
         }
@@ -61,7 +62,7 @@ public class Functional {
     }
 
     public static <X> boolean any(Collection<X> input, Predicate<X> predicate) {
-        List<X> result = new ObjectArrayList<>();
+        ObjectList<X> result = new ObjectArrayList<>();
         for (X item : input) {
             if (predicate.test(item)) return true;
         }
@@ -69,16 +70,16 @@ public class Functional {
     }
 
     public static <X> boolean all(Collection<X> input, Predicate<X> predicate) {
-        List<X> result = new ObjectArrayList<>();
+        ObjectList<X> result = new ObjectArrayList<>();
         for (X item : input) {
             if (!predicate.test(item)) return false;
         }
         return true;
     }
 
-    public static <X> Pair<List<X>, List<X>> partition(Collection<X> input, Predicate<X> predicate) {
-        List<X> lTrue = new ObjectArrayList<>();
-        List<X> lFalse = new ObjectArrayList<>();
+    public static <X> Pair<ObjectList<X>, ObjectList<X>> partition(Collection<X> input, Predicate<X> predicate) {
+        ObjectList<X> lTrue = new ObjectArrayList<>();
+        ObjectList<X> lFalse = new ObjectArrayList<>();
         for (X item : input) {
             if (predicate.test(item)) {
                 lTrue.add(item);
@@ -90,8 +91,8 @@ public class Functional {
     }
 
 
-    public static <X, Y> List<Y> map(Collection<X> input, Function<X, Y> function) {
-        List<Y> result = new ObjectArrayList<>();
+    public static <X, Y> ObjectList<Y> map(Collection<X> input, Function<X, Y> function) {
+        ObjectList<Y> result = new ObjectArrayList<>();
         for (X item : input) {
             result.add(function.apply(item));
         }
@@ -106,9 +107,9 @@ public class Functional {
         return result;
     }
 
-    public static <X> List<X> uniqAll(List<X> input) {
+    public static <X> ObjectList<X> uniqAll(ObjectList<X> input) {
         Set<X> found = SetFactory.newSet();
-        List<X> result = new ObjectArrayList<>();
+        ObjectList<X> result = new ObjectArrayList<>();
         for (X in : input) {
             if (found.add(in)) result.add(in);
         }
@@ -124,15 +125,19 @@ public class Functional {
         return temp;
     }
 
-    public static <Y, X> Map<Y, List<X>> groupToMapBy(Collection<X> input, Function<X, Y> mapF) {
-        Map<Y, List<X>> temp = MapFactory.newMap();
+    public static <Y, X> Map<Y, ObjectList<X>> groupToMapBy(Collection<X> input, Function<X, Y> mapF) {
+        Map<Y, ObjectList<X>> temp = MapFactory.newMap();
         return groupToMapBy(input, temp, mapF);
     }
 
-    public static <Y, X> Map<Y, List<X>> groupToMapBy(Collection<X> input, Map<Y, List<X>> tgt, Function<X, Y> mapF) {
+    public static <Y, X> Map<Y, ObjectList<X>> groupToMapBy(
+        Collection<X> input,
+        Map<Y, ObjectList<X>> tgt,
+        Function<X, Y> mapF
+    ) {
         for (X x : input) {
             Y key = mapF.apply(x);
-            List<X> lx = tgt.get(key);
+            ObjectList<X> lx = tgt.get(key);
             //noinspection Java8MapApi
             if (lx == null) {
                 lx = new ObjectArrayList<>();
@@ -143,10 +148,14 @@ public class Functional {
         return tgt;
     }
 
-    public static <Y, X> List<Y> groupBy(List<X> input, Comparator<? super X> comparator, Function<List<X>, Y> gf) {
-        TreeMap<X, List<X>> temp = new TreeMap<>(comparator);
+    public static <Y, X> ObjectList<Y> groupBy(
+        ObjectList<X> input,
+        Comparator<? super X> comparator,
+        Function<ObjectList<X>, Y> gf
+    ) {
+        TreeMap<X, ObjectList<X>> temp = new TreeMap<>(comparator);
         for (X x : input) {
-            List<X> lx = temp.get(x);
+            ObjectList<X> lx = temp.get(x);
             //noinspection Java8MapApi
             if (lx == null) {
                 lx = new ObjectArrayList<>();
@@ -154,8 +163,8 @@ public class Functional {
             }
             lx.add(x);
         }
-        List<Y> res = new ObjectArrayList<>();
-        for (List<X> lx : temp.values()) {
+        ObjectList<Y> res = new ObjectArrayList<>();
+        for (ObjectList<X> lx : temp.values()) {
             res.add(gf.apply(lx));
         }
         return res;

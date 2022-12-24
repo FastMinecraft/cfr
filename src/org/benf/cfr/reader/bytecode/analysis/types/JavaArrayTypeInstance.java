@@ -12,7 +12,7 @@ import org.benf.cfr.reader.util.output.IllegalIdentifierDump;
 import org.benf.cfr.reader.util.output.ToStringDumper;
 import org.benf.cfr.reader.util.output.TypeContext;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class JavaArrayTypeInstance implements JavaTypeInstance {
     private final int dimensions;
@@ -38,7 +38,7 @@ public class JavaArrayTypeInstance implements JavaTypeInstance {
     }
 
     class Annotated implements JavaAnnotatedTypeInstance {
-        private final List<List<AnnotationTableEntry>> entries;
+        private final ObjectList<ObjectList<AnnotationTableEntry>> entries;
         private final JavaAnnotatedTypeInstance annotatedUnderlyingType;
 
         Annotated() {
@@ -52,9 +52,9 @@ public class JavaArrayTypeInstance implements JavaTypeInstance {
         @Override
         public Dumper dump(Dumper d) {
             annotatedUnderlyingType.dump(d);
-            java.util.Iterator<List<AnnotationTableEntry>> entryIterator = entries.iterator();
+            java.util.Iterator<ObjectList<AnnotationTableEntry>> entryIterator = entries.iterator();
             while (entryIterator.hasNext()) {
-                List<AnnotationTableEntry> entry = entryIterator.next();
+                ObjectList<AnnotationTableEntry> entry = entryIterator.next();
                 if (!entry.isEmpty()) {
                     d.print(' ');
                     for (AnnotationTableEntry oneEntry : entry) {

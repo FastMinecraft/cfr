@@ -25,7 +25,7 @@ import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
 import java.util.IdentityHashMap;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.Set;
 
@@ -53,9 +53,9 @@ public class JumpsIntoLoopCloneRewriter {
      * The same can be said for do loops, however we must also test the condition.
      *
      */
-    public void rewrite(List<Op03SimpleStatement> op03SimpleParseNodes, DecompilerComments comments) {
+    public void rewrite(ObjectList<Op03SimpleStatement> op03SimpleParseNodes, DecompilerComments comments) {
 
-        List<Op03SimpleStatement> addThese = new ObjectArrayList<>();
+        ObjectList<Op03SimpleStatement> addThese = new ObjectArrayList<>();
         for (Op03SimpleStatement stm : op03SimpleParseNodes) {
             Statement statement = stm.getStatement();
             if (statement instanceof DoStatement) {
@@ -103,7 +103,7 @@ public class JumpsIntoLoopCloneRewriter {
      * } while (foo)
      * b:
      */
-    private void refactorDo(List<Op03SimpleStatement> addThese, Op03SimpleStatement stm, BlockIdentifier ident) {
+    private void refactorDo(ObjectList<Op03SimpleStatement> addThese, Op03SimpleStatement stm, BlockIdentifier ident) {
         // NB: Posslast will jump to the statement immediately FOLLOWING the do.
         Op03SimpleStatement firstContained = stm.getTargets().get(0);
         Op03SimpleStatement possLast = getPossLast(firstContained, ident);
@@ -145,7 +145,7 @@ public class JumpsIntoLoopCloneRewriter {
             copies.put(afterWhile, jumpToAfterWhile);
             copies.put(possLast, newCondition);
             Set<Op03SimpleStatement> addSources = SetFactory.newSet(newCondition, jumpToAfterWhile);
-            List<Op03SimpleStatement> copy = copyBlock(stm, caller, target, possLast, visited, ident, addSources, copies);
+            ObjectList<Op03SimpleStatement> copy = copyBlock(stm, caller, target, possLast, visited, ident, addSources, copies);
             if (copy == null || copy.isEmpty()) {
                 return;
             }
@@ -216,7 +216,7 @@ public class JumpsIntoLoopCloneRewriter {
      * }
      *
      */
-    private void refactorWhile(List<Op03SimpleStatement> addThese, Op03SimpleStatement stm, BlockIdentifier ident) {
+    private void refactorWhile(ObjectList<Op03SimpleStatement> addThese, Op03SimpleStatement stm, BlockIdentifier ident) {
         Op03SimpleStatement possLast = getPossLast(stm, ident);
         if (possLast == null) return;
         final Map<Op03SimpleStatement, Op03SimpleStatement> candidates = MapFactory.newOrderedMap();
@@ -240,7 +240,7 @@ public class JumpsIntoLoopCloneRewriter {
              * (strictly speaking, we could handle it, if we leave visited for something OUTSIDE
              * the loop - but I need testcases to prove that first!)
              */
-            List<Op03SimpleStatement> copy = copyBlock(stm, caller, target, possLast, visited, ident, SetFactory.newSet(), copies);
+            ObjectList<Op03SimpleStatement> copy = copyBlock(stm, caller, target, possLast, visited, ident, SetFactory.newSet(), copies);
             if (copy == null || copy.isEmpty()) {
                 return;
             }
@@ -278,7 +278,7 @@ public class JumpsIntoLoopCloneRewriter {
     }
 
     private void nopPointlessCondition(IfStatement newConditionStatement, Op03SimpleStatement newCondition) {
-        List<Op03SimpleStatement> targets = newCondition.getTargets();
+        ObjectList<Op03SimpleStatement> targets = newCondition.getTargets();
         Op03SimpleStatement t0 = targets.get(0);
         Op03SimpleStatement s1 = Misc.followNopGotoChain(t0, false, true);
         Op03SimpleStatement t1 = targets.get(1);
@@ -294,7 +294,7 @@ public class JumpsIntoLoopCloneRewriter {
     }
 
     private Op03SimpleStatement getPossLast(Op03SimpleStatement stm, BlockIdentifier ident) {
-        List<Op03SimpleStatement> lasts = stm.getSources();
+        ObjectList<Op03SimpleStatement> lasts = stm.getSources();
         lasts.sort(new CompareByIndex(false));
         Op03SimpleStatement possLast = lasts.get(0);
         if (!possLast.getBlockIdentifiers().contains(ident)) {
@@ -335,12 +335,12 @@ public class JumpsIntoLoopCloneRewriter {
         return gv;
     }
 
-    private List<Op03SimpleStatement> copyBlock(final Op03SimpleStatement stm, final Op03SimpleStatement caller, final Op03SimpleStatement start, final Op03SimpleStatement end, final Set<Op03SimpleStatement> valid,
+    private ObjectList<Op03SimpleStatement> copyBlock(final Op03SimpleStatement stm, final Op03SimpleStatement caller, final Op03SimpleStatement start, final Op03SimpleStatement end, final Set<Op03SimpleStatement> valid,
                                                 final BlockIdentifier containedIn,
                                                 Set<Op03SimpleStatement> addSources,
                                                 final Map<Op03SimpleStatement, Op03SimpleStatement> orig2copy
     ) {
-        final List<Op03SimpleStatement> copyThese = new ObjectArrayList<>();
+        final ObjectList<Op03SimpleStatement> copyThese = new ObjectArrayList<>();
         final boolean[] failed = { false };
         GraphVisitor<Op03SimpleStatement> gv = new GraphVisitorDFS<>(start, (arg1, arg2) -> {
             if (orig2copy.containsKey(arg1)) return;
@@ -358,7 +358,7 @@ public class JumpsIntoLoopCloneRewriter {
             return null;
         }
         copyThese.sort(new CompareByIndex());
-        List<Op03SimpleStatement> copies = new ObjectArrayList<>();
+        ObjectList<Op03SimpleStatement> copies = new ObjectArrayList<>();
         // Note - the expected blocks means that we do NOT currently allow jumping into nested structures.
         Set<BlockIdentifier> expectedBlocks = end.getBlockIdentifiers();
 
@@ -381,8 +381,8 @@ public class JumpsIntoLoopCloneRewriter {
             idx = idx.justAfter();
         }
         for (Op03SimpleStatement copyThis : copyThese) {
-            List<Op03SimpleStatement> sources = copyThis.getSources();
-            List<Op03SimpleStatement> targets = copyThis.getTargets();
+            ObjectList<Op03SimpleStatement> sources = copyThis.getSources();
+            ObjectList<Op03SimpleStatement> targets = copyThis.getTargets();
             Op03SimpleStatement copy = orig2copy.get(copyThis);
             sources = copyST(sources, orig2copy, false);
             targets = copyST(targets, orig2copy, true);
@@ -401,8 +401,8 @@ public class JumpsIntoLoopCloneRewriter {
         return copies;
     }
 
-    private List<Op03SimpleStatement> copyST(List<Op03SimpleStatement> original, Map<Op03SimpleStatement, Op03SimpleStatement> replacements, boolean failIfMissing) {
-        List<Op03SimpleStatement> res = new ObjectArrayList<>();
+    private ObjectList<Op03SimpleStatement> copyST(ObjectList<Op03SimpleStatement> original, Map<Op03SimpleStatement, Op03SimpleStatement> replacements, boolean failIfMissing) {
+        ObjectList<Op03SimpleStatement> res = new ObjectArrayList<>();
         for (Op03SimpleStatement st : original) {
             Op03SimpleStatement repl = replacements.get(st);
             if (repl == null) {

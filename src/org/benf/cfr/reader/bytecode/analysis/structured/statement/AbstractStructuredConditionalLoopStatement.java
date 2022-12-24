@@ -9,7 +9,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.scope.LValueScopeDiscov
 import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 // do / while.
 public abstract class AbstractStructuredConditionalLoopStatement extends AbstractStructuredBlockStatement {
@@ -69,7 +69,7 @@ public abstract class AbstractStructuredConditionalLoopStatement extends Abstrac
     }
 
     @Override
-    public void linearizeInto(List<StructuredStatement> out) {
+    public void linearizeInto(ObjectList<StructuredStatement> out) {
         out.add(this);
         getBody().linearizeStatementsInto(out);
     }

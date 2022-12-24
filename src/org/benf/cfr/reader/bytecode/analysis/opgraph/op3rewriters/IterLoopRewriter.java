@@ -20,7 +20,7 @@ import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -49,7 +49,7 @@ public class IterLoopRewriter {
  *
  * TODO : The tests in here are very rigid (and gross!), and need loosening up when it's working.
  */
-    private static void rewriteArrayForLoop(final Op03SimpleStatement loop, List<Op03SimpleStatement> statements) {
+    private static void rewriteArrayForLoop(final Op03SimpleStatement loop, ObjectList<Op03SimpleStatement> statements) {
 
         /*
          * loop should have one back-parent.
@@ -68,7 +68,7 @@ public class IterLoopRewriter {
         LValue originalLoopVariable = wildcardMatch.getLValueWildCard("iter").getMatch();
 
         // Assignments are fiddly, as they can be assignmentPreChange or regular Assignment.
-        List<AbstractAssignmentExpression> assignments = forStatement.getAssignments();
+        ObjectList<AbstractAssignmentExpression> assignments = forStatement.getAssignments();
         if (assignments.size() != 1) return;
         AbstractAssignmentExpression assignment = assignments.get(0);
         boolean incrMatch = assignment.isSelfMutatingOp1(originalLoopVariable, ArithOp.PLUS);
@@ -151,7 +151,7 @@ public class IterLoopRewriter {
         // It's probably valid.  We just have to make sure that array and index aren't assigned to anywhere in the loop
         // body.
         final BlockIdentifier forBlock = forStatement.getBlockIdentifier();
-        List<Op03SimpleStatement> statementsInBlock = Functional.filter(statements,
+        ObjectList<Op03SimpleStatement> statementsInBlock = Functional.filter(statements,
             in -> in.getBlockIdentifiers().contains(forBlock)
         );
 
@@ -252,7 +252,7 @@ public class IterLoopRewriter {
     }
 
 
-    public static void rewriteArrayForLoops(List<Op03SimpleStatement> statements) {
+    public static void rewriteArrayForLoops(ObjectList<Op03SimpleStatement> statements) {
         for (Op03SimpleStatement loop : Functional.filter(statements, new TypeFilter<>(ForStatement.class))) {
             rewriteArrayForLoop(loop, statements);
         }
@@ -268,7 +268,7 @@ public class IterLoopRewriter {
      * }
      */
     @SuppressWarnings("StatementWithEmptyBody")
-    private static void rewriteIteratorWhileLoop(final Op03SimpleStatement loop, List<Op03SimpleStatement> statements) {
+    private static void rewriteIteratorWhileLoop(final Op03SimpleStatement loop, ObjectList<Op03SimpleStatement> statements) {
         WhileStatement whileStatement = (WhileStatement) loop.getStatement();
 
         /*
@@ -293,7 +293,7 @@ public class IterLoopRewriter {
         JavaTypeInstance iterableType = iterable.getInferredJavaType().getJavaTypeInstance();
         JavaTypeInstance iterableContentType = null;
         if (iterableType instanceof JavaGenericRefTypeInstance) {
-            List<JavaTypeInstance> types = ((JavaGenericRefTypeInstance) iterableType).getGenericTypes();
+            ObjectList<JavaTypeInstance> types = ((JavaGenericRefTypeInstance) iterableType).getGenericTypes();
             if (types.size() == 1) {
                 iterableContentType = types.get(0);
             }
@@ -351,7 +351,7 @@ public class IterLoopRewriter {
         // It's probably valid.  We just have to make sure that array and index aren't assigned to anywhere in the loop
         // body.
         final BlockIdentifier blockIdentifier = whileStatement.getBlockIdentifier();
-        List<Op03SimpleStatement> statementsInBlock = Functional.filter(statements,
+        ObjectList<Op03SimpleStatement> statementsInBlock = Functional.filter(statements,
             in -> in.getBlockIdentifiers().contains(blockIdentifier)
         );
 
@@ -450,8 +450,8 @@ public class IterLoopRewriter {
         preceeding.nopOut();
     }
 
-    public static void rewriteIteratorWhileLoops(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> loops = Functional.filter(statements, new TypeFilter<>(WhileStatement.class));
+    public static void rewriteIteratorWhileLoops(ObjectList<Op03SimpleStatement> statements) {
+        ObjectList<Op03SimpleStatement> loops = Functional.filter(statements, new TypeFilter<>(WhileStatement.class));
         for (Op03SimpleStatement loop : loops) {
             rewriteIteratorWhileLoop(loop, statements);
         }

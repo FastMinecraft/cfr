@@ -10,6 +10,8 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.LinkedList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
+
 import java.util.List;
 import java.util.Set;
 
@@ -28,8 +30,8 @@ public class FinallyCatchBody {
         this.bodySet = SetFactory.newOrderedSet(body);
     }
 
-    public static FinallyCatchBody build(Op03SimpleStatement catchStart, List<Op03SimpleStatement> allStatements) {
-        List<Op03SimpleStatement> targets = catchStart.getTargets();
+    public static FinallyCatchBody build(Op03SimpleStatement catchStart, ObjectList<Op03SimpleStatement> allStatements) {
+        ObjectList<Op03SimpleStatement> targets = catchStart.getTargets();
         if (targets.size() != 1) {
             return null;
         }

@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.entities;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.CodeAnalyserWholeClass;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.ConstructorInvokationAnonymousInner;
@@ -51,12 +52,12 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
 
     private final ConstantPool constantPool;
     private final Set<AccessFlag> accessFlags;
-    private final List<ClassFileField> fields;
+    private final ObjectList<ClassFileField> fields;
     private Map<String, Map<JavaTypeInstance, ClassFileField>> fieldsByName; // Lazily populated if interrogated.
 
-    private final List<Method> methods;
+    private final ObjectList<Method> methods;
     private FakeMethods fakeMethods;
-    private Map<String, List<Method>> methodsByName; // Lazily populated if interrogated.
+    private Map<String, ObjectList<Method>> methodsByName; // Lazily populated if interrogated.
     private final boolean isInnerClass;
     private final Map<JavaTypeInstance, Pair<InnerClassAttributeInfo, ClassFile>> innerClassesByTypeInfo; // populated if analysed.
 
@@ -65,7 +66,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
     @SuppressWarnings("FieldCanBeLocal")
     private final ConstantPoolEntryClass rawSuperClass;
     @SuppressWarnings("FieldCanBeLocal")
-    private final List<ConstantPoolEntryClass> rawInterfaces;
+    private final ObjectList<ConstantPoolEntryClass> rawInterfaces;
     private final ClassSignature classSignature;
     private ClassFileVersion classFileVersion;
     private DecompilerComments decompilerComments;
@@ -117,7 +118,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         final long OFFSET_OF_INTERFACES = OFFSET_OF_INTERFACES_COUNT + 2;
 
         int numInterfaces = data.getU2At(OFFSET_OF_INTERFACES_COUNT);
-        ArrayList<ConstantPoolEntryClass> tmpInterfaces = new ArrayList<>();
+        ObjectArrayList<ConstantPoolEntryClass> tmpInterfaces = new ObjectArrayList<>();
         ContiguousEntityFactory.buildSized(data.getOffsetData(OFFSET_OF_INTERFACES),
             (short) numInterfaces,
             2,
@@ -136,7 +137,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         final long OFFSET_OF_FIELDS_COUNT = OFFSET_OF_INTERFACES + 2L * numInterfaces;
         final long OFFSET_OF_FIELDS = OFFSET_OF_FIELDS_COUNT + 2;
         final int numFields = data.getU2At(OFFSET_OF_FIELDS_COUNT);
-        List<Field> tmpFields = new ObjectArrayList<>();
+        ObjectList<Field> tmpFields = new ObjectArrayList<>();
         final long fieldsLength = ContiguousEntityFactory.build(data.getOffsetData(OFFSET_OF_FIELDS),
             numFields,
             tmpFields,
@@ -151,7 +152,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         final long OFFSET_OF_METHODS_COUNT = OFFSET_OF_FIELDS + fieldsLength;
         final long OFFSET_OF_METHODS = OFFSET_OF_METHODS_COUNT + 2;
         final int numMethods = data.getU2At(OFFSET_OF_METHODS_COUNT);
-        List<Method> tmpMethods = new ArrayList<>(numMethods);
+        ObjectList<Method> tmpMethods = new ObjectArrayList<>(numMethods);
         final long methodsLength = ContiguousEntityFactory.build(data.getOffsetData(OFFSET_OF_METHODS),
             numMethods,
             tmpMethods,
@@ -176,8 +177,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         final long OFFSET_OF_ATTRIBUTES_COUNT = OFFSET_OF_METHODS + methodsLength;
         final long OFFSET_OF_ATTRIBUTES = OFFSET_OF_ATTRIBUTES_COUNT + 2;
         final int numAttributes = data.getU2At(OFFSET_OF_ATTRIBUTES_COUNT);
-        ArrayList<Attribute> tmpAttributes = new ArrayList<>();
-        tmpAttributes.ensureCapacity(numAttributes);
+        ObjectList<Attribute> tmpAttributes = new ObjectArrayList<>(numAttributes);
         ContiguousEntityFactory.build(data.getOffsetData(OFFSET_OF_ATTRIBUTES), numAttributes, tmpAttributes,
             AttributeFactory.getBuilder(constantPool, classFileVersion)
         );
@@ -313,7 +313,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
      */
     private void fixConfusingEnumConstructors() {
         if (testAccessFlag(AccessFlag.ACC_ENUM) && TypeConstants.ENUM.equals(getBaseClassType())) {
-            List<Method> constructors = getConstructors();
+            ObjectList<Method> constructors = getConstructors();
             for (Method constructor : constructors) {
                 MethodPrototype prototype = constructor.getMethodPrototype();
                 prototype.unbreakEnumConstructor();
@@ -402,8 +402,8 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         return fakeMethods.add(key, nameHint, methodFactory);
     }
 
-    public List<JavaTypeInstance> getAllClassTypes() {
-        List<JavaTypeInstance> res = new ObjectArrayList<>();
+    public ObjectList<JavaTypeInstance> getAllClassTypes() {
+        ObjectList<JavaTypeInstance> res = new ObjectArrayList<>();
         getAllClassTypes(res);
         return res;
     }
@@ -435,7 +435,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         }
     }
 
-    private void getAllClassTypes(List<JavaTypeInstance> tgt) {
+    private void getAllClassTypes(ObjectList<JavaTypeInstance> tgt) {
         tgt.add(getClassType());
         for (Pair<InnerClassAttributeInfo, ClassFile> pair : innerClassesByTypeInfo.values()) {
             pair.getSecond().getAllClassTypes(tgt);
@@ -470,7 +470,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
     }
 
     public boolean hasFormalTypeParameters() {
-        List<FormalTypeParameter> formalTypeParameters = classSignature.formalTypeParameters();
+        ObjectList<FormalTypeParameter> formalTypeParameters = classSignature.formalTypeParameters();
         return formalTypeParameters != null && !formalTypeParameters.isEmpty();
     }
 
@@ -574,19 +574,19 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         }
     }
 
-    public List<ClassFileField> getFields() {
+    public ObjectList<ClassFileField> getFields() {
         return fields;
     }
 
-    public List<Method> getMethods() {
+    public ObjectList<Method> getMethods() {
         return methods;
     }
 
-    private List<Method> getMethodsWithMatchingName(final MethodPrototype prototype) {
+    private ObjectList<Method> getMethodsWithMatchingName(final MethodPrototype prototype) {
         return Functional.filter(methods, in -> in.getName().equals(prototype.getName()));
     }
 
-    private void collectMethods(MethodPrototype prototype, List<Method> tgt, Set<JavaTypeInstance> seen) {
+    private void collectMethods(MethodPrototype prototype, ObjectList<Method> tgt, Set<JavaTypeInstance> seen) {
         tgt.addAll(getMethodsWithMatchingName(prototype));
         if (classSignature == null) return;
         collectTypeMethods(prototype, tgt, seen, classSignature.superClass());
@@ -597,7 +597,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
 
     private void collectTypeMethods(
         MethodPrototype prototype,
-        List<Method> tgt,
+        ObjectList<Method> tgt,
         Set<JavaTypeInstance> seen,
         JavaTypeInstance clazz
     ) {
@@ -626,7 +626,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
          */
         final boolean isInstance = prototype.isInstanceMethod();
         final int numArgs = prototype.getArgs().size();
-        List<Method> named = new ObjectArrayList<>();
+        ObjectList<Method> named = new ObjectArrayList<>();
         collectMethods(prototype, named, SetFactory.newIdentitySet());
         final boolean isVarArgs = (prototype.isVarArgs());
         named = Functional.filter(named, in -> {
@@ -643,14 +643,14 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
             }
             return (other.getArgs().size() == numArgs);
         });
-        List<MethodPrototype> prototypes = Functional.map(named, Method::getMethodPrototype);
+        ObjectList<MethodPrototype> prototypes = Functional.map(named, Method::getMethodPrototype);
         /*
          * Remove TOTAL duplicates - those with identical toStrings.
          * TODO : Better way?
          *
          * Why does stringBuilder appear to have duplicate methods?
          */
-        List<MethodPrototype> out = new ObjectArrayList<>();
+        ObjectList<MethodPrototype> out = new ObjectArrayList<>();
         Set<String> matched = SetFactory.newSet();
         out.add(prototype);
         matched.add(prototype.getComparableString());
@@ -676,7 +676,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
     }
 
     public Method getMethodByPrototypeOrNull(final MethodPrototype prototype) {
-        List<Method> named = getMethodsWithMatchingName(prototype);
+        ObjectList<Method> named = getMethodsWithMatchingName(prototype);
         Method methodMatch = null;
         for (Method method : named) {
             MethodPrototype tgt = method.getMethodPrototype();
@@ -693,7 +693,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         GenericTypeBinder binder,
         JavaRefTypeInstance accessor
     ) throws NoSuchMethodException {
-        List<Method> named = getMethodsWithMatchingName(prototype);
+        ObjectList<Method> named = getMethodsWithMatchingName(prototype);
         Method methodMatch = null;
         for (Method method : named) {
             if (!method.isVisibleTo(accessor)) continue;
@@ -711,16 +711,16 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
 
 
     public Method getSingleMethodByNameOrNull(String name) {
-        List<Method> methodList = getMethodsByNameOrNull(name);
+        ObjectList<Method> methodList = getMethodsByNameOrNull(name);
         if (methodList == null || methodList.size() != 1) return null;
         return methodList.get(0);
     }
 
-    public List<Method> getMethodsByNameOrNull(String name) {
+    public ObjectList<Method> getMethodsByNameOrNull(String name) {
         if (methodsByName == null) {
             methodsByName = MapFactory.newMap();
             for (Method method : methods) {
-                List<Method> list = methodsByName.get(method.getName());
+                ObjectList<Method> list = methodsByName.get(method.getName());
                 //noinspection Java8MapApi
                 if (list == null) {
                     list = new ObjectArrayList<>();
@@ -732,15 +732,15 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         return methodsByName.get(name);
     }
 
-    public List<Method> getMethodByName(String name) throws NoSuchMethodException {
-        List<Method> methods = getMethodsByNameOrNull(name);
+    public ObjectList<Method> getMethodByName(String name) throws NoSuchMethodException {
+        ObjectList<Method> methods = getMethodsByNameOrNull(name);
         if (methods == null) throw new NoSuchMethodException(name);
         return methods;
     }
 
 
-    public List<Method> getConstructors() {
-        List<Method> res = new ObjectArrayList<>();
+    public ObjectList<Method> getConstructors() {
+        ObjectList<Method> res = new ObjectArrayList<>();
         for (Method method : methods) {
             if (method.isConstructor()) res.add(method);
         }
@@ -818,7 +818,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
     }
 
     private boolean testIsInnerClass(DCCommonState dcCommonState) {
-        List<InnerClassAttributeInfo> innerClassAttributeInfoList = getInnerClassAttributeInfos(dcCommonState);
+        ObjectList<InnerClassAttributeInfo> innerClassAttributeInfoList = getInnerClassAttributeInfos(dcCommonState);
         if (innerClassAttributeInfoList == null) return false;
         final JavaTypeInstance thisType = thisClass.getTypeInstance();
 
@@ -831,7 +831,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
 
     // just after construction
     public void loadInnerClasses(DCCommonState dcCommonState) {
-        List<InnerClassAttributeInfo> innerClassAttributeInfoList = getInnerClassAttributeInfos(dcCommonState);
+        ObjectList<InnerClassAttributeInfo> innerClassAttributeInfoList = getInnerClassAttributeInfos(dcCommonState);
         if (innerClassAttributeInfoList == null) return;
 
         final JavaTypeInstance thisType = thisClass.getTypeInstance();
@@ -875,9 +875,9 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         }
     }
 
-    private List<InnerClassAttributeInfo> getInnerClassAttributeInfos(DCCommonState state) {
+    private ObjectList<InnerClassAttributeInfo> getInnerClassAttributeInfos(DCCommonState state) {
         AttributeInnerClasses attributeInnerClasses = attributes.getByName(AttributeInnerClasses.ATTRIBUTE_NAME);
-        List<InnerClassAttributeInfo> innerClassAttributeInfoList = attributeInnerClasses == null ? null : attributeInnerClasses.getInnerClassAttributeInfoList();
+        ObjectList<InnerClassAttributeInfo> innerClassAttributeInfoList = attributeInnerClasses == null ? null : attributeInnerClasses.getInnerClassAttributeInfoList();
         if (innerClassAttributeInfoList != null) {
             return innerClassAttributeInfoList;
         }
@@ -943,7 +943,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         try {
             BindingSuperContainer bindingSuperContainer = getBindingSupers();
             Map<JavaRefTypeInstance, JavaGenericRefTypeInstance> boundSupers = bindingSuperContainer.getBoundSuperClasses();
-            List<Triplet<JavaRefTypeInstance, ClassFile, GenericTypeBinder>> bindTesters = new ObjectArrayList<>();
+            ObjectList<Triplet<JavaRefTypeInstance, ClassFile, GenericTypeBinder>> bindTesters = new ObjectArrayList<>();
             for (Map.Entry<JavaRefTypeInstance, JavaGenericRefTypeInstance> entry : boundSupers.entrySet()) {
                 JavaRefTypeInstance superC = entry.getKey();
                 if (superC.equals(getClassType())) continue;
@@ -1009,7 +1009,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
          * While we're going to consider the methods in order, analyse synthetic methods first
          * so that we can tag them.
          */
-        Pair<List<Method>, List<Method>> partition = Functional.partition(
+        Pair<ObjectList<Method>, ObjectList<Method>> partition = Functional.partition(
             methods,
             x -> x.getAccessFlags().contains(AccessFlagMethod.ACC_SYNTHETIC)
         );
@@ -1074,7 +1074,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
     private ClassSignature getSignature(
         ConstantPool cp,
         ConstantPoolEntryClass rawSuperClass,
-        List<ConstantPoolEntryClass> rawInterfaces
+        ObjectList<ConstantPoolEntryClass> rawInterfaces
     ) {
         AttributeSignature signatureAttribute = attributes.getByName(AttributeSignature.ATTRIBUTE_NAME);
 
@@ -1097,7 +1097,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         }
         // If the class isn't generic (or has had the attribute removed, or corrupted), we have to use the
         // runtime type info.
-        List<JavaTypeInstance> interfaces = new ObjectArrayList<>();
+        ObjectList<JavaTypeInstance> interfaces = new ObjectArrayList<>();
         for (ConstantPoolEntryClass rawInterface : rawInterfaces) {
             interfaces.add(rawInterface.getTypeInstance());
         }
@@ -1163,7 +1163,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         Function<Integer, Predicate<AnnotationTableTypeEntry>> typeBoundAnnPredicateFact,
         Dumper d
     ) {
-        List<FormalTypeParameter> formalTypeParameters = signature.formalTypeParameters();
+        ObjectList<FormalTypeParameter> formalTypeParameters = signature.formalTypeParameters();
         if (formalTypeParameters == null || formalTypeParameters.isEmpty()) return;
         d.separator("<");
         boolean first = true;
@@ -1171,11 +1171,11 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
             FormalTypeParameter formalTypeParameter = formalTypeParameters.get(idx);
             first = StringUtils.comma(first, d);
             if (ah != null) {
-                List<AnnotationTableTypeEntry> typeAnnotations = Functional.filter(
+                ObjectList<AnnotationTableTypeEntry> typeAnnotations = Functional.filter(
                     ah.getEntries(),
                     typeAnnPredicateFact.apply(idx)
                 );
-                List<AnnotationTableTypeEntry> typeBoundAnnotations = Functional.filter(
+                ObjectList<AnnotationTableTypeEntry> typeBoundAnnotations = Functional.filter(
                     ah.getEntries(),
                     typeBoundAnnPredicateFact.apply(idx)
                 );
@@ -1190,13 +1190,13 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         d.print(">");
     }
 
-    public void dumpReceiverClassIdentity(List<AnnotationTableTypeEntry> recieverAnnotations, Dumper d) {
-        Pair<List<AnnotationTableTypeEntry>, List<AnnotationTableTypeEntry>> split = Functional.partition(
+    public void dumpReceiverClassIdentity(ObjectList<AnnotationTableTypeEntry> recieverAnnotations, Dumper d) {
+        Pair<ObjectList<AnnotationTableTypeEntry>, ObjectList<AnnotationTableTypeEntry>> split = Functional.partition(
             recieverAnnotations,
             in -> in.getTypePath().segments().isEmpty()
         );
-        List<AnnotationTableTypeEntry> pre = split.getFirst();
-        List<AnnotationTableTypeEntry> type = split.getSecond();
+        ObjectList<AnnotationTableTypeEntry> pre = split.getFirst();
+        ObjectList<AnnotationTableTypeEntry> type = split.getSecond();
         if (!pre.isEmpty()) {
             pre.get(0).dump(d);
             d.print(" ");
@@ -1216,7 +1216,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
             /*
              * If all the classes are inner classes of this, we don't display.
              */
-            List<JavaTypeInstance> permittedClasses = permitted.getPermitted();
+            ObjectList<JavaTypeInstance> permittedClasses = permitted.getPermitted();
             boolean allInner = true;
             JavaTypeInstance classType = getClassType();
             for (JavaTypeInstance type : permittedClasses) {
@@ -1415,9 +1415,9 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         classFile.getBoundSuperClasses(boundBase, boundSuperCollector, route, seen);
     }
 
-    private final List<ConstructorInvokationAnonymousInner> anonymousUsages = new ObjectArrayList<>();
+    private final ObjectList<ConstructorInvokationAnonymousInner> anonymousUsages = new ObjectArrayList<>();
 
-    private final List<ConstructorInvokationSimple> methodUsages = new ObjectArrayList<>();
+    private final ObjectList<ConstructorInvokationSimple> methodUsages = new ObjectArrayList<>();
 
     public void noteAnonymousUse(ConstructorInvokationAnonymousInner anoynmousInner) {
         anonymousUsages.add(anoynmousInner);
@@ -1427,11 +1427,11 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         methodUsages.add(constructorCall);
     }
 
-    public List<ConstructorInvokationAnonymousInner> getAnonymousUsages() {
+    public ObjectList<ConstructorInvokationAnonymousInner> getAnonymousUsages() {
         return anonymousUsages;
     }
 
-    public List<ConstructorInvokationSimple> getMethodUsages() {
+    public ObjectList<ConstructorInvokationSimple> getMethodUsages() {
         return methodUsages;
     }
 
@@ -1449,7 +1449,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         return attributes;
     }
 
-    public List<FakeMethod> getMethodFakes() {
+    public ObjectList<FakeMethod> getMethodFakes() {
         return (fakeMethods == null) ? null : fakeMethods.getMethods();
     }
 }

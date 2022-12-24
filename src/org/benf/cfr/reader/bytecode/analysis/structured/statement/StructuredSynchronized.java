@@ -11,7 +11,7 @@ import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class StructuredSynchronized extends AbstractStructuredBlockStatement {
     private Expression monitor;
@@ -55,7 +55,7 @@ public class StructuredSynchronized extends AbstractStructuredBlockStatement {
     }
 
     @Override
-    public void linearizeInto(List<StructuredStatement> out) {
+    public void linearizeInto(ObjectList<StructuredStatement> out) {
         out.add(this);
         getBody().linearizeStatementsInto(out);
     }

@@ -12,7 +12,7 @@ import org.benf.cfr.reader.entities.exceptions.ExceptionGroup;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 public class TryStatement extends AbstractStatement {
@@ -74,7 +74,7 @@ public class TryStatement extends AbstractStatement {
         return exceptionGroup.getTryBlockIdentifier();
     }
 
-    public List<ExceptionGroup.Entry> getEntries() {
+    public ObjectList<ExceptionGroup.Entry> getEntries() {
         return exceptionGroup.getEntries();
     }
 

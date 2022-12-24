@@ -15,7 +15,7 @@ import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class StructuredIter extends AbstractStructuredBlockStatement {
     private final BlockIdentifier block;
@@ -57,7 +57,7 @@ public class StructuredIter extends AbstractStructuredBlockStatement {
     }
 
     @Override
-    public void linearizeInto(List<StructuredStatement> out) {
+    public void linearizeInto(ObjectList<StructuredStatement> out) {
         out.add(this);
         getBody().linearizeStatementsInto(out);
     }
@@ -107,7 +107,7 @@ public class StructuredIter extends AbstractStructuredBlockStatement {
     }
 
     @Override
-    public List<LValue> findCreatedHere() {
+    public ObjectList<LValue> findCreatedHere() {
         if (!(iterator instanceof LocalVariable)) return null;
         return ObjectList.of(new LValue[]{ iterator });
     }

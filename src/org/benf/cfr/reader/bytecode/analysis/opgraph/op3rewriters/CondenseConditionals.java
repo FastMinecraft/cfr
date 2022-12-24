@@ -9,7 +9,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.lvalue.StackSSALabel;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.*;
 import org.benf.cfr.reader.util.collections.Functional;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class CondenseConditionals {
     /*
@@ -44,7 +44,7 @@ public class CondenseConditionals {
      * also
      * /Users/lee/code/java/cfr_tests/out/production/cfr_tests/org/benf/cfr/tests/ShortCircuitAssignTest7.class
      */
-    public static boolean condenseConditionals(List<Op03SimpleStatement> statements) {
+    public static boolean condenseConditionals(ObjectList<Op03SimpleStatement> statements) {
         boolean effect = false;
         for (int x = 0; x < statements.size(); ++x) {
             boolean retry;
@@ -175,8 +175,8 @@ public class CondenseConditionals {
         return true;
     }
 
-    public static boolean condenseConditionals2(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> ifStatements = Functional.filter(statements, new TypeFilter<>(IfStatement.class));
+    public static boolean condenseConditionals2(ObjectList<Op03SimpleStatement> statements) {
+        ObjectList<Op03SimpleStatement> ifStatements = Functional.filter(statements, new TypeFilter<>(IfStatement.class));
         boolean result = false;
         for (Op03SimpleStatement ifStatement : ifStatements) {
             // separated for stepping
@@ -210,7 +210,7 @@ public class CondenseConditionals {
    S4 NOP // unjoined
 
      */
-    private static boolean condenseConditional2_type3(Op03SimpleStatement ifStatement, List<Op03SimpleStatement> allStatements) {
+    private static boolean condenseConditional2_type3(Op03SimpleStatement ifStatement, ObjectList<Op03SimpleStatement> allStatements) {
         Statement s1 = ifStatement.getStatement();
         if (s1.getClass() != IfStatement.class) return false;
         Op03SimpleStatement s4c = ifStatement.getTargets().get(1);
@@ -333,7 +333,7 @@ public class CondenseConditionals {
      *
      * c:
      */
-    private static boolean condenseConditional2_type1(Op03SimpleStatement ifStatement, List<Op03SimpleStatement> allStatements) {
+    private static boolean condenseConditional2_type1(Op03SimpleStatement ifStatement, ObjectList<Op03SimpleStatement> allStatements) {
         if (!(ifStatement.getStatement() instanceof IfStatement if1)) return false;
 
         final Op03SimpleStatement taken1 = ifStatement.getTargets().get(1);

@@ -9,7 +9,7 @@ import org.benf.cfr.reader.util.StringUtils;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class ClassFileDumperRecord extends AbstractClassFileDumper {
 
@@ -27,7 +27,7 @@ public class ClassFileDumperRecord extends AbstractClassFileDumper {
         d.keyword("record ");
         c.dumpClassIdentity(d);
         d.print("(");
-        List<ClassFileField> fields = Functional.filter(c.getFields(),
+        ObjectList<ClassFileField> fields = Functional.filter(c.getFields(),
             in -> !in.getField().testAccessFlag(AccessFlag.ACC_STATIC)
         );
         boolean first = true;
@@ -55,7 +55,7 @@ public class ClassFileDumperRecord extends AbstractClassFileDumper {
         d.indent(1);
         boolean first = true;
 
-        List<ClassFileField> fields = classFile.getFields();
+        ObjectList<ClassFileField> fields = classFile.getFields();
         for (ClassFileField field : fields) {
             if (!field.shouldNotDisplay()) {
                 field.dump(d, classFile);

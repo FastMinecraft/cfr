@@ -10,7 +10,7 @@ import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import java.util.function.Predicate;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 public class PushThroughGoto {
@@ -35,8 +35,8 @@ public class PushThroughGoto {
      * We only do this for linear statements, we'd need a structured transform to do something better.
      * (at op4 stage).
      */
-    public static List<Op03SimpleStatement> pushThroughGoto(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> pathtests = Functional.filter(statements, new ExactTypeFilter<>(GotoStatement.class));
+    public static ObjectList<Op03SimpleStatement> pushThroughGoto(ObjectList<Op03SimpleStatement> statements) {
+        ObjectList<Op03SimpleStatement> pathtests = Functional.filter(statements, new ExactTypeFilter<>(GotoStatement.class));
         boolean success = false;
         for (Op03SimpleStatement gotostm : pathtests) {
             if (gotostm.getTargets().get(0).getIndex().isBackJumpTo(gotostm)) {
@@ -57,7 +57,7 @@ public class PushThroughGoto {
     }
 
 
-    private static boolean pushThroughGoto(Op03SimpleStatement forwardGoto, List<Op03SimpleStatement> statements) {
+    private static boolean pushThroughGoto(Op03SimpleStatement forwardGoto, ObjectList<Op03SimpleStatement> statements) {
 
         if (forwardGoto.getSources().size() != 1) return false;
 

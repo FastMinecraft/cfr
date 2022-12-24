@@ -33,6 +33,8 @@ import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
 import java.util.LinkedList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
+
 import java.util.List;
 import java.util.Map;
 
@@ -55,10 +57,10 @@ public class SwitchEnumRewriter implements Op04Rewriter {
         Options options = dcCommonState.getOptions();
         if (!options.getOption(OptionsImpl.ENUM_SWITCH, classFileVersion)) return;
 
-        List<StructuredStatement> structuredStatements = MiscStatementTools.linearise(root);
+        ObjectList<StructuredStatement> structuredStatements = MiscStatementTools.linearise(root);
         if (structuredStatements == null) return;
 
-        List<StructuredStatement> switchStatements = Functional.filter(structuredStatements,
+        ObjectList<StructuredStatement> switchStatements = Functional.filter(structuredStatements,
             in -> in.getClass() == StructuredSwitch.class
         );
         WildcardMatch wcm = new WildcardMatch();
@@ -87,7 +89,7 @@ public class SwitchEnumRewriter implements Op04Rewriter {
 
         // We also have the vanishingly unlikely but quite silly case of switching on a literal with no content.
         // See switchTest23
-        List<StructuredStatement> expressionStatements = Functional.filter(structuredStatements,
+        ObjectList<StructuredStatement> expressionStatements = Functional.filter(structuredStatements,
             in -> in.getClass() == StructuredExpressionStatement.class
         );
         if (!expressionStatements.isEmpty()) {
@@ -160,7 +162,7 @@ public class SwitchEnumRewriter implements Op04Rewriter {
         }
         Method meth = null;
         try {
-            List<Method> methods = this.classFile.getMethodByName(lookupFn.getName());
+            ObjectList<Method> methods = this.classFile.getMethodByName(lookupFn.getName());
             if (methods.size() == 1) {
                 meth = methods.get(0);
                 if (!meth.getMethodPrototype().getArgs().isEmpty()) {
@@ -181,7 +183,7 @@ public class SwitchEnumRewriter implements Op04Rewriter {
             return;
         }
 
-        List<StructuredStatement> structuredStatements = getLookupMethodStatements(meth);
+        ObjectList<StructuredStatement> structuredStatements = getLookupMethodStatements(meth);
         if (structuredStatements == null) return;
 
         WildcardMatch wcm1 = new WildcardMatch();
@@ -335,7 +337,7 @@ public class SwitchEnumRewriter implements Op04Rewriter {
         } catch (NoSuchMethodException e) {
             return;
         }
-        List<StructuredStatement> structuredStatements = getLookupMethodStatements(lutStaticInit);
+        ObjectList<StructuredStatement> structuredStatements = getLookupMethodStatements(lutStaticInit);
         if (structuredStatements == null) return;
 
 
@@ -406,8 +408,8 @@ public class SwitchEnumRewriter implements Op04Rewriter {
                 if (!(caseInner instanceof StructuredCase caseStmt)) {
                     return true;
                 }
-                List<Expression> values = caseStmt.getValues();
-                List<Expression> newValues = new ObjectArrayList<>();
+                ObjectList<Expression> values = caseStmt.getValues();
+                ObjectList<Expression> newValues = new ObjectArrayList<>();
                 for (Expression value : values) {
                     Integer iVal = getIntegerFromLiteralExpression(value);
                     if (iVal == null) {
@@ -471,10 +473,10 @@ public class SwitchEnumRewriter implements Op04Rewriter {
         ));
     }
 
-    private List<StructuredStatement> getLookupMethodStatements(Method lutStaticInit) {
+    private ObjectList<StructuredStatement> getLookupMethodStatements(Method lutStaticInit) {
         Op04StructuredStatement lutStaticInitCode = lutStaticInit.getAnalysis();
 
-        List<StructuredStatement> structuredStatements = MiscStatementTools.linearise(lutStaticInitCode);
+        ObjectList<StructuredStatement> structuredStatements = MiscStatementTools.linearise(lutStaticInitCode);
         if (structuredStatements == null) return null;
         // Filter out the comments.
         structuredStatements = Functional.filter(structuredStatements, in -> !(in instanceof StructuredComment));

@@ -9,7 +9,7 @@ import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.DumperFactory;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class Main {
 
@@ -27,9 +27,9 @@ public class Main {
         GetOptParser getOptParser = new GetOptParser();
 
         Options options = null;
-        List<String> files = null;
+        ObjectList<String> files = null;
         try {
-            Pair<List<String>, Options> processedArgs = getOptParser.parse(args, OptionsImpl.getFactory());
+            Pair<ObjectList<String>, Options> processedArgs = getOptParser.parse(args, OptionsImpl.getFactory());
             files = processedArgs.getFirst();
             options = processedArgs.getSecond();
             if (files.size() == 0) {

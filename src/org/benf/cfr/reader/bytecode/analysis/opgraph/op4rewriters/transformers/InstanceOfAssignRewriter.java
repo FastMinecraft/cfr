@@ -25,7 +25,7 @@ import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.RawJavaType;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class InstanceOfAssignRewriter {
     private static final InferredJavaType ijtBool = new InferredJavaType(RawJavaType.BOOLEAN, InferredJavaType.Source.EXPRESSION);
@@ -34,7 +34,7 @@ public class InstanceOfAssignRewriter {
     private final LValue scopedEntity;
     private final WildcardMatch.LValueWildcard objWildcard;
     private final WildcardMatch.LValueWildcard tmpWildcard;
-    private final List<ConditionTest> tests;
+    private final ObjectList<ConditionTest> tests;
 
     public static boolean hasInstanceOf(ConditionalExpression conditionalExpression) {
         InstanceOfSearch search = new InstanceOfSearch();

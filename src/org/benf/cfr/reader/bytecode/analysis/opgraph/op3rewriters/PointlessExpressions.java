@@ -12,13 +12,13 @@ import org.benf.cfr.reader.bytecode.analysis.parse.statement.ExpressionStatement
 import org.benf.cfr.reader.entities.exceptions.ExceptionCheckSimple;
 import org.benf.cfr.reader.util.collections.Functional;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class PointlessExpressions {
 
     // Expression statements which can't have any effect can be removed.
-    static void removePointlessExpressionStatements(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> exrps = Functional.filter(statements, new TypeFilter<>(ExpressionStatement.class));
+    static void removePointlessExpressionStatements(ObjectList<Op03SimpleStatement> statements) {
+        ObjectList<Op03SimpleStatement> exrps = Functional.filter(statements, new TypeFilter<>(ExpressionStatement.class));
         for (Op03SimpleStatement esc : exrps) {
             ExpressionStatement es = (ExpressionStatement) esc.getStatement();
             Expression expression = es.getExpression();
@@ -26,7 +26,7 @@ public class PointlessExpressions {
                 esc.nopOut();
             }
         }
-        List<Op03SimpleStatement> sas = Functional.filter(statements, new TypeFilter<>(AssignmentSimple.class));
+        ObjectList<Op03SimpleStatement> sas = Functional.filter(statements, new TypeFilter<>(AssignmentSimple.class));
         for (Op03SimpleStatement ass : sas) {
             AssignmentSimple assignmentSimple = (AssignmentSimple) ass.getStatement();
             LValue lValue = assignmentSimple.getCreatedLValue();

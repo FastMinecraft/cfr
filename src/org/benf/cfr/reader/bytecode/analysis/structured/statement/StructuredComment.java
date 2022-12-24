@@ -12,7 +12,7 @@ import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers.S
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class StructuredComment extends AbstractStructuredStatement {
     public static final StructuredComment EMPTY_COMMENT = new StructuredComment("");
@@ -57,7 +57,7 @@ public class StructuredComment extends AbstractStructuredStatement {
 
     // Lose the comments.
     @Override
-    public void linearizeInto(List<StructuredStatement> out) {
+    public void linearizeInto(ObjectList<StructuredStatement> out) {
     }
 
     @Override

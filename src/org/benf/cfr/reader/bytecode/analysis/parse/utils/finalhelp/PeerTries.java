@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.utils.finalhelp;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.TryStatement;
@@ -108,7 +109,7 @@ public class PeerTries {
         return toProcess.removeFirst();
     }
 
-    List<PeerTrySet> getPeerTryGroups() {
+    ObjectList<PeerTrySet> getPeerTryGroups() {
         return new ObjectArrayList<>(triesByLevel.values());
     }
 

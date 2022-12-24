@@ -7,7 +7,7 @@ import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryClass;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class AttributePermittedSubclasses extends Attribute {
     public static final String ATTRIBUTE_NAME = "PermittedSubclasses";
@@ -18,7 +18,7 @@ public class AttributePermittedSubclasses extends Attribute {
     private static final long OFFSET_OF_ENTRIES = 8;
 
     private final int length;
-    private final List<JavaTypeInstance> entries;
+    private final ObjectList<JavaTypeInstance> entries;
 
     public AttributePermittedSubclasses(ByteData raw, ConstantPool cp) {
         this.length = raw.getS4At(OFFSET_OF_ATTRIBUTE_LENGTH);
@@ -33,7 +33,7 @@ public class AttributePermittedSubclasses extends Attribute {
         }
     }
 
-    public List<JavaTypeInstance> getPermitted() {
+    public ObjectList<JavaTypeInstance> getPermitted() {
         return entries;
     }
 

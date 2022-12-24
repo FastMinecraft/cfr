@@ -8,7 +8,7 @@ import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class ClassFileDumperNormal extends AbstractClassFileDumper {
 
@@ -60,7 +60,7 @@ public class ClassFileDumperNormal extends AbstractClassFileDumper {
         d.indent(1);
         boolean first = true;
 
-        List<ClassFileField> fields = classFile.getFields();
+        ObjectList<ClassFileField> fields = classFile.getFields();
         for (ClassFileField field : fields) {
             if (!field.shouldNotDisplay()) {
                 field.dump(d, classFile);

@@ -2,7 +2,7 @@ package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class LinearScannedBlock {
     private final Op03SimpleStatement first;
@@ -45,7 +45,7 @@ public class LinearScannedBlock {
      * We know the start and end statements are still correct, but they might
      * have moved - if they have, get their new indices.
      */
-    public void reindex(List<Op03SimpleStatement> in) {
+    public void reindex(ObjectList<Op03SimpleStatement> in) {
         if (in.get(idxFirst) != first) idxFirst = in.indexOf(first);
         if (in.get(idxLast) != last) idxLast = in.indexOf(last);
     }

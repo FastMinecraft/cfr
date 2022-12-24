@@ -54,7 +54,7 @@ import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.lambda.LambdaUtils;
 
 import java.util.LinkedList;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 
 public class LambdaRewriter implements Op04Rewriter, ExpressionRewriter {
@@ -74,7 +74,7 @@ public class LambdaRewriter implements Op04Rewriter, ExpressionRewriter {
 
     @Override
     public void rewrite(Op04StructuredStatement root) {
-        List<StructuredStatement> structuredStatements = MiscStatementTools.linearise(root);
+        ObjectList<StructuredStatement> structuredStatements = MiscStatementTools.linearise(root);
         if (structuredStatements == null) return;
 
         /*
@@ -167,7 +167,7 @@ public class LambdaRewriter implements Op04Rewriter, ExpressionRewriter {
      *
      */
     private Expression rewriteDynamicExpression(DynamicInvokation dynamicExpression) {
-        List<Expression> curriedArgs = dynamicExpression.getDynamicArgs();
+        ObjectList<Expression> curriedArgs = dynamicExpression.getDynamicArgs();
         Expression functionCall = dynamicExpression.getInnerInvokation();
         if (functionCall instanceof StaticFunctionInvokation) {
             Expression res = rewriteDynamicExpression(dynamicExpression, (StaticFunctionInvokation) functionCall, curriedArgs);
@@ -190,12 +190,12 @@ public class LambdaRewriter implements Op04Rewriter, ExpressionRewriter {
         OverloadMethodSet oms = thisClassFile.getOverloadMethodSet(afi.getMethodPrototype());
         if (oms.size() < 2) return;
         // Find the index of this argument in the original invokation.
-        List<Expression> args = afi.getArgs();
+        ObjectList<Expression> args = afi.getArgs();
         int idx = args.indexOf(arg);
         if (idx == -1) return;
         // We may have very limited information about what the possible argument types are.
         // err on the side of caution, unless we can prove we aren't ambiguous.
-        List<JavaTypeInstance> types = Functional.filter(oms.getPossibleArgTypes(idx, arg.getInferredJavaType().getJavaTypeInstance()),
+        ObjectList<JavaTypeInstance> types = Functional.filter(oms.getPossibleArgTypes(idx, arg.getInferredJavaType().getJavaTypeInstance()),
             in -> in instanceof JavaRefTypeInstance || in instanceof JavaGenericRefTypeInstance
         );
         if (types.size() == 1) return;
@@ -203,7 +203,7 @@ public class LambdaRewriter implements Op04Rewriter, ExpressionRewriter {
         res.setExplicitArgTypes(getExplicitLambdaTypes(functionArgType));
     }
 
-    private List<JavaTypeInstance> getExplicitLambdaTypes(JavaTypeInstance functionArgType) {
+    private ObjectList<JavaTypeInstance> getExplicitLambdaTypes(JavaTypeInstance functionArgType) {
         ClassFile classFile = null;
         try {
             classFile = state.getClassFile(functionArgType.getDeGenerifiedType());
@@ -211,10 +211,10 @@ public class LambdaRewriter implements Op04Rewriter, ExpressionRewriter {
         }
         if (classFile == null || !classFile.isInterface()) return null;
         // Find the one method which has no body.
-        List<Method> methods = Functional.filter(classFile.getMethods(), in -> in.getCodeAttribute() == null);
+        ObjectList<Method> methods = Functional.filter(classFile.getMethods(), in -> in.getCodeAttribute() == null);
         if (methods.size() != 1) return null;
         Method method = methods.get(0);
-        List<JavaTypeInstance> args = method.getMethodPrototype().getArgs();
+        ObjectList<JavaTypeInstance> args = method.getMethodPrototype().getArgs();
         if (functionArgType instanceof JavaGenericRefTypeInstance) {
             final GenericTypeBinder genericTypeBinder = classFile.getGenericTypeBinder((JavaGenericRefTypeInstance) functionArgType);
             args = Functional.map(args, genericTypeBinder::getBindingFor);
@@ -237,7 +237,7 @@ public class LambdaRewriter implements Op04Rewriter, ExpressionRewriter {
         throw new CannotDelambaException();
     }
 
-    private Expression rewriteDynamicExpression(DynamicInvokation dynamicExpression, StaticFunctionInvokation functionInvokation, List<Expression> curriedArgs) {
+    private Expression rewriteDynamicExpression(DynamicInvokation dynamicExpression, StaticFunctionInvokation functionInvokation, ObjectList<Expression> curriedArgs) {
         JavaTypeInstance typeInstance = functionInvokation.getClazz();
         if (!typeInstance.getRawName().equals(TypeConstants.lambdaMetaFactoryName)) return dynamicExpression;
         String functionName = functionInvokation.getName();
@@ -245,7 +245,7 @@ public class LambdaRewriter implements Op04Rewriter, ExpressionRewriter {
         DynamicInvokeType dynamicInvokeType = DynamicInvokeType.lookup(functionName);
         if (dynamicInvokeType == DynamicInvokeType.UNKNOWN) return dynamicExpression;
 
-        List<Expression> metaFactoryArgs = functionInvokation.getArgs();
+        ObjectList<Expression> metaFactoryArgs = functionInvokation.getArgs();
         if (metaFactoryArgs.size() != 6) return dynamicExpression;
         /*
          * Right, it's the 6 argument form of LambdaMetafactory.metaFactory, which we understand.
@@ -253,14 +253,14 @@ public class LambdaRewriter implements Op04Rewriter, ExpressionRewriter {
          */
         Expression arg = metaFactoryArgs.get(3);
 
-        List<JavaTypeInstance> targetFnArgTypes = LambdaUtils.getLiteralProto(arg).getArgs();
+        ObjectList<JavaTypeInstance> targetFnArgTypes = LambdaUtils.getLiteralProto(arg).getArgs();
 
         ConstantPoolEntryMethodHandle lambdaFnHandle = LambdaUtils.getHandle(metaFactoryArgs.get(4));
         ConstantPoolEntryMethodRef lambdaMethRef = lambdaFnHandle.getMethodRef();
         JavaTypeInstance lambdaTypeLocation = lambdaMethRef.getClassEntry().getTypeInstance();
         MethodPrototype lambdaFn = lambdaMethRef.getMethodPrototype();
         String lambdaFnName = lambdaFn.getName();
-        List<JavaTypeInstance> lambdaFnArgTypes = lambdaFn.getArgs();
+        ObjectList<JavaTypeInstance> lambdaFnArgTypes = lambdaFn.getArgs();
 
         if (!(lambdaTypeLocation instanceof JavaRefTypeInstance lambdaTypeRefLocation)) {
             return dynamicExpression;
@@ -341,12 +341,12 @@ public class LambdaRewriter implements Op04Rewriter, ExpressionRewriter {
                  * \arg0 ... arg(n-1) -> curriedArgs, arg0 ... arg(n-1)
                  * where curriedArgs will lose first arg if instance method.
                  */
-                List<Expression> replacementParameters = new ObjectArrayList<>();
+                ObjectList<Expression> replacementParameters = new ObjectArrayList<>();
                 for (int n = instance ? 1 : 0, m = curriedArgs.size(); n < m; ++n) {
                     replacementParameters.add(getLambdaVariable(curriedArgs.get(n)));
                 }
-                List<LValue> anonymousLambdaArgs = new ObjectArrayList<>();
-                List<LocalVariable> originalParameters = lambdaMethod.getMethodPrototype().getComputedParameters();
+                ObjectList<LValue> anonymousLambdaArgs = new ObjectArrayList<>();
+                ObjectList<LocalVariable> originalParameters = lambdaMethod.getMethodPrototype().getComputedParameters();
                 int offset = replacementParameters.size();
                 for (int n = 0; n < nLambdaArgs; ++n) {
                     LocalVariable original = originalParameters.get(n + offset);
@@ -370,7 +370,7 @@ public class LambdaRewriter implements Op04Rewriter, ExpressionRewriter {
                     rewrites.put(originalParameters.get(x), replacementParameters.get(x));
                 }
 
-                List<StructuredStatement> structuredLambdaStatements = MiscStatementTools.linearise(lambdaCode);
+                ObjectList<StructuredStatement> structuredLambdaStatements = MiscStatementTools.linearise(lambdaCode);
                 if (structuredLambdaStatements == null) {
                     throw new CannotDelambaException();
                 }
@@ -430,7 +430,7 @@ public class LambdaRewriter implements Op04Rewriter, ExpressionRewriter {
         return new LambdaExpressionFallback(BytecodeLoc.TODO, lambdaTypeRefLocation, dynamicExpression.getInferredJavaType(), lambdaFn, targetFnArgTypes, curriedArgs, instance);
     }
 
-    private static boolean isNewArrayLambda(Expression e, List<Expression> curriedArgs, List<LValue> anonymousLambdaArgs) {
+    private static boolean isNewArrayLambda(Expression e, ObjectList<Expression> curriedArgs, ObjectList<LValue> anonymousLambdaArgs) {
         if (!curriedArgs.isEmpty()) return false;
         if (anonymousLambdaArgs.size() != 1) return false;
 

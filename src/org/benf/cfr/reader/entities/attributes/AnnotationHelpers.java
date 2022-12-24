@@ -14,7 +14,7 @@ import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 
 class AnnotationHelpers {
@@ -88,7 +88,7 @@ class AnnotationHelpers {
             case '[' -> {
                 int numArrayEntries = raw.getU2At(offset);
                 offset += 2;
-                List<ElementValue> res = new ObjectArrayList<>();
+                ObjectList<ElementValue> res = new ObjectArrayList<>();
                 for (int x = 0; x < numArrayEntries; ++x) {
                     Pair<Long, ElementValue> ape = getElementValue(raw, offset, cp);
                     offset = ape.getFirst();
@@ -108,7 +108,7 @@ class AnnotationHelpers {
         TypeAnnotationTargetInfo targetInfo = targetInfoPair.getSecond();
 
         short type_path_length = raw.getU1At(offset++);
-        List<TypePathPart> pathData = new ObjectArrayList<>();
+        ObjectList<TypePathPart> pathData = new ObjectArrayList<>();
         for (int x=0;x<type_path_length;++x) {
             short type_path_kind = raw.getU1At(offset++);
             short type_argument_index = raw.getU1At(offset++);

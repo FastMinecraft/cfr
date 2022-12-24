@@ -23,7 +23,7 @@ import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.collections.SetUtil;
 
 import java.util.Collection;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.Set;
 
@@ -338,10 +338,10 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
     }
 
     public class AliasRewriter implements LValueRewriter<Statement> {
-        private final Map<StackSSALabel, List<StatementContainer<Statement>>> usages = MapFactory.newLazyMap(
+        private final Map<StackSSALabel, ObjectList<StatementContainer<Statement>>> usages = MapFactory.newLazyMap(
             ignore -> new ObjectArrayList<>()
         );
-        private final Map<StackSSALabel, List<LValueStatementContainer>> possibleAliases = MapFactory.newLazyMap(
+        private final Map<StackSSALabel, ObjectList<LValueStatementContainer>> possibleAliases = MapFactory.newLazyMap(
             ignore -> new ObjectArrayList<>()
         );
 
@@ -391,7 +391,7 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
          * (the first one which is NOT a stackSSALabel)
          */
         private LValue getAlias(StackSSALabel stackSSALabel, ExpressionStatementPair target) {
-            List<LValueStatementContainer> possibleAliasList = possibleAliases.get(stackSSALabel);
+            ObjectList<LValueStatementContainer> possibleAliasList = possibleAliases.get(stackSSALabel);
             if (possibleAliasList.isEmpty()) return null;
             LValue guessAlias = null;
             StatementContainer guessStatement = null;
@@ -419,7 +419,7 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
             // However, since we're looking at this from the point of view of SSALabels, we don't have that info here
             // so we ban LValues like this, to stop array creation being reordered.
             final LValue returnGuessAlias = guessAlias;
-            List<LValue> checkThese = new ObjectArrayList<>();
+            ObjectList<LValue> checkThese = new ObjectArrayList<>();
             if (guessAlias instanceof ArrayVariable arrayVariable) {
                 ArrayIndex arrayIndex = arrayVariable.getArrayIndex();
                 Expression array = arrayIndex.getArray();
@@ -549,7 +549,7 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
                 if (seen.contains(o3current)) {
                     return o3current;
                 }
-                List<Op03SimpleStatement> targets = o3current.getTargets();
+                ObjectList<Op03SimpleStatement> targets = o3current.getTargets();
                 if (targets.size() != 1) return null;
                 o3current = targets.get(0);
                 if (o3current == start) {

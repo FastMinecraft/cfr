@@ -10,14 +10,14 @@ import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.util.StringUtils;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 /**
  * A constructor call that doesn't necessarily exist, for a type we don't necessarily have.
  */
 public class ConstructorInvokationExplicit extends AbstractFunctionInvokationExplicit {
 
-    ConstructorInvokationExplicit(BytecodeLoc loc, InferredJavaType res, JavaTypeInstance clazz, List<Expression> args) {
+    ConstructorInvokationExplicit(BytecodeLoc loc, InferredJavaType res, JavaTypeInstance clazz, ObjectList<Expression> args) {
         super(loc, res, clazz, null, args);
     }
 

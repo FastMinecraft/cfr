@@ -23,7 +23,7 @@ import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -135,7 +135,7 @@ public class CodeAnalyserWholeClass {
     }
 
     private static void renameAnonymousScopeHidingVariables(ClassFile classFile, ClassCache classCache) {
-        List<ClassFileField> fields = Functional.filter(classFile.getFields(), ClassFileField::isSyntheticOuterRef);
+        ObjectList<ClassFileField> fields = Functional.filter(classFile.getFields(), ClassFileField::isSyntheticOuterRef);
         if (fields.isEmpty()) return;
 
 
@@ -196,9 +196,9 @@ public class CodeAnalyserWholeClass {
             // Verify that the target is identical to this, minus last arg.
             MethodPrototype prototype = method.getMethodPrototype();
 
-            List<JavaTypeInstance> argsThis = prototype.getArgs();
+            ObjectList<JavaTypeInstance> argsThis = prototype.getArgs();
             if (argsThis.isEmpty()) continue;
-            List<JavaTypeInstance> argsThat = chainPrototype.getArgs();
+            ObjectList<JavaTypeInstance> argsThat = chainPrototype.getArgs();
             if (argsThis.size() != argsThat.size() + 1) continue;
             JavaTypeInstance last = argsThis.get(argsThis.size() - 1);
 
@@ -401,7 +401,7 @@ public class CodeAnalyserWholeClass {
     private static void removeBoilerplateMethods(ClassFile classFile) {
         String[] removeThese = { MiscConstants.DESERIALISE_LAMBDA_METHOD };
         for (String methName : removeThese) {
-            List<Method> methods = classFile.getMethodsByNameOrNull(methName);
+            ObjectList<Method> methods = classFile.getMethodsByNameOrNull(methName);
             if (methods != null) {
                 for (Method method : methods) {
                     method.hideSynthetic();
@@ -424,7 +424,7 @@ public class CodeAnalyserWholeClass {
     }
 
     private static void tryRemoveConstructor(ClassFile classFile) {
-        List<Method> constructors = Functional.filter(
+        ObjectList<Method> constructors = Functional.filter(
             classFile.getConstructors(),
             in -> in.hiddenState() == Method.Visibility.Visible
         );
@@ -456,7 +456,7 @@ public class CodeAnalyserWholeClass {
             Op04StructuredStatement code = m.getAnalysis();
             if (!code.isFullyStructured()) continue;
 
-            List<StructuredStatement> statements = MiscStatementTools.linearise(code);
+            ObjectList<StructuredStatement> statements = MiscStatementTools.linearise(code);
             if (statements == null) continue;
 
             boolean bStatic = m.testAccessFlag(AccessFlagMethod.ACC_STATIC);

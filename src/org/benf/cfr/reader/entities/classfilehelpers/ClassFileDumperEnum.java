@@ -14,7 +14,7 @@ import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.MiscUtils;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 /**
  * This isn't static - we populate it from the decoded enum information.
@@ -24,9 +24,9 @@ public class ClassFileDumperEnum extends AbstractClassFileDumper {
             AccessFlag.ACC_PUBLIC, AccessFlag.ACC_PRIVATE, AccessFlag.ACC_PROTECTED, AccessFlag.ACC_STRICT, AccessFlag.ACC_STATIC
     };
 
-    private final List<Pair<StaticVariable, AbstractConstructorInvokation>> entries;
+    private final ObjectList<Pair<StaticVariable, AbstractConstructorInvokation>> entries;
 
-    public ClassFileDumperEnum(DCCommonState dcCommonState, List<Pair<StaticVariable, AbstractConstructorInvokation>> entries) {
+    public ClassFileDumperEnum(DCCommonState dcCommonState, ObjectList<Pair<StaticVariable, AbstractConstructorInvokation>> entries) {
         super(dcCommonState);
         this.entries = entries;
     }
@@ -37,7 +37,7 @@ public class ClassFileDumperEnum extends AbstractClassFileDumper {
         d.print("enum ").dump(c.getThisClassConstpoolEntry().getTypeInstance(), true).print(" ");
 
         ClassSignature signature = c.getClassSignature();
-        List<JavaTypeInstance> interfaces = signature.interfaces();
+        ObjectList<JavaTypeInstance> interfaces = signature.interfaces();
         if (!interfaces.isEmpty()) {
             d.print("implements ");
             int size = interfaces.size();
@@ -55,7 +55,7 @@ public class ClassFileDumperEnum extends AbstractClassFileDumper {
         d.fieldName(staticVariable.getFieldName(), staticVariable.getDescriptor(), classType, false, true, true);
 
         if (constructorInvokation instanceof ConstructorInvokationSimple) {
-            List<Expression> args = constructorInvokation.getArgs();
+            ObjectList<Expression> args = constructorInvokation.getArgs();
             if (args.size() > 2) {
                 d.separator("(");
                 for (int x = 2, len = args.size(); x < len; ++x) {
@@ -98,12 +98,12 @@ public class ClassFileDumperEnum extends AbstractClassFileDumper {
 
         d.newln();
 
-        List<ClassFileField> fields = classFile.getFields();
+        ObjectList<ClassFileField> fields = classFile.getFields();
         for (ClassFileField field : fields) {
             if (field.shouldNotDisplay()) continue;
             field.dump(d, classFile);
         }
-        List<Method> methods = classFile.getMethods();
+        ObjectList<Method> methods = classFile.getMethods();
         if (!methods.isEmpty()) {
             for (Method method : methods) {
                 if (method.hiddenState() != Method.Visibility.Visible) continue;

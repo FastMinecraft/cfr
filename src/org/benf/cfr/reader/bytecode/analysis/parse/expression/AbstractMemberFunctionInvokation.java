@@ -29,18 +29,18 @@ import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryMethodRef;
 import org.benf.cfr.reader.entities.exceptions.ExceptionCheck;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 /*
  * Lot of common code in here and static function invokation.
  */
 public abstract class AbstractMemberFunctionInvokation extends AbstractFunctionInvokation implements FunctionProcessor, BoxingProcessor {
     private final ConstantPool cp;
-    private final List<Expression> args;
+    private final ObjectList<Expression> args;
     private Expression object;
-    private final List<Boolean> nulls;
+    private final ObjectList<Boolean> nulls;
 
-    AbstractMemberFunctionInvokation(BytecodeLoc loc, ConstantPool cp, ConstantPoolEntryMethodRef function, Expression object, JavaTypeInstance bestType, List<Expression> args, List<Boolean> nulls) {
+    AbstractMemberFunctionInvokation(BytecodeLoc loc, ConstantPool cp, ConstantPoolEntryMethodRef function, Expression object, JavaTypeInstance bestType, ObjectList<Expression> args, ObjectList<Boolean> nulls) {
         super(loc, function,
                 new InferredJavaType(
                 function.getMethodPrototype().getReturnType(
@@ -53,7 +53,7 @@ public abstract class AbstractMemberFunctionInvokation extends AbstractFunctionI
         this.cp = cp;
     }
 
-    AbstractMemberFunctionInvokation(BytecodeLoc loc, ConstantPool cp, ConstantPoolEntryMethodRef function, Expression object, List<Expression> args, List<Boolean> nulls) {
+    AbstractMemberFunctionInvokation(BytecodeLoc loc, ConstantPool cp, ConstantPoolEntryMethodRef function, Expression object, ObjectList<Expression> args, ObjectList<Boolean> nulls) {
         this(loc, cp, function, object, object.getInferredJavaType().getJavaTypeInstance(), args, nulls);
     }
 
@@ -103,11 +103,11 @@ public abstract class AbstractMemberFunctionInvokation extends AbstractFunctionI
 
     // Ignored, for now.
     @Override
-    public void setExplicitGenerics(List<JavaTypeInstance> types) {
+    public void setExplicitGenerics(ObjectList<JavaTypeInstance> types) {
     }
 
     @Override
-    public List<JavaTypeInstance> getExplicitGenerics() {
+    public ObjectList<JavaTypeInstance> getExplicitGenerics() {
         return null;
     }
 
@@ -119,11 +119,11 @@ public abstract class AbstractMemberFunctionInvokation extends AbstractFunctionI
         return getFunction().getClassEntry().getTypeInstance();
     }
 
-    public List<Expression> getArgs() {
+    public ObjectList<Expression> getArgs() {
         return args;
     }
 
-    public List<Boolean> getNulls() {
+    public ObjectList<Boolean> getNulls() {
         return nulls;
     }
 

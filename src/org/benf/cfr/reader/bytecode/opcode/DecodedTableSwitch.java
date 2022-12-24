@@ -5,7 +5,7 @@ import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.bytestream.BaseByteData;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -15,7 +15,7 @@ public class DecodedTableSwitch implements DecodedSwitch {
     private static final int OFFSET_OF_HIGHBYTE = 8;
     private static final int OFFSET_OF_OFFSETS = 12;
 
-    private final List<DecodedSwitchEntry> jumpTargets;
+    private final ObjectList<DecodedSwitchEntry> jumpTargets;
 
     /*
      * Note that offsetOfOriginalInstruction is data[-1]
@@ -32,7 +32,7 @@ public class DecodedTableSwitch implements DecodedSwitch {
         int numoffsets = highvalue - lowvalue + 1;
 
         // Treemap so that targets are in bytecode order.
-        Map<Integer, List<Integer>> uniqueTargets = MapFactory.newLazyMap(
+        Map<Integer, ObjectList<Integer>> uniqueTargets = MapFactory.newLazyMap(
             new TreeMap<>(),
             arg -> new ObjectArrayList<>()
         );
@@ -45,14 +45,14 @@ public class DecodedTableSwitch implements DecodedSwitch {
         }
 
         jumpTargets = new ObjectArrayList<>();
-        for (Map.Entry<Integer, List<Integer>> entry : uniqueTargets.entrySet()) {
+        for (Map.Entry<Integer, ObjectList<Integer>> entry : uniqueTargets.entrySet()) {
             jumpTargets.add(new DecodedSwitchEntry(entry.getValue(), entry.getKey()));
         }
 
     }
 
     @Override
-    public List<DecodedSwitchEntry> getJumpTargets() {
+    public ObjectList<DecodedSwitchEntry> getJumpTargets() {
         return jumpTargets;
     }
 }

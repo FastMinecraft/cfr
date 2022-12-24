@@ -18,7 +18,7 @@ import org.benf.cfr.reader.entities.classfilehelpers.ConstantLinks;
 import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.util.MiscConstants;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 
 public class InstanceConstants {
@@ -35,7 +35,7 @@ public class InstanceConstants {
      *
      * c = b.CONSTANTFIELD
      */
-    public void rewrite(JavaRefTypeInstance thisType, List<Op03SimpleStatement> op03SimpleParseNodes, DCCommonState state) {
+    public void rewrite(JavaRefTypeInstance thisType, ObjectList<Op03SimpleStatement> op03SimpleParseNodes, DCCommonState state) {
         for (Op03SimpleStatement stm : op03SimpleParseNodes) {
             rewrite1(thisType, stm, state);
         }

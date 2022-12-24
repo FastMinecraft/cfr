@@ -1,9 +1,10 @@
 package org.benf.cfr.reader.entities.attributes;
 
 import java.util.Collections;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 import org.benf.cfr.reader.entityfactories.AttributeFactory;
 import org.benf.cfr.reader.entityfactories.ContiguousEntityFactory;
@@ -17,17 +18,17 @@ public class AttributeRecord extends Attribute {
     private static final long OFFSET_OF_ATTRIBUTE_LENGTH = 2;
     private static final long OFFSET_OF_REMAINDER = 6;
 
-    public record RecordComponentInfo(String name, String descriptor, List<Attribute> attributes) {
+    public record RecordComponentInfo(String name, String descriptor, ObjectList<Attribute> attributes) {
 
         @Override
-        public List<Attribute> attributes() {
+        public ObjectList<Attribute> attributes() {
                 // Prevent accidental modification
-                return Collections.unmodifiableList(attributes);
+                return ObjectLists.unmodifiable(attributes);
             }
         }
 
     private final int length;
-    private final List<RecordComponentInfo> componentInfos;
+    private final ObjectList<RecordComponentInfo> componentInfos;
 
     public AttributeRecord(ByteData raw, ConstantPool cp, ClassFileVersion classFileVersion) {
         this.length = raw.getS4At(OFFSET_OF_ATTRIBUTE_LENGTH);
@@ -47,7 +48,7 @@ public class AttributeRecord extends Attribute {
             int attributesCount = raw.getS2At(offset);
             offset += 2;
 
-            List<Attribute> attributes = new ObjectArrayList<>();
+            ObjectList<Attribute> attributes = new ObjectArrayList<>();
             raw = raw.getOffsetData(offset);
             offset = ContiguousEntityFactory.build(raw, attributesCount, attributes,
                     AttributeFactory.getBuilder(cp, classFileVersion));
@@ -56,13 +57,13 @@ public class AttributeRecord extends Attribute {
         }
     }
 
-    public List<Attribute> getRecordComponentAttributes(String componentName) {
+    public ObjectList<Attribute> getRecordComponentAttributes(String componentName) {
         for (RecordComponentInfo componentInfo : componentInfos) {
             if (componentInfo.name().equals(componentName)) {
                 return componentInfo.attributes();
             }
         }
-        return Collections.emptyList();
+        return ObjectLists.emptyList();
     }
 
     @Override

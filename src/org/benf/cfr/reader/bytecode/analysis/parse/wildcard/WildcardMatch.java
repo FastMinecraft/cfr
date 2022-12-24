@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.wildcard;
 
+import it.unimi.dsi.fastutil.objects.AbstractObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
@@ -216,7 +217,7 @@ public class WildcardMatch {
         return getSuperFunction(name, null);
     }
 
-    public SuperFunctionInvokationWildcard getSuperFunction(String name, List<Expression> args) {
+    public SuperFunctionInvokationWildcard getSuperFunction(String name, ObjectList<Expression> args) {
         SuperFunctionInvokationWildcard res = superFunctionMap.get(name);
         if (res != null) return res;
 
@@ -240,7 +241,7 @@ public class WildcardMatch {
     /* When matching a function invokation, we don't really have all the details to construct a plausible
      * MemberFunctionInvokation expression, so just construct something which will match it!
      */
-    public MemberFunctionInvokationWildcard getMemberFunction(String name, String methodname, boolean isInitMethod, Expression object, List<Expression> args) {
+    public MemberFunctionInvokationWildcard getMemberFunction(String name, String methodname, boolean isInitMethod, Expression object, ObjectList<Expression> args) {
         MemberFunctionInvokationWildcard res = memberFunctionMap.get(name);
         if (res != null) return res;
 
@@ -260,7 +261,7 @@ public class WildcardMatch {
     /* When matching a function invokation, we don't really have all the details to construct a plausible
      * StaticFunctionInvokation expression, so just construct something which will match it!
      */
-    public StaticFunctionInvokationWildcard getStaticFunction(String name, JavaTypeInstance clazz, JavaTypeInstance returnType, String methodname, List<Expression> args) {
+    public StaticFunctionInvokationWildcard getStaticFunction(String name, JavaTypeInstance clazz, JavaTypeInstance returnType, String methodname, ObjectList<Expression> args) {
         StaticFunctionInvokationWildcard res = staticFunctionMap.get(name);
         if (res != null) return res;
 
@@ -697,10 +698,10 @@ public class WildcardMatch {
         private final String name;
         private final boolean isInitMethod;
         private final Expression object;
-        private final List<Expression> args;
+        private final ObjectList<Expression> args;
         private transient MemberFunctionInvokation matchedValue;
 
-        public MemberFunctionInvokationWildcard(String name, boolean isInitMethod, Expression object, List<Expression> args) {
+        public MemberFunctionInvokationWildcard(String name, boolean isInitMethod, Expression object, ObjectList<Expression> args) {
             this.name = name;
             this.isInitMethod = isInitMethod;
             this.object = object;
@@ -723,7 +724,7 @@ public class WildcardMatch {
                 return false;
             }
             if (!object.equals(other.getObject())) return false;
-            List<Expression> otherArgs = other.getArgs();
+            ObjectList<Expression> otherArgs = other.getArgs();
             if (args != null) {
                 if (args.size() != otherArgs.size()) return false;
                 for (int x = 0; x < args.size(); ++x) {
@@ -749,10 +750,10 @@ public class WildcardMatch {
     }
 
     public static class SuperFunctionInvokationWildcard extends AbstractBaseExpressionWildcard implements Wildcard<SuperFunctionInvokation> {
-        private final List<Expression> args;
+        private final ObjectList<Expression> args;
         private transient SuperFunctionInvokation matchedValue;
 
-        SuperFunctionInvokationWildcard(List<Expression> args) {
+        SuperFunctionInvokationWildcard(ObjectList<Expression> args) {
             this.args = args;
         }
 
@@ -767,7 +768,7 @@ public class WildcardMatch {
              * TODO : since it might fail, we need to rewind any captures!
              */
             if (args != null) {
-                List<Expression> otherArgs = other.getArgs();
+                ObjectList<Expression> otherArgs = other.getArgs();
                 if (args.size() != otherArgs.size()) return false;
                 for (int x = 0; x < args.size(); ++x) {
                     Expression myArg = args.get(x);
@@ -796,10 +797,10 @@ public class WildcardMatch {
         private final String name;
         private final JavaTypeInstance clazz;
         private final JavaTypeInstance returnType;
-        private final List<Expression> args;
+        private final ObjectList<Expression> args;
         private transient StaticFunctionInvokation matchedValue;
 
-        StaticFunctionInvokationWildcard(String name, JavaTypeInstance clazz, JavaTypeInstance returnType, List<Expression> args) {
+        StaticFunctionInvokationWildcard(String name, JavaTypeInstance clazz, JavaTypeInstance returnType, ObjectList<Expression> args) {
             this.name = name;
             this.clazz = clazz;
             this.args = args;
@@ -818,7 +819,7 @@ public class WildcardMatch {
                 if (!returnType.equals(other.getInferredJavaType().getJavaTypeInstance())) return false;
             }
             if (clazz != null && !clazz.equals(other.getClazz())) return false;
-            List<Expression> otherArgs = other.getArgs();
+            ObjectList<Expression> otherArgs = other.getArgs();
             if (args != null) {
                 if (args.size() != otherArgs.size()) return false;
                 for (int x = 0; x < args.size(); ++x) {
@@ -875,12 +876,12 @@ public class WildcardMatch {
 
     }
 
-    public static class ListWildcard extends AbstractList implements Wildcard<List> {
-        private List matchedValue;
+    public static class ListWildcard extends AbstractObjectList implements Wildcard<ObjectList> {
+        private ObjectList matchedValue;
 
 
         @Override
-        public Object get(int index) {
+        public ObjectList get(int index) {
             throw new UnsupportedOperationException();
         }
 
@@ -895,14 +896,14 @@ public class WildcardMatch {
 
             if (matchedValue != null) return matchedValue.equals(o);
 
-            if (!(o instanceof List other)) return false;
+            if (!(o instanceof ObjectList other)) return false;
 
             matchedValue = other;
             return true;
         }
 
         @Override
-        public List getMatch() {
+        public ObjectList getMatch() {
             return matchedValue;
         }
 
@@ -910,7 +911,6 @@ public class WildcardMatch {
         public void resetMatch() {
             matchedValue = null;
         }
-
     }
 
     public static class StaticVariableWildcard extends StaticVariable implements Wildcard<StaticVariable> {
@@ -956,9 +956,9 @@ public class WildcardMatch {
         private ConstructorInvokationSimple matchedValue;
 
         private final JavaTypeInstance clazz;
-        private final List<Expression> args;
+        private final ObjectList<Expression> args;
 
-        ConstructorInvokationSimpleWildcard(JavaTypeInstance clazz, List<Expression> args) {
+        ConstructorInvokationSimpleWildcard(JavaTypeInstance clazz, ObjectList<Expression> args) {
             this.clazz = clazz;
             this.args = args;
         }
@@ -995,9 +995,9 @@ public class WildcardMatch {
         private ConstructorInvokationAnonymousInner matchedValue;
 
         private final JavaTypeInstance clazz;
-        private final List<Expression> args;
+        private final ObjectList<Expression> args;
 
-        ConstructorInvokationAnonymousInnerWildcard(JavaTypeInstance clazz, List<Expression> args) {
+        ConstructorInvokationAnonymousInnerWildcard(JavaTypeInstance clazz, ObjectList<Expression> args) {
             this.clazz = clazz;
             this.args = args;
         }

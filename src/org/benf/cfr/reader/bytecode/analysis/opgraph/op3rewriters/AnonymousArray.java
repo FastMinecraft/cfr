@@ -18,7 +18,7 @@ import org.benf.cfr.reader.bytecode.analysis.stack.StackEntry;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.collections.Functional;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class AnonymousArray {
 
@@ -53,8 +53,8 @@ public class AnonymousArray {
         if (bound < 0) return false;
 
         Op03SimpleStatement next = newArray;
-        List<Expression> anon = new ObjectArrayList<>();
-        List<Op03SimpleStatement> anonAssigns = new ObjectArrayList<>();
+        ObjectList<Expression> anon = new ObjectArrayList<>();
+        ObjectList<Op03SimpleStatement> anonAssigns = new ObjectArrayList<>();
         Expression arrayExpression;
         if (arrayLValue instanceof StackSSALabel) {
             arrayExpression = new StackValue(stm.getCombinedLoc(), (StackSSALabel) arrayLValue);
@@ -110,10 +110,10 @@ public class AnonymousArray {
      * (it's important that stk is a stack label, so we don't allow an RValue to reference it inside the
      * array definition!)
      */
-    public static void resugarAnonymousArrays(List<Op03SimpleStatement> statements) {
+    public static void resugarAnonymousArrays(ObjectList<Op03SimpleStatement> statements) {
         boolean success;
         do {
-            List<Op03SimpleStatement> assignments = Functional.filter(statements,
+            ObjectList<Op03SimpleStatement> assignments = Functional.filter(statements,
                 new TypeFilter<>(AssignmentSimple.class));
             // filter for structure now
             assignments = Functional.filter(assignments, in -> {

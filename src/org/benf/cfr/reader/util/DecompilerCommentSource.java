@@ -1,7 +1,7 @@
 package org.benf.cfr.reader.util;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public interface DecompilerCommentSource {
-    List<DecompilerComment> getComments();
+    ObjectList<DecompilerComment> getComments();
 }

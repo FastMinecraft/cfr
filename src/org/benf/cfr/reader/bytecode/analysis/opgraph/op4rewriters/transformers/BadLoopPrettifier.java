@@ -7,6 +7,8 @@ import org.benf.cfr.reader.bytecode.analysis.structured.StructuredScope;
 import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.structured.statement.*;
 
+import it.unimi.dsi.fastutil.objects.ObjectList;
+
 import java.util.List;
 import java.util.Set;
 

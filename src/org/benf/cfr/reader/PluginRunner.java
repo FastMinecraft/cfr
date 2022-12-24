@@ -1,5 +1,7 @@
 package org.benf.cfr.reader;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import org.benf.cfr.reader.api.ClassFileSource;
 import org.benf.cfr.reader.apiunreleased.ClassFileSource2;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
@@ -16,7 +18,7 @@ import org.benf.cfr.reader.util.output.*;
 import org.benf.cfr.reader.util.output.MethodErrorCollector.SummaryDumperMethodErrorCollector;
 
 import java.util.ArrayList;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
@@ -40,20 +42,20 @@ public class PluginRunner {
         return this.dcCommonState.getOptions();
     }
 
-    public List<List<String>> addJarPaths(String[] jarPaths) {
-        List<List<String>> res = new ArrayList<>();
+    public ObjectList<ObjectList<String>> addJarPaths(String[] jarPaths) {
+        ObjectList<ObjectList<String>> res = new ObjectArrayList<>();
         for (String jarPath : jarPaths) {
             res.add(addJarPath(jarPath));
         }
         return res;
     }
 
-    public List<String> addJarPath(String jarPath) {
+    public ObjectList<String> addJarPath(String jarPath) {
         try {
-            List<JavaTypeInstance> types = dcCommonState.explicitlyLoadJar(jarPath, AnalysisType.JAR).get(0);
+            ObjectList<JavaTypeInstance> types = dcCommonState.explicitlyLoadJar(jarPath, AnalysisType.JAR).get(0);
             return Functional.map(types, JavaTypeInstance::getRawName);
         } catch (Exception e) {
-            return new ArrayList<>();
+            return ObjectLists.emptyList();
         }
     }
 

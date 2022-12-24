@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.structured.statement;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.matchutil.MatchIterator;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.matchutil.MatchResultCollector;
@@ -12,7 +13,7 @@ import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers.S
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Vector;
 
 public class UnstructuredContinue extends AbstractStructuredContinue {
@@ -47,7 +48,7 @@ public class UnstructuredContinue extends AbstractStructuredContinue {
     public StructuredStatement informBlockHeirachy(Vector<BlockIdentifier> blockIdentifiers) {
 
         boolean localBreak = false;
-        BlockIdentifier outermostBreakable = BlockIdentifier.getInnermostBreakable(blockIdentifiers);
+        BlockIdentifier outermostBreakable = BlockIdentifier.getInnermostBreakable(new ObjectArrayList<>(blockIdentifiers));
         if (!blockIdentifiers.contains(continueTgt)) {
             return null;
         }
@@ -74,7 +75,7 @@ public class UnstructuredContinue extends AbstractStructuredContinue {
     }
 
     @Override
-    public void linearizeInto(List<StructuredStatement> out) {
+    public void linearizeInto(ObjectList<StructuredStatement> out) {
         throw new UnsupportedOperationException();
     }
 

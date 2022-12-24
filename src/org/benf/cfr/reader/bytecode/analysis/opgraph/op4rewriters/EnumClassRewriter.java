@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.matchutil.*;
@@ -34,7 +35,7 @@ import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.IllegalIdentifierReplacement;
 
 import java.util.Collections;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.Set;
 
@@ -76,7 +77,7 @@ public class EnumClassRewriter {
      * Derived classes of enums (anonymous classes) still need to be processed.
      */
     private void removeAllRemainingSupers() {
-        List<Method> constructors = classFile.getConstructors();
+        ObjectList<Method> constructors = classFile.getConstructors();
         EnumAllSuperRewriter enumSuperRewriter = new EnumAllSuperRewriter();
         for (Method constructor : constructors) {
             enumSuperRewriter.rewrite(constructor.getAnalysis());
@@ -138,13 +139,13 @@ public class EnumClassRewriter {
         /*
          * And remove all the super calls from the constructors.... AND remove the first 2 arguments from each.
          */
-        List<Method> constructors = classFile.getConstructors();
+        ObjectList<Method> constructors = classFile.getConstructors();
         EnumSuperRewriter enumSuperRewriter = new EnumSuperRewriter();
         for (Method constructor : constructors) {
             enumSuperRewriter.rewrite(constructor.getAnalysis());
         }
 
-        List<Pair<StaticVariable, AbstractConstructorInvokation>> entries = new ObjectArrayList<>();
+        ObjectList<Pair<StaticVariable, AbstractConstructorInvokation>> entries = new ObjectArrayList<>();
         for (Map.Entry<StaticVariable, MatchedEnumEntry> entry : entryMap.entrySet()) {
             entries.add(Pair.make(entry.getKey(), entry.getValue().data()));
         }
@@ -162,7 +163,7 @@ public class EnumClassRewriter {
                 ClassFileField::getFieldName
             ));
 
-            List<Pair<StaticVariable, String>> renames = new ObjectArrayList<>();
+            ObjectList<Pair<StaticVariable, String>> renames = new ObjectArrayList<>();
 
             for (Pair<StaticVariable, AbstractConstructorInvokation> entry : entries) {
                 StaticVariable sv = entry.getFirst();
@@ -211,7 +212,7 @@ public class EnumClassRewriter {
      * NOT attempt to deal with obfuscation.
      */
     private EnumInitMatchCollector analyseStaticMethod(Op04StructuredStatement statement) {
-        List<StructuredStatement> statements = new ObjectArrayList<>();
+        ObjectList<StructuredStatement> statements = new ObjectArrayList<>();
         statement.linearizeStatementsInto(statements);
 
         // Filter out the comments.
@@ -233,7 +234,7 @@ public class EnumClassRewriter {
                 new MatchOneOf(
                     new ResetAfterTest(wcm, new CollectMatch("values", new StructuredAssignment(BytecodeLoc.NONE, wcm.getStaticVariable("v", classType, clazzAIJT), wcm.getNewArrayWildCard("v", 0, 1)))),
                     new ResetAfterTest(wcm, new CollectMatch("values15", new StructuredAssignment(BytecodeLoc.NONE, wcm.getStaticVariable("v", classType, clazzAIJT), wcm.getStaticFunction("v", this.classType, new JavaArrayTypeInstance(1, this.classType), null)))),
-                    new ResetAfterTest(wcm, new CollectMatch("noValues", new StructuredAssignment(BytecodeLoc.NONE, wcm.getStaticVariable("v", classType, clazzAIJT), new NewObjectArray(BytecodeLoc.NONE, Collections.singletonList(Literal.INT_ZERO), arrayType))))
+                    new ResetAfterTest(wcm, new CollectMatch("noValues", new StructuredAssignment(BytecodeLoc.NONE, wcm.getStaticVariable("v", classType, clazzAIJT), new NewObjectArray(BytecodeLoc.NONE, ObjectLists.singleton(Literal.INT_ZERO), arrayType))))
                 )
         );
 
@@ -253,7 +254,7 @@ public class EnumClassRewriter {
     }
 
     private record MatchedArrayData(Op04StructuredStatement container, Method methodContainer,
-                                    List<Expression> elementExpressions) {
+                                    ObjectList<Expression> elementExpressions) {
     }
 
     private class EnumInitMatchCollector extends AbstractMatchResultIterator {
@@ -261,7 +262,7 @@ public class EnumClassRewriter {
         private final WildcardMatch wcm;
         private final Map<StaticVariable, MatchedEnumEntry> entryMap = MapFactory.newOrderedMap();
         private MatchedArrayData matchedArray;
-        private final List<ClassFileField> matchedHideTheseFields = new ObjectArrayList<>();
+        private final ObjectList<ClassFileField> matchedHideTheseFields = new ObjectArrayList<>();
 
         private EnumInitMatchCollector(WildcardMatch wcm) {
             this.wcm = wcm;
@@ -297,7 +298,7 @@ public class EnumClassRewriter {
                 }
                 case "noValues" -> matchedArray = new MatchedArrayData(statement.getContainer(),
                     null,
-                    Collections.emptyList()
+                    ObjectLists.emptyList()
                 );
                 case "values15" -> {
                     StaticFunctionInvokation sf = wcm.getStaticFunction("v").getMatch();
@@ -313,7 +314,7 @@ public class EnumClassRewriter {
              *
              * Examine all static members, make sure they're in this set.
              */
-            List<ClassFileField> fields = classFile.getFields();
+            ObjectList<ClassFileField> fields = classFile.getFields();
             for (ClassFileField classFileField : fields) {
                 Field field = classFileField.getField();
                 JavaTypeInstance fieldType = field.getJavaTypeInstance();
@@ -329,7 +330,7 @@ public class EnumClassRewriter {
                 }
             }
             if (matchedArray == null) return false;
-            List<Expression> values = matchedArray.elementExpressions();
+            ObjectList<Expression> values = matchedArray.elementExpressions();
             if (values.size() != entryMap.size()) {
                 return false;
             }
@@ -361,7 +362,7 @@ public class EnumClassRewriter {
             return true;
         }
 
-        private List<ClassFileField> getMatchedHideTheseFields() {
+        private ObjectList<ClassFileField> getMatchedHideTheseFields() {
             return matchedHideTheseFields;
         }
 
@@ -401,7 +402,7 @@ public class EnumClassRewriter {
             // Expecting `new EnumType[0]`
             if (newArrayExpr.getNumDims() != 1) return null;
             if (!newArrayExpr.getDimSize(0).equals(Literal.INT_ZERO)) return null;
-            return new MatchedArrayData(container, method, Collections.emptyList());
+            return new MatchedArrayData(container, method, ObjectLists.emptyList());
         } else {
             return null;
         }

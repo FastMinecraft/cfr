@@ -19,19 +19,19 @@ import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 class WhileRewriter {
 
-    private static void rewriteDoWhileTruePredAsWhile(Op03SimpleStatement end, List<Op03SimpleStatement> statements) {
+    private static void rewriteDoWhileTruePredAsWhile(Op03SimpleStatement end, ObjectList<Op03SimpleStatement> statements) {
         WhileStatement whileStatement = (WhileStatement) end.getStatement();
         if (null != whileStatement.getCondition()) return;
 
         /*
          * The first statement inside this loop needs to be a test which breaks out of the loop.
          */
-        List<Op03SimpleStatement> endTargets = end.getTargets();
+        ObjectList<Op03SimpleStatement> endTargets = end.getTargets();
         if (endTargets.size() != 1) return;
 
         Op03SimpleStatement loopStart = endTargets.get(0);
@@ -106,8 +106,8 @@ class WhileRewriter {
         }
     }
 
-    static void rewriteDoWhileTruePredAsWhile(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> doWhileEnds = Functional.filter(statements,
+    static void rewriteDoWhileTruePredAsWhile(ObjectList<Op03SimpleStatement> statements) {
+        ObjectList<Op03SimpleStatement> doWhileEnds = Functional.filter(statements,
             in -> (in.getStatement() instanceof WhileStatement) && ((WhileStatement) in.getStatement()).getBlockIdentifier().getBlockType() == BlockType.UNCONDITIONALDOLOOP
         );
 
@@ -148,7 +148,7 @@ class WhileRewriter {
 
     private static void rewriteWhileAsFor(Op03SimpleStatement statement, boolean aggcapture) {
         // Find the backwards jumps to this statement
-        List<Op03SimpleStatement> backSources = Functional.filter(statement.getSources(), new Misc.IsBackJumpTo(statement.getIndex()));
+        ObjectList<Op03SimpleStatement> backSources = Functional.filter(statement.getSources(), new Misc.IsBackJumpTo(statement.getIndex()));
         //
         // Determine what could be the loop invariant.
         //
@@ -209,11 +209,11 @@ class WhileRewriter {
         AssignmentSimple initalAssignmentSimple = null;
 
 
-        List<AbstractAssignmentExpression> postUpdates = new ObjectArrayList<>();
-        List<List<Op03SimpleStatement>> usedMutatedPossibilities = new ObjectArrayList<>();
+        ObjectList<AbstractAssignmentExpression> postUpdates = new ObjectArrayList<>();
+        ObjectList<ObjectList<Op03SimpleStatement>> usedMutatedPossibilities = new ObjectArrayList<>();
         boolean usesLoopVar = false;
         for (LValue otherMutant : reverseOrderedMutatedPossibilities) {
-            List<Op03SimpleStatement> othermutations = getMutations(backSources, otherMutant, whileBlockIdentifier);
+            ObjectList<Op03SimpleStatement> othermutations = getMutations(backSources, otherMutant, whileBlockIdentifier);
             if (othermutations == null) continue;
 
             // We abort if we're about to lift a mutation which isn't in the predicate.
@@ -231,7 +231,7 @@ class WhileRewriter {
         if (!usesLoopVar) return;
 
         Collections.reverse(postUpdates);
-        for (List<Op03SimpleStatement> lst : usedMutatedPossibilities) {
+        for (ObjectList<Op03SimpleStatement> lst : usedMutatedPossibilities) {
             for (Op03SimpleStatement op : lst) {
                 op.nopOut();
             }
@@ -253,7 +253,7 @@ class WhileRewriter {
                  * Loop at anything which jumps directly to here.
                  */
                 Collection<Op03SimpleStatement> original = source.getSources();
-                List<Op03SimpleStatement> ssources = new ObjectArrayList<>(original);
+                ObjectList<Op03SimpleStatement> ssources = new ObjectArrayList<>(original);
                 for (Op03SimpleStatement ssource : ssources) {
                     if (ssource.getBlockIdentifiers().contains(whileBlockIdentifier)) {
                         Statement sstatement = ssource.getStatement();
@@ -318,12 +318,12 @@ class WhileRewriter {
         throw new ConfusedCFRException("Shouldn't be able to get here.");
     }
 
-    private static List<Op03SimpleStatement> getMutations(List<Op03SimpleStatement> backSources, LValue loopVariable, BlockIdentifier whileBlockIdentifier) {
+    private static ObjectList<Op03SimpleStatement> getMutations(ObjectList<Op03SimpleStatement> backSources, LValue loopVariable, BlockIdentifier whileBlockIdentifier) {
 
         /*
          * Now, go back and get the list of mutations.  Make sure they're all equivalent, then nop them out.
          */
-        List<Op03SimpleStatement> mutations = new ObjectArrayList<>();
+        ObjectList<Op03SimpleStatement> mutations = new ObjectArrayList<>();
         for (Op03SimpleStatement source : backSources) {
             Op03SimpleStatement incrStatement = getForInvariant(source, loopVariable, whileBlockIdentifier);
             mutations.add(incrStatement);
@@ -340,9 +340,9 @@ class WhileRewriter {
         return mutations;
     }
 
-    static void rewriteWhilesAsFors(Options options, List<Op03SimpleStatement> statements) {
+    static void rewriteWhilesAsFors(Options options, ObjectList<Op03SimpleStatement> statements) {
         // Find all the while loops beginnings.
-        List<Op03SimpleStatement> whileStarts = Functional.filter(statements,
+        ObjectList<Op03SimpleStatement> whileStarts = Functional.filter(statements,
             in -> (in.getStatement() instanceof WhileStatement) && ((WhileStatement) in.getStatement()).getBlockIdentifier().getBlockType() == BlockType.WHILELOOP
         );
         boolean aggcapture = options.getOption(OptionsImpl.FOR_LOOP_CAPTURE) == Troolean.TRUE;

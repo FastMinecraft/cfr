@@ -9,6 +9,8 @@ import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredRetu
 import org.benf.cfr.reader.util.DecompilerComment;
 import org.benf.cfr.reader.util.DecompilerComments;
 
+import it.unimi.dsi.fastutil.objects.ObjectList;
+
 import java.util.List;
 
 public class IllegalReturnChecker implements Op04Checker {

@@ -15,16 +15,16 @@ import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Objects;
 
 public class NewObjectArray extends AbstractNewArray {
-    private final List<Expression> dimSizes;
+    private final ObjectList<Expression> dimSizes;
     private final JavaTypeInstance allocatedType;
     private final JavaTypeInstance resultType;
     private final int numDims;
 
-    public NewObjectArray(BytecodeLoc loc, List<Expression> dimSizes, JavaTypeInstance resultInstance) {
+    public NewObjectArray(BytecodeLoc loc, ObjectList<Expression> dimSizes, JavaTypeInstance resultInstance) {
         super(loc, new InferredJavaType(resultInstance, InferredJavaType.Source.EXPRESSION, true));
         this.dimSizes = dimSizes;
         this.allocatedType = resultInstance.getArrayStrippedType();
@@ -35,7 +35,7 @@ public class NewObjectArray extends AbstractNewArray {
         }
     }
 
-    private NewObjectArray(BytecodeLoc loc, InferredJavaType inferredJavaType, JavaTypeInstance resultType, int numDims, JavaTypeInstance allocatedType, List<Expression> dimSizes) {
+    private NewObjectArray(BytecodeLoc loc, InferredJavaType inferredJavaType, JavaTypeInstance resultType, int numDims, JavaTypeInstance allocatedType, ObjectList<Expression> dimSizes) {
         super(loc, inferredJavaType);
         this.resultType = resultType;
         this.numDims = numDims;

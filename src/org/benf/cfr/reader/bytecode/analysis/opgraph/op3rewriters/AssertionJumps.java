@@ -10,10 +10,10 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.JumpType;
 import org.benf.cfr.reader.bytecode.analysis.parse.wildcard.WildcardMatch;
 import org.benf.cfr.reader.bytecode.analysis.types.TypeConstants;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 class AssertionJumps {
-    static void extractAssertionJumps(List<Op03SimpleStatement> in) {
+    static void extractAssertionJumps(ObjectList<Op03SimpleStatement> in) {
         /*
          * If we have
          *

@@ -1,5 +1,7 @@
 package org.benf.cfr.reader.util.output;
 
+import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import org.benf.cfr.reader.api.OutputSinkFactory;
 import org.benf.cfr.reader.api.SinkReturns;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
@@ -14,7 +16,7 @@ import org.benf.cfr.reader.util.output.MethodErrorCollector.SummaryDumperMethodE
 import java.util.*;
 
 public class SinkDumperFactory implements DumperFactory {
-    private static final List<OutputSinkFactory.SinkClass> justString = Collections.singletonList(OutputSinkFactory.SinkClass.STRING);
+    private static final ObjectList<OutputSinkFactory.SinkClass> justString = ObjectLists.singleton(OutputSinkFactory.SinkClass.STRING);
     private final OutputSinkFactory sinkFactory;
     private final Options options;
     private final int version;
@@ -38,7 +40,7 @@ public class SinkDumperFactory implements DumperFactory {
 
     @Override
     public Dumper getNewTopLevelDumper(JavaTypeInstance classType, SummaryDumper summaryDumper, TypeUsageInformation typeUsageInformation, IllegalIdentifierDump illegalIdentifierDump) {
-        List<OutputSinkFactory.SinkClass> supported = sinkFactory.getSupportedSinks(OutputSinkFactory.SinkType.JAVA, Arrays.asList(OutputSinkFactory.SinkClass.DECOMPILED_MULTIVER, OutputSinkFactory.SinkClass.DECOMPILED, OutputSinkFactory.SinkClass.TOKEN_STREAM, OutputSinkFactory.SinkClass.STRING));
+        ObjectList<OutputSinkFactory.SinkClass> supported = sinkFactory.getSupportedSinks(OutputSinkFactory.SinkType.JAVA, Arrays.asList(OutputSinkFactory.SinkClass.DECOMPILED_MULTIVER, OutputSinkFactory.SinkClass.DECOMPILED, OutputSinkFactory.SinkClass.TOKEN_STREAM, OutputSinkFactory.SinkClass.STRING));
         if (supported == null) supported = justString;
         MethodErrorCollector methodErrorCollector = new SummaryDumperMethodErrorCollector(classType, summaryDumper);
         return getTopLevelDumper2(classType, typeUsageInformation, illegalIdentifierDump, supported, methodErrorCollector);
@@ -46,7 +48,7 @@ public class SinkDumperFactory implements DumperFactory {
 
     @Override
     public Dumper wrapLineNoDumper(Dumper dumper) {
-        List<OutputSinkFactory.SinkClass> linesSupported = sinkFactory.getSupportedSinks(OutputSinkFactory.SinkType.LINENUMBER, Collections.singletonList(OutputSinkFactory.SinkClass.LINE_NUMBER_MAPPING));
+        ObjectList<OutputSinkFactory.SinkClass> linesSupported = sinkFactory.getSupportedSinks(OutputSinkFactory.SinkType.LINENUMBER, ObjectLists.singleton(OutputSinkFactory.SinkClass.LINE_NUMBER_MAPPING));
         if (linesSupported == null || linesSupported.isEmpty()) {
             return dumper;
         }
@@ -99,7 +101,7 @@ public class SinkDumperFactory implements DumperFactory {
         return dumper;
     }
 
-    private Dumper getTopLevelDumper2(JavaTypeInstance classType, TypeUsageInformation typeUsageInformation, IllegalIdentifierDump illegalIdentifierDump, List<OutputSinkFactory.SinkClass> supported, MethodErrorCollector methodErrorCollector) {
+    private Dumper getTopLevelDumper2(JavaTypeInstance classType, TypeUsageInformation typeUsageInformation, IllegalIdentifierDump illegalIdentifierDump, ObjectList<OutputSinkFactory.SinkClass> supported, MethodErrorCollector methodErrorCollector) {
         for (OutputSinkFactory.SinkClass sinkClass : supported) {
             switch (sinkClass) {
                 case DECOMPILED_MULTIVER -> {
@@ -220,7 +222,7 @@ public class SinkDumperFactory implements DumperFactory {
 
     @Override
     public ProgressDumper getProgressDumper() {
-        List<OutputSinkFactory.SinkClass> supported = sinkFactory.getSupportedSinks(OutputSinkFactory.SinkType.PROGRESS, justString);
+        ObjectList<OutputSinkFactory.SinkClass> supported = sinkFactory.getSupportedSinks(OutputSinkFactory.SinkType.PROGRESS, justString);
         if (supported == null) supported = justString;
         for (OutputSinkFactory.SinkClass sinkClass : supported) {
             if (sinkClass == OutputSinkFactory.SinkClass.STRING) {
@@ -240,7 +242,7 @@ public class SinkDumperFactory implements DumperFactory {
 
     @Override
     public SummaryDumper getSummaryDumper() {
-        List<OutputSinkFactory.SinkClass> supported = sinkFactory.getSupportedSinks(OutputSinkFactory.SinkType.SUMMARY, justString);
+        ObjectList<OutputSinkFactory.SinkClass> supported = sinkFactory.getSupportedSinks(OutputSinkFactory.SinkType.SUMMARY, justString);
         if (supported == null) supported = justString;
         for (OutputSinkFactory.SinkClass sinkClass : supported) {
             if (sinkClass == OutputSinkFactory.SinkClass.STRING) {
@@ -259,7 +261,7 @@ public class SinkDumperFactory implements DumperFactory {
 
     @Override
     public ExceptionDumper getExceptionDumper() {
-        List<OutputSinkFactory.SinkClass> supported = sinkFactory.getSupportedSinks(OutputSinkFactory.SinkType.EXCEPTION, Arrays.asList(OutputSinkFactory.SinkClass.EXCEPTION_MESSAGE, OutputSinkFactory.SinkClass.STRING));
+        ObjectList<OutputSinkFactory.SinkClass> supported = sinkFactory.getSupportedSinks(OutputSinkFactory.SinkType.EXCEPTION, Arrays.asList(OutputSinkFactory.SinkClass.EXCEPTION_MESSAGE, OutputSinkFactory.SinkClass.STRING));
         if (supported == null) supported = justString;
         for (OutputSinkFactory.SinkClass sinkClass : supported) {
             switch (sinkClass) {

@@ -28,16 +28,16 @@ import org.benf.cfr.reader.util.StringUtils;
 import java.util.function.Predicate;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class StructuredFor extends AbstractStructuredBlockStatement {
     private ConditionalExpression condition;
     private final AssignmentSimple initial;
-    private final List<AbstractAssignmentExpression> assignments;
+    private final ObjectList<AbstractAssignmentExpression> assignments;
     private final BlockIdentifier block;
     private boolean isCreator;
 
-    public StructuredFor(BytecodeLoc loc, ConditionalExpression condition, AssignmentSimple initial, List<AbstractAssignmentExpression> assignments, Op04StructuredStatement body, BlockIdentifier block) {
+    public StructuredFor(BytecodeLoc loc, ConditionalExpression condition, AssignmentSimple initial, ObjectList<AbstractAssignmentExpression> assignments, Op04StructuredStatement body, BlockIdentifier block) {
         super(loc, body);
         this.condition = condition;
         this.initial = initial;
@@ -90,7 +90,7 @@ public class StructuredFor extends AbstractStructuredBlockStatement {
     }
 
     @Override
-    public void linearizeInto(List<StructuredStatement> out) {
+    public void linearizeInto(ObjectList<StructuredStatement> out) {
         out.add(this);
         getBody().linearizeStatementsInto(out);
     }
@@ -154,7 +154,7 @@ public class StructuredFor extends AbstractStructuredBlockStatement {
     }
 
     @Override
-    public List<LValue> findCreatedHere() {
+    public ObjectList<LValue> findCreatedHere() {
         if (!isCreator) return null;
         if (initial == null) return null;
         LValue created = initial.getCreatedLValue();

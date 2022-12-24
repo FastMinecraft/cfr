@@ -12,7 +12,7 @@ import org.benf.cfr.reader.bytecode.opcode.DecodedSwitch;
 import org.benf.cfr.reader.bytecode.opcode.DecodedSwitchEntry;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 /**
  * A 'raw' switch contains the original bytecode information about the switch.  We split this up into
@@ -38,7 +38,7 @@ public class RawSwitchStatement extends AbstractStatement {
     @Override
     public Dumper dump(Dumper dumper) {
         dumper.print("switch (").dump(switchOn).print(") {").newln();
-        List<DecodedSwitchEntry> targets = switchData.getJumpTargets();
+        ObjectList<DecodedSwitchEntry> targets = switchData.getJumpTargets();
         int targetIdx = 1;
         for (DecodedSwitchEntry decodedSwitchEntry : targets) {
             String tgtLbl = getTargetStatement(targetIdx++).getContainer().getLabel();

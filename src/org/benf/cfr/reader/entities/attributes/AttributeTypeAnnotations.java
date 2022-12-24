@@ -9,7 +9,7 @@ import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 
 public abstract class AttributeTypeAnnotations extends Attribute {
@@ -18,7 +18,7 @@ public abstract class AttributeTypeAnnotations extends Attribute {
     private static final long OFFSET_OF_REMAINDER = 6;
     private static final long OFFSET_OF_NUMBER_OF_ANNOTATIONS = 6;
     private static final long OFFSET_OF_ANNOTATION_TABLE = 8;
-    private final Map<TypeAnnotationEntryValue, List<AnnotationTableTypeEntry>> annotationTableEntryData = MapFactory.newMap();
+    private final Map<TypeAnnotationEntryValue, ObjectList<AnnotationTableTypeEntry>> annotationTableEntryData = MapFactory.newMap();
 
     private final int length;
 
@@ -28,7 +28,7 @@ public abstract class AttributeTypeAnnotations extends Attribute {
         int numAnnotations = raw.getU2At(OFFSET_OF_NUMBER_OF_ANNOTATIONS);
         long offset = OFFSET_OF_ANNOTATION_TABLE;
 
-        Map<TypeAnnotationEntryValue, List<AnnotationTableTypeEntry>> entryData = MapFactory.newLazyMap(annotationTableEntryData,
+        Map<TypeAnnotationEntryValue, ObjectList<AnnotationTableTypeEntry>> entryData = MapFactory.newLazyMap(annotationTableEntryData,
             arg -> new ObjectArrayList<>()
         );
 
@@ -42,7 +42,7 @@ public abstract class AttributeTypeAnnotations extends Attribute {
 
     @Override
     public Dumper dump(Dumper d) {
-        for (List<AnnotationTableTypeEntry> annotationTableEntryList : annotationTableEntryData.values()) {
+        for (ObjectList<AnnotationTableTypeEntry> annotationTableEntryList : annotationTableEntryData.values()) {
             for (AnnotationTableTypeEntry annotationTableEntry : annotationTableEntryList) {
                 annotationTableEntry.dump(d);
                 d.newln();
@@ -59,18 +59,18 @@ public abstract class AttributeTypeAnnotations extends Attribute {
 
     @Override
     public void collectTypeUsages(TypeUsageCollector collector) {
-        for (List<AnnotationTableTypeEntry> annotationTableEntryList : annotationTableEntryData.values()) {
+        for (ObjectList<AnnotationTableTypeEntry> annotationTableEntryList : annotationTableEntryData.values()) {
             for (AnnotationTableTypeEntry annotationTableEntry : annotationTableEntryList) {
                 annotationTableEntry.collectTypeUsages(collector);
             }
         }
     }
 
-    public List<AnnotationTableTypeEntry> getAnnotationsFor(TypeAnnotationEntryValue ... types) {
-        List<AnnotationTableTypeEntry> res = null;
+    public ObjectList<AnnotationTableTypeEntry> getAnnotationsFor(TypeAnnotationEntryValue ... types) {
+        ObjectList<AnnotationTableTypeEntry> res = null;
         boolean orig = true;
         for (TypeAnnotationEntryValue type : types) {
-            List<AnnotationTableTypeEntry> items = annotationTableEntryData.get(type);
+            ObjectList<AnnotationTableTypeEntry> items = annotationTableEntryData.get(type);
             if (items == null) {
                 continue;
             }

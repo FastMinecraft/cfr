@@ -6,7 +6,7 @@ import org.benf.cfr.reader.bytecode.analysis.types.StackType;
 import org.benf.cfr.reader.bytecode.analysis.types.StackTypes;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class StackSim {
     private final StackSim parent;
@@ -37,9 +37,9 @@ public class StackSim {
         return thisSim.stackEntryHolder.getStackEntry();
     }
 
-    public List<StackEntryHolder> getHolders(int offset, long num) {
+    public ObjectList<StackEntryHolder> getHolders(int offset, long num) {
         StackSim thisSim = this;
-        List<StackEntryHolder> res = new ObjectArrayList<>();
+        ObjectList<StackEntryHolder> res = new ObjectArrayList<>();
         while (num > 0) {
             if (offset > 0) {
                 offset--;
@@ -56,7 +56,7 @@ public class StackSim {
         return depth;
     }
 
-    public StackSim getChange(StackDelta delta, List<StackEntryHolder> consumed, List<StackEntryHolder> produced, Op02WithProcessedDataAndRefs instruction) {
+    public StackSim getChange(StackDelta delta, ObjectList<StackEntryHolder> consumed, ObjectList<StackEntryHolder> produced, Op02WithProcessedDataAndRefs instruction) {
         if (delta.isNoOp()) {
             return this;
         }

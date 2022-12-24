@@ -20,18 +20,18 @@ import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.entities.AccessFlagMethod;
 import org.benf.cfr.reader.entities.Method;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class ResourceReleaseDetector {
     public static boolean isResourceRelease(Method method, Op04StructuredStatement root) {
         if (!method.getAccessFlags().contains(AccessFlagMethod.ACC_STATIC)) return false;
         if (!method.getAccessFlags().contains(AccessFlagMethod.ACC_SYNTHETIC)) return false;
-        List<JavaTypeInstance> argTypes = method.getMethodPrototype().getArgs();
+        ObjectList<JavaTypeInstance> argTypes = method.getMethodPrototype().getArgs();
         if (argTypes.size() != 2) return false;
-        List<LocalVariable> computedParameters = method.getMethodPrototype().getComputedParameters();
+        ObjectList<LocalVariable> computedParameters = method.getMethodPrototype().getComputedParameters();
         if (computedParameters.size() != 2) return false;
 
-        List<StructuredStatement> structuredStatements = MiscStatementTools.linearise(root);
+        ObjectList<StructuredStatement> structuredStatements = MiscStatementTools.linearise(root);
         if (structuredStatements == null) return false;
 
         LocalVariable throwable = computedParameters.get(0);

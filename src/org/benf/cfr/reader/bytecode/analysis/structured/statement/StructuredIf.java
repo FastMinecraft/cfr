@@ -21,7 +21,7 @@ import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.LinkedList;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Vector;
 
 public class StructuredIf extends AbstractStructuredStatement implements CanRemovePointlessBlock {
@@ -97,7 +97,7 @@ public class StructuredIf extends AbstractStructuredStatement implements CanRemo
     }
 
     @Override
-    public void linearizeInto(List<StructuredStatement> out) {
+    public void linearizeInto(ObjectList<StructuredStatement> out) {
         out.add(this);
         ifTaken.linearizeStatementsInto(out);
         if (elseBlock != null) {

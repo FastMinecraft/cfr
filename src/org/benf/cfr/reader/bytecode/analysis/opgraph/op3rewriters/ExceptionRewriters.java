@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
@@ -25,8 +26,8 @@ import java.util.*;
 
 public class ExceptionRewriters {
 
-    static List<Op03SimpleStatement> eliminateCatchTemporaries(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> catches = Functional.filter(statements, new TypeFilter<>(CatchStatement.class));
+    static ObjectList<Op03SimpleStatement> eliminateCatchTemporaries(ObjectList<Op03SimpleStatement> statements) {
+        ObjectList<Op03SimpleStatement> catches = Functional.filter(statements, new TypeFilter<>(CatchStatement.class));
         boolean effect = false;
         for (Op03SimpleStatement catchh : catches) {
             effect = effect | eliminateCatchTemporary(catchh);
@@ -77,8 +78,8 @@ public class ExceptionRewriters {
      * As soon as we hit something which /can't/ be in the catch block, we can
      * unwind all tentatives which assume that it was.
      */
-    static void identifyCatchBlocks(List<Op03SimpleStatement> in, BlockIdentifierFactory blockIdentifierFactory) {
-        List<Op03SimpleStatement> catchStarts = Functional.filter(in, new TypeFilter<>(CatchStatement.class));
+    static void identifyCatchBlocks(ObjectList<Op03SimpleStatement> in, BlockIdentifierFactory blockIdentifierFactory) {
+        ObjectList<Op03SimpleStatement> catchStarts = Functional.filter(in, new TypeFilter<>(CatchStatement.class));
         for (Op03SimpleStatement catchStart : catchStarts) {
             CatchStatement catchStatement = (CatchStatement) catchStart.getStatement();
             if (catchStatement.getCatchBlockIdent() == null) {
@@ -92,7 +93,7 @@ public class ExceptionRewriters {
     /*
      * Could be refactored out as uniquelyReachableFrom....
      */
-    private static void identifyCatchBlock(Op03SimpleStatement start, BlockIdentifier blockIdentifier, List<Op03SimpleStatement> statements) {
+    private static void identifyCatchBlock(Op03SimpleStatement start, BlockIdentifier blockIdentifier, ObjectList<Op03SimpleStatement> statements) {
         Set<Op03SimpleStatement> knownMembers = SetFactory.newSet();
         Set<Op03SimpleStatement> seen = SetFactory.newSet();
         seen.add(start);
@@ -174,7 +175,7 @@ public class ExceptionRewriters {
          */
         knownMembers.remove(start);
         if (knownMembers.isEmpty()) {
-            List<Op03SimpleStatement> targets = start.getTargets();
+            ObjectList<Op03SimpleStatement> targets = start.getTargets();
             // actually already verified above, but I'm being paranoid.
             if (targets.size() != 1) throw new ConfusedCFRException("Synthetic catch block has multiple targets");
             knownMembers.add(insertBlockPadding("empty catch block", start, targets.get(0), blockIdentifier, statements));
@@ -187,12 +188,12 @@ public class ExceptionRewriters {
          *
          * Sort knownMembers
          */
-        List<Op03SimpleStatement> knownMemberList = new ObjectArrayList<>(knownMembers);
+        ObjectList<Op03SimpleStatement> knownMemberList = new ObjectArrayList<>(knownMembers);
         knownMemberList.sort(new CompareByIndex());
 
-        List<Op03SimpleStatement> truncatedKnownMembers = new ObjectArrayList<>();
+        ObjectList<Op03SimpleStatement> truncatedKnownMembers = new ObjectArrayList<>();
         int x = statements.indexOf(knownMemberList.get(0));
-        List<Op03SimpleStatement> flushNops = new ObjectArrayList<>();
+        ObjectList<Op03SimpleStatement> flushNops = new ObjectArrayList<>();
         for (int l = statements.size(); x < l; ++x) {
             Op03SimpleStatement statement = statements.get(x);
             if (statement.isAgreedNop()) {
@@ -220,14 +221,14 @@ public class ExceptionRewriters {
 
     // Up to now, try and catch blocks, while related, are treated in isolation.
     // We need to make sure they're logically grouped, so we can see when a block constraint is being violated.
-    static void combineTryCatchBlocks(List<Op03SimpleStatement> in) {
-        List<Op03SimpleStatement> tries = getTries(in);
+    static void combineTryCatchBlocks(ObjectList<Op03SimpleStatement> in) {
+        ObjectList<Op03SimpleStatement> tries = getTries(in);
         for (Op03SimpleStatement tryStatement : tries) {
             combineTryCatchBlocks(tryStatement);
         }
     }
 
-    private static List<Op03SimpleStatement> getTries(List<Op03SimpleStatement> in) {
+    private static ObjectList<Op03SimpleStatement> getTries(ObjectList<Op03SimpleStatement> in) {
         return Functional.filter(in, new TypeFilter<>(TryStatement.class));
     }
 
@@ -256,7 +257,7 @@ public class ExceptionRewriters {
         ));
         if (tryBlocks.isEmpty()) return;
 
-        List<Op03SimpleStatement> orderedStatements = new ObjectArrayList<>(allStatements);
+        ObjectList<Op03SimpleStatement> orderedStatements = new ObjectArrayList<>(allStatements);
         orderedStatements.sort(new CompareByIndex(false));
 
         for (Op03SimpleStatement statement : orderedStatements) {
@@ -280,7 +281,7 @@ public class ExceptionRewriters {
      * todo : remove this assumption!
      * we need to link it to the end.
      */
-    private static Op03SimpleStatement insertBlockPadding(@SuppressWarnings("SameParameterValue") String comment, Op03SimpleStatement insertAfter, Op03SimpleStatement insertBefore, BlockIdentifier blockIdentifier, List<Op03SimpleStatement> statements) {
+    private static Op03SimpleStatement insertBlockPadding(@SuppressWarnings("SameParameterValue") String comment, Op03SimpleStatement insertAfter, Op03SimpleStatement insertBefore, BlockIdentifier blockIdentifier, ObjectList<Op03SimpleStatement> statements) {
         Op03SimpleStatement between = new Op03SimpleStatement(insertAfter.getBlockIdentifiers(), new CommentStatement(comment), insertAfter.getIndex().justAfter());
         insertAfter.replaceTarget(insertBefore, between);
         insertBefore.replaceSource(insertAfter, between);
@@ -306,8 +307,8 @@ public class ExceptionRewriters {
      * some issues.
      *
      */
-    static void extractExceptionMiddle(List<Op03SimpleStatement> in) {
-        List<Op03SimpleStatement> tryStatements = Functional.filter(in, new ExactTypeFilter<>(TryStatement.class));
+    static void extractExceptionMiddle(ObjectList<Op03SimpleStatement> in) {
+        ObjectList<Op03SimpleStatement> tryStatements = Functional.filter(in, new ExactTypeFilter<>(TryStatement.class));
         if (tryStatements.isEmpty()) return;
         Collections.reverse(tryStatements);
         for (Op03SimpleStatement tryStatement : tryStatements) {
@@ -327,11 +328,11 @@ public class ExceptionRewriters {
 
     // If a try statement doesn't have a body at all, it could be elided.
     // (as could the catch, if the try is the only source).
-    public static void handleEmptyTries(List<Op03SimpleStatement> in) {
+    public static void handleEmptyTries(ObjectList<Op03SimpleStatement> in) {
         Map<BlockIdentifier, Op03SimpleStatement> firstByBlock = null;
         boolean effect = false;
 
-        List<Op03SimpleStatement> tries = getTries(in);
+        ObjectList<Op03SimpleStatement> tries = getTries(in);
         for (Op03SimpleStatement tryStatement : tries) {
             BlockIdentifier block = ((TryStatement)tryStatement.getStatement()).getBlockIdentifier();
             Op03SimpleStatement tgtStm = tryStatement.getTargets().get(0);
@@ -361,7 +362,7 @@ public class ExceptionRewriters {
         }
     }
 
-    private static Map<BlockIdentifier, Op03SimpleStatement> getFirstByBlock(List<Op03SimpleStatement> in) {
+    private static Map<BlockIdentifier, Op03SimpleStatement> getFirstByBlock(ObjectList<Op03SimpleStatement> in) {
         Map<BlockIdentifier, Op03SimpleStatement> res = MapFactory.newMap();
         for (Op03SimpleStatement stm : in) {
             for (BlockIdentifier i : stm.getBlockIdentifiers()) {
@@ -382,7 +383,7 @@ public class ExceptionRewriters {
     ) {
     }
 
-    private static SingleExceptionAddressing getSingleTryCatch(Op03SimpleStatement trystm, List<Op03SimpleStatement> statements) {
+    private static SingleExceptionAddressing getSingleTryCatch(Op03SimpleStatement trystm, ObjectList<Op03SimpleStatement> statements) {
         int idx = statements.indexOf(trystm);
         TryStatement tryStatement = (TryStatement)trystm.getStatement();
         BlockIdentifier tryBlockIdent = tryStatement.getBlockIdentifier();
@@ -400,7 +401,7 @@ public class ExceptionRewriters {
         return new SingleExceptionAddressing(tryBlockIdent, catchBlockIdent, tryBlock, catchBlock);
     }
 
-    private static boolean extractExceptionMiddle(Op03SimpleStatement trystm, List<Op03SimpleStatement> statements, SingleExceptionAddressing trycatch) {
+    private static boolean extractExceptionMiddle(Op03SimpleStatement trystm, ObjectList<Op03SimpleStatement> statements, SingleExceptionAddressing trycatch) {
         LinearScannedBlock tryBlock = trycatch.tryBlock;
         LinearScannedBlock catchBlock = trycatch.catchBlock;
         BlockIdentifier tryBlockIdent = trycatch.tryBlockIdent;
@@ -427,7 +428,7 @@ public class ExceptionRewriters {
          * and that the blockset of the START of the try block is present the whole time.
          */
         Set<Op03SimpleStatement> middle = SetFactory.newSet();
-        List<Op03SimpleStatement> toMove = new ObjectArrayList<>();
+        ObjectList<Op03SimpleStatement> toMove = new ObjectArrayList<>();
         for (int x=tryBlock.getIdxLast()+1;x<catchBlock.getIdxFirst();++x) {
             Op03SimpleStatement stm = statements.get(x);
             middle.add(stm);
@@ -465,7 +466,7 @@ public class ExceptionRewriters {
      * block. (strictly speaking this is pessimistic, and avoids indexed breaks and continues.  Revisit if examples
      * of those are found to be problematic).
      */
-    private static void extractCatchEnd(List<Op03SimpleStatement> statements, SingleExceptionAddressing trycatch) {
+    private static void extractCatchEnd(ObjectList<Op03SimpleStatement> statements, SingleExceptionAddressing trycatch) {
         LinearScannedBlock tryBlock = trycatch.tryBlock;
         BlockIdentifier tryBlockIdent = trycatch.tryBlockIdent;
         BlockIdentifier catchBlockIdent = trycatch.catchBlockIdent;
@@ -481,7 +482,7 @@ public class ExceptionRewriters {
             }
         }
         for (int x = tryBlock.getIdxFirst()+1; x <= tryBlock.getIdxLast(); ++x) {
-            List<Op03SimpleStatement> targets = statements.get(x).getTargets();
+            ObjectList<Op03SimpleStatement> targets = statements.get(x).getTargets();
             for (Op03SimpleStatement target : targets) {
                 if (target.getBlockIdentifiers().contains(catchBlockIdent)) {
                     if (possibleAfterBlock == null) {
@@ -515,7 +516,7 @@ public class ExceptionRewriters {
         }
     }
 
-    private static LinearScannedBlock getLinearScannedBlock(List<Op03SimpleStatement> statements, int idx, Op03SimpleStatement stm, BlockIdentifier blockIdentifier, boolean prefix) {
+    private static LinearScannedBlock getLinearScannedBlock(ObjectList<Op03SimpleStatement> statements, int idx, Op03SimpleStatement stm, BlockIdentifier blockIdentifier, boolean prefix) {
         Set<Op03SimpleStatement> found = SetFactory.newSet();
         int nextIdx = idx+(prefix?1:0);
         if (prefix) found.add(stm);

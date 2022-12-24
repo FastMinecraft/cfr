@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.types;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.CastExpression;
@@ -61,9 +62,9 @@ public class MethodPrototype implements TypeUsageCollectable {
     // This is the only reliable unique label for this method.
     // Note that this will contain synthetic fields.
     private final String originalDescriptor;
-    private final List<FormalTypeParameter> formalTypeParameters;
-    private final List<JavaTypeInstance> args;
-    private final List<JavaTypeInstance> exceptionTypes;
+    private final ObjectList<FormalTypeParameter> formalTypeParameters;
+    private final ObjectList<JavaTypeInstance> args;
+    private final ObjectList<JavaTypeInstance> exceptionTypes;
     private final Set<Integer> hidden = SetFactory.newSet();
     private boolean innerOuterThis = false;
     private JavaTypeInstance result;
@@ -75,14 +76,14 @@ public class MethodPrototype implements TypeUsageCollectable {
     private final ClassFile classFile;
     // Synthetic args are arguments which are not VISIBLY present in the method prototype at all, but
     // are nonetheless used by the method body.
-    private final List<Slot> syntheticArgs = new ObjectArrayList<>();
-    private final List<Slot> syntheticCaptureArgs = new ObjectArrayList<>();
-    private List<ParameterLValue> parameterLValues = null;
+    private final ObjectList<Slot> syntheticArgs = new ObjectArrayList<>();
+    private final ObjectList<Slot> syntheticCaptureArgs = new ObjectArrayList<>();
+    private ObjectList<ParameterLValue> parameterLValues = null;
     private final JavaTypeInstance owner; // fabric
 //    private static int sid = 0;
 //    private final int id = sid++;
 
-    public MethodPrototype(DCCommonState state, ClassFile classFile, JavaTypeInstance classType, String name, boolean instanceMethod, Method.MethodConstructor constructorFlag, List<FormalTypeParameter> formalTypeParameters, List<JavaTypeInstance> args, JavaTypeInstance result, List<JavaTypeInstance> exceptionTypes, boolean varargs, VariableNamer variableNamer, boolean synthetic, String originalDescriptor) {
+    public MethodPrototype(DCCommonState state, ClassFile classFile, JavaTypeInstance classType, String name, boolean instanceMethod, Method.MethodConstructor constructorFlag, ObjectList<FormalTypeParameter> formalTypeParameters, ObjectList<JavaTypeInstance> args, JavaTypeInstance result, ObjectList<JavaTypeInstance> exceptionTypes, boolean varargs, VariableNamer variableNamer, boolean synthetic, String originalDescriptor) {
         this.formalTypeParameters = formalTypeParameters;
         this.instanceMethod = instanceMethod;
         this.originalDescriptor = originalDescriptor;
@@ -103,7 +104,7 @@ public class MethodPrototype implements TypeUsageCollectable {
                 constructorFlag == Method.MethodConstructor.ECLIPSE_ENUM_CONSTRUCTOR
             )
             && !synthetic) {
-            List<JavaTypeInstance> args2 = new ObjectArrayList<>();
+            ObjectList<JavaTypeInstance> args2 = new ObjectArrayList<>();
             /*
              * ECJ will generate a signature which apparently has 2 arguments.
              * Javac will not.
@@ -185,7 +186,7 @@ public class MethodPrototype implements TypeUsageCollectable {
     }
 
     @SuppressWarnings("ConstantConditions")
-    public void dumpDeclarationSignature(Dumper d, String methName, Method.MethodConstructor isConstructor, MethodPrototypeAnnotationsHelper annotationsHelper, List<AnnotationTableTypeEntry> returnTypeAnnotations) {
+    public void dumpDeclarationSignature(Dumper d, String methName, Method.MethodConstructor isConstructor, MethodPrototypeAnnotationsHelper annotationsHelper, ObjectList<AnnotationTableTypeEntry> returnTypeAnnotations) {
 
         if (formalTypeParameters != null) {
             //  according to the JLS, these are operators.  Tempting to define a new category.
@@ -224,10 +225,10 @@ public class MethodPrototype implements TypeUsageCollectable {
         d.separator("(");
 
         // We don't get a vararg type to change itself, as it's a function of the method, not the type
-        List<LocalVariable> parameterLValues = getComputedParameters();
+        ObjectList<LocalVariable> parameterLValues = getComputedParameters();
         int argssize = args.size();
         boolean first = true;
-        List<AnnotationTableTypeEntry> receiverAnnotations = null;
+        ObjectList<AnnotationTableTypeEntry> receiverAnnotations = null;
         if (isInstanceMethod() || isConstructor.isConstructor()) {
             receiverAnnotations = annotationsHelper.getTypeTargetAnnotations(TypeAnnotationEntryValue.type_receiver);
         }
@@ -283,14 +284,14 @@ public class MethodPrototype implements TypeUsageCollectable {
         return parameterLValues != null;
     }
 
-    public List<ParameterLValue> getParameterLValues() {
+    public ObjectList<ParameterLValue> getParameterLValues() {
         if (parameterLValues == null) {
             throw new IllegalStateException("Parameters not created");
         }
         return parameterLValues;
     }
 
-    public List<LocalVariable> getComputedParameters() {
+    public ObjectList<LocalVariable> getComputedParameters() {
         return Functional.map(getParameterLValues(), arg -> arg.localVariable);
     }
 
@@ -307,7 +308,7 @@ public class MethodPrototype implements TypeUsageCollectable {
             }
         }
 
-        List<Slot> tmp = new ObjectArrayList<>();
+        ObjectList<Slot> tmp = new ObjectArrayList<>();
         for (Map.Entry<Integer, JavaTypeInstance> entry : synthetics.entrySet()) {
             tmp.add(new Slot(entry.getValue(), entry.getKey()));
         }
@@ -321,7 +322,7 @@ public class MethodPrototype implements TypeUsageCollectable {
                  * The problem here is that we have a constructor signature which does not match
                  * the usages of the parameters.  See PluginRunner (in CFR!) for an example.
                  */
-                List<Slot> replacements = new ObjectArrayList<>();
+                ObjectList<Slot> replacements = new ObjectArrayList<>();
                 for (Slot synthetic : tmp) {
                     JavaTypeInstance type = synthetic.javaTypeInstance();
                     Slot replacement = new Slot(type, offset);
@@ -366,7 +367,7 @@ public class MethodPrototype implements TypeUsageCollectable {
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    public List<LocalVariable> computeParameters(Method.MethodConstructor constructorFlag, Map<Integer, Ident> slotToIdentMap) {
+    public ObjectList<LocalVariable> computeParameters(Method.MethodConstructor constructorFlag, Map<Integer, Ident> slotToIdentMap) {
         if (parameterLValues != null) {
             return getComputedParameters();
         }
@@ -433,8 +434,8 @@ public class MethodPrototype implements TypeUsageCollectable {
         return formalTypeParameters != null && !formalTypeParameters.isEmpty();
     }
 
-    public List<JavaTypeInstance> getExplicitGenericUsage(GenericTypeBinder binder) {
-        List<JavaTypeInstance> types = new ObjectArrayList<>();
+    public ObjectList<JavaTypeInstance> getExplicitGenericUsage(GenericTypeBinder binder) {
+        ObjectList<JavaTypeInstance> types = new ObjectArrayList<>();
         for (FormalTypeParameter parameter : formalTypeParameters) {
             JavaTypeInstance type = binder.getBindingFor(parameter);
             if (type == null) return null;
@@ -452,7 +453,7 @@ public class MethodPrototype implements TypeUsageCollectable {
         return classFile.getClassType();
     }
 
-    public JavaTypeInstance getReturnType(JavaTypeInstance thisTypeInstance, List<Expression> invokingArgs) {
+    public JavaTypeInstance getReturnType(JavaTypeInstance thisTypeInstance, ObjectList<Expression> invokingArgs) {
         if (classFile == null) {
             return result;
         }
@@ -467,7 +468,7 @@ public class MethodPrototype implements TypeUsageCollectable {
         if (hasFormalTypeParameters() || classFile.hasFormalTypeParameters()) {
             // We're calling a method against a generic object.
             // we should be able to figure out more information
-            // I.e. iterator on List<String> returns Iterator<String>, not Iterator.
+            // I.e. iterator on ObjectList<String> returns Iterator<String>, not Iterator.
 
             JavaGenericRefTypeInstance genericRefTypeInstance = thisTypeInstance.asGenericRefInstance(getClassType());
 
@@ -487,28 +488,28 @@ public class MethodPrototype implements TypeUsageCollectable {
         }
     }
 
-    public List<JavaTypeInstance> getArgs() {
+    public ObjectList<JavaTypeInstance> getArgs() {
         return args;
     }
 
-    public List<JavaTypeInstance> getSignatureBoundArgs() {
+    public ObjectList<JavaTypeInstance> getSignatureBoundArgs() {
         return getSignatureBoundTypes(args);
     }
 
-    public List<JavaTypeInstance> getExceptionTypes() {
+    public ObjectList<JavaTypeInstance> getExceptionTypes() {
         return exceptionTypes;
     }
 
-    public List<JavaTypeInstance> getSignatureBoundExceptions() {
+    public ObjectList<JavaTypeInstance> getSignatureBoundExceptions() {
         return getSignatureBoundTypes(exceptionTypes);
     }
 
-    private List<JavaTypeInstance> getSignatureBoundTypes(List<JavaTypeInstance> types) {
+    private ObjectList<JavaTypeInstance> getSignatureBoundTypes(ObjectList<JavaTypeInstance> types) {
         if (classFile == null || types.isEmpty()) {
             return types;
         }
         ClassSignature sig = classFile.getClassSignature();
-        List<FormalTypeParameter> ftp = sig.formalTypeParameters();
+        ObjectList<FormalTypeParameter> ftp = sig.formalTypeParameters();
         if (ftp == null && formalTypeParameters == null) {
             return types;
         }
@@ -551,7 +552,7 @@ public class MethodPrototype implements TypeUsageCollectable {
         expression.dump(d);
     }
 
-    public void tightenArgs(Expression object, List<Expression> expressions) {
+    public void tightenArgs(Expression object, ObjectList<Expression> expressions) {
         if (expressions.size() != args.size()) {
             throw new ConfusedCFRException("expr arg size mismatch");
         }
@@ -578,7 +579,7 @@ public class MethodPrototype implements TypeUsageCollectable {
             genericTypeBinder = GenericTypeBinder.extractBindings((JavaGenericBaseInstance) classType, objecTypeInstance);
         } else if (object != null && objecTypeInstance instanceof JavaGenericBaseInstance) {
             // TODO : Dead code?
-            List<JavaTypeInstance> invokingTypes = new ObjectArrayList<>();
+            ObjectList<JavaTypeInstance> invokingTypes = new ObjectArrayList<>();
             for (Expression invokingArg : expressions) {
                 invokingTypes.add(invokingArg.getInferredJavaType().getJavaTypeInstance());
             }
@@ -653,7 +654,7 @@ public class MethodPrototype implements TypeUsageCollectable {
     }
 
     public boolean equalsGeneric(MethodPrototype other, GenericTypeBinder genericTypeBinder) {
-        List<JavaTypeInstance> otherArgs = other.args;
+        ObjectList<JavaTypeInstance> otherArgs = other.args;
 
         if (otherArgs.size() != args.size()) {
             return false;
@@ -699,7 +700,7 @@ public class MethodPrototype implements TypeUsageCollectable {
     /*
      * These are the /exact/ types of the arguments, not the possible supers.
      */
-    public GenericTypeBinder getTypeBinderForTypes(List<JavaTypeInstance> invokingArgTypes) {
+    public GenericTypeBinder getTypeBinderForTypes(ObjectList<JavaTypeInstance> invokingArgTypes) {
         if (classFile == null) {
             return null;
         }
@@ -715,16 +716,16 @@ public class MethodPrototype implements TypeUsageCollectable {
         return GenericTypeBinder.bind(formalTypeParameters, classFile.getClassSignature(), args, null, invokingArgTypes);
     }
 
-    public GenericTypeBinder getTypeBinderFor(List<Expression> invokingArgs) {
+    public GenericTypeBinder getTypeBinderFor(ObjectList<Expression> invokingArgs) {
 
-        List<JavaTypeInstance> invokingTypes = new ObjectArrayList<>();
+        ObjectList<JavaTypeInstance> invokingTypes = new ObjectArrayList<>();
         for (Expression invokingArg : invokingArgs) {
             invokingTypes.add(invokingArg.getInferredJavaType().getJavaTypeInstance());
         }
         return getTypeBinderForTypes(invokingTypes);
     }
 
-    private JavaTypeInstance getResultBoundAccordingly(JavaTypeInstance result, JavaGenericRefTypeInstance boundInstance, List<Expression> invokingArgs) {
+    private JavaTypeInstance getResultBoundAccordingly(JavaTypeInstance result, JavaGenericRefTypeInstance boundInstance, ObjectList<Expression> invokingArgs) {
         if (result instanceof JavaArrayTypeInstance arrayTypeInstance) {
             JavaTypeInstance stripped = result.getArrayStrippedType();
             JavaTypeInstance tmp = getResultBoundAccordinglyInner(stripped, boundInstance, invokingArgs);
@@ -735,13 +736,13 @@ public class MethodPrototype implements TypeUsageCollectable {
         }
     }
 
-    private JavaTypeInstance getResultBoundAccordinglyInner(JavaTypeInstance result, JavaGenericRefTypeInstance boundInstance, List<Expression> invokingArgs) {
+    private JavaTypeInstance getResultBoundAccordinglyInner(JavaTypeInstance result, JavaGenericRefTypeInstance boundInstance, ObjectList<Expression> invokingArgs) {
         if (!(result instanceof JavaGenericBaseInstance genericResult)) {
             // Don't care - (i.e. iterator<E> hasNext)
             return result;
         }
 
-        List<JavaTypeInstance> invokingTypes = new ObjectArrayList<>();
+        ObjectList<JavaTypeInstance> invokingTypes = new ObjectArrayList<>();
         for (Expression invokingArg : invokingArgs) {
             invokingTypes.add(invokingArg.getInferredJavaType().getJavaTypeInstance());
         }
@@ -778,7 +779,7 @@ public class MethodPrototype implements TypeUsageCollectable {
         if (other == this) return true;
         if (other == null) return false;
         if (!name.equals(other.name)) return false;
-        List<JavaTypeInstance> otherArgs = other.getArgs();
+        ObjectList<JavaTypeInstance> otherArgs = other.getArgs();
         if (!args.equals(otherArgs)) return false;
         if (result != null && other.result != null) {
             // NOTE - COVARIANT RETURN!
@@ -799,7 +800,7 @@ public class MethodPrototype implements TypeUsageCollectable {
      * explicit captures are
      */
     public void setMethodScopedSyntheticConstructorParameters(NavigableMap<Integer, JavaTypeInstance> missing) {
-        List<Slot> missingList = new ObjectArrayList<>();
+        ObjectList<Slot> missingList = new ObjectArrayList<>();
         //
         int expected = 0;
         for (Map.Entry<Integer, JavaTypeInstance> missingItem : missing.entrySet()) {
@@ -820,7 +821,7 @@ public class MethodPrototype implements TypeUsageCollectable {
             // Try and line our existing args up with the descriptor proto, then infer synthetic
             // data from that.
 
-            List<JavaTypeInstance> descriptorArgs = descriptorProto.args;
+            ObjectList<JavaTypeInstance> descriptorArgs = descriptorProto.args;
             for (int x = 0; x< descriptorArgs.size()- this.args.size(); ++x) {
 
                 if (satisfies(descriptorArgs, x, this.args)) {
@@ -858,7 +859,7 @@ public class MethodPrototype implements TypeUsageCollectable {
         }
     }
 
-    private static boolean satisfies(List<JavaTypeInstance> haystack, int start, List<JavaTypeInstance> args) {
+    private static boolean satisfies(ObjectList<JavaTypeInstance> haystack, int start, ObjectList<JavaTypeInstance> args) {
         if (haystack.size() - start < args.size()) return false;
         for (int x=0;x<args.size();++x) {
             JavaTypeInstance here = haystack.get(x+start);
@@ -868,8 +869,8 @@ public class MethodPrototype implements TypeUsageCollectable {
         return true;
     }
 
-    private static boolean satisfiesSlots(List<Slot> haystack, int start, List<JavaTypeInstance> args) {
-        List<Slot> originalHaystack = haystack;
+    private static boolean satisfiesSlots(ObjectList<Slot> haystack, int start, ObjectList<JavaTypeInstance> args) {
+        ObjectList<Slot> originalHaystack = haystack;
         if (haystack.size() - start < args.size()) return false;
         for (int x=0;x<args.size();++x) {
             Slot here = haystack.get(x+start);

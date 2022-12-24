@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.types.discovery;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.ArithOp;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.analysis.types.*;
@@ -111,7 +112,7 @@ public class InferredJavaType {
 
         private boolean resolved = false;
 
-        private final List<IJTInternal> clashes;
+        private final ObjectList<IJTInternal> clashes;
         private final int id;
 
         private JavaTypeInstance type = null;
@@ -122,15 +123,15 @@ public class InferredJavaType {
             this.clashes = new ObjectArrayList<>(original);
         }
 
-        private static Map<JavaTypeInstance, JavaGenericRefTypeInstance> getClashMatches(List<IJTInternal> clashes) {
-            List<JavaTypeInstance> clashTypes = new ObjectArrayList<>();
+        private static Map<JavaTypeInstance, JavaGenericRefTypeInstance> getClashMatches(ObjectList<IJTInternal> clashes) {
+            ObjectList<JavaTypeInstance> clashTypes = new ObjectArrayList<>();
             for (IJTInternal clash : clashes) {
                 clashTypes.add(clash.getJavaTypeInstance());
             }
             return getMatches(clashTypes);
         }
 
-        private static Map<JavaTypeInstance, JavaGenericRefTypeInstance> getMatches(List<JavaTypeInstance> clashes) {
+        private static Map<JavaTypeInstance, JavaGenericRefTypeInstance> getMatches(ObjectList<JavaTypeInstance> clashes) {
             Map<JavaTypeInstance, JavaGenericRefTypeInstance> matches = getBoundSuperClasses(clashes.get(0));
             for (int x = 1, len = clashes.size(); x < len; ++x) {
                 JavaTypeInstance clashType = clashes.get(x);
@@ -155,7 +156,7 @@ public class InferredJavaType {
         }
 
         private static IJTInternal mkClash(IJTInternal delegate1, IJTInternal delegate2) {
-            List<IJTInternal> clashes = new ObjectArrayList<>();
+            ObjectList<IJTInternal> clashes = new ObjectArrayList<>();
             if (delegate1 instanceof IJTInternal_Clash) {
                 clashes.addAll(((IJTInternal_Clash) delegate1).clashes);
             } else {
@@ -204,7 +205,7 @@ public class InferredJavaType {
         private void collapseTypeClash(boolean force) {
             if (resolved) return;
 
-            List<JavaTypeInstance> clashTypes = new ObjectArrayList<>();
+            ObjectList<JavaTypeInstance> clashTypes = new ObjectArrayList<>();
             int arraySize = clashes.get(0).getJavaTypeInstance().getNumArrayDimensions();
             for (IJTInternal clash : clashes) {
                 JavaTypeInstance clashType = clash.getJavaTypeInstance();
@@ -227,7 +228,7 @@ public class InferredJavaType {
             }
         }
 
-        private static Pair<Boolean, JavaTypeInstance> collapseTypeClash2(List<JavaTypeInstance> clashes) {
+        private static Pair<Boolean, JavaTypeInstance> collapseTypeClash2(ObjectList<JavaTypeInstance> clashes) {
             Map<JavaTypeInstance, JavaGenericRefTypeInstance> matches = getMatches(clashes);
             if (matches.isEmpty()) {
                 return Pair.make(false, TypeConstants.OBJECT);
@@ -238,7 +239,7 @@ public class InferredJavaType {
              *
              * We now want to remove any which are less derived.
              */
-            List<JavaTypeInstance> poss = getMostDerivedType(matches.keySet());
+            ObjectList<JavaTypeInstance> poss = getMostDerivedType(matches.keySet());
             /*
              * If we still have >1 left, we have to pick one.  Prefer a base class to an interface?
              */
@@ -261,7 +262,7 @@ public class InferredJavaType {
                 JavaTypeInstance bindingFor = GenericTypeBinder.extractBindings(rhs, oneClash).getBindingFor(rhs);
                 if (bindingFor != null) {
                     if (bindingFor instanceof JavaGenericRefTypeInstance genericBindingFor) {
-                        List<List<JavaTypeInstance>> clashSubs = new ObjectArrayList<>();
+                        ObjectList<ObjectList<JavaTypeInstance>> clashSubs = new ObjectArrayList<>();
                         for (JavaTypeInstance typ : genericBindingFor.getGenericTypes()) {
                             clashSubs.add(new ObjectArrayList<JavaTypeInstance>(new JavaTypeInstance[]{ typ }));
                         }
@@ -270,21 +271,21 @@ public class InferredJavaType {
                             if (!(bindingFor2 instanceof JavaGenericRefTypeInstance gr2)) {
                                 break betterGen;
                             }
-                            List<JavaTypeInstance> thisClashSubs = gr2.getGenericTypes();
+                            ObjectList<JavaTypeInstance> thisClashSubs = gr2.getGenericTypes();
                             if (thisClashSubs.size() != clashSubs.size()) {
                                 break betterGen;
                             }
                             for (int j=0;j<clashSubs.size();++j) {
-                                List<JavaTypeInstance> clashSubsPosn = clashSubs.get(j);
+                                ObjectList<JavaTypeInstance> clashSubsPosn = clashSubs.get(j);
                                 if (!clashSubsPosn.get(0).equals(thisClashSubs.get(j))) {
                                     clashSubsPosn.add(thisClashSubs.get(j));
                                 }
                             }
                         }
-                        List<JavaTypeInstance> resolvedSubs = new ObjectArrayList<>();
+                        ObjectList<JavaTypeInstance> resolvedSubs = new ObjectArrayList<>();
                         //noinspection ForLoopReplaceableByForEach
                         for (int i = 0;i < clashSubs.size();++i) {
-                            List<JavaTypeInstance> posSub = clashSubs.get(i);
+                            ObjectList<JavaTypeInstance> posSub = clashSubs.get(i);
                             if (posSub.size() == 1) {
                                 resolvedSubs.add(posSub.get(0));
                             } else {
@@ -415,8 +416,8 @@ public class InferredJavaType {
 
     }
 
-    private static List<JavaTypeInstance> getMostDerivedType(Set<JavaTypeInstance> types) {
-        List<JavaTypeInstance> poss = new ObjectArrayList<>(types);
+    private static ObjectList<JavaTypeInstance> getMostDerivedType(Set<JavaTypeInstance> types) {
+        ObjectList<JavaTypeInstance> poss = new ObjectArrayList<>(types);
         boolean effect;
         do {
             effect = false;
@@ -640,7 +641,7 @@ public class InferredJavaType {
         value = clash;
     }
 
-    private static InferredJavaType mkClash(List<JavaTypeInstance> types) {
+    private static InferredJavaType mkClash(ObjectList<JavaTypeInstance> types) {
         JavaTypeInstance[] arr = types.toArray(new JavaTypeInstance[0]);
         return mkClash(arr);
     }
@@ -655,7 +656,7 @@ public class InferredJavaType {
     }
 
     public static InferredJavaType mkClash(JavaTypeInstance... types) {
-        List<IJTInternal> ints = new ObjectArrayList<>();
+        ObjectList<IJTInternal> ints = new ObjectArrayList<>();
         for (JavaTypeInstance type : types) {
             ints.add(new IJTInternal_Impl(type, Source.UNKNOWN, false));
         }
@@ -731,8 +732,8 @@ public class InferredJavaType {
      * For now, we know these two bases are identical.
      */
     private static boolean checkGenericCompatibility(JavaGenericRefTypeInstance thisType, JavaGenericRefTypeInstance otherType) {
-        List<JavaTypeInstance> thisTypes = thisType.getGenericTypes();
-        List<JavaTypeInstance> otherTypes = otherType.getGenericTypes();
+        ObjectList<JavaTypeInstance> thisTypes = thisType.getGenericTypes();
+        ObjectList<JavaTypeInstance> otherTypes = otherType.getGenericTypes();
         if (thisTypes.size() != otherTypes.size()) return true; // lost already.
         for (int x=0,len=thisTypes.size();x<len;++x) {
             JavaTypeInstance this1 = thisTypes.get(x);

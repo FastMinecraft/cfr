@@ -14,12 +14,12 @@ import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.Collection;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 public class AnonymousBlocks {
-    public static void labelAnonymousBlocks(List<Op03SimpleStatement> statements, BlockIdentifierFactory blockIdentifierFactory) {
-        List<Op03SimpleStatement> anonBreaks = Functional.filter(statements, in -> {
+    public static void labelAnonymousBlocks(ObjectList<Op03SimpleStatement> statements, BlockIdentifierFactory blockIdentifierFactory) {
+        ObjectList<Op03SimpleStatement> anonBreaks = Functional.filter(statements, in -> {
             Statement statement = in.getStatement();
             if (!(statement instanceof JumpingStatement)) return false;
             JumpType jumpType = ((JumpingStatement) statement).getJumpType();
@@ -44,7 +44,7 @@ public class AnonymousBlocks {
             Op03SimpleStatement anonTarget = new Op03SimpleStatement(
                     target.getBlockIdentifiers(), new AnonBreakTarget(blockIdentifier), targetIndex.justBefore());
             Collection<Op03SimpleStatement> original = target.getSources();
-            List<Op03SimpleStatement> sources = new ObjectArrayList<>(original);
+            ObjectList<Op03SimpleStatement> sources = new ObjectArrayList<>(original);
             for (Op03SimpleStatement source : sources) {
                 if (targetIndex.isBackJumpTo(source)) {
                     target.removeSource(source);

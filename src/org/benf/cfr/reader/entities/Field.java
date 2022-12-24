@@ -33,7 +33,7 @@ import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.ArrayList;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 
@@ -63,8 +63,7 @@ public class Field implements KnowsRawSize, TypeUsageCollectable {
         this.cp = cp;
         this.accessFlags = AccessFlag.build(raw.getU2At(OFFSET_OF_ACCESS_FLAGS));
         int attributes_count = raw.getU2At(OFFSET_OF_ATTRIBUTES_COUNT);
-        ArrayList<Attribute> tmpAttributes = new ArrayList<>();
-        tmpAttributes.ensureCapacity(attributes_count);
+        ObjectArrayList<Attribute> tmpAttributes = new ObjectArrayList<>(attributes_count);
         long attributesLength = ContiguousEntityFactory.build(raw.getOffsetData(OFFSET_OF_ATTRIBUTES), attributes_count, tmpAttributes,
                 AttributeFactory.getBuilder(cp, classFileVersion));
 
@@ -190,14 +189,14 @@ public class Field implements KnowsRawSize, TypeUsageCollectable {
         collector.collectFromT(attributes.getByName(AttributeRuntimeInvisibleTypeAnnotations.ATTRIBUTE_NAME));
     }
 
-    private List<AnnotationTableEntry> getRecordComponentAnnotations(ClassFile owner, List<AnnotationTableEntry> fieldAnnotations) {
+    private ObjectList<AnnotationTableEntry> getRecordComponentAnnotations(ClassFile owner, ObjectList<AnnotationTableEntry> fieldAnnotations) {
         // Note: Don't have to consider TYPE_USE annotations because they are implicitly propagated
         // to field and already dumped as part of regular field annotation handling
         
-        List<AnnotationTableEntry> componentAnnotations = null;
+        ObjectList<AnnotationTableEntry> componentAnnotations = null;
 
         AttributeRecord recordAttribute = owner.getAttributes().getByName(AttributeRecord.ATTRIBUTE_NAME);
-        List<Attribute> componentAttributes;
+        ObjectList<Attribute> componentAttributes;
         if (recordAttribute != null && (componentAttributes = recordAttribute.getRecordComponentAttributes(fieldName)) != null) {
             componentAnnotations = MiscAnnotations.BasicAnnotations(new AttributeMap(componentAttributes));
         }
@@ -238,13 +237,13 @@ public class Field implements KnowsRawSize, TypeUsageCollectable {
         d.dumpFieldDoc(this, owner.getClassType()); // fabric
         JavaTypeInstance type = getJavaTypeInstance();
 
-        List<AnnotationTableEntry> declarationAnnotations = MiscAnnotations.BasicAnnotations(attributes);
+        ObjectList<AnnotationTableEntry> declarationAnnotations = MiscAnnotations.BasicAnnotations(attributes);
         // If field is backing a record component, get annotations for component as well
         if (asRecordField) {
             declarationAnnotations = getRecordComponentAnnotations(owner, declarationAnnotations);
         }
         TypeAnnotationHelper tah = TypeAnnotationHelper.create(attributes, TypeAnnotationEntryValue.type_field_or_record_component);
-        List<AnnotationTableTypeEntry> fieldTypeAnnotations = tah == null ? null : tah.getEntries();
+        ObjectList<AnnotationTableTypeEntry> fieldTypeAnnotations = tah == null ? null : tah.getEntries();
 
         DeclarationAnnotationsInfo annotationsInfo = DeclarationAnnotationHelper.getDeclarationInfo(type, declarationAnnotations, fieldTypeAnnotations);
         /*
@@ -253,8 +252,8 @@ public class Field implements KnowsRawSize, TypeUsageCollectable {
          * (even though then the dumped type might still be admissible)
          */
         boolean usesAdmissibleType = !annotationsInfo.requiresNonAdmissibleType();
-        List<AnnotationTableEntry> declAnnotationsToDump = annotationsInfo.getDeclarationAnnotations(usesAdmissibleType);
-        List<AnnotationTableTypeEntry> typeAnnotationsToDump = annotationsInfo.getTypeAnnotations(usesAdmissibleType);
+        ObjectList<AnnotationTableEntry> declAnnotationsToDump = annotationsInfo.getDeclarationAnnotations(usesAdmissibleType);
+        ObjectList<AnnotationTableTypeEntry> typeAnnotationsToDump = annotationsInfo.getTypeAnnotations(usesAdmissibleType);
 
         for (AnnotationTableEntry annotation : declAnnotationsToDump) {
             annotation.dump(d);

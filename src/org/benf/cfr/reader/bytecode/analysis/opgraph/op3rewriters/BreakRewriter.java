@@ -7,11 +7,11 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockType;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.JumpType;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 public class BreakRewriter {
-    public static void rewriteBreakStatements(List<Op03SimpleStatement> statements) {
+    public static void rewriteBreakStatements(ObjectList<Op03SimpleStatement> statements) {
         Cleaner.reindexInPlace(statements);
         for (Op03SimpleStatement statement : statements) {
             Statement innerStatement = statement.getStatement();

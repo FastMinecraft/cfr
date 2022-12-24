@@ -26,6 +26,8 @@ import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.LinkedList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +47,7 @@ public class NonStaticLifter {
     public void liftNonStatics() {
 
         // All uninitialised non-static fields, in definition order.
-        Pair<List<ClassFileField>, List<ClassFileField>> fields =  Functional.partition(classFile.getFields(), in -> {
+        Pair<ObjectList<ClassFileField>, ObjectList<ClassFileField>> fields =  Functional.partition(classFile.getFields(), in -> {
             if (in.getField().testAccessFlag(AccessFlag.ACC_STATIC)) return false;
             return !in.getField().testAccessFlag(AccessFlag.ACC_SYNTHETIC);
             // Members may well have an initial value. If they do, we need to make sure that it is
@@ -63,7 +65,7 @@ public class NonStaticLifter {
             fieldMap.put(classFileField.getField().getFieldName(), Pair.make(x, classFileField));
         }
 
-        List<Method> constructors = Functional.filter(classFile.getConstructors(),
+        ObjectList<Method> constructors = Functional.filter(classFile.getConstructors(),
             in -> !ConstructorUtils.isDelegating(in)
         );
 
@@ -71,7 +73,7 @@ public class NonStaticLifter {
          * code.  (If they don't it's not the end of the world, we're tidying up).
          */
 
-        List<List<Op04StructuredStatement>> constructorCodeList = new ObjectArrayList<>();
+        ObjectList<List<Op04StructuredStatement>> constructorCodeList = new ObjectArrayList<>();
         int minSize = Integer.MAX_VALUE;
         for (Method constructor : constructors) {
             List<Op04StructuredStatement> blockStatements = MiscStatementTools.getBlockStatements(constructor.getAnalysis());

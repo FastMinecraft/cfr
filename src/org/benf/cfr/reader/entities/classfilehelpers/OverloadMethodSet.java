@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.entities.classfilehelpers;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.Literal;
 import org.benf.cfr.reader.bytecode.analysis.parse.literal.TypedLiteral;
@@ -31,7 +32,7 @@ public class OverloadMethodSet {
 
     private static class MethodData {
         private final MethodPrototype methodPrototype;
-        private final List<JavaTypeInstance> methodArgs;
+        private final ObjectList<JavaTypeInstance> methodArgs;
         private final int size;
         private static final MethodData POISON = new MethodData();
 
@@ -41,7 +42,7 @@ public class OverloadMethodSet {
             this.size = 0;
         }
 
-        private MethodData(MethodPrototype methodPrototype, List<JavaTypeInstance> methodArgs) {
+        private MethodData(MethodPrototype methodPrototype, ObjectList<JavaTypeInstance> methodArgs) {
             this.methodPrototype = methodPrototype;
             this.methodArgs = methodArgs;
             this.size = methodArgs.size();
@@ -77,7 +78,7 @@ public class OverloadMethodSet {
         }
 
         private MethodData getBoundVersion(final GenericTypeBinder genericTypeBinder) {
-            List<JavaTypeInstance> rebound = Functional.map(methodArgs, arg -> {
+            ObjectList<JavaTypeInstance> rebound = Functional.map(methodArgs, arg -> {
                 if (arg instanceof JavaGenericBaseInstance) {
                     return ((JavaGenericBaseInstance) arg).getBoundInstance(genericTypeBinder);
                 } else {
@@ -90,16 +91,16 @@ public class OverloadMethodSet {
     }
 
     private final MethodData actualPrototype;
-    private final List<MethodData> allPrototypes;
+    private final ObjectList<MethodData> allPrototypes;
 
-    public OverloadMethodSet(ClassFile classFile, MethodPrototype actualPrototype, List<MethodPrototype> allPrototypes) {
+    public OverloadMethodSet(ClassFile classFile, MethodPrototype actualPrototype, ObjectList<MethodPrototype> allPrototypes) {
         this.classFile = classFile;
         Function<MethodPrototype, MethodData> mk = arg -> new MethodData(arg, arg.getArgs());
         this.actualPrototype = mk.apply(actualPrototype);
         this.allPrototypes = Functional.map(allPrototypes, mk);
     }
 
-    private OverloadMethodSet(ClassFile classFile, MethodData actualPrototype, List<MethodData> allPrototypes) {
+    private OverloadMethodSet(ClassFile classFile, MethodData actualPrototype, ObjectList<MethodData> allPrototypes) {
         this.classFile = classFile;
         this.actualPrototype = actualPrototype;
         this.allPrototypes = allPrototypes;
@@ -116,15 +117,15 @@ public class OverloadMethodSet {
         return actualPrototype.getArgType(idx, used);
     }
 
-    public List<JavaTypeInstance> getPossibleArgTypes(int idx, JavaTypeInstance used) {
-        List<JavaTypeInstance> res = new ObjectArrayList<>();
+    public ObjectList<JavaTypeInstance> getPossibleArgTypes(int idx, JavaTypeInstance used) {
+        ObjectList<JavaTypeInstance> res = new ObjectArrayList<>();
         for (MethodData proto : allPrototypes) {
             res.add(proto.getArgType(idx, used));
         }
         return res;
     }
 
-    public boolean callsCorrectEntireMethod(List<Expression> args, GenericTypeBinder gtb) {
+    public boolean callsCorrectEntireMethod(ObjectList<Expression> args, GenericTypeBinder gtb) {
         final int argCount = args.size();
         /*
          * Don't even consider any of the matches which have too many required arguments
@@ -203,7 +204,7 @@ public class OverloadMethodSet {
                 if (weakMatches.containsKey(x)) { // containskey - it's a lazy map.
                     Set<MethodData> weakMatchedMethods = weakMatches.get(x);
                     // If ONE of possibleMatches is NOT in weakMatchedMethods, it's the winner!
-                    List<MethodData> remaining = SetUtil.differenceAtakeBtoList(possibleMatches, weakMatchedMethods);
+                    ObjectList<MethodData> remaining = SetUtil.differenceAtakeBtoList(possibleMatches, weakMatchedMethods);
                     if (remaining.size() == 1) {
                         possibleMatches.clear();
                         possibleMatches.addAll(remaining);
@@ -214,7 +215,7 @@ public class OverloadMethodSet {
         }
 
         if (possibleMatches.size() > 1) {
-            List<MethodData> remaining = new ObjectArrayList<>(possibleMatches);
+            ObjectList<MethodData> remaining = new ObjectArrayList<>(possibleMatches);
             // Otherwise - if one of them is the most specific type....
             // Doesn't work if unrelated. (see JLS 15.12.2)
             for (int x=0, len=args.size();x<len;++x) {
@@ -330,7 +331,7 @@ public class OverloadMethodSet {
     }
 
     private boolean callsCorrectApproxRawMethod(JavaTypeInstance actual, int idx, GenericTypeBinder gtb) {
-        List<MethodData> matches = new ObjectArrayList<>();
+        ObjectList<MethodData> matches = new ObjectArrayList<>();
         for (MethodData prototype : allPrototypes) {
             JavaTypeInstance arg = prototype.getArgType(idx, actual);
             // If it was equal, it would have been satisfied previously.
@@ -375,7 +376,7 @@ public class OverloadMethodSet {
     }
 
     private boolean callsCorrectApproxObjMethod(Expression newArg, final JavaTypeInstance actual, final int idx, GenericTypeBinder gtb) {
-        List<MethodData> matches = new ObjectArrayList<>();
+        ObjectList<MethodData> matches = new ObjectArrayList<>();
         boolean podMatchExists = false;
         boolean nonPodMatchExists = false;
         for (MethodData prototype : allPrototypes) {
@@ -447,7 +448,7 @@ public class OverloadMethodSet {
         );
         if (!isPOD) {
             // Put object matches to the front.
-            Pair<List<MethodData>, List<MethodData>> partition = Functional.partition(matches,
+            Pair<ObjectList<MethodData>, ObjectList<MethodData>> partition = Functional.partition(matches,
                 in -> !(in.getArgType(idx, actual) instanceof RawJavaType)
             );
             matches.clear();

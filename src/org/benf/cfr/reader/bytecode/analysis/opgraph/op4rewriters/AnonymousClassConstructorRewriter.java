@@ -15,6 +15,8 @@ import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredExpr
 import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.entities.Method;
 
+import it.unimi.dsi.fastutil.objects.ObjectList;
+
 import java.util.List;
 
 public class AnonymousClassConstructorRewriter extends AbstractExpressionRewriter {

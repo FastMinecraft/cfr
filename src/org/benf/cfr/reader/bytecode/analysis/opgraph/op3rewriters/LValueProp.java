@@ -4,13 +4,13 @@ import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.rewriters.AccountingRewriter;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.LValueAssignmentAndAliasCondenser;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 /*
  * Transformations to do with copy propagation etc.
  */
 public class LValueProp {
-    public static void condenseLValues(List<Op03SimpleStatement> statements) {
+    public static void condenseLValues(ObjectList<Op03SimpleStatement> statements) {
 
         /*
          * [todo - fix accounting].

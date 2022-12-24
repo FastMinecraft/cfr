@@ -21,14 +21,14 @@ import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredDefi
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.Set;
 
 public class InstanceofMatchTidyingRewriter {
     private final Map<LocalVariable, Integer> locals = MapFactory.newMap();
     private final Set<LocalVariable> removeCandidates = SetFactory.newOrderedSet();
-    private final Map<LValue, List<StructuredStatement>> definitions = MapFactory.newOrderedMap();
+    private final Map<LValue, ObjectList<StructuredStatement>> definitions = MapFactory.newOrderedMap();
     private StructuredStatement last;
 
     public static void rewrite(Op04StructuredStatement block) {
@@ -44,7 +44,7 @@ public class InstanceofMatchTidyingRewriter {
         if (removeCandidates.isEmpty()) return;
         et = new ExpressionRewriterTransformer(new AssignRemover());
         et.transform(block);
-        for (List<StructuredStatement> definitionList : definitions.values()) {
+        for (ObjectList<StructuredStatement> definitionList : definitions.values()) {
             for (StructuredStatement definition : definitionList) {
                 definition.getContainer().nopOut();
             }
@@ -69,7 +69,7 @@ public class InstanceofMatchTidyingRewriter {
     }
 
     private void addDefinition(StructuredStatement in, LValue lvalue) {
-        List<StructuredStatement> defl = definitions.get(lvalue);
+        ObjectList<StructuredStatement> defl = definitions.get(lvalue);
         //noinspection Java8MapApi
         if (defl == null) {
             defl = new ObjectArrayList<>();

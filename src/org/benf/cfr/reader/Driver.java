@@ -1,6 +1,7 @@
 package org.benf.cfr.reader;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.types.InnerClassInfo;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
@@ -115,18 +116,18 @@ public class Driver {
             summaryDumper.notify("Summary for " + path);
             summaryDumper.notify(MiscConstants.CFR_HEADER_BRA + " " + CfrVersionInfo.VERSION_INFO);
             progressDumper.analysingPath(path);
-            Map<Integer, List<JavaTypeInstance>> clstypes = dcCommonState.explicitlyLoadJar(path, analysisType);
+            Map<Integer, ObjectList<JavaTypeInstance>> clstypes = dcCommonState.explicitlyLoadJar(path, analysisType);
             Set<JavaTypeInstance> versionCollisions = getVersionCollisions(clstypes);
             dcCommonState.setCollisions(versionCollisions);
-            List<Integer> versionsSeen = new ObjectArrayList<>();
+            ObjectList<Integer> versionsSeen = new ObjectArrayList<>();
             
             addMissingOuters(clstypes);
             
-            for (Map.Entry<Integer, List<JavaTypeInstance>> entry : clstypes.entrySet()) {
+            for (Map.Entry<Integer, ObjectList<JavaTypeInstance>> entry : clstypes.entrySet()) {
                 int forVersion = entry.getKey();
                 versionsSeen.add(forVersion);
-                List<Integer> localVersionsSeen = new ObjectArrayList<>(versionsSeen);
-                List<JavaTypeInstance> types = entry.getValue();
+                ObjectList<Integer> localVersionsSeen = new ObjectArrayList<>(versionsSeen);
+                ObjectList<JavaTypeInstance> types = entry.getValue();
                 doJarVersionTypes(forVersion, localVersionsSeen, dcCommonState, dumperFactory, illegalIdentifierDump, summaryDumper, progressDumper, types);
             }
         } catch (Exception e) {
@@ -144,8 +145,8 @@ public class Driver {
      * additionally add their outer classes, to ensure that they are not skipped as
      * not required.
      */
-    private static void addMissingOuters(Map<Integer, List<JavaTypeInstance>> clstypes) {
-        for (Map.Entry<Integer, List<JavaTypeInstance>> entry : clstypes.entrySet()) {
+    private static void addMissingOuters(Map<Integer, ObjectList<JavaTypeInstance>> clstypes) {
+        for (Map.Entry<Integer, ObjectList<JavaTypeInstance>> entry : clstypes.entrySet()) {
             int version = entry.getKey();
             if (version == 0) continue;
             Set<JavaTypeInstance> distinct = SetFactory.newOrderedSet(entry.getValue());
@@ -164,11 +165,11 @@ public class Driver {
         }
     }
 
-    private static Set<JavaTypeInstance> getVersionCollisions(Map<Integer, List<JavaTypeInstance>> clstypes) {
+    private static Set<JavaTypeInstance> getVersionCollisions(Map<Integer, ObjectList<JavaTypeInstance>> clstypes) {
         if (clstypes.size() <= 1) return Collections.emptySet();
         Set<JavaTypeInstance> collisions = SetFactory.newOrderedSet();
         Set<JavaTypeInstance> seen = SetFactory.newSet();
-        for (List<JavaTypeInstance> types : clstypes.values()) {
+        for (ObjectList<JavaTypeInstance> types : clstypes.values()) {
             for (JavaTypeInstance type : types) {
                 if (!seen.add(type)) collisions.add(type);
             }
@@ -176,7 +177,7 @@ public class Driver {
         return collisions;
     }
 
-    private static void doJarVersionTypes(int forVersion, final List<Integer> versionsSeen, DCCommonState dcCommonState, DumperFactory dumperFactory, IllegalIdentifierDump illegalIdentifierDump, SummaryDumper summaryDumper, ProgressDumper progressDumper, List<JavaTypeInstance> types) {
+    private static void doJarVersionTypes(int forVersion, final ObjectList<Integer> versionsSeen, DCCommonState dcCommonState, DumperFactory dumperFactory, IllegalIdentifierDump illegalIdentifierDump, SummaryDumper summaryDumper, ProgressDumper progressDumper, ObjectList<JavaTypeInstance> types) {
         Options options = dcCommonState.getOptions();
         final boolean lomem = options.getOption(OptionsImpl.LOMEM);
         final Predicate<String> matcher = MiscUtils.mkRegexFilter(options.getOption(OptionsImpl.JAR_FILTER), true);

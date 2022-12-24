@@ -19,7 +19,7 @@ import org.benf.cfr.reader.bytecode.analysis.types.JavaArrayTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.MethodPrototype;
 import org.benf.cfr.reader.entities.classfilehelpers.OverloadMethodSet;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class VarArgsRewriter implements Op04Rewriter, ExpressionRewriter {
 
@@ -28,7 +28,7 @@ public class VarArgsRewriter implements Op04Rewriter, ExpressionRewriter {
 
     @Override
     public void rewrite(Op04StructuredStatement root) {
-        List<StructuredStatement> structuredStatements = MiscStatementTools.linearise(root);
+        ObjectList<StructuredStatement> structuredStatements = MiscStatementTools.linearise(root);
         if (structuredStatements == null) return;
 
         /*
@@ -80,7 +80,7 @@ public class VarArgsRewriter implements Op04Rewriter, ExpressionRewriter {
         return lValue;
     }
 
-    public void rewriteVarArgsArg(OverloadMethodSet overloadMethodSet, MethodPrototype methodPrototype, List<Expression> args, GenericTypeBinder gtb) {
+    public void rewriteVarArgsArg(OverloadMethodSet overloadMethodSet, MethodPrototype methodPrototype, ObjectList<Expression> args, GenericTypeBinder gtb) {
         if (!methodPrototype.isVarArgs()) return;
         if (args.size() != methodPrototype.getArgs().size() || args.isEmpty()) {
             // This shouldn't be possible.  Someone's decorated a method varargs
@@ -90,13 +90,13 @@ public class VarArgsRewriter implements Op04Rewriter, ExpressionRewriter {
         int last = args.size() - 1;
         Expression lastArg = args.get(args.size() - 1);
         if (!(lastArg instanceof NewAnonymousArray newAnonymousArray)) return;
-        List<Expression> args2 = new ObjectArrayList<>(args);
+        ObjectList<Expression> args2 = new ObjectArrayList<>(args);
         args2.remove(last);
 
         /*
          * If newAnonymousArray is a single element 'null', we cannot split it out.
          */
-        List<Expression> anonVals = newAnonymousArray.getValues();
+        ObjectList<Expression> anonVals = newAnonymousArray.getValues();
         if (anonVals.size() == 1) {
             Literal nullLit = new Literal(TypedLiteral.getNull());
             Expression argument = anonVals.get(0);

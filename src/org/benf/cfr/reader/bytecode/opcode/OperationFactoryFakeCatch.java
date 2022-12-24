@@ -13,7 +13,7 @@ import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class OperationFactoryFakeCatch extends OperationFactoryDefault {
 
@@ -21,7 +21,7 @@ public class OperationFactoryFakeCatch extends OperationFactoryDefault {
     public StackDelta getStackDelta(JVMInstr instr, byte[] data, ConstantPoolEntry[] cpEntries,
                                     StackSim stackSim, Method method) {
         StackTypes pushed = StackType.REF.asList();
-        List<StackType> popped = new ObjectArrayList<>();
+        ObjectList<StackType> popped = new ObjectArrayList<>();
         for (int x = 0; x < stackSim.getDepth(); ++x) {
             popped.add(stackSim.getEntry(x).getType());
         }

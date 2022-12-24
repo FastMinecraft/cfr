@@ -12,7 +12,7 @@ import org.benf.cfr.reader.util.output.Dumper;
 import org.benf.cfr.reader.util.output.IllegalIdentifierDump;
 import org.benf.cfr.reader.util.output.TypeContext;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.Set;
 
@@ -103,7 +103,7 @@ public enum RawJavaType implements JavaTypeInstance {
     }
 
     private class Annotated implements JavaAnnotatedTypeInstance {
-        private final List<AnnotationTableEntry> entries = new ObjectArrayList<>();
+        private final ObjectList<AnnotationTableEntry> entries = new ObjectArrayList<>();
 
         @Override
         public JavaAnnotatedTypeIterator pathIterator() {

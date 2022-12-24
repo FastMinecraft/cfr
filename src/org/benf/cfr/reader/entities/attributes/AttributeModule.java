@@ -7,7 +7,7 @@ import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryUTF8;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -22,11 +22,11 @@ public class AttributeModule extends Attribute {
     private final int nameIdx;
     private final int flags;
     private final int versionIdx;
-    private final List<Require> requires;
-    private final List<ExportOpen> exports;
-    private final List<ExportOpen> opens;
-    private final List<Use> uses;
-    private final List<Provide> provides;
+    private final ObjectList<Require> requires;
+    private final ObjectList<ExportOpen> exports;
+    private final ObjectList<ExportOpen> opens;
+    private final ObjectList<Use> uses;
+    private final ObjectList<Provide> provides;
 
     public Set<ModuleFlags> getFlags() {
         return ModuleFlags.build(flags);
@@ -116,7 +116,7 @@ public class AttributeModule extends Attribute {
             this.version_index = version_index;
         }
 
-        private static long read(ByteData raw, long offset, List<Require> tgt) {
+        private static long read(ByteData raw, long offset, ObjectList<Require> tgt) {
             int num = raw.getU2At(offset);
             offset += 2;
             for (int x=0;x<num;++x) {
@@ -150,7 +150,7 @@ public class AttributeModule extends Attribute {
             return to_index;
         }
 
-        private static long read(ByteData raw, long offset, List<ExportOpen> tgt) {
+        private static long read(ByteData raw, long offset, ObjectList<ExportOpen> tgt) {
             int num = raw.getU2At(offset);
             offset += 2;
             for (int x=0;x<num;++x) {
@@ -177,7 +177,7 @@ public class AttributeModule extends Attribute {
             this.index = index;
         }
 
-        private static long read(ByteData raw, long offset, List<Use> tgt) {
+        private static long read(ByteData raw, long offset, ObjectList<Use> tgt) {
             int num = raw.getU2At(offset);
             offset += 2;
             for (int x=0;x<num;++x) {
@@ -210,7 +210,7 @@ public class AttributeModule extends Attribute {
             return with_index;
         }
 
-        private static void read(ByteData raw, long offset, List<Provide> tgt) {
+        private static void read(ByteData raw, long offset, ObjectList<Provide> tgt) {
             int num = raw.getU2At(offset);
             offset += 2;
             for (int x=0;x<num;++x) {
@@ -272,23 +272,23 @@ public class AttributeModule extends Attribute {
         return ATTRIBUTE_NAME;
     }
 
-    public List<Require> getRequires() {
+    public ObjectList<Require> getRequires() {
         return requires;
     }
 
-    public List<ExportOpen> getExports() {
+    public ObjectList<ExportOpen> getExports() {
         return exports;
     }
 
-    public List<ExportOpen> getOpens() {
+    public ObjectList<ExportOpen> getOpens() {
         return opens;
     }
 
-    public List<Use> getUses() {
+    public ObjectList<Use> getUses() {
         return uses;
     }
 
-    public List<Provide> getProvides() {
+    public ObjectList<Provide> getProvides() {
         return provides;
     }
 

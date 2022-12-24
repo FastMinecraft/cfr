@@ -12,17 +12,17 @@ import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
 public class UnstructuredCatch extends AbstractUnStructuredStatement {
-    private final List<ExceptionGroup.Entry> exceptions;
+    private final ObjectList<ExceptionGroup.Entry> exceptions;
     private final BlockIdentifier blockIdentifier;
     private final LValue catching;
 
-    public UnstructuredCatch(List<ExceptionGroup.Entry> exceptions, BlockIdentifier blockIdentifier, LValue catching) {
+    public UnstructuredCatch(ObjectList<ExceptionGroup.Entry> exceptions, BlockIdentifier blockIdentifier, LValue catching) {
         super(BytecodeLoc.NONE);
         this.exceptions = exceptions;
         this.blockIdentifier = blockIdentifier;

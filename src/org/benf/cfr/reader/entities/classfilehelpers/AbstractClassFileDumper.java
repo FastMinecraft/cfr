@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.entities.classfilehelpers;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.types.ClassSignature;
 import org.benf.cfr.reader.bytecode.analysis.types.InnerClassInfoUtils;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
@@ -59,7 +60,7 @@ abstract class AbstractClassFileDumper implements ClassFileDumper {
         d.print(header).newln();
         if (options.getOption(OptionsImpl.DECOMPILER_COMMENTS)) {
             TypeUsageInformation typeUsageInformation = d.getTypeUsageInformation();
-            List<JavaTypeInstance> couldNotLoad = new ObjectArrayList<>();
+            ObjectList<JavaTypeInstance> couldNotLoad = new ObjectArrayList<>();
             for (JavaTypeInstance type : typeUsageInformation.getUsedClassTypes()) {
                 if (type instanceof JavaRefTypeInstance) {
                     ClassFile loadedClass = null;
@@ -88,7 +89,7 @@ abstract class AbstractClassFileDumper implements ClassFileDumper {
     }
 
     protected void dumpImplements(Dumper d, ClassSignature signature) {
-        List<JavaTypeInstance> interfaces = signature.interfaces();
+        ObjectList<JavaTypeInstance> interfaces = signature.interfaces();
         if (!interfaces.isEmpty()) {
             d.keyword("implements ");
             int size = interfaces.size();
@@ -108,14 +109,14 @@ abstract class AbstractClassFileDumper implements ClassFileDumper {
          * It's a bit irritating that we have to check obfuscations here, but we are stripping unused types,
          * and don't want to strip obfuscated names.
          */
-        List<JavaTypeInstance> classTypes = d.getObfuscationMapping().get(classFile.getAllClassTypes());
+        ObjectList<JavaTypeInstance> classTypes = d.getObfuscationMapping().get(classFile.getAllClassTypes());
         Set<JavaRefTypeInstance> types = d.getTypeUsageInformation().getShortenedClassTypes();
         //noinspection SuspiciousMethodCalls
         classTypes.forEach(types::remove);
         /*
          * Now - for all inner class types, remove them, but make sure the base class of the inner class is imported.
          */
-        List<JavaRefTypeInstance> inners = Functional.filter(types, in -> in.getInnerClassHereInfo().isInnerClass());
+        ObjectList<JavaRefTypeInstance> inners = Functional.filter(types, in -> in.getInnerClassHereInfo().isInnerClass());
         inners.forEach(types::remove);
         for (JavaRefTypeInstance inner : inners) {
             types.add(InnerClassInfoUtils.getTransitiveOuterClass(inner));
@@ -136,7 +137,7 @@ abstract class AbstractClassFileDumper implements ClassFileDumper {
             importTypes = Functional.filter(importTypes, in -> !"java.lang".equals(in.getPackageName()));
         }
 
-        List<String> names = Functional.map(importTypes, arg -> {
+        ObjectList<String> names = Functional.map(importTypes, arg -> {
             if (arg.getInnerClassHereInfo().isInnerClass()) {
                 String name = arg.getRawName(iid);
                 return name.replace(MiscConstants.INNER_CLASS_SEP_CHAR, '.');
@@ -155,7 +156,7 @@ abstract class AbstractClassFileDumper implements ClassFileDumper {
 
         Set<DetectedStaticImport> staticImports = d.getTypeUsageInformation().getDetectedStaticImports();
         if (!staticImports.isEmpty()) {
-            List<String> sis = Functional.map(staticImports, arg -> {
+            ObjectList<String> sis = Functional.map(staticImports, arg -> {
                 String name = arg.getClazz().getRawName(iid);
                 return name.replace(MiscConstants.INNER_CLASS_SEP_CHAR, '.') + '.' + arg.getName();
             });
@@ -172,7 +173,7 @@ abstract class AbstractClassFileDumper implements ClassFileDumper {
     }
 
     void dumpMethods(ClassFile classFile, Dumper d, boolean first, boolean asClass) {
-        List<Method> methods = classFile.getMethods();
+        ObjectList<Method> methods = classFile.getMethods();
         if (!methods.isEmpty()) {
             for (Method method : methods) {
                 if (method.hiddenState() != Method.Visibility.Visible) {
@@ -188,7 +189,7 @@ abstract class AbstractClassFileDumper implements ClassFileDumper {
         /*
          * Any 'additional' methods we've had to create to work around unsynthesisable code.
          */
-        List<FakeMethod> fakes = classFile.getMethodFakes();
+        ObjectList<FakeMethod> fakes = classFile.getMethodFakes();
         if (fakes != null && !fakes.isEmpty()) {
             for (FakeMethod method : fakes) {
                 if (!first) {

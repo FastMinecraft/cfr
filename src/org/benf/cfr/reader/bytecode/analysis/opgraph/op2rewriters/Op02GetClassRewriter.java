@@ -10,7 +10,7 @@ import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryClass;
 import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryMethodRef;
 import org.benf.cfr.reader.util.MiscConstants;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class Op02GetClassRewriter {
 
@@ -77,7 +77,7 @@ public class Op02GetClassRewriter {
         return methodPrototype.getReturnType().getDeGenerifiedType().equals(TypeConstants.OBJECT);
     }
 
-    public static void removeInvokeGetClass(ClassFile classFile, List<Op02WithProcessedDataAndRefs> op02list, GetClassTest classTest) {
+    public static void removeInvokeGetClass(ClassFile classFile, ObjectList<Op02WithProcessedDataAndRefs> op02list, GetClassTest classTest) {
         JVMInstr testInstr = classTest.getInstr();
         for (Op02WithProcessedDataAndRefs item : op02list) {
             if (item.getInstr() == testInstr) {

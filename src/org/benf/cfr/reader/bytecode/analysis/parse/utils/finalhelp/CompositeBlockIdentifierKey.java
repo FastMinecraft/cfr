@@ -5,7 +5,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.util.collections.Functional;
 
 import java.util.Collections;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 public class CompositeBlockIdentifierKey implements Comparable<CompositeBlockIdentifierKey> {
@@ -16,7 +16,7 @@ public class CompositeBlockIdentifierKey implements Comparable<CompositeBlockIde
     }
 
     public CompositeBlockIdentifierKey(Set<BlockIdentifier> blockIdentifiers) {
-        List<BlockIdentifier> b = Functional.filter(blockIdentifiers, in -> switch (in.getBlockType()) {
+        ObjectList<BlockIdentifier> b = Functional.filter(blockIdentifiers, in -> switch (in.getBlockType()) {
             case TRYBLOCK, CATCHBLOCK -> true;
             default -> false;
         });

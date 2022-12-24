@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters.Cleaner;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters.ExactTypeFilter;
@@ -30,7 +31,7 @@ import static org.benf.cfr.reader.util.collections.SetUtil.getSingle;
 
 public class Op03Blocks {
 
-    private static List<Block3> doTopSort(List<Block3> in) {
+    private static ObjectList<Block3> doTopSort(ObjectList<Block3> in) {
         /*
          * Topological sort, preferring earlier.
          *
@@ -47,7 +48,7 @@ public class Op03Blocks {
         Set<Block3> ready = new TreeSet<>();
         ready.add(in.get(0));
 
-        List<Block3> output = new ObjectArrayList<>(in.size());
+        ObjectList<Block3> output = new ObjectArrayList<>(in.size());
 
         while (!allBlocks.isEmpty()) {
             Block3 next;
@@ -121,7 +122,7 @@ public class Op03Blocks {
         return output;
     }
 
-    private static void apply0TargetBlockHeuristic(List<Block3> blocks) {
+    private static void apply0TargetBlockHeuristic(ObjectList<Block3> blocks) {
         /*
          * If a block has no targets, make sure it appears AFTER its last source
          * in the sorted blocks, [todo : unless that would move it out of a known blockidentifier set.]
@@ -173,13 +174,13 @@ public class Op03Blocks {
         in.removeAll(toRemove);
     }
 
-    private static Map<BlockIdentifier, BlockIdentifier> getTryBlockAliases(List<Op03SimpleStatement> statements) {
+    private static Map<BlockIdentifier, BlockIdentifier> getTryBlockAliases(ObjectList<Op03SimpleStatement> statements) {
         Map<BlockIdentifier, BlockIdentifier> tryBlockAliases = MapFactory.newMap();
-        List<Op03SimpleStatement> catchStatements = Functional.filter(statements, new TypeFilter<>(CatchStatement.class));
+        ObjectList<Op03SimpleStatement> catchStatements = Functional.filter(statements, new TypeFilter<>(CatchStatement.class));
         catchlist:
         for (Op03SimpleStatement catchStatementCtr : catchStatements) {
             CatchStatement catchStatement = (CatchStatement) catchStatementCtr.getStatement();
-            List<ExceptionGroup.Entry> caught = catchStatement.getExceptions();
+            ObjectList<ExceptionGroup.Entry> caught = catchStatement.getExceptions();
             /*
              * If all of the types caught are the same, we temporarily alias the try blocks.
              */
@@ -188,7 +189,7 @@ public class Op03Blocks {
             JavaRefTypeInstance catchType = first.getCatchType();
             BlockIdentifier tryBlockMain = first.getTryBlockIdentifier();
 
-            List<BlockIdentifier> possibleAliases = new ObjectArrayList<>();
+            ObjectList<BlockIdentifier> possibleAliases = new ObjectArrayList<>();
             for (int x = 1, len = caught.size(); x < len; ++x) {
                 ExceptionGroup.Entry entry = caught.get(x);
                 if (!entry.getCatchType().equals(catchType)) continue catchlist;
@@ -215,7 +216,7 @@ public class Op03Blocks {
      * Heuristic - we don't want to reorder entries which leave known blocks - SO... if a source
      * is in a different blockset, we have to wait until the previous block is emitted.
      */
-    private static void applyKnownBlocksHeuristic(List<Block3> blocks, Map<BlockIdentifier, BlockIdentifier> tryBlockAliases) {
+    private static void applyKnownBlocksHeuristic(ObjectList<Block3> blocks, Map<BlockIdentifier, BlockIdentifier> tryBlockAliases) {
 
         /* Find last statement in each block */
         Map<BlockIdentifier, Block3> lastByBlock = MapFactory.newMap();
@@ -282,8 +283,8 @@ public class Op03Blocks {
         }
     }
 
-    private static List<Block3> buildBasicBlocks(final List<Op03SimpleStatement> statements) {
-        final List<Block3> blocks = new ObjectArrayList<>();
+    private static ObjectList<Block3> buildBasicBlocks(final ObjectList<Op03SimpleStatement> statements) {
+        final ObjectList<Block3> blocks = new ObjectArrayList<>();
         final Map<Op03SimpleStatement, Block3> starts = MapFactory.newMap();
         final Map<Op03SimpleStatement, Block3> ends = MapFactory.newMap();
 
@@ -311,8 +312,8 @@ public class Op03Blocks {
 
         for (Block3 block : blocks) {
             Op03SimpleStatement start = block.getStart();
-            List<Op03SimpleStatement> prevList = start.getSources();
-            List<Block3> prevBlocks = new ObjectArrayList<>(prevList.size());
+            ObjectList<Op03SimpleStatement> prevList = start.getSources();
+            ObjectList<Block3> prevBlocks = new ObjectArrayList<>(prevList.size());
             for (Op03SimpleStatement prev : prevList) {
                 Block3 prevEnd = ends.get(prev);
                 if (prevEnd == null) {
@@ -322,8 +323,8 @@ public class Op03Blocks {
             }
 
             Op03SimpleStatement end = block.getEnd();
-            List<Op03SimpleStatement> afterList = end.getTargets();
-            List<Block3> postBlocks = new ObjectArrayList<>(afterList.size());
+            ObjectList<Op03SimpleStatement> afterList = end.getTargets();
+            ObjectList<Block3> postBlocks = new ObjectArrayList<>(afterList.size());
             for (Op03SimpleStatement after : afterList) {
                 postBlocks.add(starts.get(after));
             }
@@ -332,7 +333,7 @@ public class Op03Blocks {
             block.addTargets(postBlocks);
 
             if (end.getStatement() instanceof TryStatement) {
-                List<Block3> depends = new ObjectArrayList<>();
+                ObjectList<Block3> depends = new ObjectArrayList<>();
                 for (Block3 tgt : postBlocks) {
                     tgt.addSources(depends);
                     for (Block3 depend : depends) {
@@ -362,7 +363,7 @@ public class Op03Blocks {
      *
      * If these are working, we're probably quite happy!
      */
-    private static boolean detectMoves(List<Block3> blocks, Options options) {
+    private static boolean detectMoves(ObjectList<Block3> blocks, Options options) {
         Map<Op03SimpleStatement, Block3> opLocations = MapFactory.newIdentityMap();
         Map<Block3, Integer> idxLut = MapFactory.newIdentityMap();
         for (int i = 0, len = blocks.size(); i < len; ++i) {
@@ -374,7 +375,7 @@ public class Op03Blocks {
         }
 
         BlockIdentifierFactory blockIdentifierFactory = new BlockIdentifierFactory();
-        List<Set<BlockIdentifier>> blockMembers = new ObjectArrayList<>();
+        ObjectList<Set<BlockIdentifier>> blockMembers = new ObjectArrayList<>();
         for (int i = 0, len = blocks.size(); i < len; ++i) {
             blockMembers.add(SetFactory.newOrderedSet());
         }
@@ -418,7 +419,7 @@ public class Op03Blocks {
                             // of the loops which have been jumped into.
                             Set<BlockIdentifier> tmp = SetFactory.newSet(inThese);
                             tmp.removeAll(sourceInThese);
-                            List<Block3> newSources = new ObjectArrayList<>();
+                            ObjectList<Block3> newSources = new ObjectArrayList<>();
                             for (BlockIdentifier jumpedInto : tmp) {
                                 if (firstByBlock.get(jumpedInto) != block) {
                                     newSources.add(lastByBlock.get(jumpedInto));
@@ -442,7 +443,7 @@ public class Op03Blocks {
                 Op03SimpleStatement first = block.getStart();
                 Statement statement = first.getStatement();
                 if (statement instanceof IfStatement) {
-                    List<Op03SimpleStatement> tgts = first.getTargets();
+                    ObjectList<Op03SimpleStatement> tgts = first.getTargets();
                     if (tgts.size() != 2) continue;
 
                     Op03SimpleStatement tgt = tgts.get(1);
@@ -473,7 +474,7 @@ public class Op03Blocks {
         return effect;
     }
 
-    private static void stripTryBlockAliases(List<Op03SimpleStatement> out, Map<BlockIdentifier, BlockIdentifier> tryBlockAliases) {
+    private static void stripTryBlockAliases(ObjectList<Op03SimpleStatement> out, Map<BlockIdentifier, BlockIdentifier> tryBlockAliases) {
         Map<BlockIdentifier, Op03SimpleStatement> tries = MapFactory.newMap();
         Set<Op03SimpleStatement> remove = SetFactory.newOrderedSet();
         Set<BlockIdentifier> blocksToRemove = SetFactory.newOrderedSet();
@@ -525,7 +526,7 @@ public class Op03Blocks {
             /*
              * Unlink, and replace all occurences of blockIdentifier with alias.
              */
-            List<Op03SimpleStatement> targets = removeThis.getTargets();
+            ObjectList<Op03SimpleStatement> targets = removeThis.getTargets();
             Op03SimpleStatement naturalTarget = targets.get(0);
             for (Op03SimpleStatement target : targets) {
                 target.removeSource(removeThis);
@@ -541,7 +542,7 @@ public class Op03Blocks {
         }
     }
 
-    private static Map<BlockIdentifier, Integer> findFirstInBlock(List<Op03SimpleStatement> statements, Set<BlockIdentifier> mutableMissing) {
+    private static Map<BlockIdentifier, Integer> findFirstInBlock(ObjectList<Op03SimpleStatement> statements, Set<BlockIdentifier> mutableMissing) {
         int size = statements.size();
         Map<BlockIdentifier, Integer> res = MapFactory.newMap();
         for (int x = 0; x< size; ++x) {
@@ -562,7 +563,7 @@ public class Op03Blocks {
         return res;
     }
 
-    public static List<Op03SimpleStatement> combineTryBlocks(final List<Op03SimpleStatement> statements) {
+    public static ObjectList<Op03SimpleStatement> combineTryBlocks(final ObjectList<Op03SimpleStatement> statements) {
         Map<BlockIdentifier, BlockIdentifier> tryBlockAliases = getTryBlockAliases(statements);
         stripTryBlockAliases(statements, tryBlockAliases);
         return Cleaner.removeUnreachableCode(statements, true);
@@ -583,7 +584,7 @@ public class Op03Blocks {
             Statement stm = from.getEnd().getStatement();
             if (stm instanceof CaseStatement) {
                 BlockIdentifier caseBlock = ((CaseStatement) stm).getCaseBlock();
-                List<BlockIdentifier> diff = SetUtil.differenceAtakeBtoList(toBlocks, fromBlocks);
+                ObjectList<BlockIdentifier> diff = SetUtil.differenceAtakeBtoList(toBlocks, fromBlocks);
                 return diff.size() == 1 && diff.get(0) == caseBlock;
             }
         }
@@ -591,7 +592,7 @@ public class Op03Blocks {
     }
 
 
-    private static void sanitiseBlocks(List<Block3> blocks) {
+    private static void sanitiseBlocks(ObjectList<Block3> blocks) {
         for (Block3 block : blocks) {
             block.sources.remove(block);
             block.targets.remove(block);
@@ -616,7 +617,7 @@ public class Op03Blocks {
      *
      * THIS COULD PROBABLY BE REFACTORED TO REDUCE DUPLICATE CODE.
      */
-    private static List<Block3> invertJoinZeroTargetJumps(List<Block3> blocks) {
+    private static ObjectList<Block3> invertJoinZeroTargetJumps(ObjectList<Block3> blocks) {
         final Map<Op03SimpleStatement, Block3> seenPrevBlock = MapFactory.newMap();
         boolean effect = false;
         for (int x = 0, len = blocks.size(); x < len; ++x) {
@@ -639,7 +640,7 @@ public class Op03Blocks {
                 if (statement.getClass() != IfStatement.class) continue;
                 IfStatement ifStatement = (IfStatement) statement;
                 // But does it TAKEN jump to the dangling block?
-                List<Op03SimpleStatement> targets = sourceEnd.getTargets();
+                ObjectList<Op03SimpleStatement> targets = sourceEnd.getTargets();
                 if (targets.size() != 2) continue;
                 Op03SimpleStatement taken = targets.get(1);
                 if (taken != block.getStart()) continue;
@@ -681,7 +682,7 @@ public class Op03Blocks {
         return blocks;
     }
 
-    private static List<Block3> combineNeighbouringBlocks(List<Block3> blocks) {
+    private static ObjectList<Block3> combineNeighbouringBlocks(ObjectList<Block3> blocks) {
         boolean reloop;
         do {
             blocks = combineNeighbouringBlocksPass1(blocks);
@@ -695,7 +696,7 @@ public class Op03Blocks {
      * We're looking for a very specific feature here - a case statement which jumps BACK immediately, to something which has NO
      * OTHER source.  This won't get very many exemplars.
      */
-    private static List<Block3> combineSingleCaseBackBlock(List<Block3> blocks) {
+    private static ObjectList<Block3> combineSingleCaseBackBlock(ObjectList<Block3> blocks) {
         IdentityHashMap<Block3, Integer> idx = new IdentityHashMap<>();
 
         boolean effect = false;
@@ -707,7 +708,7 @@ public class Op03Blocks {
                 Integer tgtIdx = idx.get(target);
                 if (tgtIdx == null) continue;
                 if (target.sources.size() != 1) continue;
-                List<Op03SimpleStatement> content = block.content;
+                ObjectList<Op03SimpleStatement> content = block.content;
                 if (content.get(0).getStatement().getClass() != CaseStatement.class) continue;
                 if (content.get(1).getStatement().getClass() != GotoStatement.class) continue;
                 Set<BlockIdentifier> containedIn = content.get(1).getBlockIdentifiers();
@@ -748,7 +749,7 @@ public class Op03Blocks {
      *
      * b (from a, to c).
      */
-    private static boolean moveSingleOutOrderBlocks(final List<Block3> blocks) {
+    private static boolean moveSingleOutOrderBlocks(final ObjectList<Block3> blocks) {
         IdentityHashMap<Block3, Integer> idx = new IdentityHashMap<>();
         for (int x = 0, len = blocks.size(); x<len;++x) {
             idx.put(blocks.get(x), x);
@@ -766,7 +767,7 @@ public class Op03Blocks {
                 if (idxsrc == idxtgt-1 && idxtgt < x) {
 
                     // The jump from source to target has to be the LAST branch in source.
-                    List<Op03SimpleStatement> statements = source.getContent();
+                    ObjectList<Op03SimpleStatement> statements = source.getContent();
                     // We can iterate in order, as we're specifically looking for a non fall through.
                     Op03SimpleStatement prev = null;
                     for (int y=statements.size()-1;y>=0;--y) {
@@ -774,7 +775,7 @@ public class Op03Blocks {
                         Statement statement = stm.getStatement();
                         if (!statement.fallsToNext()) {
                             // If this statement doesn't have two targets of PREV and the start of BLOCK, can't do it.
-                            List<Op03SimpleStatement> stmTargets = stm.getTargets();
+                            ObjectList<Op03SimpleStatement> stmTargets = stm.getTargets();
                             if (stmTargets.size() != 2 ||
                                 stmTargets.get(0) != prev ||
                                 stmTargets.get(1) != block.getStart())
@@ -790,7 +791,7 @@ public class Op03Blocks {
                         Set<BlockIdentifier> midBlocks = block.getStart().getBlockIdentifiers();
                         if (srcBlocks.size() != midBlocks.size()+1) continue;
 
-                        List<BlockIdentifier> diff = SetUtil.differenceAtakeBtoList(srcBlocks, midBlocks);
+                        ObjectList<BlockIdentifier> diff = SetUtil.differenceAtakeBtoList(srcBlocks, midBlocks);
                         if (diff.size() != 1) continue;
                         BlockIdentifier blk = diff.get(0);
                         if (blk.getBlockType() != BlockType.TRYBLOCK) continue;
@@ -817,7 +818,7 @@ public class Op03Blocks {
         return effect;
     }
 
-    private static List<Block3> combineNeighbouringBlocksPass1(final List<Block3> blocks) {
+    private static ObjectList<Block3> combineNeighbouringBlocksPass1(final ObjectList<Block3> blocks) {
         Block3 curr = blocks.get(0);
         int curridx = 0;
 
@@ -873,9 +874,9 @@ public class Op03Blocks {
         return Functional.filter(blocks, new Functional.NotNull<>());
     }
 
-    public static List<Op03SimpleStatement> topologicalSort(final List<Op03SimpleStatement> statements, final DecompilerComments comments, final Options options) {
+    public static ObjectList<Op03SimpleStatement> topologicalSort(final ObjectList<Op03SimpleStatement> statements, final DecompilerComments comments, final Options options) {
 
-        List<Block3> blocks = buildBasicBlocks(statements);
+        ObjectList<Block3> blocks = buildBasicBlocks(statements);
 
         apply0TargetBlockHeuristic(blocks);
 
@@ -927,7 +928,7 @@ public class Op03Blocks {
         /*
          * Now go through, and emit the content, in order.
          */
-        List<Op03SimpleStatement> outStatements = new ObjectArrayList<>();
+        ObjectList<Op03SimpleStatement> outStatements = new ObjectArrayList<>();
         for (Block3 outBlock : blocks) {
             outStatements.addAll(outBlock.getContent());
         }
@@ -941,7 +942,7 @@ public class Op03Blocks {
         for (int x = 0, origLen = outStatements.size() - 1; x < origLen; ++x) {
             Op03SimpleStatement stm = outStatements.get(x);
             if (stm.getStatement().getClass() == IfStatement.class) {
-                List<Op03SimpleStatement> targets = stm.getTargets();
+                ObjectList<Op03SimpleStatement> targets = stm.getTargets();
                 Op03SimpleStatement next = outStatements.get(x + 1);
                 if (targets.get(0) == next) {
                     // Nothing.
@@ -986,7 +987,7 @@ public class Op03Blocks {
         return Cleaner.removeUnreachableCode(outStatements, true);
     }
 
-    private static boolean addCatchEndDependencies(List<Block3> blocks) {
+    private static boolean addCatchEndDependencies(ObjectList<Block3> blocks) {
         boolean effect = false;
         // If we've ended up with a block in the middle of a try-catch region
         // which doesn't belong, give it an extra dependency of the last block in the catch region.
@@ -1005,7 +1006,7 @@ public class Op03Blocks {
             }
         }
 
-        List<Set<BlockIdentifier>> identifiersByBlock = new ObjectArrayList<>();
+        ObjectList<Set<BlockIdentifier>> identifiersByBlock = new ObjectArrayList<>();
         //noinspection ForLoopReplaceableByForEach
         for (int x = 0; x < size; ++x) {
             Block3 block = blocks.get(x);
@@ -1058,8 +1059,8 @@ public class Op03Blocks {
      * If we've got a try-wrapping block which has a target of a catch block, we want to try to get the body of the
      * try block before the catch.
      */
-    private static List<Block3> addTryEndDependencies(List<Block3> blocks) {
-        Map<BlockIdentifier, List<Block3>> tryContent = MapFactory.newLazyMap(arg -> new ObjectArrayList<>());
+    private static ObjectList<Block3> addTryEndDependencies(ObjectList<Block3> blocks) {
+        Map<BlockIdentifier, ObjectList<Block3>> tryContent = MapFactory.newLazyMap(arg -> new ObjectArrayList<>());
         for (Block3 block : blocks) {
             for (BlockIdentifier blockIdentifier : block.getStart().getBlockIdentifiers()) {
                 if (blockIdentifier.getBlockType() == BlockType.TRYBLOCK) {
@@ -1070,7 +1071,7 @@ public class Op03Blocks {
         for (Block3 block : blocks) {
             Statement blockStatement = block.getStart().getStatement();
             if (blockStatement instanceof CatchStatement catchStatement) {
-                for (Map.Entry<BlockIdentifier, List<Block3>> entry : tryContent.entrySet()) {
+                for (Map.Entry<BlockIdentifier, ObjectList<Block3>> entry : tryContent.entrySet()) {
                     if (catchStatement.hasCatchBlockFor(entry.getKey())) {
                         for (Block3 b2 : entry.getValue()) {
                             block.addSource(b2);
@@ -1083,16 +1084,16 @@ public class Op03Blocks {
         return blocks;
     }
 
-    private static boolean stripBackExceptions(List<Op03SimpleStatement> statements) {
+    private static boolean stripBackExceptions(ObjectList<Op03SimpleStatement> statements) {
         boolean res = false;
-        List<Op03SimpleStatement> tryStatements = Functional.filter(statements,
+        ObjectList<Op03SimpleStatement> tryStatements = Functional.filter(statements,
             new ExactTypeFilter<>(TryStatement.class));
         for (Op03SimpleStatement statement : tryStatements) {
             TryStatement tryStatement = (TryStatement) statement.getStatement();
 
             if (statement.getTargets().isEmpty()) continue;
             Op03SimpleStatement fallThrough = statement.getTargets().get(0);
-            List<Op03SimpleStatement> backTargets = Functional.filter(statement.getTargets(), new Misc.IsForwardJumpTo(statement.getIndex()));
+            ObjectList<Op03SimpleStatement> backTargets = Functional.filter(statement.getTargets(), new Misc.IsForwardJumpTo(statement.getIndex()));
             boolean thisRes = false;
             for (Op03SimpleStatement backTarget : backTargets) {
                 Statement backTargetStatement = backTarget.getStatement();
@@ -1109,7 +1110,7 @@ public class Op03Blocks {
              */
             if (thisRes) {
                 res = true;
-                List<Op03SimpleStatement> remainingTargets = statement.getTargets();
+                ObjectList<Op03SimpleStatement> remainingTargets = statement.getTargets();
                 if (remainingTargets.size() == 1 && remainingTargets.get(0) == fallThrough) {
                     statement.nopOut();
                 }
@@ -1123,7 +1124,7 @@ public class Op03Blocks {
          * Look at the last statement of a - does it expect to continue on to the next
          * statement, which may now have moved?
          */
-        List<Op03SimpleStatement> content = a.content;
+        ObjectList<Op03SimpleStatement> content = a.content;
         Op03SimpleStatement last = content.get(content.size() - 1);
         Statement statement = last.getStatement();
 
@@ -1147,7 +1148,7 @@ public class Op03Blocks {
 
     private static class Block3 implements Comparable<Block3> {
         InstrIndex startIndex;
-        final List<Op03SimpleStatement> content = new ObjectArrayList<>();
+        final ObjectList<Op03SimpleStatement> content = new ObjectArrayList<>();
         final Set<Block3> sources = SetFactory.newOrderedSet();
         // This seems redundant? - verify need.
         final Set<Block3> originalSources = SetFactory.newOrderedSet();
@@ -1170,7 +1171,7 @@ public class Op03Blocks {
             return content.get(content.size() - 1);
         }
 
-        void addSources(List<Block3> sources) {
+        void addSources(ObjectList<Block3> sources) {
             for (Block3 source : sources) {
                 if (source == null) {
                     throw new IllegalStateException();
@@ -1185,12 +1186,12 @@ public class Op03Blocks {
             this.originalSources.add(source);
         }
 
-        public void setTargets(List<Block3> targets) {
+        public void setTargets(ObjectList<Block3> targets) {
             this.targets.clear();
             this.targets.addAll(targets);
         }
 
-        void addTargets(List<Block3> targets) {
+        void addTargets(ObjectList<Block3> targets) {
             for (Block3 source : targets) {
                 if (source == null) {
                     throw new IllegalStateException();
@@ -1215,7 +1216,7 @@ public class Op03Blocks {
             return "(" + content.size() + ")[" + sources.size() + "/" + originalSources.size() + "," + targets.size() + "] " + startIndex + getStart().toString();
         }
 
-        private List<Op03SimpleStatement> getContent() {
+        private ObjectList<Op03SimpleStatement> getContent() {
             return content;
         }
 

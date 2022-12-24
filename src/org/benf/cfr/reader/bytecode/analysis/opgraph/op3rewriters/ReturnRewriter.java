@@ -10,7 +10,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 class ReturnRewriter {
@@ -42,14 +42,14 @@ class ReturnRewriter {
         ifStatement.removeTarget(origtgt);
     }
 
-    static void replaceReturningIfs(List<Op03SimpleStatement> statements, boolean aggressive) {
-        List<Op03SimpleStatement> ifStatements = Functional.filter(statements, new TypeFilter<>(IfStatement.class));
+    static void replaceReturningIfs(ObjectList<Op03SimpleStatement> statements, boolean aggressive) {
+        ObjectList<Op03SimpleStatement> ifStatements = Functional.filter(statements, new TypeFilter<>(IfStatement.class));
         for (Op03SimpleStatement ifStatement : ifStatements) {
             replaceReturningIf(ifStatement, aggressive);
         }
     }
 
-    static void propagateToReturn2(List<Op03SimpleStatement> statements) {
+    static void propagateToReturn2(ObjectList<Op03SimpleStatement> statements) {
         boolean success = false;
         for (Op03SimpleStatement stm : statements) {
             Statement inner = stm.getStatement();
@@ -73,7 +73,7 @@ class ReturnRewriter {
     private static boolean pushReturnBack(final Op03SimpleStatement returnStm) {
 
         ReturnStatement returnStatement = (ReturnStatement) returnStm.getStatement();
-        final List<Op03SimpleStatement> replaceWithReturn = new ObjectArrayList<>();
+        final ObjectList<Op03SimpleStatement> replaceWithReturn = new ObjectArrayList<>();
 
         new GraphVisitorDFS<Op03SimpleStatement>(returnStm.getSources(), (arg1, arg2) -> {
             Class<?> clazz = arg1.getStatement().getClass();

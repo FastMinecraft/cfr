@@ -4,7 +4,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class AttributeLocalVariableTable extends Attribute {
     public final static String ATTRIBUTE_NAME = "LocalVariableTable";
@@ -13,7 +13,7 @@ public class AttributeLocalVariableTable extends Attribute {
     private static final long OFFSET_OF_ENTRY_COUNT = 6;
     private static final long OFFSET_OF_ENTRIES = 8;
     private static final long OFFSET_OF_REMAINDER = 6;
-    private final List<LocalVariableEntry> localVariableEntryList = new ObjectArrayList<>();
+    private final ObjectList<LocalVariableEntry> localVariableEntryList = new ObjectArrayList<>();
 
     private final int length;
 
@@ -42,7 +42,7 @@ public class AttributeLocalVariableTable extends Attribute {
         return d;
     }
 
-    public List<LocalVariableEntry> getLocalVariableEntryList() {
+    public ObjectList<LocalVariableEntry> getLocalVariableEntryList() {
         return localVariableEntryList;
     }
 

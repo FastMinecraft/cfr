@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.AnonymousClassUsage;
 import org.benf.cfr.reader.bytecode.BytecodeMeta;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
@@ -49,8 +50,8 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
     private static final Logger logger = LoggerFactory.create(Op04StructuredStatement.class);
     private final InstrIndex instrIndex;
     // Should we be bothering with sources and targets?  Not once we're "Properly" structured...
-    private List<Op04StructuredStatement> sources = new ObjectArrayList<>();
-    private List<Op04StructuredStatement> targets = new ObjectArrayList<>();
+    private ObjectList<Op04StructuredStatement> sources = new ObjectArrayList<>();
+    private ObjectList<Op04StructuredStatement> targets = new ObjectArrayList<>();
     private StructuredStatement structuredStatement;
 
     private final Set<BlockIdentifier> blockMembership;
@@ -223,12 +224,12 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
     }
 
     @Override
-    public List<Op04StructuredStatement> getSources() {
+    public ObjectList<Op04StructuredStatement> getSources() {
         return sources;
     }
 
     @Override
-    public List<Op04StructuredStatement> getTargets() {
+    public ObjectList<Op04StructuredStatement> getTargets() {
         return targets;
     }
 
@@ -248,7 +249,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
 
     // Look, this is a bit hideous.  But it doesn't seem worth extending the interfaces / visiting.
     public boolean isEmptyInitialiser() {
-        List<StructuredStatement> stms = new ObjectArrayList<>();
+        ObjectList<StructuredStatement> stms = new ObjectArrayList<>();
         this.linearizeStatementsInto(stms);
         for (StructuredStatement stm : stms) {
             if (stm instanceof BeginBlock) continue;
@@ -291,11 +292,11 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
         sources.set(index, to);
     }
 
-    public void setSources(List<Op04StructuredStatement> sources) {
+    public void setSources(ObjectList<Op04StructuredStatement> sources) {
         this.sources = sources;
     }
 
-    public void setTargets(List<Op04StructuredStatement> targets) {
+    public void setTargets(ObjectList<Op04StructuredStatement> targets) {
         this.targets = targets;
     }
 
@@ -319,7 +320,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
      * This is called far too much for transforms - should make them work on native structures
      * where possible.
      */
-    public void linearizeStatementsInto(List<StructuredStatement> out) {
+    public void linearizeStatementsInto(ObjectList<StructuredStatement> out) {
         structuredStatement.linearizeInto(out);
     }
 
@@ -453,7 +454,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
         return structuredStatement.isRecursivelyStructured();
     }
 
-    static Op04StructuredStatement buildNestedBlocks(List<Op04StructuredStatement> containers) {
+    static Op04StructuredStatement buildNestedBlocks(ObjectList<Op04StructuredStatement> containers) {
         /*
          * the blocks we're in, and when we entered them.
          *
@@ -574,7 +575,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
                                                                         Stack<Triplet<StructuredStatement, BlockIdentifier, Set<Op04StructuredStatement>>> breaktargets
     ) {
         Set<Op04StructuredStatement> nextFallThrough = scope.getNextFallThrough(stm);
-        List<Op04StructuredStatement> targets = stm.getContainer().getTargets();
+        ObjectList<Op04StructuredStatement> targets = stm.getContainer().getTargets();
         // Targets is an invalid concept for op04 really, should get rid of it.
         Op04StructuredStatement target = targets.isEmpty() ? null : targets.get(0);
         if (nextFallThrough.contains(target)) {
@@ -859,7 +860,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
 
         MethodPrototype prototype = method.getMethodPrototype();
 
-        List<LocalVariable> vars = prototype.getComputedParameters();
+        ObjectList<LocalVariable> vars = prototype.getComputedParameters();
         if (vars.isEmpty()) return null;
 
         LocalVariable outerThis = vars.get(0);
@@ -876,7 +877,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
 
         MethodPrototype prototype = method.getMethodPrototype();
 
-        List<LocalVariable> vars = prototype.getComputedParameters();
+        ObjectList<LocalVariable> vars = prototype.getComputedParameters();
         if (vars.isEmpty()) return;
 
         LocalVariable outerThis = vars.get(0);
@@ -909,10 +910,10 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
         if (!processed.add(prototype)) return;
 
         // A local class can have both synthetic parameters AND real ones....
-        List<MethodPrototype.ParameterLValue> vars = prototype.getParameterLValues();
+        ObjectList<MethodPrototype.ParameterLValue> vars = prototype.getParameterLValues();
         if (vars.isEmpty()) return;
 
-        List<ConstructorInvokationSimple> usages = method.getClassFile().getMethodUsages();
+        ObjectList<ConstructorInvokationSimple> usages = method.getClassFile().getMethodUsages();
         if (usages.isEmpty()) return;
 
         /*
@@ -935,7 +936,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
          * Note that we're aggregating the captures from ALL constructors into a single map.
          */
         for (ConstructorInvokationSimple usage : usages) {
-            List<Expression> args = usage.getArgs();
+            ObjectList<Expression> args = usage.getArgs();
             MethodPrototype proto = usage.getConstructorPrototype();
             protos.put(proto, proto);
             for (int x = 0; x < vars.size(); ++x) {
@@ -1004,7 +1005,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
 
     private static void removeAnonymousSyntheticConstructorOuterArgs(Method method, Op04StructuredStatement root, boolean isInstance) {
         MethodPrototype prototype = method.getMethodPrototype();
-        List<LocalVariable> vars = prototype.getComputedParameters();
+        ObjectList<LocalVariable> vars = prototype.getComputedParameters();
         if (vars.isEmpty()) return;
 
         Map<LValue, LValue> replacements = MapFactory.newMap();
@@ -1014,7 +1015,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
          * If there are multiple, then we will have an issue rewriting the inner variables to match the outer
          * ones.
          */
-        List<ConstructorInvokationAnonymousInner> usages = method.getClassFile().getAnonymousUsages();
+        ObjectList<ConstructorInvokationAnonymousInner> usages = method.getClassFile().getAnonymousUsages();
 
         ConstructorInvokationAnonymousInner usage = usages.size() == 1 ? usages.get(0) : null;
 
@@ -1023,7 +1024,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
          * for all the other members - we'll search for any private final members which are initialised in the constructor
          * and alias those members to the argument that called them.
          */
-        List<Expression> actualArgs = usage.getArgs();
+        ObjectList<Expression> actualArgs = usage.getArgs();
         if (actualArgs.size() != vars.size()) {
             // can't handle this.  It's probably an enum synthetic.
             return;
@@ -1149,7 +1150,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
     }
 
     public static void replaceNestedSyntheticOuterRefs(Op04StructuredStatement root) {
-        List<StructuredStatement> statements = MiscStatementTools.linearise(root);
+        ObjectList<StructuredStatement> statements = MiscStatementTools.linearise(root);
         //
         // It strikes me I could do this as a map replace, if I generate the set of possible rewrites.
         // probably a bit gross though ;)

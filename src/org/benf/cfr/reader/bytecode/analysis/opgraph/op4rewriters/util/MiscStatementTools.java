@@ -8,6 +8,8 @@ import org.benf.cfr.reader.bytecode.analysis.structured.statement.Block;
 import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredComment;
 import org.benf.cfr.reader.util.annotation.Nullable;
 
+import it.unimi.dsi.fastutil.objects.ObjectList;
+
 import java.util.List;
 
 public class MiscStatementTools {
@@ -28,8 +30,8 @@ public class MiscStatementTools {
     }
 
     public static @Nullable
-    List<StructuredStatement> linearise(Op04StructuredStatement root) {
-        List<StructuredStatement> structuredStatements = new ObjectArrayList<>();
+    ObjectList<StructuredStatement> linearise(Op04StructuredStatement root) {
+        ObjectList<StructuredStatement> structuredStatements = new ObjectArrayList<>();
         try {
             // This is being done multiple times, it's very inefficient!
             root.linearizeStatementsInto(structuredStatements);
@@ -41,7 +43,7 @@ public class MiscStatementTools {
     }
 
     public static void applyExpressionRewriter(Op04StructuredStatement root, ExpressionRewriter expressionRewriter) {
-        List<StructuredStatement> statements = linearise(root);
+        ObjectList<StructuredStatement> statements = linearise(root);
         if (statements == null) return;
         for (StructuredStatement statement : statements) {
             statement.rewriteExpressions(expressionRewriter);

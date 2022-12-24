@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
@@ -58,11 +59,11 @@ public class StringBuilderRewriter implements ExpressionRewriter {
 
     private Expression extractStringConcatSimple(StaticFunctionInvokation staticFunctionInvokation) {
         Collection<Expression> original = staticFunctionInvokation.getArgs();
-        List<Expression> args = new ObjectArrayList<>(original);
+        ObjectList<Expression> args = new ObjectArrayList<>(original);
         args.remove(0);
         // Amazingly, "" + foo generates a stringconcat, even though it's a 1 arg one!
         if (args.size() < 1) return null;
-        List<Expression> tmp = new ObjectArrayList<>(args);
+        ObjectList<Expression> tmp = new ObjectArrayList<>(args);
         Collections.reverse(tmp);
         tmp.replaceAll(CastExpression::tryRemoveCast);
         Expression res = genStringConcat(tmp);
@@ -72,14 +73,14 @@ public class StringBuilderRewriter implements ExpressionRewriter {
     }
 
     private Expression extractStringConcat(StaticFunctionInvokation staticFunctionInvokation) {
-        List<Expression> args = staticFunctionInvokation.getArgs();
+        ObjectList<Expression> args = staticFunctionInvokation.getArgs();
         if (args.size() <= 2) return null;
         Expression arg0 = args.get(1);
         int argIdx = 2;
         int maxArgs = args.size();
         if (!(arg0 instanceof NewAnonymousArray naArg0)) return null;
         if (naArg0.getNumDims() != 1) return null;
-        List<Expression> specs = naArg0.getValues();
+        ObjectList<Expression> specs = naArg0.getValues();
         if (specs.size() != 1) return null;
         Expression spec = specs.get(0);
         if (!(spec instanceof Literal)) return null;
@@ -92,7 +93,7 @@ public class StringBuilderRewriter implements ExpressionRewriter {
         if (strSpec.length() == strSpecQuoted.length()) return null;
         // split doesn't have returnDelims behaviour.
         StringTokenizer st = new StringTokenizer(strSpec, "\u0001", true);
-        List<Expression> toks = new ArrayList<>();
+        ObjectList<Expression> toks = new ObjectArrayList<>();
         while (st.hasMoreTokens()) {
             String tok = st.nextToken();
             if (tok.equals("\u0001")) {
@@ -137,7 +138,7 @@ public class StringBuilderRewriter implements ExpressionRewriter {
     }
 
     private Expression testAppendChain(Expression lhs) {
-        List<Expression> reverseAppendChain = new ObjectArrayList<>();
+        ObjectList<Expression> reverseAppendChain = new ObjectArrayList<>();
         do {
             if (lhs instanceof MemberFunctionInvokation memberFunctionInvokation) {
                 if (memberFunctionInvokation.getName().equals("append") &&
@@ -183,7 +184,7 @@ public class StringBuilderRewriter implements ExpressionRewriter {
         return null;
     }
 
-    private Expression genStringConcat(List<Expression> revList) {
+    private Expression genStringConcat(ObjectList<Expression> revList) {
         JavaTypeInstance lastType = revList.get(revList.size() - 1).getInferredJavaType().getJavaTypeInstance();
         if (lastType != TypeConstants.STRING) {
             boolean needed = true;

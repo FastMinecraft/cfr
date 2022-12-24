@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.state;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.apiunreleased.ClassFileSource2;
 import org.benf.cfr.reader.apiunreleased.JarContent;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
@@ -21,7 +22,10 @@ import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 
 import java.io.File;
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 
@@ -117,11 +121,11 @@ public class DCCommonState {
         return Boolean.parseBoolean(val);
     }
 
-    public TreeMap<Integer, List<JavaTypeInstance>> explicitlyLoadJar(String path, AnalysisType type) {
+    public TreeMap<Integer, ObjectList<JavaTypeInstance>> explicitlyLoadJar(String path, AnalysisType type) {
         JarContent jarContent = classFileSource.addJarContent(path, type);
 
-        TreeMap<Integer, List<JavaTypeInstance>> baseRes = MapFactory.newTreeMap();
-        Map<Integer, List<JavaTypeInstance>> res = MapFactory.newLazyMap(baseRes, arg -> new ObjectArrayList<>());
+        TreeMap<Integer, ObjectList<JavaTypeInstance>> baseRes = MapFactory.newTreeMap();
+        Map<Integer, ObjectList<JavaTypeInstance>> res = MapFactory.newLazyMap(baseRes, arg -> new ObjectArrayList<>());
         boolean isMultiReleaseJar = isMultiReleaseJar(jarContent);
 
         for (String classPath : jarContent.getClassFiles()) {

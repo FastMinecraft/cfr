@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers.ExpressionRewriterTransformer;
@@ -45,10 +46,11 @@ import org.benf.cfr.reader.util.Optional;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 import java.util.Collections;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 public class RecordRewriter {
@@ -68,7 +70,7 @@ public class RecordRewriter {
     }
 
     private static boolean rewriteIfRecord(ClassFile classFile, DCCommonState state) {
-        List<ClassFileField> instances = Functional.filter(classFile.getFields(),
+        ObjectList<ClassFileField> instances = Functional.filter(classFile.getFields(),
             in -> !in.getField().testAccessFlag(AccessFlag.ACC_STATIC)
         );
 
@@ -83,9 +85,9 @@ public class RecordRewriter {
         // getters don't have to be default - we can hide them if they ARE default getters, but
         // it's not required.
         // However, the 0 argument getter for each field has to exist, AND it has to be public.
-        List<Method> getters = new ObjectArrayList<>();
+        ObjectList<Method> getters = new ObjectArrayList<>();
         for (ClassFileField cff : instances) {
-            List<Method> methods = classFile.getMethodsByNameOrNull(cff.getFieldName());
+            ObjectList<Method> methods = classFile.getMethodsByNameOrNull(cff.getFieldName());
             // TODO: Rather than search for the method to match the field, we could
             // use the method as the source of truth.  However, there's a problem here, as
             // we can add additional methods which are not related.
@@ -102,8 +104,8 @@ public class RecordRewriter {
         // There must be one canonical constructor, and all other constructors must
         // call it (eventually)
         // (the latter can be cheekily verified by ensuring all other constructors are chained to SOMETHING).
-        List<Method> constructors = classFile.getConstructors();
-        Pair<List<Method>, List<Method>> splitCons = Functional.partition(constructors, new IsCanonicalConstructor(instances));
+        ObjectList<Method> constructors = classFile.getConstructors();
+        Pair<ObjectList<Method>, ObjectList<Method>> splitCons = Functional.partition(constructors, new IsCanonicalConstructor(instances));
         if (splitCons.getFirst().size() != 1) {
             // incorrect implicit.
             return false;
@@ -114,7 +116,7 @@ public class RecordRewriter {
         if (!constructorFlag.isConstructor()) return false;
         if (constructorFlag.isEnumConstructor()) return false;
 
-        List<Method> otherCons = splitCons.getSecond();
+        ObjectList<Method> otherCons = splitCons.getSecond();
         for (Method other : otherCons) {
             MethodPrototype chain = ConstructorUtils.getDelegatingPrototype(other);
             if (chain == null) return false;
@@ -153,14 +155,14 @@ public class RecordRewriter {
      *
      * NB: This default may change - this is the existing behaviour as of 14-ea+34-1452
      */
-    private static void hideDefaultUtilityMethods(ClassFile classFile, JavaTypeInstance thisType, List<ClassFileField> instances) {
+    private static void hideDefaultUtilityMethods(ClassFile classFile, JavaTypeInstance thisType, ObjectList<ClassFileField> instances) {
         hideEquals(classFile, thisType, instances);
         hideToString(classFile, thisType, instances);
         hideHashCode(classFile, thisType, instances);
     }
 
-    private static void hideEquals(ClassFile classFile, JavaTypeInstance thisType, List<ClassFileField> fields) {
-        Method method = getMethod(classFile, Collections.singletonList(TypeConstants.OBJECT), MiscConstants.EQUALS);
+    private static void hideEquals(ClassFile classFile, JavaTypeInstance thisType, ObjectList<ClassFileField> fields) {
+        Method method = getMethod(classFile, ObjectLists.singleton(TypeConstants.OBJECT), MiscConstants.EQUALS);
         if (method == null) return;
 
         WildcardMatch wcm = new WildcardMatch();
@@ -174,8 +176,8 @@ public class RecordRewriter {
         hideIfMatch(thisType, fields, method, wcm, stm);
     }
 
-    private static void hideToString(ClassFile classFile, JavaTypeInstance thisType, List<ClassFileField> fields) {
-        Method method = getMethod(classFile, Collections.emptyList(), MiscConstants.TOSTRING);
+    private static void hideToString(ClassFile classFile, JavaTypeInstance thisType, ObjectList<ClassFileField> fields) {
+        Method method = getMethod(classFile, ObjectLists.emptyList(), MiscConstants.TOSTRING);
         if (method == null) return;
 
         WildcardMatch wcm = new WildcardMatch();
@@ -188,8 +190,8 @@ public class RecordRewriter {
         hideIfMatch(thisType, fields, method, wcm, stm);
     }
 
-    private static void hideHashCode(ClassFile classFile, JavaTypeInstance thisType, List<ClassFileField> fields) {
-        Method method = getMethod(classFile, Collections.emptyList(), MiscConstants.HASHCODE);
+    private static void hideHashCode(ClassFile classFile, JavaTypeInstance thisType, ObjectList<ClassFileField> fields) {
+        Method method = getMethod(classFile, ObjectLists.emptyList(), MiscConstants.HASHCODE);
         if (method == null) return;
 
         WildcardMatch wcm = new WildcardMatch();
@@ -202,7 +204,7 @@ public class RecordRewriter {
         hideIfMatch(thisType, fields, method, wcm, stm);
     }
 
-    private static void hideIfMatch(JavaTypeInstance thisType, List<ClassFileField> fields, Method method, WildcardMatch wcm, StructuredStatement stm) {
+    private static void hideIfMatch(JavaTypeInstance thisType, ObjectList<ClassFileField> fields, Method method, WildcardMatch wcm, StructuredStatement stm) {
         StructuredStatement item = getSingleCodeLine(method);
         if (!stm.equals(item)) return;
         if (!cmpArgsEq(wcm.getExpressionWildCard("array").getMatch(), thisType, fields)) return;
@@ -238,9 +240,9 @@ public class RecordRewriter {
         return thisType.equals(tl.getClassValue());
     }
 
-    private static boolean cmpArgsEq(Expression cmpArgs, JavaTypeInstance thisType, List<ClassFileField> instances) {
+    private static boolean cmpArgsEq(Expression cmpArgs, JavaTypeInstance thisType, ObjectList<ClassFileField> instances) {
         if (!(cmpArgs instanceof NewAnonymousArray)) return false;
-        List<Expression> cmpValues = ((NewAnonymousArray) cmpArgs).getValues();
+        ObjectList<Expression> cmpValues = ((NewAnonymousArray) cmpArgs).getValues();
         if (cmpValues.size() != instances.size() + 2) return false;
 
         return classArgEq(cmpValues.get(0), thisType);
@@ -259,8 +261,8 @@ public class RecordRewriter {
          */
     }
 
-    private static Method getMethod(ClassFile classFile, final List<JavaTypeInstance> args, String name) {
-        List<Method> methods = classFile.getMethodsByNameOrNull(name);
+    private static Method getMethod(ClassFile classFile, final ObjectList<JavaTypeInstance> args, String name) {
+        ObjectList<Method> methods = classFile.getMethodsByNameOrNull(name);
         if (methods == null) return null;
         methods = Functional.filter(methods, in -> {
             if (!in.testAccessFlag(AccessFlagMethod.ACC_PUBLIC)) return false;
@@ -312,19 +314,19 @@ public class RecordRewriter {
         }
     }
 
-    private static boolean removeImplicitAssignments(Method canonicalCons, List<ClassFileField> instances, JavaRefTypeInstance thisType) {
+    private static boolean removeImplicitAssignments(Method canonicalCons, ObjectList<ClassFileField> instances, JavaRefTypeInstance thisType) {
         if (canonicalCons.getCodeAttribute() == null) return false;
         Op04StructuredStatement code = canonicalCons.getAnalysis();
 
         instances = new ObjectArrayList<>(instances);
 
-        List<LocalVariable> args = canonicalCons.getMethodPrototype().getComputedParameters();
+        ObjectList<LocalVariable> args = canonicalCons.getMethodPrototype().getComputedParameters();
         // We expect a block.  The last N statements should be assignments
         StructuredStatement topCode = code.getStatement();
         if (!(topCode instanceof Block block)) return false;
 
         List<Op04StructuredStatement> statements = block.getBlockStatements();
-        List<Op04StructuredStatement> toNop = new ObjectArrayList<>();
+        ObjectList<Op04StructuredStatement> toNop = new ObjectArrayList<>();
         int nopFrom = statements.size();
         for (int x=statements.size()-1;x>=0;x--) {
             Op04StructuredStatement stm = statements.get(x);
@@ -396,9 +398,9 @@ public class RecordRewriter {
     }
 
     static class IsCanonicalConstructor implements Predicate<Method> {
-        private final List<ClassFileField> fields;
+        private final ObjectList<ClassFileField> fields;
 
-        IsCanonicalConstructor(List<ClassFileField> fields) {
+        IsCanonicalConstructor(ObjectList<ClassFileField> fields) {
             this.fields = fields;
         }
 
@@ -406,9 +408,9 @@ public class RecordRewriter {
         public boolean test(Method in) {
             MethodPrototype proto = in.getMethodPrototype();
             if (!proto.parametersComputed()) return false;
-            List<JavaTypeInstance> protoArgs = proto.getArgs();
+            ObjectList<JavaTypeInstance> protoArgs = proto.getArgs();
             if (protoArgs.size() != fields.size()) return false;
-            List<LocalVariable> parameters = proto.getComputedParameters();
+            ObjectList<LocalVariable> parameters = proto.getComputedParameters();
             // The names MIGHT not match, if we've been obfuscated.  That's ok, as long as the parameters are assigned,
             // at the top level, to the appropriate variable.
             if (parameters.size() != fields.size()) return false;

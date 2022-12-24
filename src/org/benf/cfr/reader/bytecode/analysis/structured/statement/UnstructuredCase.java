@@ -10,15 +10,15 @@ import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Vector;
 
 public class UnstructuredCase extends AbstractUnStructuredStatement {
-    private final List<Expression> values;
+    private final ObjectList<Expression> values;
     private final BlockIdentifier blockIdentifier;
     private final InferredJavaType caseType;
 
-    public UnstructuredCase(List<Expression> values, InferredJavaType caseType, BlockIdentifier blockIdentifier) {
+    public UnstructuredCase(ObjectList<Expression> values, InferredJavaType caseType, BlockIdentifier blockIdentifier) {
         super(BytecodeLoc.NONE);
         this.values = values;
         this.caseType = caseType;

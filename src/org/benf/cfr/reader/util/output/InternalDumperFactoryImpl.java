@@ -14,7 +14,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Collection;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -120,9 +120,9 @@ public class InternalDumperFactoryImpl implements DumperFactory {
 
     private class AdditionalComments implements DecompilerCommentSource {
         @Override
-        public List<DecompilerComment> getComments() {
+        public ObjectList<DecompilerComment> getComments() {
             if (seenCaseDupe) {
-                List<DecompilerComment> res = new ObjectArrayList<>();
+                ObjectList<DecompilerComment> res = new ObjectArrayList<>();
                 res.add(DecompilerComment.CASE_CLASH_FS);
                 return res;
             }

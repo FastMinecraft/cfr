@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
@@ -48,7 +49,7 @@ public class InlineDeAssigner {
         final Set<LValue> read = SetFactory.newSet();
         final Set<LValue> write = SetFactory.newSet();
 
-        final List<AssignmentExpression> extracted = new ObjectArrayList<>();
+        final ObjectList<AssignmentExpression> extracted = new ObjectArrayList<>();
 
         boolean noFurther = false;
 
@@ -138,14 +139,14 @@ public class InlineDeAssigner {
     }
 
 
-    private static void rewrite(Deassigner deassigner, Op03SimpleStatement container, List<Op03SimpleStatement> added) {
-        List<AssignmentExpression> assignmentExpressions = deassigner.extracted;
+    private static void rewrite(Deassigner deassigner, Op03SimpleStatement container, ObjectList<Op03SimpleStatement> added) {
+        ObjectList<AssignmentExpression> assignmentExpressions = deassigner.extracted;
         if (assignmentExpressions.isEmpty()) return;
         Collections.reverse(assignmentExpressions);
         InstrIndex index = container.getIndex();
         Op03SimpleStatement last = container;
         Collection<Op03SimpleStatement> original = container.getSources();
-        List<Op03SimpleStatement> sources = new ObjectArrayList<>(original);
+        ObjectList<Op03SimpleStatement> sources = new ObjectArrayList<>(original);
         container.getSources().clear();
         for (AssignmentExpression expression : assignmentExpressions) {
             index = index.justBefore();
@@ -167,7 +168,7 @@ public class InlineDeAssigner {
      * only a = ( b = 12 ) > (c = 43)
      * So should descend any immediate assignments first.....
      */
-    private void deAssign(AssignmentSimple assignmentSimple, Op03SimpleStatement container, List<Op03SimpleStatement> added) {
+    private void deAssign(AssignmentSimple assignmentSimple, Op03SimpleStatement container, ObjectList<Op03SimpleStatement> added) {
         Expression rhs = assignmentSimple.getRValue();
         if (rhs instanceof LValueExpression || rhs instanceof Literal) return;
         Deassigner deassigner = new Deassigner();
@@ -186,15 +187,15 @@ public class InlineDeAssigner {
         rewrite(deassigner, container, added);
     }
 
-    private void deAssign(Op03SimpleStatement container, List<Op03SimpleStatement> added) {
+    private void deAssign(Op03SimpleStatement container, ObjectList<Op03SimpleStatement> added) {
         Deassigner deassigner = new Deassigner();
         container.rewrite(deassigner);
         rewrite(deassigner, container, added);
     }
 
-    public static void extractAssignments(List<Op03SimpleStatement> statements) {
+    public static void extractAssignments(ObjectList<Op03SimpleStatement> statements) {
         InlineDeAssigner inlineDeAssigner = new InlineDeAssigner();
-        List<Op03SimpleStatement> newStatements = new ObjectArrayList<>();
+        ObjectList<Op03SimpleStatement> newStatements = new ObjectArrayList<>();
         for (Op03SimpleStatement statement : statements) {
             if (statement.getSources().size() != 1) continue;
             Statement stmt = statement.getStatement();

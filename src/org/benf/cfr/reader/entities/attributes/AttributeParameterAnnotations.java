@@ -9,7 +9,7 @@ import org.benf.cfr.reader.util.TypeUsageCollectable;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public abstract class AttributeParameterAnnotations extends Attribute implements TypeUsageCollectable {
 
@@ -18,7 +18,7 @@ public abstract class AttributeParameterAnnotations extends Attribute implements
     private static final long OFFSET_OF_NUMBER_OF_PARAMETERS = 6;
     private static final long OFFSET_OF_ANNOTATION_NAME_TABLE = 7;
 
-    private final List<List<AnnotationTableEntry>> annotationTableEntryListList;
+    private final ObjectList<ObjectList<AnnotationTableEntry>> annotationTableEntryListList;
     private final int length;
 
     public AttributeParameterAnnotations(ByteData raw, ConstantPool cp) {
@@ -27,7 +27,7 @@ public abstract class AttributeParameterAnnotations extends Attribute implements
         long offset = OFFSET_OF_ANNOTATION_NAME_TABLE;
         annotationTableEntryListList = new ObjectArrayList<>();
         for (int x = 0; x < numParameters; ++x) {
-            List<AnnotationTableEntry> annotationTableEntryList = new ObjectArrayList<>();
+            ObjectList<AnnotationTableEntry> annotationTableEntryList = new ObjectArrayList<>();
 
             int numAnnotations = raw.getU2At(offset);
             offset += 2;
@@ -40,7 +40,7 @@ public abstract class AttributeParameterAnnotations extends Attribute implements
         }
     }
 
-    public List<AnnotationTableEntry> getAnnotationsForParamIdx(int idx) {
+    public ObjectList<AnnotationTableEntry> getAnnotationsForParamIdx(int idx) {
         if (idx < 0 || idx >= annotationTableEntryListList.size()) return null;
         return annotationTableEntryListList.get(idx);
     }
@@ -57,7 +57,7 @@ public abstract class AttributeParameterAnnotations extends Attribute implements
 
     @Override
     public void collectTypeUsages(TypeUsageCollector collector) {
-        for (List<AnnotationTableEntry> annotationTableEntryList : annotationTableEntryListList) {
+        for (ObjectList<AnnotationTableEntry> annotationTableEntryList : annotationTableEntryListList) {
             for (AnnotationTableEntry annotationTableEntry : annotationTableEntryList) {
                 annotationTableEntry.collectTypeUsages(collector);
             }

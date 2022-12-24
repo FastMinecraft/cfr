@@ -10,7 +10,7 @@ import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.util.collections.MapFactory;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,7 +27,7 @@ public class VariableFactory {
         this.variableNamer = method.getVariableNamer();
         this.clashes = bytecodeMeta.getLivenessClashes();
         MethodPrototype methodPrototype = method.getMethodPrototype();
-        List<JavaTypeInstance> args = methodPrototype.getArgs();
+        ObjectList<JavaTypeInstance> args = methodPrototype.getArgs();
         this.typedArgs = MapFactory.newMap();
         int offset = 0;
         if (methodPrototype.isInstanceMethod()) {

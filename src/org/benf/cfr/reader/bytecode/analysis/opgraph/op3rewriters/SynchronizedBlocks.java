@@ -15,7 +15,7 @@ import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
 import java.util.Iterator;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,8 +36,8 @@ public class SynchronizedBlocks {
     *
     * What would be nasty is a switch statement which enters on one branch and exits on another...
     */
-    public static void findSynchronizedBlocks(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> enters = Functional.filter(statements, new TypeFilter<>(MonitorEnterStatement.class));
+    public static void findSynchronizedBlocks(ObjectList<Op03SimpleStatement> statements) {
+        ObjectList<Op03SimpleStatement> enters = Functional.filter(statements, new TypeFilter<>(MonitorEnterStatement.class));
         // Each exit can be tied to one enter, which is the first one found by
         // walking code backwards and not passing any other exit/enter for this var.
         // (Every exit from a synchronised block has to exit, so if there's any possibiliy of an exception... )
@@ -84,7 +84,7 @@ public class SynchronizedBlocks {
                     // However, if that's the case, we'll need to potentially leave a different mutex at different exit points
                     if (tryMonitors.contains(monitor)) {
                         leaveExitsMutex.add(tryStatement.getBlockIdentifier());
-                        List<Op03SimpleStatement> tgts = arg1.getTargets();
+                        ObjectList<Op03SimpleStatement> tgts = arg1.getTargets();
                         for (int x = 1, len = tgts.size(); x < len; ++x) {
                             Statement innerS = tgts.get(x).getStatement();
                             if (innerS instanceof CatchStatement) {
@@ -160,7 +160,7 @@ public class SynchronizedBlocks {
             final Op03SimpleStatement foundExit = foundExitIter.next();
             final Set<BlockIdentifier> exitBlocks = SetFactory.newSet(foundExit.getBlockIdentifiers());
             exitBlocks.removeAll(start.getBlockIdentifiers());
-            final List<Op03SimpleStatement> added = new ObjectArrayList<>();
+            final ObjectList<Op03SimpleStatement> added = new ObjectArrayList<>();
             GraphVisitor<Op03SimpleStatement> additional = new GraphVisitorDFS<>(
                 foundExit,
                 (arg1, arg2) -> {
@@ -234,7 +234,7 @@ public class SynchronizedBlocks {
      * Strictly speaking, this isn't true.....  We should verify elsewhere first that we don't push
      * operations through a monitorexit, as that will change the semantics.
      */
-    private static boolean anyOpHasEffect(List<Op03SimpleStatement> ops) {
+    private static boolean anyOpHasEffect(ObjectList<Op03SimpleStatement> ops) {
         for (Op03SimpleStatement op : ops) {
             Statement stm = op.getStatement();
             Class<?> stmcls = stm.getClass();

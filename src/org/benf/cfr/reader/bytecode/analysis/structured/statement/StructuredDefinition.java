@@ -18,7 +18,7 @@ import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class StructuredDefinition extends AbstractStructuredStatement {
 
@@ -61,7 +61,7 @@ public class StructuredDefinition extends AbstractStructuredStatement {
     }
 
     @Override
-    public void linearizeInto(List<StructuredStatement> out) {
+    public void linearizeInto(ObjectList<StructuredStatement> out) {
         out.add(this);
     }
 
@@ -74,7 +74,7 @@ public class StructuredDefinition extends AbstractStructuredStatement {
     }
 
     @Override
-    public List<LValue> findCreatedHere() {
+    public ObjectList<LValue> findCreatedHere() {
         return ObjectList.of(new LValue[]{ scopedEntity });
     }
 

@@ -15,7 +15,7 @@ import org.benf.cfr.reader.util.TypeUsageCollectable;
 import java.util.function.Predicate;
 import org.benf.cfr.reader.util.output.Dumpable;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Vector;
 
 public interface StructuredStatement extends Dumpable, TypeUsageCollectable, HasByteCodeLoc, Matcher<StructuredStatement> {
@@ -47,7 +47,7 @@ public interface StructuredStatement extends Dumpable, TypeUsageCollectable, Has
 
     BlockIdentifier getBreakableBlockOrNull();
 
-    void linearizeInto(List<StructuredStatement> out);
+    void linearizeInto(ObjectList<StructuredStatement> out);
 
     void traceLocalVariableScope(LValueScopeDiscoverer scopeDiscoverer);
 
@@ -74,7 +74,7 @@ public interface StructuredStatement extends Dumpable, TypeUsageCollectable, Has
 
     boolean canFall();
 
-    List<LValue> findCreatedHere();
+    ObjectList<LValue> findCreatedHere();
 
     String suggestName(LocalVariable createdHere, Predicate<String> testNameUsedFn);
 }

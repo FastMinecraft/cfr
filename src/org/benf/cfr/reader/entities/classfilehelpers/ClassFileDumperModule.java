@@ -12,7 +12,7 @@ import org.benf.cfr.reader.util.StringUtils;
 import org.benf.cfr.reader.util.collections.CollectionUtils;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 public class ClassFileDumperModule extends AbstractClassFileDumper {
@@ -50,7 +50,7 @@ public class ClassFileDumperModule extends AbstractClassFileDumper {
         return d;
     }
 
-    private void dumpRequires(ConstantPool cp, Dumper d, List<AttributeModule.Require> l) {
+    private void dumpRequires(ConstantPool cp, Dumper d, ObjectList<AttributeModule.Require> l) {
         if (l.isEmpty()) {
             return;
         }
@@ -80,7 +80,7 @@ public class ClassFileDumperModule extends AbstractClassFileDumper {
         }
     }
 
-    private void dumpOpensExports(ConstantPool cp, Dumper d, List<AttributeModule.ExportOpen> l, String prefix) {
+    private void dumpOpensExports(ConstantPool cp, Dumper d, ObjectList<AttributeModule.ExportOpen> l, String prefix) {
         if (l.isEmpty()) {
             return;
         }
@@ -111,7 +111,7 @@ public class ClassFileDumperModule extends AbstractClassFileDumper {
         }
     }
 
-    private void dumpUses(ConstantPool cp, Dumper d, List<AttributeModule.Use> l) {
+    private void dumpUses(ConstantPool cp, Dumper d, ObjectList<AttributeModule.Use> l) {
         if (l.isEmpty()) {
             return;
         }
@@ -127,7 +127,7 @@ public class ClassFileDumperModule extends AbstractClassFileDumper {
         }
     }
 
-    private void dumpProvides(ConstantPool cp, Dumper d, List<AttributeModule.Provide> l) {
+    private void dumpProvides(ConstantPool cp, Dumper d, ObjectList<AttributeModule.Provide> l) {
         if (l.isEmpty()) {
             return;
         }

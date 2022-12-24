@@ -4,25 +4,27 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
+
 import java.util.Set;
 
 public class ListFactory {
-    public static <X> List<X> uniqueList(Collection<X> list) {
+    public static <X> ObjectList<X> uniqueList(Collection<X> list) {
         return new ObjectArrayList<>(SetFactory.newOrderedSet(list));
     }
 
     /** Note that you can't expect to mutate the result. */
-    public static <X> List<X> combinedOptimistic(List<X> a, List<X> b) {
+    public static <X> ObjectList<X> combinedOptimistic(ObjectList<X> a, ObjectList<X> b) {
         if (a == null || a.isEmpty()) return b;
         if (b == null || b.isEmpty()) return a;
-        List<X> res = new ObjectArrayList<>();
+        ObjectList<X> res = new ObjectArrayList<>();
         res.addAll(a);
         res.addAll(b);
         return res;
     }
 
-    public static <X> List<X> orEmptyList(List<X> nullableList) {
-        return nullableList == null ? Collections.emptyList() : nullableList;
+    public static <X> ObjectList<X> orEmptyList(ObjectList<X> nullableList) {
+        return nullableList == null ? ObjectLists.emptyList() : nullableList;
     }
 }

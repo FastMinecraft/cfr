@@ -14,24 +14,24 @@ import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.util.StringUtils;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class SwitchExpression extends AbstractExpression {
     private final Expression value;
-    private final List<Branch> cases;
+    private final ObjectList<Branch> cases;
 
     public static class Branch {
-        final List<Expression> cases;
+        final ObjectList<Expression> cases;
         final Expression value;
 
-        public Branch(List<Expression> cases, Expression value) {
+        public Branch(ObjectList<Expression> cases, Expression value) {
             this.cases = cases;
             this.value = value;
         }
 
         private Branch rewrite(ExpressionRewriter expressionRewriter, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
             boolean thisChanged = false;
-            List<Expression> newCases = new ObjectArrayList<>();
+            ObjectList<Expression> newCases = new ObjectArrayList<>();
             for (Expression exp : cases) {
                 Expression newExp = expressionRewriter.rewriteExpression(exp, ssaIdentifiers, statementContainer, flags);
                 if (newExp != exp) {
@@ -49,7 +49,7 @@ public class SwitchExpression extends AbstractExpression {
 
     }
 
-    public SwitchExpression(BytecodeLoc loc, InferredJavaType inferredJavaType, Expression value, List<Branch> cases) {
+    public SwitchExpression(BytecodeLoc loc, InferredJavaType inferredJavaType, Expression value, ObjectList<Branch> cases) {
         super(loc, inferredJavaType);
         this.value = value;
         this.cases = cases;
@@ -82,7 +82,7 @@ public class SwitchExpression extends AbstractExpression {
         d.indent(1);
         for (Branch item : cases) {
             boolean first = true;
-            List<Expression> cases = item.cases;
+            ObjectList<Expression> cases = item.cases;
             if (cases.isEmpty()) {
                 d.keyword("default");
             } else {
@@ -114,7 +114,7 @@ public class SwitchExpression extends AbstractExpression {
         if (newValue != value) {
             changed = true;
         }
-        List<Branch> out = new ObjectArrayList<>();
+        ObjectList<Branch> out = new ObjectArrayList<>();
         for (Branch case1 : cases) {
             Branch newBranch = case1.rewrite(expressionRewriter, ssaIdentifiers, statementContainer, flags);
             if (newBranch != case1) {
@@ -161,7 +161,7 @@ public class SwitchExpression extends AbstractExpression {
 
     @Override
     public Expression deepClone(CloneHelper cloneHelper) {
-        List<Branch> res = new ObjectArrayList<>();
+        ObjectList<Branch> res = new ObjectArrayList<>();
         for (Branch case1 : cases) {
             res.add(new Branch(cloneHelper.replaceOrClone(case1.cases), cloneHelper.replaceOrClone(case1.value)));
         }

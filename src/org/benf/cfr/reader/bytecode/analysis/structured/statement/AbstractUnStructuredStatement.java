@@ -13,7 +13,7 @@ import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers.StructuredStatementTransformer;
 import java.util.function.Predicate;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public abstract class AbstractUnStructuredStatement extends AbstractStructuredStatement {
 
@@ -45,7 +45,7 @@ public abstract class AbstractUnStructuredStatement extends AbstractStructuredSt
     }
 
     @Override
-    public void linearizeInto(List<StructuredStatement> out) {
+    public void linearizeInto(ObjectList<StructuredStatement> out) {
         throw new UnsupportedOperationException("Can't linearise an unstructured statement");
     }
 
@@ -68,7 +68,7 @@ public abstract class AbstractUnStructuredStatement extends AbstractStructuredSt
     }
 
     @Override
-    public List<LValue> findCreatedHere() {
+    public ObjectList<LValue> findCreatedHere() {
         return null;
     }
 

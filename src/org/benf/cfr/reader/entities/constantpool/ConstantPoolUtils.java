@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.entities.constantpool;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.analysis.stack.StackDelta;
 import org.benf.cfr.reader.bytecode.analysis.stack.StackDeltaImpl;
@@ -15,7 +16,7 @@ import org.benf.cfr.reader.util.MiscConstants;
 import org.benf.cfr.reader.util.collections.MapFactory;
 
 import java.util.Collections;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 
 public class ConstantPoolUtils {
@@ -26,13 +27,13 @@ public class ConstantPoolUtils {
 
         if (idxGen != -1) {
             tok = tok.replace(">.", ">$");
-            List<JavaTypeInstance> genericTypes;
+            ObjectList<JavaTypeInstance> genericTypes;
             StringBuilder already = new StringBuilder();
             while (true) {
                 String pre = tok.substring(idxStart, idxGen);
                 already.append(pre);
                 String gen = tok.substring(idxGen + 1, tok.length() - 1);
-                Pair<List<JavaTypeInstance>, Integer> genericTypePair = parseTypeList(gen, cp);
+                Pair<ObjectList<JavaTypeInstance>, Integer> genericTypePair = parseTypeList(gen, cp);
                 genericTypes = genericTypePair.getFirst();
                 idxStart = idxGen + genericTypePair.getSecond() + 1;
                 if (idxStart < idxGen + gen.length()) {
@@ -219,9 +220,9 @@ public class ConstantPoolUtils {
         /*
          * Optional formal type parameters
          */
-        Pair<Integer, List<FormalTypeParameter>> formalTypeParametersRes = parseFormalTypeParameters(sig, cp, curridx);
+        Pair<Integer, ObjectList<FormalTypeParameter>> formalTypeParametersRes = parseFormalTypeParameters(sig, cp, curridx);
         curridx = formalTypeParametersRes.getFirst();
-        List<FormalTypeParameter> formalTypeParameters = formalTypeParametersRes.getSecond();
+        ObjectList<FormalTypeParameter> formalTypeParameters = formalTypeParametersRes.getSecond();
 
         /*
          * Superclass signature.
@@ -230,7 +231,7 @@ public class ConstantPoolUtils {
         curridx += superClassSignatureTok.length();
         JavaTypeInstance superClassSignature = decodeTypeTok(superClassSignatureTok, cp);
 
-        List<JavaTypeInstance> interfaceClassSignatures = new ObjectArrayList<>();
+        ObjectList<JavaTypeInstance> interfaceClassSignatures = new ObjectArrayList<>();
         while (curridx < sig.length()) {
             String interfaceSignatureTok = getNextTypeTok(sig, curridx);
             curridx += interfaceSignatureTok.length();
@@ -240,8 +241,8 @@ public class ConstantPoolUtils {
         return new ClassSignature(formalTypeParameters, superClassSignature, interfaceClassSignatures);
     }
 
-    private static Pair<Integer, List<FormalTypeParameter>> parseFormalTypeParameters(String proto, ConstantPool cp, int curridx) {
-        List<FormalTypeParameter> formalTypeParameters = null;
+    private static Pair<Integer, ObjectList<FormalTypeParameter>> parseFormalTypeParameters(String proto, ConstantPool cp, int curridx) {
+        ObjectList<FormalTypeParameter> formalTypeParameters = null;
         FormalTypeParameter last = null;
         if (proto.charAt(curridx) == '<') {
             formalTypeParameters = new ObjectArrayList<>();
@@ -272,9 +273,9 @@ public class ConstantPoolUtils {
             /*
              * Method is itself generic...
              */
-            Pair<Integer, List<FormalTypeParameter>> formalTypeParametersRes = parseFormalTypeParameters(proto, cp, curridx);
+            Pair<Integer, ObjectList<FormalTypeParameter>> formalTypeParametersRes = parseFormalTypeParameters(proto, cp, curridx);
             curridx = formalTypeParametersRes.getFirst();
-            List<FormalTypeParameter> formalTypeParameters = formalTypeParametersRes.getSecond();
+            ObjectList<FormalTypeParameter> formalTypeParameters = formalTypeParametersRes.getSecond();
             Map<String, JavaTypeInstance> ftpMap;
             if (formalTypeParameters == null) {
                 ftpMap = Collections.emptyMap();
@@ -287,7 +288,7 @@ public class ConstantPoolUtils {
 
             if (proto.charAt(curridx) != '(') throw new ConfusedCFRException("Prototype " + proto + " is invalid");
             curridx++;
-            List<JavaTypeInstance> args = new ObjectArrayList<>();
+            ObjectList<JavaTypeInstance> args = new ObjectArrayList<>();
             // could use parseTypeList below.
             while (proto.charAt(curridx) != ')') {
                 curridx = processTypeEntry(cp, proto, curridx, ftpMap, args);
@@ -302,7 +303,7 @@ public class ConstantPoolUtils {
                 resultType = decodeTypeTok(resTypeTok, cp);
             }
             // And process any exceptions....
-            List<JavaTypeInstance> exceptions = Collections.emptyList();
+            ObjectList<JavaTypeInstance> exceptions = ObjectLists.emptyList();
             if (curridx < proto.length()) {
                 exceptions = new ObjectArrayList<>();
                 while (curridx < proto.length() && proto.charAt(curridx) == '^') {
@@ -316,7 +317,7 @@ public class ConstantPoolUtils {
         }
     }
 
-    private static int processTypeEntry(ConstantPool cp, String proto, int curridx, Map<String, JavaTypeInstance> ftpMap, List<JavaTypeInstance> args) {
+    private static int processTypeEntry(ConstantPool cp, String proto, int curridx, Map<String, JavaTypeInstance> ftpMap, ObjectList<JavaTypeInstance> args) {
         String typeTok = getNextTypeTok(proto, curridx);
         JavaTypeInstance type = decodeTypeTok(typeTok, cp);
         if (type instanceof JavaGenericPlaceholderTypeInstance) {
@@ -327,10 +328,10 @@ public class ConstantPoolUtils {
         return curridx;
     }
 
-    private static Pair<List<JavaTypeInstance>, Integer> parseTypeList(String proto, ConstantPool cp) {
+    private static Pair<ObjectList<JavaTypeInstance>, Integer> parseTypeList(String proto, ConstantPool cp) {
         int curridx = 0;
         int len = proto.length();
-        List<JavaTypeInstance> res = new ObjectArrayList<>();
+        ObjectList<JavaTypeInstance> res = new ObjectArrayList<>();
         while (curridx < len && proto.charAt(curridx) != '>') {
             String typeTok = getNextTypeTok(proto, curridx);
             res.add(decodeTypeTok(typeTok, cp));

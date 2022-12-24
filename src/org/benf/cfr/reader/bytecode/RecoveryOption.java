@@ -5,7 +5,7 @@ import org.benf.cfr.reader.util.Troolean;
 import org.benf.cfr.reader.util.getopt.MutableOptions;
 import org.benf.cfr.reader.util.getopt.PermittedOptionProvider;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.function.Function;
 
 public abstract class RecoveryOption<T> {
@@ -22,14 +22,14 @@ public abstract class RecoveryOption<T> {
         this.canhelp = canHelp;
     }
 
-    boolean applyComment(boolean applied, List<DecompilerComment> commentList) {
+    boolean applyComment(boolean applied, ObjectList<DecompilerComment> commentList) {
         if (!applied) return false;
         if (decompilerComment == null) return true;
         commentList.add(decompilerComment);
         return true;
     }
 
-    public abstract boolean apply(MutableOptions mutableOptions, List<DecompilerComment> commentList, BytecodeMeta bytecodeMeta);
+    public abstract boolean apply(MutableOptions mutableOptions, ObjectList<DecompilerComment> commentList, BytecodeMeta bytecodeMeta);
 
     public static class TrooleanRO extends RecoveryOption<Troolean> {
         TrooleanRO(PermittedOptionProvider.Argument<Troolean> arg, Troolean value) {
@@ -49,7 +49,7 @@ public abstract class RecoveryOption<T> {
         }
 
         @Override
-        public boolean apply(MutableOptions mutableOptions, List<DecompilerComment> commentList, BytecodeMeta bytecodeMeta) {
+        public boolean apply(MutableOptions mutableOptions, ObjectList<DecompilerComment> commentList, BytecodeMeta bytecodeMeta) {
             if (canhelp != null && !canhelp.apply(bytecodeMeta)) return false;
             return applyComment(mutableOptions.override(arg, value), commentList);
         }
@@ -69,7 +69,7 @@ public abstract class RecoveryOption<T> {
         }
 
         @Override
-        public boolean apply(MutableOptions mutableOptions, List<DecompilerComment> commentList, BytecodeMeta bytecodeMeta) {
+        public boolean apply(MutableOptions mutableOptions, ObjectList<DecompilerComment> commentList, BytecodeMeta bytecodeMeta) {
             if (canhelp != null && !canhelp.apply(bytecodeMeta)) return false;
             return applyComment(mutableOptions.override(arg, value), commentList);
         }
@@ -89,7 +89,7 @@ public abstract class RecoveryOption<T> {
         }
 
         @Override
-        public boolean apply(MutableOptions mutableOptions, List<DecompilerComment> commentList, BytecodeMeta bytecodeMeta) {
+        public boolean apply(MutableOptions mutableOptions, ObjectList<DecompilerComment> commentList, BytecodeMeta bytecodeMeta) {
             if (canhelp != null && !canhelp.apply(bytecodeMeta)) return false;
             if (mutableOptions.optionIsSet(arg)) return false;
             return applyComment(mutableOptions.override(arg, value), commentList);
@@ -109,7 +109,7 @@ public abstract class RecoveryOption<T> {
         }
 
         @Override
-        public boolean apply(MutableOptions mutableOptions, List<DecompilerComment> commentList, BytecodeMeta bytecodeMeta) {
+        public boolean apply(MutableOptions mutableOptions, ObjectList<DecompilerComment> commentList, BytecodeMeta bytecodeMeta) {
             if (mutableOptions.getOption(test, null).equals(required)) {
                 return delegate.apply(mutableOptions, commentList, bytecodeMeta);
             }

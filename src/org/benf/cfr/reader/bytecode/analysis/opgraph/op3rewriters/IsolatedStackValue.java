@@ -11,12 +11,12 @@ import org.benf.cfr.reader.bytecode.analysis.parse.statement.Nop;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.Set;
 
 class IsolatedStackValue {
-    static void nopIsolatedStackValues(List<Op03SimpleStatement> statements) {
+    static void nopIsolatedStackValues(ObjectList<Op03SimpleStatement> statements) {
         // A stack value is (EXCEPT IN THE CASE OF DUP) only consumed once.
         // We can nop both the assignment and the consumption if the consumption is
         // an expression statement.

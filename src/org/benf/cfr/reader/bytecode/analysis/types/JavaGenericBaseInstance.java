@@ -2,7 +2,7 @@ package org.benf.cfr.reader.bytecode.analysis.types;
 
 import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 
 public interface JavaGenericBaseInstance extends JavaTypeInstance {
@@ -18,5 +18,5 @@ public interface JavaGenericBaseInstance extends JavaTypeInstance {
 
     boolean hasForeignUnbound(ConstantPool cp, int depth, boolean noWildcard, Map<String, FormalTypeParameter> externals);
 
-    List<JavaTypeInstance> getGenericTypes();
+    ObjectList<JavaTypeInstance> getGenericTypes();
 }

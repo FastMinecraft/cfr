@@ -7,7 +7,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.statement.GotoStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.IfStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.Nop;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class NegativeJumps {
     /*
@@ -42,8 +42,8 @@ public class NegativeJumps {
      *
      * RequireDirectAfter - y MUST equal x+1.
      */
-    public static void rewriteNegativeJumps(List<Op03SimpleStatement> statements, boolean requireChainedConditional) {
-        List<Op03SimpleStatement> removeThese = new ObjectArrayList<>();
+    public static void rewriteNegativeJumps(ObjectList<Op03SimpleStatement> statements, boolean requireChainedConditional) {
+        ObjectList<Op03SimpleStatement> removeThese = new ObjectArrayList<>();
         for (int x = 0; x < statements.size() - 2; ++x) {
             Op03SimpleStatement aStatement = statements.get(x);
             Statement innerAStatement = aStatement.getStatement();

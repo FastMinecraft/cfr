@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.utils.scope;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
@@ -41,7 +42,7 @@ public abstract class AbstractLValueScopeDiscoverer implements LValueScopeDiscov
 
     final Stack<StatementContainer<StructuredStatement>> currentBlock = new Stack<>();
 
-    final List<ScopeDefinition> discoveredCreations = new ObjectArrayList<>();
+    final ObjectList<ScopeDefinition> discoveredCreations = new ObjectArrayList<>();
     final VariableFactory variableFactory;
     StatementContainer<StructuredStatement> currentMark = null;
     final Options options;
@@ -51,7 +52,7 @@ public abstract class AbstractLValueScopeDiscoverer implements LValueScopeDiscov
     AbstractLValueScopeDiscoverer(Options options, MethodPrototype prototype, VariableFactory variableFactory) {
         this.options = options;
         this.prototype = prototype;
-        final List<LocalVariable> parameters = prototype.getComputedParameters();
+        final ObjectList<LocalVariable> parameters = prototype.getComputedParameters();
         this.variableFactory = variableFactory;
         for (LocalVariable parameter : parameters) {
             InferredJavaType inferredJavaType = parameter.getInferredJavaType();
@@ -144,17 +145,17 @@ public abstract class AbstractLValueScopeDiscoverer implements LValueScopeDiscov
          * Eliminate enclosing scopes where they were falsely detected, and
          * where scopes for the same variable exist, lift to the lowest common denominator.
          */
-        Map<ScopeKey, List<ScopeDefinition>> definitionsByType = Functional.groupToMapBy(discoveredCreations,
+        Map<ScopeKey, ObjectList<ScopeDefinition>> definitionsByType = Functional.groupToMapBy(discoveredCreations,
                 MapFactory.newOrderedMap(),
             ScopeDefinition::getScopeKey
         );
 
-        creation : for (Map.Entry<ScopeKey, List<ScopeDefinition>> entry : definitionsByType.entrySet()) {
+        creation : for (Map.Entry<ScopeKey, ObjectList<ScopeDefinition>> entry : definitionsByType.entrySet()) {
             ScopeKey scopeKey = entry.getKey();
-            List<ScopeDefinition> definitions = entry.getValue();
+            ObjectList<ScopeDefinition> definitions = entry.getValue();
             // find the longest common nested scope - null wins automatically!
 
-            List<StatementContainer<StructuredStatement>> commonScope = null;
+            ObjectList<StatementContainer<StructuredStatement>> commonScope = null;
             ScopeDefinition bestDefn = null;
             LValue scopedEntity = scopeKey.lValue();
             for (int x=definitions.size()-1;x>=0;--x) {
@@ -166,7 +167,7 @@ public abstract class AbstractLValueScopeDiscoverer implements LValueScopeDiscov
                     continue;
                 }
 
-                List<StatementContainer<StructuredStatement>> scopeList = definition.getNestedScope();
+                ObjectList<StatementContainer<StructuredStatement>> scopeList = definition.getNestedScope();
                 if (scopeList.isEmpty()) scopeList = null;
 
                 if (scopeList == null) {
@@ -194,7 +195,7 @@ public abstract class AbstractLValueScopeDiscoverer implements LValueScopeDiscov
             if (bestDefn != definitions.get(0)) bestDefn = null;
             StatementContainer<StructuredStatement> creationContainer = null;
             if (scopedEntity instanceof SentinelLocalClassLValue) {
-                List<StatementContainer<StructuredStatement>> scope = null;
+                ObjectList<StatementContainer<StructuredStatement>> scope = null;
                 if (bestDefn != null) {
                     scope = bestDefn.getNestedScope();
                 } else if (commonScope != null) {
@@ -272,10 +273,10 @@ public abstract class AbstractLValueScopeDiscoverer implements LValueScopeDiscov
         return content.get(x+1);
     }
 
-    private boolean defineInsideSwitchContent(LValue scopedEntity, List<ScopeDefinition> definitions, List<StatementContainer<StructuredStatement>> commonScope) {
+    private boolean defineInsideSwitchContent(LValue scopedEntity, ObjectList<ScopeDefinition> definitions, ObjectList<StatementContainer<StructuredStatement>> commonScope) {
         int commonScopeSize = commonScope.size();
         Set<StatementContainer<StructuredStatement>> usedPoints = SetFactory.newIdentitySet();
-        List<ScopeDefinition> foundPoints = new ObjectArrayList<>();
+        ObjectList<ScopeDefinition> foundPoints = new ObjectArrayList<>();
         for (ScopeDefinition def : definitions) {
             if (def.nestedScope.size() <= commonScopeSize) return false;
             StatementContainer<StructuredStatement> innerDef = def.nestedScope.get(commonScopeSize);
@@ -296,8 +297,8 @@ public abstract class AbstractLValueScopeDiscoverer implements LValueScopeDiscov
         return true;
     }
 
-    private static <T> List<T> getCommonPrefix(List<T> a, List<T> b) {
-        List<T> la, lb;
+    private static <T> ObjectList<T> getCommonPrefix(ObjectList<T> a, ObjectList<T> b) {
+        ObjectList<T> la, lb;
         if (a.size() < b.size()) {
             la = a;
             lb = b;
@@ -326,7 +327,7 @@ public abstract class AbstractLValueScopeDiscoverer implements LValueScopeDiscov
         private final int depth;
         private boolean immediate;
         // Keeping this nested scope is woefully inefficient.... fixme.
-        private final List<StatementContainer<StructuredStatement>> nestedScope;
+        private final ObjectList<StatementContainer<StructuredStatement>> nestedScope;
         private final StatementContainer<StructuredStatement> exactStatement;
         private final StatementContainer<StructuredStatement> localHint;
         private final LValue lValue;
@@ -347,7 +348,7 @@ public abstract class AbstractLValueScopeDiscoverer implements LValueScopeDiscov
                         LValue lValue, JavaTypeInstance type, NamedVariable name, StatementContainer<StructuredStatement> hint, boolean immediate) {
             this.depth = depth;
             this.immediate = immediate;
-            Pair< List<StatementContainer<StructuredStatement>>, StatementContainer<StructuredStatement>> adjustedScope = getBestScopeFor(lValue, nestedScope, exactStatement);
+            Pair< ObjectList<StatementContainer<StructuredStatement>>, StatementContainer<StructuredStatement>> adjustedScope = getBestScopeFor(lValue, nestedScope, exactStatement);
             this.nestedScope = adjustedScope.getFirst();
             this.exactStatement = adjustedScope.getSecond();
             this.lValue = lValue;
@@ -358,12 +359,12 @@ public abstract class AbstractLValueScopeDiscoverer implements LValueScopeDiscov
         }
 
         // nestedScope == null ? null : ListFactory.newList(nestedScope);
-        private Pair< List<StatementContainer<StructuredStatement>>, StatementContainer<StructuredStatement>> getBestScopeFor(
+        private Pair< ObjectList<StatementContainer<StructuredStatement>>, StatementContainer<StructuredStatement>> getBestScopeFor(
                                      LValue lValue,
                                      Collection<StatementContainer<StructuredStatement>> nestedScope,
                                      StatementContainer<StructuredStatement> exactStatement) {
             if (nestedScope == null) return Pair.make(null, exactStatement);
-            List<StatementContainer<StructuredStatement>> scope = new ObjectArrayList<>(nestedScope);
+            ObjectList<StatementContainer<StructuredStatement>> scope = new ObjectArrayList<>(nestedScope);
             if (exactStatement != null && exactStatement.getStatement().alwaysDefines(lValue)) return Pair.make(scope, exactStatement);
             if (scope.isEmpty()) return Pair.make(scope, exactStatement);
             for (int x=scope.size()-1;x>=0;--x) {
@@ -402,7 +403,7 @@ public abstract class AbstractLValueScopeDiscoverer implements LValueScopeDiscov
             return scopeKey;
         }
 
-        List<StatementContainer<StructuredStatement>> getNestedScope() {
+        ObjectList<StatementContainer<StructuredStatement>> getNestedScope() {
             return nestedScope;
         }
 

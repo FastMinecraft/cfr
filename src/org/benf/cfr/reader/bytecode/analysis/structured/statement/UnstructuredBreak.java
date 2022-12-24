@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.structured.statement;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
@@ -51,7 +52,7 @@ public class UnstructuredBreak extends AbstractUnStructuredStatement {
             return null;
         }
         boolean localBreak = false;
-        BlockIdentifier outermostBreakable = BlockIdentifier.getInnermostBreakable(blockIdentifiers);
+        BlockIdentifier outermostBreakable = BlockIdentifier.getInnermostBreakable(new ObjectArrayList<>(blockIdentifiers));
         if (outermostBreakable == bestBlock) {
             localBreak = true;
         } else {

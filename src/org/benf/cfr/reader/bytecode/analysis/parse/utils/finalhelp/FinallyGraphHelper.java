@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.utils.finalhelp;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.MemberFunctionInvokation;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.*;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
@@ -20,11 +21,11 @@ import java.util.*;
 
 public record FinallyGraphHelper(FinallyCatchBody finallyCatchBody) {
 
-    private List<Op03SimpleStatement> filterFalseNegatives(
-        List<Op03SimpleStatement> in,
+    private ObjectList<Op03SimpleStatement> filterFalseNegatives(
+        ObjectList<Op03SimpleStatement> in,
         Set<Op03SimpleStatement> toRemove
     ) {
-        List<Op03SimpleStatement> res = new ObjectArrayList<>();
+        ObjectList<Op03SimpleStatement> res = new ObjectArrayList<>();
         for (Op03SimpleStatement i : in) {
             while (i != null && i.getStatement() instanceof Nop) {
                 switch (i.getTargets().size()) {
@@ -101,9 +102,9 @@ public record FinallyGraphHelper(FinallyCatchBody finallyCatchBody) {
             }
 
             Collection<Op03SimpleStatement> original1 = a.getTargets();
-            List<Op03SimpleStatement> tgta = new ObjectArrayList<>(original1);
+            ObjectList<Op03SimpleStatement> tgta = new ObjectArrayList<>(original1);
             Collection<Op03SimpleStatement> original = b.getTargets();
-            List<Op03SimpleStatement> tgtb = new ObjectArrayList<>(original);
+            ObjectList<Op03SimpleStatement> tgtb = new ObjectArrayList<>(original);
             // This fixes 22a, but breaks 1!!
 //            tgta.remove(finalThrowProxy);
 //            tgtb.remove(finallyCatchBody.throwOp);
@@ -164,11 +165,11 @@ public record FinallyGraphHelper(FinallyCatchBody finallyCatchBody) {
 
     private boolean treatAsJava13Finally(Op03SimpleStatement b, Statement sb) {
         if (!(sb instanceof TryStatement)) return false;
-        List<Op03SimpleStatement> bTargets = b.getTargets();
+        ObjectList<Op03SimpleStatement> bTargets = b.getTargets();
         if (bTargets.size() != 2) return false;
         Op03SimpleStatement catchStm = bTargets.get(1);
         if (!(catchStm.getStatement() instanceof CatchStatement)) return false;
-        List<Op03SimpleStatement> catchTargets = catchStm.getTargets();
+        ObjectList<Op03SimpleStatement> catchTargets = catchStm.getTargets();
         if (catchTargets.size() != 1) return false;
         Statement addSupp = catchTargets.get(0).getStatement();
         if (!(addSupp instanceof ExpressionStatement)) return false;

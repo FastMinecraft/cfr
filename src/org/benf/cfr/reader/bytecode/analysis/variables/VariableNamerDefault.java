@@ -4,7 +4,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.util.collections.MapFactory;
 
 import java.util.Collection;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,7 +38,7 @@ public class VariableNamerDefault implements VariableNamer {
 
 
     @Override
-    public List<NamedVariable> getNamedVariables() {
+    public ObjectList<NamedVariable> getNamedVariables() {
         return new ObjectArrayList<>(cached.values());
     }
 

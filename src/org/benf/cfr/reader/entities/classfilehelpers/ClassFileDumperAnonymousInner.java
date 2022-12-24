@@ -11,7 +11,7 @@ import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.StringUtils;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class ClassFileDumperAnonymousInner extends AbstractClassFileDumper {
 
@@ -24,7 +24,7 @@ public class ClassFileDumperAnonymousInner extends AbstractClassFileDumper {
         return dumpWithArgs(classFile, null, new ObjectArrayList<Expression>(), false, d);
     }
 
-    public Dumper dumpWithArgs(ClassFile classFile, MethodPrototype usedMethod, List<Expression> args, boolean isEnum, Dumper d) {
+    public Dumper dumpWithArgs(ClassFile classFile, MethodPrototype usedMethod, ObjectList<Expression> args, boolean isEnum, Dumper d) {
 
         if (classFile == null) {
             d.print("/* Unavailable Anonymous Inner Class!! */");
@@ -62,11 +62,11 @@ public class ClassFileDumperAnonymousInner extends AbstractClassFileDumper {
         int outcrs = d.getOutputCount();
 
 
-        List<ClassFileField> fields = classFile.getFields();
+        ObjectList<ClassFileField> fields = classFile.getFields();
         for (ClassFileField field : fields) {
             if (!field.shouldNotDisplay()) field.dump(d, classFile);
         }
-        List<Method> methods = classFile.getMethods();
+        ObjectList<Method> methods = classFile.getMethods();
         if (!methods.isEmpty()) {
             for (Method method : methods) {
                 if (method.hiddenState() != Method.Visibility.Visible) continue;

@@ -20,7 +20,7 @@ import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
 import java.util.Collection;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -28,8 +28,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class Misc {
-    public static void flattenCompoundStatements(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> newStatements = new ObjectArrayList<>();
+    public static void flattenCompoundStatements(ObjectList<Op03SimpleStatement> statements) {
+        ObjectList<Op03SimpleStatement> newStatements = new ObjectArrayList<>();
         for (Op03SimpleStatement statement : statements) {
             if (statement.isCompound()) {
                 newStatements.addAll(statement.splitCompound());
@@ -39,14 +39,14 @@ public class Misc {
     }
 
     public static Op03SimpleStatement getLastInRangeByIndex(Set<Op03SimpleStatement> stms) {
-        List<Op03SimpleStatement> lst = new ObjectArrayList<>(stms);
+        ObjectList<Op03SimpleStatement> lst = new ObjectArrayList<>(stms);
         lst.sort(new CompareByIndex(false));
         return lst.get(0);
     }
 
     public static Op03SimpleStatement skipComments(Op03SimpleStatement stm) {
         while (stm.getStatement() instanceof CommentStatement) {
-            List<Op03SimpleStatement> targets = stm.getTargets();
+            ObjectList<Op03SimpleStatement> targets = stm.getTargets();
             if (targets.size() != 1) {
                 return stm;
             }
@@ -86,7 +86,7 @@ public class Misc {
         @Override
         public boolean test(Op03SimpleStatement in) {
             InstrIndex inIndex = in.getIndex();
-            List<Op03SimpleStatement> targets = in.getTargets();
+            ObjectList<Op03SimpleStatement> targets = in.getTargets();
             for (Op03SimpleStatement target : targets) {
                 if (target.getIndex().compareTo(inIndex) <= 0) {
                     Statement statement = in.getStatement();
@@ -109,7 +109,7 @@ public class Misc {
         @Override
         public Op03SimpleStatement apply(Op03SimpleStatement in) {
             InstrIndex inIndex = in.getIndex();
-            List<Op03SimpleStatement> targets = in.getTargets();
+            ObjectList<Op03SimpleStatement> targets = in.getTargets();
             for (Op03SimpleStatement target : targets) {
                 if (target.getIndex().compareTo(inIndex) <= 0) {
                     return target;
@@ -136,7 +136,7 @@ public class Misc {
     }
 
 
-    static int getFarthestReachableInRange(List<Op03SimpleStatement> statements, int start, int afterEnd) {
+    static int getFarthestReachableInRange(ObjectList<Op03SimpleStatement> statements, int start, int afterEnd) {
         Map<Op03SimpleStatement, Integer> instrToIdx = MapFactory.newMap();
         for (int x = start; x < afterEnd; ++x) {
             Op03SimpleStatement statement = statements.get(x);
@@ -244,7 +244,7 @@ public class Misc {
         } while (true);
     }
 
-    static void markWholeBlock(List<Op03SimpleStatement> statements, BlockIdentifier blockIdentifier) {
+    static void markWholeBlock(ObjectList<Op03SimpleStatement> statements, BlockIdentifier blockIdentifier) {
         Op03SimpleStatement start = statements.get(0);
         start.markFirstStatementInBlock(blockIdentifier);
         for (Op03SimpleStatement statement : statements) {
@@ -268,7 +268,7 @@ public class Misc {
     }
 
     static Op03SimpleStatement findSingleBackSource(Op03SimpleStatement start) {
-        List<Op03SimpleStatement> startSources = Functional.filter(
+        ObjectList<Op03SimpleStatement> startSources = Functional.filter(
             start.getSources(),
             new IsForwardJumpTo(start.getIndex())
         );
@@ -281,7 +281,7 @@ public class Misc {
     static BlockIdentifier findOuterBlock(
         BlockIdentifier b1,
         BlockIdentifier b2,
-        List<Op03SimpleStatement> statements
+        ObjectList<Op03SimpleStatement> statements
     ) {
         for (Op03SimpleStatement s : statements) {
             Set<BlockIdentifier> contained = s.getBlockIdentifiers();
@@ -368,7 +368,7 @@ public class Misc {
         int checkDepth
     ) {
         while (target != maybeSource && checkDepth-- > 0) {
-            List<Op03SimpleStatement> sources = target.getSources();
+            ObjectList<Op03SimpleStatement> sources = target.getSources();
             if (sources.size() != 1) return false;
             target = sources.get(0);
         }

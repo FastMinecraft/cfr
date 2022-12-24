@@ -19,7 +19,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.rewriters.ExpressionRewriterF
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.SSAIdentifiers;
 import org.benf.cfr.reader.bytecode.analysis.variables.VariableFactory;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class BadCompareRewriter extends AbstractExpressionRewriter {
     private final VariableFactory vf;
@@ -28,7 +28,7 @@ public class BadCompareRewriter extends AbstractExpressionRewriter {
         this.vf = vf;
     }
 
-    public void rewrite(List<Op03SimpleStatement> op03SimpleParseNodes) {
+    public void rewrite(ObjectList<Op03SimpleStatement> op03SimpleParseNodes) {
         for (Op03SimpleStatement stm : op03SimpleParseNodes) {
             stm.rewrite(this);
         }

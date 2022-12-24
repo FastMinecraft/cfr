@@ -2,10 +2,10 @@ package org.benf.cfr.reader.bytecode.analysis.types;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 /**
- * Really List<StackType> but for legibility, shortened.
+ * Really ObjectList<StackType> but for legibility, shortened.
  */
 public class StackTypes extends ArrayList<StackType> {
     public static final StackTypes EMPTY = new StackTypes();
@@ -14,7 +14,7 @@ public class StackTypes extends ArrayList<StackType> {
         super(Arrays.asList(stackTypes));
     }
 
-    public StackTypes(List<StackType> stackTypes) {
+    public StackTypes(ObjectList<StackType> stackTypes) {
         super(stackTypes);
     }
 }

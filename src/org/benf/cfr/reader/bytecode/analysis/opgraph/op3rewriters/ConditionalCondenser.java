@@ -21,7 +21,7 @@ import org.benf.cfr.reader.util.collections.SetUtil;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 public class ConditionalCondenser {
@@ -216,9 +216,9 @@ public class ConditionalCondenser {
      * We will always have the former, but (ONLY!) just after a backjump, (with only conditionals and assignments, and
      * single parents), we will want to run them together.
      */
-    static void collapseAssignmentsIntoConditionals(List<Op03SimpleStatement> statements, Options options, ClassFileVersion classFileVersion) {
+    static void collapseAssignmentsIntoConditionals(ObjectList<Op03SimpleStatement> statements, Options options, ClassFileVersion classFileVersion) {
         // find all conditionals.
-        List<Op03SimpleStatement> ifStatements = Functional.filter(statements, new TypeFilter<>(IfStatement.class));
+        ObjectList<Op03SimpleStatement> ifStatements = Functional.filter(statements, new TypeFilter<>(IfStatement.class));
         if (ifStatements.isEmpty()) return;
 
         boolean testEclipse = options.getOption(OptionsImpl.ECLIPSE);

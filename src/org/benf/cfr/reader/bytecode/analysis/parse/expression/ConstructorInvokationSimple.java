@@ -18,7 +18,7 @@ import org.benf.cfr.reader.entities.exceptions.ExceptionCheck;
 import org.benf.cfr.reader.util.MiscConstants;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class ConstructorInvokationSimple extends AbstractConstructorInvokation implements FunctionProcessor {
 
@@ -28,7 +28,7 @@ public class ConstructorInvokationSimple extends AbstractConstructorInvokation i
     public ConstructorInvokationSimple(BytecodeLoc loc,
                                        MemberFunctionInvokation constructorInvokation,
                                        InferredJavaType inferredJavaType, InferredJavaType constructionType,
-                                       List<Expression> args) {
+                                       ObjectList<Expression> args) {
         super(loc, inferredJavaType, constructorInvokation.getFunction(), args);
         this.constructorInvokation = constructorInvokation;
         this.constructionType = constructionType;
@@ -60,7 +60,7 @@ public class ConstructorInvokationSimple extends AbstractConstructorInvokation i
     @Override
     public Dumper dumpInner(Dumper d) {
         JavaTypeInstance clazz = getFinalDisplayTypeInstance();
-        List<Expression> args = getArgs();
+        ObjectList<Expression> args = getArgs();
         MethodPrototype prototype = constructorInvokation.getMethodPrototype();
 
         if (prototype.isInnerOuterThis() && prototype.isHiddenArg(0) && args.size() > 0) {

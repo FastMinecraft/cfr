@@ -4,7 +4,7 @@ import org.benf.cfr.reader.CfrDriverImpl;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 
 /**
@@ -18,7 +18,7 @@ public interface CfrDriver {
      *
      * @param toAnalyse list of class file FQN / path of jar / path of class file
      */
-    void analyse(List<String> toAnalyse);
+    void analyse(ObjectList<String> toAnalyse);
 
     /**
      * Builder for {@link CfrDriver}

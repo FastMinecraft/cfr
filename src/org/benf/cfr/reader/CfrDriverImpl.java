@@ -1,6 +1,7 @@
 package org.benf.cfr.reader;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.api.CfrDriver;
 import org.benf.cfr.reader.api.ClassFileSource;
 import org.benf.cfr.reader.api.OutputSinkFactory;
@@ -42,7 +43,7 @@ public class CfrDriverImpl implements CfrDriver {
     }
 
     @Override
-    public void analyse(List<String> toAnalyse) {
+    public void analyse(ObjectList<String> toAnalyse) {
         /*
          * There's an interesting question here - do we want to skip inner classes, if we've been given a wildcard?
          * (or a wildcard expanded by the operating system).

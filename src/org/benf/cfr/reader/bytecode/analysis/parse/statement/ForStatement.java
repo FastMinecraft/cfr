@@ -14,15 +14,15 @@ import org.benf.cfr.reader.bytecode.analysis.structured.statement.UnstructuredFo
 import org.benf.cfr.reader.util.StringUtils;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class ForStatement extends AbstractStatement {
     private ConditionalExpression condition;
     private final BlockIdentifier blockIdentifier;
     private final AssignmentSimple initial;
-    private final List<AbstractAssignmentExpression> assignments;
+    private final ObjectList<AbstractAssignmentExpression> assignments;
 
-    ForStatement(BytecodeLoc loc, ConditionalExpression conditionalExpression, BlockIdentifier blockIdentifier, AssignmentSimple initial, List<AbstractAssignmentExpression> assignments) {
+    ForStatement(BytecodeLoc loc, ConditionalExpression conditionalExpression, BlockIdentifier blockIdentifier, AssignmentSimple initial, ObjectList<AbstractAssignmentExpression> assignments) {
         super(loc);
         this.condition = conditionalExpression;
         this.blockIdentifier = blockIdentifier;
@@ -32,7 +32,7 @@ public class ForStatement extends AbstractStatement {
 
     @Override
     public Statement deepClone(CloneHelper cloneHelper) {
-        List<AbstractAssignmentExpression> assigns = new ObjectArrayList<>();
+        ObjectList<AbstractAssignmentExpression> assigns = new ObjectArrayList<>();
         for (AbstractAssignmentExpression ae : assignments) {
             assigns.add((AbstractAssignmentExpression)cloneHelper.replaceOrClone(ae));
         }
@@ -100,7 +100,7 @@ public class ForStatement extends AbstractStatement {
         return initial;
     }
 
-    public List<AbstractAssignmentExpression> getAssignments() {
+    public ObjectList<AbstractAssignmentExpression> getAssignments() {
         return assignments;
     }
 

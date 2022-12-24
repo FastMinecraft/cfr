@@ -13,13 +13,13 @@ import org.benf.cfr.reader.util.StringUtils;
 import org.benf.cfr.reader.util.Troolean;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class MemberFunctionInvokation extends AbstractMemberFunctionInvokation {
     private final boolean special;
     private final boolean isInitMethod;
 
-    public MemberFunctionInvokation(BytecodeLoc loc, ConstantPool cp, ConstantPoolEntryMethodRef function, Expression object, JavaTypeInstance bestType, boolean special, List<Expression> args, List<Boolean> nulls) {
+    public MemberFunctionInvokation(BytecodeLoc loc, ConstantPool cp, ConstantPoolEntryMethodRef function, Expression object, JavaTypeInstance bestType, boolean special, ObjectList<Expression> args, ObjectList<Boolean> nulls) {
         super(loc, cp, function, object, bestType, args, nulls);
         // Most of the time a member function invokation for a constructor will
         // get pulled up into a constructorInvokation, however, when it's a super call, it won't.
@@ -27,7 +27,7 @@ public class MemberFunctionInvokation extends AbstractMemberFunctionInvokation {
         this.special = special;
     }
 
-    private MemberFunctionInvokation(BytecodeLoc loc, ConstantPool cp, ConstantPoolEntryMethodRef function, Expression object, boolean special, List<Expression> args, List<Boolean> nulls) {
+    private MemberFunctionInvokation(BytecodeLoc loc, ConstantPool cp, ConstantPoolEntryMethodRef function, Expression object, boolean special, ObjectList<Expression> args, ObjectList<Boolean> nulls) {
         super(loc, cp, function, object, args, nulls);
         this.isInitMethod = function.isInitMethod();
         this.special = special;
@@ -54,7 +54,7 @@ public class MemberFunctionInvokation extends AbstractMemberFunctionInvokation {
         MethodPrototype methodPrototype = getMethodPrototype();
         if (!isInitMethod) d.separator(".").methodName(getFixedName(), methodPrototype, false, false);
         d.separator("(");
-        List<Expression> args = getArgs();
+        ObjectList<Expression> args = getArgs();
         boolean first = true;
         for (int x = 0; x < args.size(); ++x) {
             if (methodPrototype.isHiddenArg(x)) continue;

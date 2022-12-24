@@ -11,16 +11,16 @@ import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.StringUtils;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Vector;
 
 public class UnstructuredFor extends AbstractUnStructuredStatement {
     private final ConditionalExpression condition;
     private final BlockIdentifier blockIdentifier;
     private final AssignmentSimple initial;
-    private final List<AbstractAssignmentExpression> assignments;
+    private final ObjectList<AbstractAssignmentExpression> assignments;
 
-    public UnstructuredFor(BytecodeLoc loc, ConditionalExpression condition, BlockIdentifier blockIdentifier, AssignmentSimple initial, List<AbstractAssignmentExpression> assignments) {
+    public UnstructuredFor(BytecodeLoc loc, ConditionalExpression condition, BlockIdentifier blockIdentifier, AssignmentSimple initial, ObjectList<AbstractAssignmentExpression> assignments) {
         super(loc);
         this.condition = condition;
         this.blockIdentifier = blockIdentifier;

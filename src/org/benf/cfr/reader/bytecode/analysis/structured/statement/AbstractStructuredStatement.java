@@ -17,7 +17,7 @@ import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import java.util.function.Predicate;
 import org.benf.cfr.reader.util.output.ToStringDumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Vector;
 
 public abstract class AbstractStructuredStatement implements StructuredStatement {
@@ -121,7 +121,7 @@ public abstract class AbstractStructuredStatement implements StructuredStatement
     }
 
     @Override
-    public List<LValue> findCreatedHere() {
+    public ObjectList<LValue> findCreatedHere() {
         return null;
     }
 

@@ -12,7 +12,7 @@ import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers.S
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class StructuredFinally extends AbstractStructuredStatement {
     private final Op04StructuredStatement catchBlock;
@@ -60,7 +60,7 @@ public class StructuredFinally extends AbstractStructuredStatement {
     }
 
     @Override
-    public void linearizeInto(List<StructuredStatement> out) {
+    public void linearizeInto(ObjectList<StructuredStatement> out) {
         out.add(this);
         catchBlock.linearizeStatementsInto(out);
     }

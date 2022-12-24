@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.loc;
 
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import org.benf.cfr.reader.entities.Method;
 
 import java.util.Collection;
@@ -29,12 +30,12 @@ class BytecodeLocSpecific extends BytecodeLoc {
 
     @Override
     public Collection<Method> getMethods() {
-        return Collections.emptyList();
+        return ObjectLists.emptyList();
     }
 
     @Override
     public Collection<Integer> getOffsetsForMethod(Method method) {
-        return Collections.emptyList();
+        return ObjectLists.emptyList();
     }
 
     @Override

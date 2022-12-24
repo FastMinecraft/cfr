@@ -2,7 +2,7 @@ package org.benf.cfr.reader.entities.exceptions;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -16,8 +16,8 @@ import java.util.TreeMap;
 public class IntervalCollisionRemover {
     private final TreeMap<Integer, Boolean> covered = new TreeMap<>();
 
-    public List<ClosedIdxExceptionEntry> removeIllegals(ClosedIdxExceptionEntry e) {
-        List<ClosedIdxExceptionEntry> res = new ObjectArrayList<>();
+    public ObjectList<ClosedIdxExceptionEntry> removeIllegals(ClosedIdxExceptionEntry e) {
+        ObjectList<ClosedIdxExceptionEntry> res = new ObjectArrayList<>();
 
         int start = e.start();
         int end = e.end();

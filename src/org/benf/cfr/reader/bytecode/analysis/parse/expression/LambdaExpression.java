@@ -19,16 +19,16 @@ import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.StringUtils;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Objects;
 
 public class LambdaExpression extends AbstractExpression implements LambdaExpressionCommon {
 
-    private final List<LValue> args;
-    private List<JavaTypeInstance> explicitArgTypes;
+    private final ObjectList<LValue> args;
+    private ObjectList<JavaTypeInstance> explicitArgTypes;
     private Expression result;
 
-    public LambdaExpression(BytecodeLoc loc, InferredJavaType castJavaType, List<LValue> args, List<JavaTypeInstance> explicitArgType, Expression result) {
+    public LambdaExpression(BytecodeLoc loc, InferredJavaType castJavaType, ObjectList<LValue> args, ObjectList<JavaTypeInstance> explicitArgType, Expression result) {
         super(loc, castJavaType);
         this.args = args;
         this.explicitArgTypes = explicitArgType;
@@ -52,13 +52,13 @@ public class LambdaExpression extends AbstractExpression implements LambdaExpres
         result.collectTypeUsages(collector);
     }
 
-    public void setExplicitArgTypes(List<JavaTypeInstance> types) {
+    public void setExplicitArgTypes(ObjectList<JavaTypeInstance> types) {
         if (types == null || types.size() == args.size()) {
             explicitArgTypes = types;
         }
     }
 
-    public List<JavaTypeInstance> explicitArgTypes() {
+    public ObjectList<JavaTypeInstance> explicitArgTypes() {
         return explicitArgTypes;
     }
 
@@ -141,7 +141,7 @@ public class LambdaExpression extends AbstractExpression implements LambdaExpres
         }
     }
 
-    public List<LValue> getArgs() {
+    public ObjectList<LValue> getArgs() {
         return args;
     }
 

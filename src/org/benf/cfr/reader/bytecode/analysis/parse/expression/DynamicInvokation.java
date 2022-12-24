@@ -13,14 +13,14 @@ import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Objects;
 
 public class DynamicInvokation extends AbstractExpression {
     private final Expression innerInvokation;
-    private final List<Expression> dynamicArgs;
+    private final ObjectList<Expression> dynamicArgs;
 
-    public DynamicInvokation(BytecodeLoc loc, InferredJavaType castJavaType, Expression innerInvokation, List<Expression> dynamicArgs) {
+    public DynamicInvokation(BytecodeLoc loc, InferredJavaType castJavaType, Expression innerInvokation, ObjectList<Expression> dynamicArgs) {
         super(loc, castJavaType);
         this.innerInvokation = innerInvokation;
         this.dynamicArgs = dynamicArgs;
@@ -97,7 +97,7 @@ public class DynamicInvokation extends AbstractExpression {
         return innerInvokation;
     }
 
-    public List<Expression> getDynamicArgs() {
+    public ObjectList<Expression> getDynamicArgs() {
         return dynamicArgs;
     }
 

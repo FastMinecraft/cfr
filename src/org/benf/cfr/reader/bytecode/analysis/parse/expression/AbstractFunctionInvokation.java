@@ -11,7 +11,7 @@ import org.benf.cfr.reader.bytecode.analysis.types.MethodPrototype;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryMethodRef;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public abstract class AbstractFunctionInvokation extends AbstractExpression {
     private final ConstantPoolEntryMethodRef function;
@@ -25,9 +25,9 @@ public abstract class AbstractFunctionInvokation extends AbstractExpression {
 
     public abstract void applyExpressionRewriterToArgs(ExpressionRewriter expressionRewriter, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags);
 
-    public abstract void setExplicitGenerics(List<JavaTypeInstance> types);
+    public abstract void setExplicitGenerics(ObjectList<JavaTypeInstance> types);
 
-    public abstract List<JavaTypeInstance> getExplicitGenerics();
+    public abstract ObjectList<JavaTypeInstance> getExplicitGenerics();
 
     public ConstantPoolEntryMethodRef getFunction() {
         return function;
@@ -48,5 +48,5 @@ public abstract class AbstractFunctionInvokation extends AbstractExpression {
         return true;
     }
 
-    public abstract List<Expression> getArgs();
+    public abstract ObjectList<Expression> getArgs();
 }

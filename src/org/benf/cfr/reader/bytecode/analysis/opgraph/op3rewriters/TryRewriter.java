@@ -19,7 +19,7 @@ import org.benf.cfr.reader.util.collections.SetUtil;
 
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 class TryRewriter {
@@ -27,7 +27,7 @@ class TryRewriter {
     /*
      * This is a terrible order cheat.
      */
-    private static void extendTryBlock(Op03SimpleStatement tryStatement, List<Op03SimpleStatement> in, DCCommonState dcCommonState) {
+    private static void extendTryBlock(Op03SimpleStatement tryStatement, ObjectList<Op03SimpleStatement> in, DCCommonState dcCommonState) {
         TryStatement tryStatementInner = (TryStatement) tryStatement.getStatement();
         BlockIdentifier tryBlockIdent = tryStatementInner.getBlockIdentifier();
 
@@ -35,7 +35,7 @@ class TryRewriter {
         Op03SimpleStatement currentStatement = tryStatement.getTargets().get(0);
         int x = in.indexOf(currentStatement);
 
-        List<Op03SimpleStatement> jumps = new ObjectArrayList<>();
+        ObjectList<Op03SimpleStatement> jumps = new ObjectArrayList<>();
 
         while (currentStatement.getBlockIdentifiers().contains(tryBlockIdent)) {
             ++x;
@@ -55,11 +55,11 @@ class TryRewriter {
          * checked exceptions could be thrown.
          */
         Set<JavaRefTypeInstance> caught = SetFactory.newSet();
-        List<Op03SimpleStatement> targets = tryStatement.getTargets();
+        ObjectList<Op03SimpleStatement> targets = tryStatement.getTargets();
         for (int i = 1, len = targets.size(); i < len; ++i) {
             Statement statement = targets.get(i).getStatement();
             if (!(statement instanceof CatchStatement catchStatement)) continue;
-            List<ExceptionGroup.Entry> exceptions = catchStatement.getExceptions();
+            ObjectList<ExceptionGroup.Entry> exceptions = catchStatement.getExceptions();
             for (ExceptionGroup.Entry entry : exceptions) {
                 caught.add(entry.getCatchType());
             }
@@ -141,15 +141,15 @@ class TryRewriter {
         }
     }
 
-    static void extendTryBlocks(DCCommonState dcCommonState, List<Op03SimpleStatement> in) {
-        List<Op03SimpleStatement> tries = Functional.filter(in, new TypeFilter<>(TryStatement.class));
+    static void extendTryBlocks(DCCommonState dcCommonState, ObjectList<Op03SimpleStatement> in) {
+        ObjectList<Op03SimpleStatement> tries = Functional.filter(in, new TypeFilter<>(TryStatement.class));
         for (Op03SimpleStatement tryStatement : tries) {
             extendTryBlock(tryStatement, in, dcCommonState);
         }
     }
 
-    static void combineTryCatchEnds(List<Op03SimpleStatement> in) {
-        List<Op03SimpleStatement> tries = Functional.filter(in, new TypeFilter<>(TryStatement.class));
+    static void combineTryCatchEnds(ObjectList<Op03SimpleStatement> in) {
+        ObjectList<Op03SimpleStatement> tries = Functional.filter(in, new TypeFilter<>(TryStatement.class));
         for (Op03SimpleStatement tryStatement : tries) {
             combineTryCatchEnds(tryStatement, in);
         }
@@ -158,7 +158,7 @@ class TryRewriter {
     /*
      * Find the last statement in the block, assuming that this statement is the one BEFORE, linearly.
      */
-    private static Op03SimpleStatement getLastContiguousBlockStatement(BlockIdentifier blockIdentifier, List<Op03SimpleStatement> in, Op03SimpleStatement preBlock) {
+    private static Op03SimpleStatement getLastContiguousBlockStatement(BlockIdentifier blockIdentifier, ObjectList<Op03SimpleStatement> in, Op03SimpleStatement preBlock) {
         if (preBlock.getTargets().isEmpty()) return null;
         Op03SimpleStatement currentStatement = preBlock.getTargets().get(0);
         int x = in.indexOf(currentStatement);
@@ -177,9 +177,9 @@ class TryRewriter {
         return last;
     }
 
-    private static void combineTryCatchEnds(Op03SimpleStatement tryStatement, List<Op03SimpleStatement> in) {
+    private static void combineTryCatchEnds(Op03SimpleStatement tryStatement, ObjectList<Op03SimpleStatement> in) {
         TryStatement innerTryStatement = (TryStatement) tryStatement.getStatement();
-        List<Op03SimpleStatement> lastStatements = new ObjectArrayList<>();
+        ObjectList<Op03SimpleStatement> lastStatements = new ObjectArrayList<>();
         lastStatements.add(getLastContiguousBlockStatement(innerTryStatement.getBlockIdentifier(), in, tryStatement));
         for (int x = 1, len = tryStatement.getTargets().size(); x < len; ++x) {
             Op03SimpleStatement statementContainer = tryStatement.getTargets().get(x);
@@ -247,8 +247,8 @@ class TryRewriter {
      *
      *
      */
-    private static void extractExceptionJumps(Op03SimpleStatement tryi, List<Op03SimpleStatement> in) {
-        List<Op03SimpleStatement> tryTargets = tryi.getTargets();
+    private static void extractExceptionJumps(Op03SimpleStatement tryi, ObjectList<Op03SimpleStatement> in) {
+        ObjectList<Op03SimpleStatement> tryTargets = tryi.getTargets();
         /*
          * Require that at least one block ends in a forward jump to the same block depth as tryi,
          * and that all others are either the same, or do not have a terminal forward jump.
@@ -296,7 +296,7 @@ class TryRewriter {
                 return;
             }
         }
-        List<Op03SimpleStatement> blockSources = new LinkedList<>();
+        ObjectList<Op03SimpleStatement> blockSources = new ObjectArrayList<>();
         for (Op03SimpleStatement source : uniqueForwardTarget.getSources()) {
             if (SetUtil.hasIntersection(source.getBlockIdentifiers(), relevantBlocks)) {
                 blockSources.add(source);
@@ -333,8 +333,8 @@ class TryRewriter {
         return null;
     }
 
-    static void extractExceptionJumps(List<Op03SimpleStatement> in) {
-        List<Op03SimpleStatement> tries = Functional.filter(in, new TypeFilter<>(TryStatement.class));
+    static void extractExceptionJumps(ObjectList<Op03SimpleStatement> in) {
+        ObjectList<Op03SimpleStatement> tries = Functional.filter(in, new TypeFilter<>(TryStatement.class));
         for (Op03SimpleStatement tryi : tries) {
             extractExceptionJumps(tryi, in);
         }
@@ -362,8 +362,8 @@ class TryRewriter {
      * If there's a backjump INSIDE a try block which points to the beginning of the try block, move it to the next
      * instruction.
      */
-    static void rewriteTryBackJumps(List<Op03SimpleStatement> in) {
-        List<Op03SimpleStatement> tries = Functional.filter(in, new TypeFilter<>(TryStatement.class));
+    static void rewriteTryBackJumps(ObjectList<Op03SimpleStatement> in) {
+        ObjectList<Op03SimpleStatement> tries = Functional.filter(in, new TypeFilter<>(TryStatement.class));
         for (Op03SimpleStatement trystm : tries) {
             rewriteTryBackJump(trystm);
         }

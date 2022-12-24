@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.entities.exceptions;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
@@ -12,12 +13,12 @@ public class IntervalOverlapper {
     private final NavigableMap<Integer, Set<ExceptionTableEntry>> starts = MapFactory.newTreeMap();
     private final NavigableMap<Integer, Set<ExceptionTableEntry>> ends = MapFactory.newTreeMap();
     
-    IntervalOverlapper(List<ExceptionTableEntry> entries) {
+    IntervalOverlapper(ObjectList<ExceptionTableEntry> entries) {
         // Should do this in a builder not in a constructor... eww.
         processEntries(entries);
     }
 
-    private void processEntries(List<ExceptionTableEntry> entries) {
+    private void processEntries(ObjectList<ExceptionTableEntry> entries) {
         for (ExceptionTableEntry e : entries) {
             processEntry(e);
         }
@@ -65,7 +66,7 @@ public class IntervalOverlapper {
         int currentTo;
         int remainingBlockStart = from;
         int remainingBlockTo = to;
-        List<ExceptionTableEntry> output = new ObjectArrayList<>();
+        ObjectList<ExceptionTableEntry> output = new ObjectArrayList<>();
         // by definition, startsbefore and endsafter won't overlap.
         if (!overlapStartsBefore.isEmpty()) {
             Set<Integer> blockEnds = new TreeSet<>();
@@ -104,7 +105,7 @@ public class IntervalOverlapper {
                 starts.get(e2.getBytecodeIndexFrom()).remove(e2);
                 ends.get(e2.getBytecodeIndexTo()).remove(e2);
             }
-            List<Integer> revBlockStarts = new ObjectArrayList<>(blockStarts);
+            ObjectList<Integer> revBlockStarts = new ObjectArrayList<>(blockStarts);
             currentTo = to;
             for (int x = revBlockStarts.size() - 1; x >= 0; --x) {
                 Integer start = revBlockStarts.get(x);
@@ -148,7 +149,7 @@ public class IntervalOverlapper {
         b.add(v);
     }
 
-    public List<ExceptionTableEntry> getExceptions() {
+    public ObjectList<ExceptionTableEntry> getExceptions() {
         return new ObjectArrayList<>(razeValues(starts));
     }
 }

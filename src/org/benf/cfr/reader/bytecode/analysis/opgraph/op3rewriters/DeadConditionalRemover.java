@@ -10,13 +10,13 @@ import org.benf.cfr.reader.bytecode.analysis.parse.statement.IfStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.Nop;
 import org.benf.cfr.reader.util.collections.MapFactory;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 
 public class DeadConditionalRemover {
     public static final DeadConditionalRemover INSTANCE = new DeadConditionalRemover();
 
-    public List<Op03SimpleStatement> rewrite(List<Op03SimpleStatement> statements) {
+    public ObjectList<Op03SimpleStatement> rewrite(ObjectList<Op03SimpleStatement> statements) {
         boolean effect = false;
         for (Op03SimpleStatement stm : statements) {
             if (stm.getStatement() instanceof IfStatement) {

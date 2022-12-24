@@ -11,7 +11,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.statement.ExpressionStatement
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.SSAIdentifiers;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class StaticInstanceCondenser {
     public static final StaticInstanceCondenser INSTANCE = new StaticInstanceCondenser();
@@ -28,7 +28,7 @@ public class StaticInstanceCondenser {
      * Foo.CONSTANT
      * x = ConstantType.doThing()
      */
-    public void rewrite(List<Op03SimpleStatement> statements) {
+    public void rewrite(ObjectList<Op03SimpleStatement> statements) {
         for (Op03SimpleStatement stm : statements) {
             if (stm.getStatement() instanceof ExpressionStatement) {
                 consider(stm);

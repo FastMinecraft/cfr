@@ -8,7 +8,7 @@ import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import org.benf.cfr.reader.entities.exceptions.ExceptionCheck;
 import org.benf.cfr.reader.util.output.Dumpable;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 /*
@@ -47,7 +47,7 @@ public interface Statement extends Dumpable, ComparableUnderEC, DeepCloneable<St
 
     StatementContainer<Statement> getContainer();
 
-    List<Statement> getCompoundParts();
+    ObjectList<Statement> getCompoundParts();
 
     StructuredStatement getStructuredStatement();
 

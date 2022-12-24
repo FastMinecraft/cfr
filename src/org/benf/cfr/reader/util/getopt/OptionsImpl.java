@@ -9,7 +9,7 @@ import org.benf.cfr.reader.util.Troolean;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 
 public class OptionsImpl implements Options {
@@ -152,7 +152,7 @@ public class OptionsImpl implements Options {
         public String getRangeDescription() {
             StringBuilder res = new StringBuilder();
             res.append(
-                "string, specifying either java version as 'j6', 'j1.0', or classfile as '56', '56.65535'\n\nList of known versions:");
+                "string, specifying either java version as 'j6', 'j1.0', or classfile as '56', '56.65535'\n\nObjectList of known versions:");
             res.append("\n\n");
             for (Map.Entry<String, ClassFileVersion> ver : ClassFileVersion.getByName().entrySet()) {
                 res.append(ver.getKey()).append("\t: ").append(ver.getValue()).append("\n");
@@ -240,7 +240,7 @@ public class OptionsImpl implements Options {
     private static final String CFR_WEBSITE = "https://benf.org/other/cfr/";
 
     // Look, I don't like reflection.  ;)
-    private static final List<PermittedOptionProvider.ArgumentParam<?,?>> all = new ObjectArrayList<>();
+    private static final ObjectList<PermittedOptionProvider.ArgumentParam<?,?>> all = new ObjectArrayList<>();
 
     private static <T extends PermittedOptionProvider.ArgumentParam<?, ?>> T register(T in) {
         all.add(in);
@@ -698,13 +698,13 @@ public class OptionsImpl implements Options {
 
     private static class CFRFactory implements GetOptSinkFactory<Options> {
         @Override
-        public List<String> getFlags() {
+        public ObjectList<String> getFlags() {
             return new ObjectArrayList<>();
         }
 
         @Override
         @SuppressWarnings("unchecked")
-        public List<? extends ArgumentParam<?, ?>> getArguments() {
+        public ObjectList<? extends ArgumentParam<?, ?>> getArguments() {
             return all;
         }
 

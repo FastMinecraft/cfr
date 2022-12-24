@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.util.getopt;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.CfrVersionInfo;
@@ -50,7 +51,7 @@ public class GetOptParser {
             max = Math.max(len, max);
         }
         max += 4;
-        List<? extends PermittedOptionProvider.ArgumentParam<?, ?>> args = permittedOptionProvider.getArguments();
+        ObjectList<? extends PermittedOptionProvider.ArgumentParam<?, ?>> args = permittedOptionProvider.getArguments();
         args.sort((Comparator<PermittedOptionProvider.ArgumentParam<?, ?>>) (a1, a2) -> {
             if (a1.getName().equals("help")) return 1;
             if (a2.getName().equals("help")) return -1;
@@ -80,9 +81,9 @@ public class GetOptParser {
         return optTypeMap;
     }
 
-    public <T> Pair<List<String>, T> parse(String[] args, GetOptSinkFactory<T> getOptSinkFactory) {
-        Pair<List<String>, Map<String, String>> processed = process(args, getOptSinkFactory);
-        final List<String> positional = processed.getFirst();
+    public <T> Pair<ObjectList<String>, T> parse(String[] args, GetOptSinkFactory<T> getOptSinkFactory) {
+        Pair<ObjectList<String>, Map<String, String>> processed = process(args, getOptSinkFactory);
+        final ObjectList<String> positional = processed.getFirst();
         Map<String, String> named = processed.getSecond();
         /*
          * A bit of a hack, but if no positional arguments are specified, and 'help' is, then
@@ -121,7 +122,7 @@ public class GetOptParser {
     public void showOptionHelp(PermittedOptionProvider permittedOptionProvider, Options options, PermittedOptionProvider.ArgumentParam<String, Void> helpArg) {
         printErrHeader();
         String relevantOption = options.getOption(helpArg);
-        List<? extends PermittedOptionProvider.ArgumentParam<?, ?>> possible = permittedOptionProvider.getArguments();
+        ObjectList<? extends PermittedOptionProvider.ArgumentParam<?, ?>> possible = permittedOptionProvider.getArguments();
         for (PermittedOptionProvider.ArgumentParam<?, ?> opt : possible) {
             if (opt.getName().equals(relevantOption)) {
                 System.err.println(opt.describe());
@@ -138,10 +139,10 @@ public class GetOptParser {
 
     private static final String argPrefix = "--";
 
-    private Pair<List<String>, Map<String, String>> process(String[] in, PermittedOptionProvider optionProvider) {
+    private Pair<ObjectList<String>, Map<String, String>> process(String[] in, PermittedOptionProvider optionProvider) {
         Map<String, OptData> optTypeMap = buildOptTypeMap(optionProvider);
         Map<String, String> res = MapFactory.newMap();
-        List<String> positional = new ObjectArrayList<>();
+        ObjectList<String> positional = new ObjectArrayList<>();
         Options optionsSample = new OptionsImpl(res);
         for (int x = 0; x < in.length; ++x) {
             if (in[x].startsWith(argPrefix)) {

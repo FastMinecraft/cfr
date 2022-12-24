@@ -4,7 +4,7 @@ import org.benf.cfr.reader.bytecode.BytecodeMeta;
 import org.benf.cfr.reader.bytecode.analysis.types.*;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 
 public class TypeHintRecoveryImpl implements TypeHintRecovery {
@@ -24,7 +24,7 @@ public class TypeHintRecoveryImpl implements TypeHintRecovery {
         BindingSuperContainer bindingSuperContainer = original.getBindingSupers();
         JavaGenericRefTypeInstance unboundIterable = bindingSuperContainer.getBoundSuperForBase(TypeConstants.ITERABLE);
         JavaGenericRefTypeInstance unboundThis = bindingSuperContainer.getBoundSuperForBase(original.getDeGenerifiedType());
-        List<JavaTypeInstance> iterTypes = unboundIterable.getGenericTypes();
+        ObjectList<JavaTypeInstance> iterTypes = unboundIterable.getGenericTypes();
         if (iterTypes.size() != 1) return;
         String unbound = iterTypes.get(0).getRawName();
         GenericTypeBinder genericTypeBinder = GenericTypeBinder.createEmpty();

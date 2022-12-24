@@ -16,7 +16,7 @@ import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.util.collections.MapFactory;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 
 /*
@@ -40,7 +40,7 @@ public class NarrowingTypeRewriter {
         return BAD_SENTINEL;
     }
 
-    public static void rewrite(Method method, List<Op03SimpleStatement> statements) {
+    public static void rewrite(Method method, ObjectList<Op03SimpleStatement> statements) {
         LValueAssignmentCollector collector = new LValueAssignmentCollector();
 
         for (LocalVariable lv : method.getMethodPrototype().getComputedParameters()) {

@@ -18,13 +18,13 @@ import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.collections.SetUtil;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.Set;
 
 public class RemoveDeterministicJumps {
 
-    public static List<Op03SimpleStatement> apply(Method method, List<Op03SimpleStatement> statements) {
+    public static ObjectList<Op03SimpleStatement> apply(Method method, ObjectList<Op03SimpleStatement> statements) {
         boolean success = false;
         Set<BlockIdentifier> ignoreInThese = FinallyRewriter.getBlocksAffectedByFinally(statements);
 
@@ -53,7 +53,7 @@ public class RemoveDeterministicJumps {
             if (current.getSources().size() != 1) break;
             if (!seen.add(current)) return false; // Hit a cycle, can't help.
             Class<?> cls = current.getStatement().getClass();
-            List<Op03SimpleStatement> curTargets = current.getTargets();
+            ObjectList<Op03SimpleStatement> curTargets = current.getTargets();
             int nTargets = curTargets.size();
             if (cls == Nop.class) {
                 if (nTargets != 1) break;
@@ -213,7 +213,7 @@ public class RemoveDeterministicJumps {
         do {
             if (!seen.add(current)) return false;
             Class<?> cls = current.getStatement().getClass();
-            List<Op03SimpleStatement> curTargets = current.getTargets();
+            ObjectList<Op03SimpleStatement> curTargets = current.getTargets();
             int nTargets = curTargets.size();
             if (cls == Nop.class) {
                 if (nTargets != 1) return false;
@@ -296,10 +296,10 @@ public class RemoveDeterministicJumps {
      * VERY aggressive options for simplifying control flow, at the cost of changing the appearance.
      *
      */
-    public static void propagateToReturn(Method method, List<Op03SimpleStatement> statements) {
+    public static void propagateToReturn(Method method, ObjectList<Op03SimpleStatement> statements) {
         boolean success = false;
 
-        List<Op03SimpleStatement> assignmentSimples = Functional.filter(statements,
+        ObjectList<Op03SimpleStatement> assignmentSimples = Functional.filter(statements,
             new TypeFilter<>(AssignmentSimple.class));
         Set<BlockIdentifier> affectedByFinally = FinallyRewriter.getBlocksAffectedByFinally(statements);
 

@@ -11,7 +11,7 @@ import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class AttributeInnerClasses extends Attribute {
     public static final String ATTRIBUTE_NAME = "InnerClasses";
@@ -23,7 +23,7 @@ public class AttributeInnerClasses extends Attribute {
 
 
     private final int length;
-    private final List<InnerClassAttributeInfo> innerClassAttributeInfoList = new ObjectArrayList<>();
+    private final ObjectList<InnerClassAttributeInfo> innerClassAttributeInfoList = new ObjectArrayList<>();
 
     private static JavaTypeInstance getOptClass(int idx, ConstantPool cp) {
         if (idx == 0) {
@@ -105,7 +105,7 @@ public class AttributeInnerClasses extends Attribute {
         return OFFSET_OF_REMAINDER + length;
     }
 
-    public List<InnerClassAttributeInfo> getInnerClassAttributeInfoList() {
+    public ObjectList<InnerClassAttributeInfo> getInnerClassAttributeInfoList() {
         return innerClassAttributeInfoList;
     }
 

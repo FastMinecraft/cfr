@@ -3,7 +3,7 @@ package org.benf.cfr.reader.state;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.entities.innerclass.InnerClassAttributeInfo;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.function.Function;
 
 public interface ObfuscationTypeMap {
@@ -13,5 +13,5 @@ public interface ObfuscationTypeMap {
 
     Function<JavaTypeInstance, JavaTypeInstance> getter();
 
-    List<InnerClassAttributeInfo> getInnerClassInfo(JavaTypeInstance classType);
+    ObjectList<InnerClassAttributeInfo> getInnerClassInfo(JavaTypeInstance classType);
 }

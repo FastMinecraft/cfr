@@ -9,7 +9,7 @@ import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredAssignment;
 import org.benf.cfr.reader.bytecode.analysis.types.RawJavaType;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 // It's not normally valid to use an implicit narrowing conversion, however in the case where this is an assignment,
 // it is.
@@ -20,7 +20,7 @@ public class NarrowingAssignmentRewriter implements Op04Rewriter {
 
     @Override
     public void rewrite(Op04StructuredStatement root) {
-        List<StructuredStatement> statements = MiscStatementTools.linearise(root);
+        ObjectList<StructuredStatement> statements = MiscStatementTools.linearise(root);
         if (statements == null) return;
         for (StructuredStatement s : statements) {
             if (!(s instanceof StructuredAssignment ass)) continue;

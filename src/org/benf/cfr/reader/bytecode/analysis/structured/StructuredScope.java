@@ -7,6 +7,8 @@ import org.benf.cfr.reader.bytecode.analysis.structured.statement.Block;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.LinkedList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
+
 import java.util.List;
 import java.util.Set;
 
@@ -42,8 +44,8 @@ public class StructuredScope {
         return scope.get(skipN).statement;
     }
 
-    public List<StructuredStatement> getAll() {
-        List<StructuredStatement> ret = new ObjectArrayList<>();
+    public ObjectList<StructuredStatement> getAll() {
+        ObjectList<StructuredStatement> ret = new ObjectArrayList<>();
         for (AtLevel atLevel : scope) {
             ret.add(atLevel.statement);
         }

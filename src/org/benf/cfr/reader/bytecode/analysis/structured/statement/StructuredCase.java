@@ -20,10 +20,10 @@ import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.annotation.Nullable;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class StructuredCase extends AbstractStructuredBlockStatement {
-    private final List<Expression> values;
+    private final ObjectList<Expression> values;
     private final BlockIdentifier blockIdentifier;
     @Nullable
     private final InferredJavaType inferredJavaTypeOfSwitch;
@@ -31,11 +31,11 @@ public class StructuredCase extends AbstractStructuredBlockStatement {
     // on that enum!) we have to know about the context of usage.
     private final boolean enumSwitch;
 
-    public StructuredCase(BytecodeLoc loc, List<Expression> values, InferredJavaType inferredJavaTypeOfSwitch, Op04StructuredStatement body, BlockIdentifier blockIdentifier) {
+    public StructuredCase(BytecodeLoc loc, ObjectList<Expression> values, InferredJavaType inferredJavaTypeOfSwitch, Op04StructuredStatement body, BlockIdentifier blockIdentifier) {
         this(loc, values, inferredJavaTypeOfSwitch, body, blockIdentifier, false);
     }
 
-    public StructuredCase(BytecodeLoc loc, List<Expression> values, InferredJavaType inferredJavaTypeOfSwitch, Op04StructuredStatement body, BlockIdentifier blockIdentifier, boolean enumSwitch) {
+    public StructuredCase(BytecodeLoc loc, ObjectList<Expression> values, InferredJavaType inferredJavaTypeOfSwitch, Op04StructuredStatement body, BlockIdentifier blockIdentifier, boolean enumSwitch) {
         super(loc, body);
         this.blockIdentifier = blockIdentifier;
         this.enumSwitch = enumSwitch;
@@ -100,7 +100,7 @@ public class StructuredCase extends AbstractStructuredBlockStatement {
         return true;
     }
 
-    public List<Expression> getValues() {
+    public ObjectList<Expression> getValues() {
         return values;
     }
 
@@ -109,7 +109,7 @@ public class StructuredCase extends AbstractStructuredBlockStatement {
     }
 
     @Override
-    public void linearizeInto(List<StructuredStatement> out) {
+    public void linearizeInto(ObjectList<StructuredStatement> out) {
         out.add(this);
         getBody().linearizeStatementsInto(out);
     }

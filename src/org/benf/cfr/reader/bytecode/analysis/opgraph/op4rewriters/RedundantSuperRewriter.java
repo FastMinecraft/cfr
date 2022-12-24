@@ -13,7 +13,7 @@ import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredDefi
 import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredExpressionStatement;
 import org.benf.cfr.reader.util.collections.Functional;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 public class RedundantSuperRewriter implements Op04Rewriter {
@@ -21,7 +21,7 @@ public class RedundantSuperRewriter implements Op04Rewriter {
     public RedundantSuperRewriter() {
     }
 
-    protected List<Expression> getSuperArgs(WildcardMatch wcm) {
+    protected ObjectList<Expression> getSuperArgs(WildcardMatch wcm) {
         return null;
     }
 
@@ -31,7 +31,7 @@ public class RedundantSuperRewriter implements Op04Rewriter {
 
     @Override
     public void rewrite(Op04StructuredStatement root) {
-        List<StructuredStatement> structuredStatements = MiscStatementTools.linearise(root);
+        ObjectList<StructuredStatement> structuredStatements = MiscStatementTools.linearise(root);
         if (structuredStatements == null) return;
 
         WildcardMatch wcm1 = new WildcardMatch();
@@ -57,9 +57,9 @@ public class RedundantSuperRewriter implements Op04Rewriter {
     private class SuperResultCollector extends AbstractMatchResultIterator {
 
         private final WildcardMatch wcm;
-        private final List<StructuredStatement> structuredStatements;
+        private final ObjectList<StructuredStatement> structuredStatements;
 
-        private SuperResultCollector(WildcardMatch wcm, List<StructuredStatement> structuredStatements) {
+        private SuperResultCollector(WildcardMatch wcm, ObjectList<StructuredStatement> structuredStatements) {
             this.wcm = wcm;
             this.structuredStatements = structuredStatements;
         }
@@ -72,7 +72,7 @@ public class RedundantSuperRewriter implements Op04Rewriter {
                 statement.getContainer().nopOut();
                 Set<LValue> declarationsToNop = getDeclarationsToNop(wcm);
                 if (declarationsToNop != null) {
-                    List<StructuredStatement> decls = Functional.filter(structuredStatements,
+                    ObjectList<StructuredStatement> decls = Functional.filter(structuredStatements,
                         in -> (in instanceof StructuredDefinition)
                     );
                     for (StructuredStatement decl : decls) {

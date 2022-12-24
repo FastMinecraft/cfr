@@ -6,7 +6,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.expression.ConstructorInvokat
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.entities.ClassFile;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 /*
  * Usage of anonymous classes currently requires decorating those classes once we've determined the code that's
@@ -14,8 +14,8 @@ import java.util.List;
  * times (inside a recovery).
  */
 public class AnonymousClassUsage {
-    private final List<Pair<ClassFile, ConstructorInvokationAnonymousInner>> noted = new ObjectArrayList<>();
-    private final List<Pair<ClassFile, ConstructorInvokationSimple>> localNoted = new ObjectArrayList<>();
+    private final ObjectList<Pair<ClassFile, ConstructorInvokationAnonymousInner>> noted = new ObjectArrayList<>();
+    private final ObjectList<Pair<ClassFile, ConstructorInvokationSimple>> localNoted = new ObjectArrayList<>();
 
     public void note(ClassFile classFile, ConstructorInvokationAnonymousInner constructorInvokationAnonymousInner) {
         noted.add(Pair.make(classFile, constructorInvokationAnonymousInner));

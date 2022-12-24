@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers.StructuredStatementTransformer;
@@ -42,7 +43,7 @@ public class ClashDeclarationReducer extends AbstractExpressionRewriter implemen
     @Override
     public StructuredStatement transform(StructuredStatement in, StructuredScope scope) {
         if (in instanceof Block) {
-            transformBlock((Block)in);
+            transformBlock((Block) in);
         }
         in.transformStructuredChildren(this, scope);
         return in;
@@ -50,7 +51,7 @@ public class ClashDeclarationReducer extends AbstractExpressionRewriter implemen
 
     private void transformBlock(Block in) {
         List<Op04StructuredStatement> statements = in.getBlockStatements();
-        for (int x=statements.size()-1;x>0;--x) {
+        for (int x = statements.size() - 1; x > 0; --x) {
             Op04StructuredStatement stm = statements.get(x);
             StructuredStatement s = stm.getStatement();
             if (s instanceof StructuredAssignment sa) {
@@ -58,10 +59,17 @@ public class ClashDeclarationReducer extends AbstractExpressionRewriter implemen
                 if (lv instanceof LocalVariable) {
                     int slot = ((LocalVariable) lv).getIdx();
                     if (clashes.contains(slot)) {
-                        List<LValue> replaceThese = new ObjectArrayList<>();
-                        List<Op04StructuredStatement> inThese = new ObjectArrayList<>();
+                        ObjectList<LValue> replaceThese = new ObjectArrayList<>();
+                        ObjectList<Op04StructuredStatement> inThese = new ObjectArrayList<>();
                         inThese.add(stm);
-                        x = 1+goBack(x-1, statements, lv.getInferredJavaType().getJavaTypeInstance(), slot, replaceThese, inThese);
+                        x = 1 + goBack(
+                            x - 1,
+                            statements,
+                            lv.getInferredJavaType().getJavaTypeInstance(),
+                            slot,
+                            replaceThese,
+                            inThese
+                        );
                         if (!replaceThese.isEmpty()) {
                             doReplace(lv, replaceThese, inThese);
                         }
@@ -71,41 +79,49 @@ public class ClashDeclarationReducer extends AbstractExpressionRewriter implemen
         }
     }
 
-    private void doReplace(LValue lv, List<LValue> replaceThese, List<Op04StructuredStatement> inThese) {
+    private void doReplace(LValue lv, ObjectList<LValue> replaceThese, ObjectList<Op04StructuredStatement> inThese) {
         /* the *last* statement is stm, and contains the declaration 'lv'.
          *  replaceThese(1) = inThese(2)
          *  replaceThese(0) = inThese(1)
          *  lv              = inThese(0)
          */
 
-        for (int x=0;x<inThese.size()-1;++x) {
+        for (int x = 0; x < inThese.size() - 1; ++x) {
             LValue replaceThis = replaceThese.get(x);
             Op04StructuredStatement inThis = inThese.get(x);
-            ExpressionReplacingRewriter err = new ExpressionReplacingRewriter(new LValueExpression(replaceThis), new LValueExpression(lv));
-            StructuredAssignment statement = (StructuredAssignment)inThis.getStatement();
+            ExpressionReplacingRewriter err = new ExpressionReplacingRewriter(
+                new LValueExpression(replaceThis),
+                new LValueExpression(lv)
+            );
+            StructuredAssignment statement = (StructuredAssignment) inThis.getStatement();
             statement.rewriteExpressions(err);
             inThis.replaceStatement(new StructuredAssignment(BytecodeLoc.TODO, lv, statement.getRvalue()));
         }
-        Op04StructuredStatement last = inThese.get(inThese.size()-1);
-        StructuredAssignment structuredAssignment = (StructuredAssignment)last.getStatement();
+        Op04StructuredStatement last = inThese.get(inThese.size() - 1);
+        StructuredAssignment structuredAssignment = (StructuredAssignment) last.getStatement();
         last.replaceStatement(new StructuredAssignment(BytecodeLoc.TODO, lv, structuredAssignment.getRvalue(), true));
     }
 
-    private int goBack(int idx, List<Op04StructuredStatement> statements,
-                       JavaTypeInstance type,
-                       int slot, List<LValue> replaceThese, List<Op04StructuredStatement> inThese) {
-        for (int x=idx;x>=0;--x) {
+    private int goBack(
+        int idx,
+        List<Op04StructuredStatement> statements,
+        JavaTypeInstance type,
+        int slot,
+        ObjectList<LValue> replaceThese,
+        ObjectList<Op04StructuredStatement> inThese
+    ) {
+        for (int x = idx; x >= 0; --x) {
             Op04StructuredStatement stm = statements.get(x);
             StructuredStatement s = stm.getStatement();
             // can't use isEffectivelyNop, in case it has multiple sources.
-            if (s instanceof StructuredComment) continue;
-            if (!(s instanceof StructuredAssignment sa)) return x;
+            if (s instanceof StructuredComment) {continue;}
+            if (!(s instanceof StructuredAssignment sa)) {return x;}
 
             LValue lv = sa.getLvalue();
-            if (!(lv instanceof LocalVariable)) return x;
-            if (((LocalVariable) lv).getIdx() != slot) return x;
+            if (!(lv instanceof LocalVariable)) {return x;}
+            if (((LocalVariable) lv).getIdx() != slot) {return x;}
 
-            if (!(type.equals(lv.getInferredJavaType().getJavaTypeInstance()))) return x;
+            if (!(type.equals(lv.getInferredJavaType().getJavaTypeInstance()))) {return x;}
 
             replaceThese.add(lv);
             inThese.add(stm);

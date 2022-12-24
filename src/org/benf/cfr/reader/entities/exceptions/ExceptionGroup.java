@@ -11,7 +11,7 @@ import org.benf.cfr.reader.bytecode.opcode.JVMInstr;
 import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 import org.benf.cfr.reader.util.StringUtils;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.Objects;
 
@@ -20,7 +20,7 @@ public class ExceptionGroup {
     private final int bytecodeIndexFrom;        // [ a
     private int bytecodeIndexTo;          // ) b    st a <= x < b
     private int minHandlerStart = Short.MAX_VALUE;
-    private final List<Entry> entries = new ObjectArrayList<>();
+    private final ObjectList<Entry> entries = new ObjectArrayList<>();
     private final BlockIdentifier tryBlockIdentifier;
     private final ConstantPool cp;
 
@@ -38,7 +38,7 @@ public class ExceptionGroup {
 //        if (byteCodeIndexTo > minHandlerStart) byteCodeIndexTo = minHandlerStart;
     }
 
-    public List<Entry> getEntries() {
+    public ObjectList<Entry> getEntries() {
         return entries;
     }
 
@@ -56,14 +56,14 @@ public class ExceptionGroup {
 
     public void removeSynchronisedHandlers(final Map<Integer, Integer> lutByOffset,
                                            final Map<Integer, Integer> lutByIdx,
-                                           List<Op01WithProcessedDataAndByteJumps> instrs) {
+                                           ObjectList<Op01WithProcessedDataAndByteJumps> instrs) {
         entries.removeIf(entry -> isSynchronisedHandler(entry, lutByOffset, lutByIdx, instrs));
     }
 
     private boolean isSynchronisedHandler(Entry entry,
                                           final Map<Integer, Integer> lutByOffset,
                                           final Map<Integer, Integer> lutByIdx,
-                                          List<Op01WithProcessedDataAndByteJumps> instrs) {
+                                          ObjectList<Op01WithProcessedDataAndByteJumps> instrs) {
         /*
          * TODO : Type should be 'any'.
          */

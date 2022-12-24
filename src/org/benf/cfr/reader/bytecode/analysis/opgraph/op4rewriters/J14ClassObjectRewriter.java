@@ -36,7 +36,7 @@ import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 /**
@@ -164,12 +164,12 @@ public class J14ClassObjectRewriter {
          */
         if (!method.getAccessFlags().contains(AccessFlagMethod.ACC_SYNTHETIC)) return false;
         if (!method.hasCodeAttribute()) return false;
-        List<StructuredStatement> statements = MiscStatementTools.linearise(method.getAnalysis());
+        ObjectList<StructuredStatement> statements = MiscStatementTools.linearise(method.getAnalysis());
         if (statements == null) return false;
         MatchIterator<StructuredStatement> mi = new MatchIterator<>(statements);
         WildcardMatch wcm1 = new WildcardMatch();
 
-        List<LocalVariable> args = method.getMethodPrototype().getComputedParameters();
+        ObjectList<LocalVariable> args = method.getMethodPrototype().getComputedParameters();
         if (args.size() != 1) return false;
         LocalVariable arg = args.get(0);
         if (!TypeConstants.STRING.equals(arg.getInferredJavaType().getJavaTypeInstance())) return false;

@@ -14,7 +14,7 @@ import org.benf.cfr.reader.bytecode.analysis.structured.statement.placeholder.Be
 import org.benf.cfr.reader.bytecode.analysis.structured.statement.placeholder.EndBlock;
 import org.benf.cfr.reader.entities.ClassFile;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class TryResourcesTransformerJ7 extends TryResourceTransformerFinally {
     public TryResourcesTransformerJ7(ClassFile classFile) {
@@ -28,7 +28,7 @@ public class TryResourcesTransformerJ7 extends TryResourceTransformerFinally {
         Op04StructuredStatement content = finalli.getCatchBlock();
 
         WildcardMatch wcm = new WildcardMatch();
-        List<StructuredStatement> structuredStatements = MiscStatementTools.linearise(content);
+        ObjectList<StructuredStatement> structuredStatements = MiscStatementTools.linearise(content);
         if (structuredStatements == null) return null;
 
         WildcardMatch.LValueWildcard throwableLValue = wcm.getLValueWildCard("throwable");

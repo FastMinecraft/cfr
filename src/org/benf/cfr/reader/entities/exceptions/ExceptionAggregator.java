@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.entities.exceptions;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op01WithProcessedDataAndByteJumps;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifierFactory;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockType;
@@ -19,9 +20,9 @@ import java.util.*;
 
 public class ExceptionAggregator {
 
-    private final List<ExceptionGroup> exceptionsByRange = new ObjectArrayList<>();
+    private final ObjectList<ExceptionGroup> exceptionsByRange = new ObjectArrayList<>();
     private final Map<Integer, Integer> lutByOffset;
-    private final List<Op01WithProcessedDataAndByteJumps> instrs;
+    private final ObjectList<Op01WithProcessedDataAndByteJumps> instrs;
     private final boolean aggressiveAggregate;
     private final boolean aggressiveAggregate2;
     private final boolean removedLoopingExceptions;
@@ -37,9 +38,9 @@ public class ExceptionAggregator {
     }
 
     private class ByTarget {
-        private final List<ExceptionTableEntry> entries;
+        private final ObjectList<ExceptionTableEntry> entries;
 
-        ByTarget(List<ExceptionTableEntry> entries) {
+        ByTarget(ObjectList<ExceptionTableEntry> entries) {
             this.entries = entries;
         }
 
@@ -48,7 +49,7 @@ public class ExceptionAggregator {
             /* If two entries are contiguous, they can be merged 
              * If they're 'almost' contiguous, but point to the same range? ........ don't know.
              */
-            List<ExceptionTableEntry> res = new ObjectArrayList<>();
+            ObjectList<ExceptionTableEntry> res = new ObjectArrayList<>();
             ExceptionTableEntry held = null;
             for (ExceptionTableEntry entry : this.entries) {
                 if (held == null) {
@@ -150,7 +151,7 @@ public class ExceptionAggregator {
 
 
     // Note - we deliberately don't use instr.isNoThrow here, that leads to over eager expansion into exception handlers!
-    private static int canExpandTryBy(int idx, List<Op01WithProcessedDataAndByteJumps> statements) {
+    private static int canExpandTryBy(int idx, ObjectList<Op01WithProcessedDataAndByteJumps> statements) {
         Op01WithProcessedDataAndByteJumps op = statements.get(idx);
         JVMInstr instr = op.getJVMInstr();
         switch (instr) {
@@ -170,9 +171,9 @@ public class ExceptionAggregator {
     * I guess a compiler could have a,b a2, b2 where a < a2, b > a2 < b2... (eww).
     * In that case, we should split the exception regime into non-overlapping sections.
     */
-    public ExceptionAggregator(List<ExceptionTableEntry> rawExceptions, BlockIdentifierFactory blockIdentifierFactory,
+    public ExceptionAggregator(ObjectList<ExceptionTableEntry> rawExceptions, BlockIdentifierFactory blockIdentifierFactory,
                                final Map<Integer, Integer> lutByOffset,
-                               List<Op01WithProcessedDataAndByteJumps> instrs,
+                               ObjectList<Op01WithProcessedDataAndByteJumps> instrs,
                                final Options options,
                                final ConstantPool cp,
                                DecompilerComments comments) {
@@ -182,7 +183,7 @@ public class ExceptionAggregator {
         this.aggressiveAggregate = options.getOption(OptionsImpl.FORCE_AGGRESSIVE_EXCEPTION_AGG) == Troolean.TRUE;
         this.aggressiveAggregate2 = options.getOption(OptionsImpl.FORCE_AGGRESSIVE_EXCEPTION_AGG2) == Troolean.TRUE;
 
-        List<ExceptionTableEntry> tmpExceptions = Functional.filter(rawExceptions, new ValidException());
+        ObjectList<ExceptionTableEntry> tmpExceptions = Functional.filter(rawExceptions, new ValidException());
         boolean removedLoopingExceptions = false;
         if (tmpExceptions.size() != rawExceptions.size()) {
             rawExceptions = tmpExceptions;
@@ -196,7 +197,7 @@ public class ExceptionAggregator {
          * Extend an exception which terminates at a return.
          * Remember exception tables are half closed [0,1) == just covers 0.
          */
-        List<ExceptionTableEntry> extended = new ObjectArrayList<>();
+        ObjectList<ExceptionTableEntry> extended = new ObjectArrayList<>();
         for (ExceptionTableEntry exceptionTableEntry : rawExceptions) {
 
             ExceptionTableEntry exceptionTableEntryOrig;
@@ -242,12 +243,12 @@ public class ExceptionAggregator {
          */
 
         // Need to build up an interval tree for EACH exception handler type
-        Map<Integer, List<ExceptionTableEntry>> grouped = Functional.groupToMapBy(rawExceptions,
+        Map<Integer, ObjectList<ExceptionTableEntry>> grouped = Functional.groupToMapBy(rawExceptions,
             ExceptionTableEntry::getCatchType
         );
 
-        List<ExceptionTableEntry> processedExceptions = new ObjectArrayList<>(rawExceptions.size());
-        for (List<ExceptionTableEntry> list : grouped.values()) {
+        ObjectList<ExceptionTableEntry> processedExceptions = new ObjectArrayList<>(rawExceptions.size());
+        for (ObjectList<ExceptionTableEntry> list : grouped.values()) {
             IntervalCount intervalCount = new IntervalCount();
             for (ExceptionTableEntry e : list) {
                 int from = e.getBytecodeIndexFrom();
@@ -307,7 +308,7 @@ public class ExceptionAggregator {
         CompareExceptionTablesByRange compareExceptionTablesByStart = new CompareExceptionTablesByRange();
         ExceptionTableEntry prev = null;
         ExceptionGroup currentGroup = null;
-        List<ExceptionGroup> rawExceptionsByRange = new ObjectArrayList<>();
+        ObjectList<ExceptionGroup> rawExceptionsByRange = new ObjectArrayList<>();
         for (ExceptionTableEntry e : rawExceptions) {
             if (prev == null || compareExceptionTablesByStart.compare(e, prev) != 0) {
                 currentGroup = new ExceptionGroup(e.getBytecodeIndexFrom(), blockIdentifierFactory.getNextBlockIdentifier(BlockType.TRYBLOCK), cp);
@@ -319,7 +320,7 @@ public class ExceptionAggregator {
         exceptionsByRange.addAll(rawExceptionsByRange);
     }
 
-    public List<ExceptionGroup> getExceptionsGroups() {
+    public ObjectList<ExceptionGroup> getExceptionsGroups() {
         return exceptionsByRange;
     }
 
@@ -368,7 +369,7 @@ public class ExceptionAggregator {
         Iterator<ExceptionGroup> groupIterator = exceptionsByRange.iterator();
         while (groupIterator.hasNext()) {
             ExceptionGroup group = groupIterator.next();
-            List<ExceptionGroup.Entry> entries = group.getEntries();
+            ObjectList<ExceptionGroup.Entry> entries = group.getEntries();
             if (entries.size() != 1) continue;
             ExceptionGroup.Entry entry = entries.get(0);
             int handler = entry.getBytecodeIndexHandler();

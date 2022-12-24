@@ -11,11 +11,11 @@ import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
 import java.util.Collection;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 public class Cleaner {
-    public static List<Op03SimpleStatement> removeUnreachableCode(final List<Op03SimpleStatement> statements, final boolean checkBackJumps) {
+    public static ObjectList<Op03SimpleStatement> removeUnreachableCode(final ObjectList<Op03SimpleStatement> statements, final boolean checkBackJumps) {
         final Set<Op03SimpleStatement> reachable = SetFactory.newSet();
         reachable.add(statements.get(0));
         GraphVisitor<Op03SimpleStatement> gv = new GraphVisitorDFS<>(
@@ -52,7 +52,7 @@ public class Cleaner {
         );
         gv.process();
 
-        List<Op03SimpleStatement> result = new ObjectArrayList<>();
+        ObjectList<Op03SimpleStatement> result = new ObjectArrayList<>();
         for (Op03SimpleStatement statement : statements) {
             if (reachable.contains(statement)) {
                 result.add(statement);
@@ -61,7 +61,7 @@ public class Cleaner {
         // Too expensive....
         for (Op03SimpleStatement res1 : result) {
             Collection<Op03SimpleStatement> original = res1.getSources();
-            List<Op03SimpleStatement> sources = new ObjectArrayList<>(original);
+            ObjectList<Op03SimpleStatement> sources = new ObjectArrayList<>(original);
             for (Op03SimpleStatement source : sources) {
                 if (!reachable.contains(source)) {
                     res1.removeSource(source);
@@ -74,9 +74,9 @@ public class Cleaner {
     /*
 * Filter out nops (where appropriate) and renumber.  For display purposes.
 */
-    public static List<Op03SimpleStatement> sortAndRenumber(List<Op03SimpleStatement> statements) {
+    public static ObjectList<Op03SimpleStatement> sortAndRenumber(ObjectList<Op03SimpleStatement> statements) {
         boolean nonNopSeen = false;
-        List<Op03SimpleStatement> result = new ObjectArrayList<>();
+        ObjectList<Op03SimpleStatement> result = new ObjectArrayList<>();
         for (Op03SimpleStatement statement : statements) {
             boolean thisIsNop = statement.isAgreedNop();
             if (!nonNopSeen) {
@@ -93,7 +93,7 @@ public class Cleaner {
         return result;
     }
 
-    static void sortAndRenumberFromInPlace(List<Op03SimpleStatement> statements, InstrIndex start) {
+    static void sortAndRenumberFromInPlace(ObjectList<Op03SimpleStatement> statements, InstrIndex start) {
         statements.sort(new CompareByIndex());
         for (Op03SimpleStatement statement : statements) {
             statement.setIndex(start);
@@ -101,13 +101,13 @@ public class Cleaner {
         }
     }
 
-    static void sortAndRenumberInPlace(List<Op03SimpleStatement> statements) {
+    static void sortAndRenumberInPlace(ObjectList<Op03SimpleStatement> statements) {
         // Sort result by existing index.
         statements.sort(new CompareByIndex());
         reindexInPlace(statements);
     }
 
-    public static void reindexInPlace(List<Op03SimpleStatement> statements) {
+    public static void reindexInPlace(ObjectList<Op03SimpleStatement> statements) {
         int newIndex = 0;
         Op03SimpleStatement prev = null;
         for (Op03SimpleStatement statement : statements) {
@@ -119,7 +119,7 @@ public class Cleaner {
         }
     }
 
-    public static void reLinkInPlace(List<Op03SimpleStatement> statements) {
+    public static void reLinkInPlace(ObjectList<Op03SimpleStatement> statements) {
         Op03SimpleStatement prev = null;
         for (Op03SimpleStatement statement : statements) {
             statement.setLinearlyPrevious(prev);

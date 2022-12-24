@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers;
 
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
@@ -23,15 +24,15 @@ import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 
 import java.util.Collections;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.SortedMap;
 
 import static org.benf.cfr.reader.entities.attributes.TypeAnnotationEntryValue.*;
 
 public class TypeAnnotationTransformer implements StructuredStatementTransformer, ExpressionRewriter {
 
-    private final List<AnnotationTableTypeEntry> variableAnnotations;
-    private final List<AnnotationTableTypeEntry> catchAnnotations;
+    private final ObjectList<AnnotationTableTypeEntry> variableAnnotations;
+    private final ObjectList<AnnotationTableTypeEntry> catchAnnotations;
 
     private final SortedMap<Integer, Integer> instrsByOffset;
     private final DecompilerComments comments;
@@ -84,10 +85,10 @@ public class TypeAnnotationTransformer implements StructuredStatementTransformer
 
     // TODO : this is a scan PER USE.  It's woefully expensive. (Though why on earth would code be liberally scattered with
     // annotations?)
-    private List<AnnotationTableTypeEntry> getLocalVariableAnnotations(final int offset, final int slot, final int tolerance) {
+    private ObjectList<AnnotationTableTypeEntry> getLocalVariableAnnotations(final int offset, final int slot, final int tolerance) {
         // CFR may hold the offset the variable was /created/ at, which is 1 before it becomes valid.
-        List<AnnotationTableTypeEntry> entries = variableAnnotations;
-        if (entries.isEmpty()) return Collections.emptyList();
+        ObjectList<AnnotationTableTypeEntry> entries = variableAnnotations;
+        if (entries.isEmpty()) return ObjectLists.emptyList();
 
         entries = Functional.filter(entries, in -> {
             TypeAnnotationTargetInfo.TypeAnnotationLocalVarTarget tgt = (TypeAnnotationTargetInfo.TypeAnnotationLocalVarTarget)in.getTargetInfo();
@@ -110,7 +111,7 @@ public class TypeAnnotationTransformer implements StructuredStatementTransformer
         /*
          * get anything created here.
          */
-        List<LValue> createdHere = stm.findCreatedHere();
+        ObjectList<LValue> createdHere = stm.findCreatedHere();
         if (createdHere == null || createdHere.isEmpty()) return;
 
         for (LValue lValue : createdHere) {
@@ -123,7 +124,7 @@ public class TypeAnnotationTransformer implements StructuredStatementTransformer
                 SortedMap<Integer, Integer> heapMap = instrsByOffset.headMap(offset);
                 int offsetTolerance = heapMap.isEmpty() ? 1 : offset - heapMap.lastKey();
 
-                List<AnnotationTableTypeEntry> entries = getLocalVariableAnnotations(offset, slot, offsetTolerance);
+                ObjectList<AnnotationTableTypeEntry> entries = getLocalVariableAnnotations(offset, slot, offsetTolerance);
                 if (entries == null || entries.isEmpty()) continue;
 
                 JavaAnnotatedTypeInstance annotatedTypeInstance = localVariable.getAnnotatedCreationType();

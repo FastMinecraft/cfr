@@ -9,13 +9,13 @@ import org.benf.cfr.reader.util.MiscConstants;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 /*
  * We shouldn't have return statements in static initializers.
  */
 public class StaticInitReturnRewriter {
-    public static List<Op03SimpleStatement> rewrite(Options options, Method method, List<Op03SimpleStatement> statementList) {
+    public static ObjectList<Op03SimpleStatement> rewrite(Options options, Method method, ObjectList<Op03SimpleStatement> statementList) {
         if (!method.getName().equals(MiscConstants.STATIC_INIT_METHOD)) return statementList;
         if (!options.getOption(OptionsImpl.STATIC_INIT_RETURN)) return statementList;
         /*

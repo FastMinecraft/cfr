@@ -6,7 +6,7 @@ import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
 import java.util.Collection;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,9 +14,9 @@ public class ClassRenamer {
     private final Map<String, String> classCollisionRenamerToReal = MapFactory.newMap();
     private final Map<String, String> classCollisionRenamerFromReal = MapFactory.newMap();
 
-    private final List<ClassNameFunction> renamers;
+    private final ObjectList<ClassNameFunction> renamers;
 
-    private ClassRenamer(List<ClassNameFunction> renamers) {
+    private ClassRenamer(ObjectList<ClassNameFunction> renamers) {
         this.renamers = renamers;
     }
 
@@ -25,7 +25,7 @@ public class ClassRenamer {
         // We still fetch the insensitivity flag from options, to allow it to be forced.
         boolean renameCase = (options.getOption(OptionsImpl.CASE_INSENSITIVE_FS_RENAME));
 
-        List<ClassNameFunction> functions = new ObjectArrayList<>();
+        ObjectList<ClassNameFunction> functions = new ObjectArrayList<>();
         if (!invalidNames.isEmpty()) {
             functions.add(new ClassNameFunctionInvalid(renameCase, invalidNames));
         }

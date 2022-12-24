@@ -22,12 +22,12 @@ import org.benf.cfr.reader.util.Optional;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.Collection;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Objects;
 import java.util.Set;
 
 public class StructuredCatch extends AbstractStructuredStatement {
-    private final List<JavaRefTypeInstance> catchTypes;
+    private final ObjectList<JavaRefTypeInstance> catchTypes;
     private final Op04StructuredStatement catchBlock;
     private final LValue catching;
     private final Set<BlockIdentifier> possibleTryBlocks;
@@ -52,7 +52,7 @@ public class StructuredCatch extends AbstractStructuredStatement {
         return getLoc();
     }
 
-    public List<JavaRefTypeInstance> getCatchTypes() {
+    public ObjectList<JavaRefTypeInstance> getCatchTypes() {
         return catchTypes;
     }
 
@@ -91,7 +91,7 @@ public class StructuredCatch extends AbstractStructuredStatement {
     }
 
     @Override
-    public void linearizeInto(List<StructuredStatement> out) {
+    public void linearizeInto(ObjectList<StructuredStatement> out) {
         out.add(this);
         catchBlock.linearizeStatementsInto(out);
     }
@@ -124,7 +124,7 @@ public class StructuredCatch extends AbstractStructuredStatement {
     }
 
     @Override
-    public List<LValue> findCreatedHere() {
+    public ObjectList<LValue> findCreatedHere() {
         return ObjectList.of(new LValue[]{ catching });
     }
 

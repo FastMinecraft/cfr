@@ -16,7 +16,7 @@ import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.util.StringUtils;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 /**
  * A member function call that doesn't necessarily exist, for a type we don't necessarily have.
@@ -24,7 +24,7 @@ import java.util.List;
 public class MemberFunctionInvokationExplicit extends AbstractFunctionInvokationExplicit {
     private Expression object;
 
-    MemberFunctionInvokationExplicit(BytecodeLoc loc, InferredJavaType res, JavaTypeInstance clazz, Expression object, String method, List<Expression> args) {
+    MemberFunctionInvokationExplicit(BytecodeLoc loc, InferredJavaType res, JavaTypeInstance clazz, Expression object, String method, ObjectList<Expression> args) {
         super(loc, res, clazz, method, args);
         this.object = object;
     }

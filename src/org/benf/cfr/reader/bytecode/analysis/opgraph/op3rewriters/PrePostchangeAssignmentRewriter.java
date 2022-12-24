@@ -15,7 +15,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.SSAIdentifiers;
 import org.benf.cfr.reader.util.collections.Functional;
 import java.util.function.Predicate;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 class PrePostchangeAssignmentRewriter {
 
@@ -44,7 +44,7 @@ class PrePostchangeAssignmentRewriter {
         Op03SimpleStatement lastCurr = null;
         while (true) {
             if (lastCurr == current) return false;
-            List<Op03SimpleStatement> candidates = back ? current.getSources() : current.getTargets();
+            ObjectList<Op03SimpleStatement> candidates = back ? current.getSources() : current.getTargets();
             if (candidates.size() != 1) return false;
 
             lastCurr = current;
@@ -121,8 +121,8 @@ class PrePostchangeAssignmentRewriter {
         }
     }
 
-    static void pushPreChangeBack(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> assignments = Functional.filter(statements,
+    static void pushPreChangeBack(ObjectList<Op03SimpleStatement> statements) {
+        ObjectList<Op03SimpleStatement> assignments = Functional.filter(statements,
             new TypeFilter<>(AssignmentPreMutation.class));
         assignments = Functional.filter(assignments, new StatementCanBePostMutation());
         if (assignments.isEmpty()) return;
@@ -205,8 +205,8 @@ class PrePostchangeAssignmentRewriter {
         statement.replaceStatement(new AssignmentSimple(assignmentSimple.getLoc(), tmp, postMutationOperation));
     }
 
-    static void replacePrePostChangeAssignments(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> assignments = Functional.filter(statements, new TypeFilter<>(AssignmentSimple.class));
+    static void replacePrePostChangeAssignments(ObjectList<Op03SimpleStatement> statements) {
+        ObjectList<Op03SimpleStatement> assignments = Functional.filter(statements, new TypeFilter<>(AssignmentSimple.class));
         for (Op03SimpleStatement assignment : assignments) {
             if (replacePreChangeAssignment(assignment)) continue;
             replacePostChangeAssignment(assignment);

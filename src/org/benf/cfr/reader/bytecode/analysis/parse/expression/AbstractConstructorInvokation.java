@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.expression;
 
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.PrimitiveBoxingRewriter;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
@@ -20,14 +21,13 @@ import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryMethodRef;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 
 import java.util.Collections;
-import java.util.List;
 
 public abstract class AbstractConstructorInvokation extends AbstractExpression implements BoxingProcessor {
     private final ConstantPoolEntryMethodRef function;
     private final MethodPrototype methodPrototype;
-    private final List<Expression> args;
+    private final ObjectList<Expression> args;
 
-    AbstractConstructorInvokation(BytecodeLoc loc, InferredJavaType inferredJavaType, ConstantPoolEntryMethodRef function, List<Expression> args) {
+    AbstractConstructorInvokation(BytecodeLoc loc, InferredJavaType inferredJavaType, ConstantPoolEntryMethodRef function, ObjectList<Expression> args) {
         super(loc, inferredJavaType);
         this.args = args;
         this.function = function;
@@ -50,7 +50,7 @@ public abstract class AbstractConstructorInvokation extends AbstractExpression i
         super.collectTypeUsages(collector);
     }
 
-    public List<Expression> getArgs() {
+    public ObjectList<Expression> getArgs() {
         return args;
     }
 
@@ -130,7 +130,7 @@ public abstract class AbstractConstructorInvokation extends AbstractExpression i
     @Override
     public boolean rewriteBoxing(PrimitiveBoxingRewriter boxingRewriter) {
 
-        List<Expression> args = getArgs();
+        ObjectList<Expression> args = getArgs();
 
         if (args.isEmpty()) return false;
         /*

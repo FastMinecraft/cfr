@@ -25,18 +25,18 @@ import org.benf.cfr.reader.util.annotation.Nullable;
 import org.benf.cfr.reader.util.output.Dumper;
 import org.benf.cfr.reader.util.output.TypeContext;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class StaticFunctionInvokation extends AbstractFunctionInvokation implements FunctionProcessor, BoxingProcessor {
-    protected final List<Expression> args;
+    protected final ObjectList<Expression> args;
     private final JavaTypeInstance clazz;
     // No - a static method doesn't require an object.
     // BUT - we could be an explicit static. :(
     private Expression object;
     private @Nullable
-    List<JavaTypeInstance> explicitGenerics;
+    ObjectList<JavaTypeInstance> explicitGenerics;
 
-    private static InferredJavaType getTypeForFunction(ConstantPoolEntryMethodRef function, List<Expression> args) {
+    private static InferredJavaType getTypeForFunction(ConstantPoolEntryMethodRef function, ObjectList<Expression> args) {
         return new InferredJavaType(
                 function.getMethodPrototype().getReturnType(function.getClassEntry().getTypeInstance(), args),
                 InferredJavaType.Source.FUNCTION, true);
@@ -47,14 +47,14 @@ public class StaticFunctionInvokation extends AbstractFunctionInvokation impleme
         return new StaticFunctionInvokation(getLoc(), getFunction(), cloneHelper.replaceOrClone(args), cloneHelper.replaceOrClone(object));
     }
 
-    private StaticFunctionInvokation(BytecodeLoc loc, ConstantPoolEntryMethodRef function, List<Expression> args, Expression object) {
+    private StaticFunctionInvokation(BytecodeLoc loc, ConstantPoolEntryMethodRef function, ObjectList<Expression> args, Expression object) {
         super(loc, function, getTypeForFunction(function, args));
         this.args = args;
         this.clazz = function.getClassEntry().getTypeInstance();
         this.object = object;
     }
 
-    public StaticFunctionInvokation(BytecodeLoc loc, ConstantPoolEntryMethodRef function, List<Expression> args) {
+    public StaticFunctionInvokation(BytecodeLoc loc, ConstantPoolEntryMethodRef function, ObjectList<Expression> args) {
         this(loc, function, args, null);
     }
 
@@ -104,12 +104,12 @@ public class StaticFunctionInvokation extends AbstractFunctionInvokation impleme
     }
 
     @Override
-    public void setExplicitGenerics(List<JavaTypeInstance> types) {
+    public void setExplicitGenerics(ObjectList<JavaTypeInstance> types) {
         explicitGenerics = types;
     }
 
     @Override
-    public List<JavaTypeInstance> getExplicitGenerics() {
+    public ObjectList<JavaTypeInstance> getExplicitGenerics() {
         return explicitGenerics;
     }
 
@@ -157,7 +157,7 @@ public class StaticFunctionInvokation extends AbstractFunctionInvokation impleme
         return clazz;
     }
 
-    public List<Expression> getArgs() {
+    public ObjectList<Expression> getArgs() {
         return args;
     }
 

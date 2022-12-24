@@ -14,7 +14,7 @@ import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 
 public class IllegalGenericRewriter extends AbstractExpressionRewriter {
@@ -40,7 +40,7 @@ public class IllegalGenericRewriter extends AbstractExpressionRewriter {
     }
 
     private void maybeRewriteExplicitCallTyping(AbstractFunctionInvokation abstractFunctionInvokation) {
-        List<JavaTypeInstance> list = abstractFunctionInvokation.getExplicitGenerics();
+        ObjectList<JavaTypeInstance> list = abstractFunctionInvokation.getExplicitGenerics();
         if (list == null) return;
         for (JavaTypeInstance type : list) {
             if (hasIllegalGenerics(type, false)) {

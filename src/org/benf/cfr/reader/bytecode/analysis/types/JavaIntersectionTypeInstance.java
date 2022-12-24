@@ -10,21 +10,21 @@ import org.benf.cfr.reader.util.output.Dumper;
 import org.benf.cfr.reader.util.output.IllegalIdentifierDump;
 import org.benf.cfr.reader.util.output.TypeContext;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class JavaIntersectionTypeInstance implements JavaTypeInstance {
-    private final List<JavaTypeInstance> parts;
+    private final ObjectList<JavaTypeInstance> parts;
     private final int id;
     private final static AtomicInteger sid = new AtomicInteger();
 
-    public JavaIntersectionTypeInstance(List<JavaTypeInstance> parts) {
+    public JavaIntersectionTypeInstance(ObjectList<JavaTypeInstance> parts) {
         this.parts = parts;
         id = sid.getAndIncrement();
     }
 
     JavaIntersectionTypeInstance withPart(JavaTypeInstance part) {
-        List<JavaTypeInstance> newParts = new ObjectArrayList<>(parts);
+        ObjectList<JavaTypeInstance> newParts = new ObjectArrayList<>(parts);
         newParts.add(part);
         return new JavaIntersectionTypeInstance(newParts);
     }

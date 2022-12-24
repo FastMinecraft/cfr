@@ -15,7 +15,7 @@ import org.benf.cfr.reader.bytecode.analysis.structured.StructuredScope;
 import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredIf;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 /*
  * if (X && !assertsDisabled .... ) {
@@ -63,7 +63,7 @@ public class PreconditionAssertRewriter implements StructuredStatementTransforme
         if (expression instanceof NotOperation) {
             expression = expression.getDemorganApplied(false);
         }
-        List<ConditionalExpression> cnf = getFlattenedCNF(expression);
+        ObjectList<ConditionalExpression> cnf = getFlattenedCNF(expression);
         if (cnf.size() < 2) return in;
         for (int x=0;x<cnf.size();++x) {
             if (test.equals(cnf.get(x))) {
@@ -80,13 +80,13 @@ public class PreconditionAssertRewriter implements StructuredStatementTransforme
         return in;
     }
 
-    private List<ConditionalExpression> getFlattenedCNF(ConditionalExpression ce) {
-        List<ConditionalExpression> accum = new ObjectArrayList<>();
+    private ObjectList<ConditionalExpression> getFlattenedCNF(ConditionalExpression ce) {
+        ObjectList<ConditionalExpression> accum = new ObjectArrayList<>();
         getFlattenedCNF(ce, accum);
         return accum;
     }
 
-    private void getFlattenedCNF(ConditionalExpression ce, List<ConditionalExpression> accum) {
+    private void getFlattenedCNF(ConditionalExpression ce, ObjectList<ConditionalExpression> accum) {
         if (ce instanceof BooleanOperation bo) {
             if (bo.getOp() == BoolOp.AND) {
                 getFlattenedCNF(bo.getLhs(), accum);

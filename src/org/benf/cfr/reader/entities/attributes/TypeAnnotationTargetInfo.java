@@ -4,7 +4,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public interface TypeAnnotationTargetInfo {
 
@@ -124,9 +124,9 @@ public interface TypeAnnotationTargetInfo {
 
     class TypeAnnotationLocalVarTarget implements TypeAnnotationTargetInfo {
 
-        private final List<LocalVarTarget> targets;
+        private final ObjectList<LocalVarTarget> targets;
 
-        TypeAnnotationLocalVarTarget(List<LocalVarTarget> targets) {
+        TypeAnnotationLocalVarTarget(ObjectList<LocalVarTarget> targets) {
             this.targets = targets;
         }
 
@@ -140,7 +140,7 @@ public interface TypeAnnotationTargetInfo {
         static Pair<Long, TypeAnnotationTargetInfo> Read(ByteData raw, long offset) {
             int count = raw.getU2At(offset);
             offset += 2;
-            List<LocalVarTarget> targetList = new ObjectArrayList<>();
+            ObjectList<LocalVarTarget> targetList = new ObjectArrayList<>();
             for (int x=0;x<count;++x) {
                 int start = raw.getU2At(offset);
                 offset += 2;

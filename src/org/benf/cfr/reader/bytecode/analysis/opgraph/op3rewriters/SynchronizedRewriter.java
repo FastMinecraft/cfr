@@ -14,7 +14,7 @@ import java.util.function.Predicate;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 class SynchronizedRewriter {
     /*
@@ -38,10 +38,10 @@ class SynchronizedRewriter {
      *
      * Remove the catch block and try statement.
      */
-    static void removeSynchronizedCatchBlocks(Options options, List<Op03SimpleStatement> in) {
+    static void removeSynchronizedCatchBlocks(Options options, ObjectList<Op03SimpleStatement> in) {
         if (!options.getOption(OptionsImpl.TIDY_MONITORS)) return;
         // find all the block statements which are the first statement in a CATCHBLOCK.
-        List<Op03SimpleStatement> catchStarts = Functional.filter(in, new FindBlockStarts(BlockType.CATCHBLOCK));
+        ObjectList<Op03SimpleStatement> catchStarts = Functional.filter(in, new FindBlockStarts(BlockType.CATCHBLOCK));
         if (catchStarts.isEmpty()) return;
         boolean effect = false;
         for (Op03SimpleStatement catchStart : catchStarts) {
@@ -59,7 +59,7 @@ class SynchronizedRewriter {
      * monitorexit (a)
      * throw x
      */
-    private static boolean removeSynchronizedCatchBlock(Op03SimpleStatement start, List<Op03SimpleStatement> statements) {
+    private static boolean removeSynchronizedCatchBlock(Op03SimpleStatement start, ObjectList<Op03SimpleStatement> statements) {
 
         BlockIdentifier block = start.getFirstStatementInThisBlock();
 
@@ -71,7 +71,7 @@ class SynchronizedRewriter {
         boolean isFinally = false;
         if (catchOrFinally instanceof CatchStatement) {
             CatchStatement catchStatement = (CatchStatement) catchStatementContainer.getStatement();
-            List<ExceptionGroup.Entry> exceptions = catchStatement.getExceptions();
+            ObjectList<ExceptionGroup.Entry> exceptions = catchStatement.getExceptions();
             if (exceptions.size() != 1) return false;
             ExceptionGroup.Entry exception = exceptions.get(0);
             // Exception is *.

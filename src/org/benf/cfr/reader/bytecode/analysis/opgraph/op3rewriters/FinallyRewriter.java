@@ -14,11 +14,11 @@ import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 public class FinallyRewriter {
-    public static void identifyFinally(Options options, Method method, List<Op03SimpleStatement> in, BlockIdentifierFactory blockIdentifierFactory) {
+    public static void identifyFinally(Options options, Method method, ObjectList<Op03SimpleStatement> in, BlockIdentifierFactory blockIdentifierFactory) {
         if (!options.getOption(OptionsImpl.DECODE_FINALLY)) return;
         /* Get all the try statements, get their catches.  For all the EXIT points to the catches, try to identify
          * a common block of code (either before a throw, return or goto.)
@@ -27,7 +27,7 @@ public class FinallyRewriter {
         final Set<Op03SimpleStatement> analysedTries = SetFactory.newSet();
         boolean continueLoop;
         do {
-            List<Op03SimpleStatement> tryStarts = Functional.filter(in, in1 -> in1.getStatement() instanceof TryStatement && !analysedTries.contains(in1));
+            ObjectList<Op03SimpleStatement> tryStarts = Functional.filter(in, in1 -> in1.getStatement() instanceof TryStatement && !analysedTries.contains(in1));
             for (Op03SimpleStatement tryS : tryStarts) {
                 FinalAnalyzer.identifyFinally(method, tryS, in, blockIdentifierFactory, analysedTries);
             }
@@ -38,7 +38,7 @@ public class FinallyRewriter {
         } while (continueLoop);
     }
 
-    static Set<BlockIdentifier> getBlocksAffectedByFinally(List<Op03SimpleStatement> statements) {
+    static Set<BlockIdentifier> getBlocksAffectedByFinally(ObjectList<Op03SimpleStatement> statements) {
         Set<BlockIdentifier> res = SetFactory.newSet();
         for (Op03SimpleStatement stm : statements) {
             if (stm.getStatement() instanceof TryStatement tryStatement) {

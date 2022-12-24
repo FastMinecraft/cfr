@@ -1,7 +1,7 @@
 package org.benf.cfr.reader.api;
 
 import java.util.Collection;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 @SuppressWarnings("WeakerAccess")
 public interface OutputSinkFactory {
@@ -92,7 +92,7 @@ public interface OutputSinkFactory {
      *         You will then be receive a call to getSink with one of these (probably the first
      *         one!).
      */
-    List<SinkClass> getSupportedSinks(SinkType sinkType, Collection<SinkClass> available);
+    ObjectList<SinkClass> getSupportedSinks(SinkType sinkType, Collection<SinkClass> available);
 
     /**
      * CFR wishes to sink output - return an implementation of Sink that takes the appropriate

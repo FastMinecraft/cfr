@@ -10,7 +10,7 @@ import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.output.Dumpable;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 
 public class FormalTypeParameter implements Dumpable, TypeUsageCollectable {
@@ -24,7 +24,7 @@ public class FormalTypeParameter implements Dumpable, TypeUsageCollectable {
         this.interfaceBound = interfaceBound;
     }
 
-    public static Map<String, FormalTypeParameter> getMap(List<FormalTypeParameter> formalTypeParameters) {
+    public static Map<String, FormalTypeParameter> getMap(ObjectList<FormalTypeParameter> formalTypeParameters) {
         Map<String, FormalTypeParameter> res = MapFactory.newMap();
         if (formalTypeParameters != null) {
             for (FormalTypeParameter p : formalTypeParameters) {
@@ -76,7 +76,7 @@ public class FormalTypeParameter implements Dumpable, TypeUsageCollectable {
     }
 
     // TODO: This really shouldn't be at display time.
-    public Dumper dump(Dumper d, List<AnnotationTableTypeEntry> typeAnnotations, List<AnnotationTableTypeEntry> typeBoundAnnotations) {
+    public Dumper dump(Dumper d, ObjectList<AnnotationTableTypeEntry> typeAnnotations, ObjectList<AnnotationTableTypeEntry> typeBoundAnnotations) {
         JavaTypeInstance dispInterface = getBound();
         if (!typeAnnotations.isEmpty()) {
             typeAnnotations.get(0).dump(d);

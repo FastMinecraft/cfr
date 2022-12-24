@@ -22,7 +22,7 @@ import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.Set;
 
@@ -57,8 +57,8 @@ public class KotlinSwitchHandler {
      * Instead, try to spot this pattern EXPLICITLY, and split it up into two switch statements, thus
      * rebuilding COIN code!
      */
-    public static List<Op03SimpleStatement> extractStringSwitches(List<Op03SimpleStatement> in, BytecodeMeta bytecodeMeta) {
-        List<Op03SimpleStatement> switchStatements = Functional.filter(in, new TypeFilter<>(RawSwitchStatement.class));
+    public static ObjectList<Op03SimpleStatement> extractStringSwitches(ObjectList<Op03SimpleStatement> in, BytecodeMeta bytecodeMeta) {
+        ObjectList<Op03SimpleStatement> switchStatements = Functional.filter(in, new TypeFilter<>(RawSwitchStatement.class));
         boolean action = false;
         for (Op03SimpleStatement swatch : switchStatements) {
             action |= extractStringSwitch(swatch, in, bytecodeMeta);
@@ -70,7 +70,7 @@ public class KotlinSwitchHandler {
     // Everything except the default action should have a set of
     //   if (str.equals("aa")) goto IMPL1;
     // Note that we are dealing with RAW switches here, so have to decode default information manually.
-    private static boolean extractStringSwitch(final Op03SimpleStatement swatch, List<Op03SimpleStatement> in, BytecodeMeta bytecodeMeta) {
+    private static boolean extractStringSwitch(final Op03SimpleStatement swatch, ObjectList<Op03SimpleStatement> in, BytecodeMeta bytecodeMeta) {
         RawSwitchStatement rawSwitchStatement = (RawSwitchStatement)swatch.getStatement();
         Expression switchOn = rawSwitchStatement.getSwitchOn();
 
@@ -113,8 +113,8 @@ public class KotlinSwitchHandler {
         Expression matchObj = new WildcardMatch.AnyOneOfExpression(aliases);
 
         DecodedSwitch switchData = rawSwitchStatement.getSwitchData();
-        List<DecodedSwitchEntry> jumpTargets = switchData.getJumpTargets();
-        List<Op03SimpleStatement> targets = swatch.getTargets();
+        ObjectList<DecodedSwitchEntry> jumpTargets = switchData.getJumpTargets();
+        ObjectList<Op03SimpleStatement> targets = swatch.getTargets();
         if (jumpTargets.size() != targets.size()) return false;
         int defaultBranchIdx = -1;
         for (int x=0;x<jumpTargets.size();++x) {
@@ -138,8 +138,8 @@ public class KotlinSwitchHandler {
             reTargetSet.add(arg);
             return new DistinctSwitchTarget(reTargetSet.size());
         });
-        List<List<OriginalSwitchLookupInfo>> matchesFound = new ObjectArrayList<>();
-        List<Pair<Op03SimpleStatement, Op03SimpleStatement>> transitiveDefaultSources = new ObjectArrayList<>();
+        ObjectList<ObjectList<OriginalSwitchLookupInfo>> matchesFound = new ObjectArrayList<>();
+        ObjectList<Pair<Op03SimpleStatement, Op03SimpleStatement>> transitiveDefaultSources = new ObjectArrayList<>();
         for (int x=0;x<jumpTargets.size();++x) {
             Op03SimpleStatement caseStart = targets.get(x);
             DecodedSwitchEntry switchEntry = jumpTargets.get(x);
@@ -150,7 +150,7 @@ public class KotlinSwitchHandler {
             }
 
             Op03SimpleStatement currentCaseLoc = caseStart;
-            List<OriginalSwitchLookupInfo> found = new ObjectArrayList<>();
+            ObjectList<OriginalSwitchLookupInfo> found = new ObjectArrayList<>();
             do {
                 Op03SimpleStatement nextCaseLoc = null;
 
@@ -168,7 +168,7 @@ public class KotlinSwitchHandler {
                     if (value instanceof Literal) {
                         TypedLiteral literal = ((Literal) value).getValue();
                         if (literal.getType() == TypedLiteral.LiteralType.String) {
-                            List<Op03SimpleStatement> nextStatements = currentCaseLoc.getTargets();
+                            ObjectList<Op03SimpleStatement> nextStatements = currentCaseLoc.getTargets();
                             Op03SimpleStatement nextTest = nextStatements.get(1);
                             Op03SimpleStatement stringMatchJump = nextStatements.get(0);
                             if (stringMatchJump.getStatement().getClass() == GotoStatement.class) {
@@ -201,7 +201,7 @@ public class KotlinSwitchHandler {
                         if (value instanceof Literal) {
                             TypedLiteral literal = ((Literal) value).getValue();
                             if (literal.getType() == TypedLiteral.LiteralType.String) {
-                                List<Op03SimpleStatement> nextStatements = currentCaseLoc.getTargets();
+                                ObjectList<Op03SimpleStatement> nextStatements = currentCaseLoc.getTargets();
                                 Op03SimpleStatement nextTest = nextStatements.get(0);
                                 Op03SimpleStatement stringMatch = nextStatements.get(1);
                                 OriginalSwitchLookupInfo match = new OriginalSwitchLookupInfo(currentCaseLoc, null, literal, stringMatch);
@@ -262,9 +262,9 @@ public class KotlinSwitchHandler {
             }
         }
 
-        List<Op03SimpleStatement> secondSwitchTargets = new ObjectArrayList<>(reTargets.keySet());
+        ObjectList<Op03SimpleStatement> secondSwitchTargets = new ObjectArrayList<>(reTargets.keySet());
         secondSwitchTargets.sort(new CompareByIndex());
-        List<Op03SimpleStatement> fwds = Functional.filter(secondSwitchTargets,
+        ObjectList<Op03SimpleStatement> fwds = Functional.filter(secondSwitchTargets,
             in1 -> in1.getIndex().isBackJumpTo(swatch)
         );
         if (fwds.isEmpty()) {
@@ -298,7 +298,7 @@ public class KotlinSwitchHandler {
          * BUT it's a bitch to resugar into a nice switch statement!
          * So we convert it into FORM1, which will further get converted into FORM0.
          */
-        for (List<OriginalSwitchLookupInfo> matches : matchesFound) {
+        for (ObjectList<OriginalSwitchLookupInfo> matches : matchesFound) {
             for (OriginalSwitchLookupInfo match : matches) {
                 if (match.stringMatchJump == null) {
                     Op03SimpleStatement ifTest = match.ifTest;
@@ -390,10 +390,10 @@ public class KotlinSwitchHandler {
         /*
          * Build a new switch entry for each of the remapped one.
          */
-        List<DecodedSwitchEntry> switchTargets = new ObjectArrayList<>();
+        ObjectList<DecodedSwitchEntry> switchTargets = new ObjectArrayList<>();
         for (Op03SimpleStatement target : secondSwitchTargets) {
             DistinctSwitchTarget distinctSwitchTarget = reTargets.get(target);
-            List<Integer> tmp2 = new ObjectArrayList<>();
+            ObjectList<Integer> tmp2 = new ObjectArrayList<>();
             tmp2.add(distinctSwitchTarget.idx);
             DecodedSwitchEntry entry = new DecodedSwitchEntry(tmp2,-1);
             switchTargets.add(entry);
@@ -413,7 +413,7 @@ public class KotlinSwitchHandler {
             defaultSource.removeGotoTarget(localTarget);
         }
 
-        List<Integer> defaultSecondary = new ObjectArrayList<>();
+        ObjectList<Integer> defaultSecondary = new ObjectArrayList<>();
         defaultSecondary.add(null);
         switchTargets.add(new DecodedSwitchEntry(defaultSecondary, -1));
         DecodedSwitch info = new FakeSwitch(switchTargets);
@@ -464,7 +464,7 @@ public class KotlinSwitchHandler {
          * And initialise the intermediate var to -1 at the start.
          */
         Op03SimpleStatement init = new Op03SimpleStatement(swatch.getBlockIdentifiers(), new AssignmentSimple(BytecodeLoc.TODO, lValue, new Literal(TypedLiteral.getInt(-1))), swatch.getIndex().justBefore());
-        List<Op03SimpleStatement> swatchFrom = swatch.getSources();
+        ObjectList<Op03SimpleStatement> swatchFrom = swatch.getSources();
         for (Op03SimpleStatement from : swatchFrom) {
             from.replaceTarget(swatch, init);
             init.addSource(from);
@@ -478,7 +478,7 @@ public class KotlinSwitchHandler {
     }
 
     private static class DistinctSwitchTarget {
-        final List<OriginalSwitchLookupInfo> entries = new ObjectArrayList<>();
+        final ObjectList<OriginalSwitchLookupInfo> entries = new ObjectArrayList<>();
         final int idx;
 
         private DistinctSwitchTarget(int idx) {
@@ -504,10 +504,10 @@ public class KotlinSwitchHandler {
         }
     }
 
-    private record FakeSwitch(List<DecodedSwitchEntry> entry) implements DecodedSwitch {
+    private record FakeSwitch(ObjectList<DecodedSwitchEntry> entry) implements DecodedSwitch {
 
         @Override
-            public List<DecodedSwitchEntry> getJumpTargets() {
+            public ObjectList<DecodedSwitchEntry> getJumpTargets() {
                 return entry;
             }
         }

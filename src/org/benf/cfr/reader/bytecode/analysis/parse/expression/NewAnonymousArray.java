@@ -18,7 +18,7 @@ import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.StringUtils;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Objects;
 
 /**
@@ -27,10 +27,10 @@ import java.util.Objects;
 public class NewAnonymousArray extends AbstractNewArray implements BoxingProcessor {
     private final JavaTypeInstance allocatedType;
     private final int numDims;
-    private final List<Expression> values;
+    private final ObjectList<Expression> values;
     private boolean isCompletelyAnonymous;
 
-    public NewAnonymousArray(BytecodeLoc loc, InferredJavaType type, int numDims, List<Expression> values, boolean isCompletelyAnonymous) {
+    public NewAnonymousArray(BytecodeLoc loc, InferredJavaType type, int numDims, ObjectList<Expression> values, boolean isCompletelyAnonymous) {
         super(loc, type);
         this.values = new ObjectArrayList<>();
         this.numDims = numDims;
@@ -95,7 +95,7 @@ public class NewAnonymousArray extends AbstractNewArray implements BoxingProcess
         return d;
     }
 
-    public List<Expression> getValues() {
+    public ObjectList<Expression> getValues() {
         return values;
     }
 

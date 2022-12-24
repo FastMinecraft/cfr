@@ -19,7 +19,7 @@ import org.benf.cfr.reader.state.TypeUsageInformation;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.MapFactory;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 
 public class UnreachableStaticRewriter {
@@ -36,10 +36,10 @@ public class UnreachableStaticRewriter {
         final JavaRefTypeInstance thisType = classFile.getRefClassType();
         if (thisType == null) return;
 
-        Pair<List<JavaRefTypeInstance>, List<JavaRefTypeInstance>> split = Functional.partition(info.getUsedClassTypes(),
+        Pair<ObjectList<JavaRefTypeInstance>, ObjectList<JavaRefTypeInstance>> split = Functional.partition(info.getUsedClassTypes(),
             in -> in.getInnerClassHereInfo().isTransitiveInnerClassOf(thisType)
         );
-        List<JavaRefTypeInstance> inners = split.getFirst();
+        ObjectList<JavaRefTypeInstance> inners = split.getFirst();
         /*
          * We are interested in inner classes where we clash with the fqn.
          * (What monster would do that? See test).
@@ -53,7 +53,7 @@ public class UnreachableStaticRewriter {
             potentialClashes.put(name, inner);
         }
 
-        List<JavaRefTypeInstance> others = split.getSecond();
+        ObjectList<JavaRefTypeInstance> others = split.getSecond();
 
         Map<JavaTypeInstance, Inaccessible> inaccessibles = MapFactory.newMap();
         for (JavaRefTypeInstance type : others) {

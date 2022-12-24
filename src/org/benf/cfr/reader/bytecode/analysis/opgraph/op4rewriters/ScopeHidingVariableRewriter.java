@@ -13,7 +13,7 @@ import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.state.ClassCache;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 /**
@@ -37,9 +37,9 @@ public class ScopeHidingVariableRewriter implements Op04Rewriter {
     /*
      * Collect collisions in a first pass, so that we can avoid uneccesarily
      */
-    private final List<LocalVariable> collisions = new ObjectArrayList<>();
+    private final ObjectList<LocalVariable> collisions = new ObjectArrayList<>();
 
-    public ScopeHidingVariableRewriter(List<ClassFileField> fieldVariables, Method method, ClassCache classCache) {
+    public ScopeHidingVariableRewriter(ObjectList<ClassFileField> fieldVariables, Method method, ClassCache classCache) {
         this.method = method;
         this.classCache = classCache;
         MethodPrototype prototype = method.getMethodPrototype();
@@ -63,11 +63,11 @@ public class ScopeHidingVariableRewriter implements Op04Rewriter {
 
     @Override
     public void rewrite(Op04StructuredStatement root) {
-        List<StructuredStatement> structuredStatements = MiscStatementTools.linearise(root);
+        ObjectList<StructuredStatement> structuredStatements = MiscStatementTools.linearise(root);
         if (structuredStatements == null) return;
 
         for (StructuredStatement definition : structuredStatements) {
-            List<LValue> createdHere = definition.findCreatedHere();
+            ObjectList<LValue> createdHere = definition.findCreatedHere();
             if (createdHere == null) continue;
 
             for (LValue lValue : createdHere) {

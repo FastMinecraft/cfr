@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.variables;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 import org.benf.cfr.reader.entities.attributes.LocalVariableEntry;
 import org.benf.cfr.reader.util.MiscConstants;
@@ -23,7 +24,7 @@ public class VariableNamerHinted implements VariableNamer {
 
     private final ConstantPool cp;
 
-    VariableNamerHinted(List<LocalVariableEntry> entryList, ConstantPool cp) {
+    VariableNamerHinted(ObjectList<LocalVariableEntry> entryList, ConstantPool cp) {
         for (LocalVariableEntry e : entryList) {
             localVariableEntryTreeSet.get(e.index()).add(e);
         }
@@ -80,7 +81,7 @@ public class VariableNamerHinted implements VariableNamer {
 
 
     @Override
-    public List<NamedVariable> getNamedVariables() {
+    public ObjectList<NamedVariable> getNamedVariables() {
         return new ObjectArrayList<>(cache.values());
     }
 

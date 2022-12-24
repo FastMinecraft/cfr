@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.expression;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
@@ -41,7 +42,7 @@ import org.benf.cfr.reader.util.output.Dumper;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class MethodHandlePlaceholder extends AbstractExpression {
     private final ConstantPoolEntryMethodHandle handle;
@@ -128,7 +129,7 @@ public class MethodHandlePlaceholder extends AbstractExpression {
                 new Op04StructuredStatement(Block.getBlockFor(true, new StructuredReturn(BytecodeLoc.TODO, from(handle), TypeConstants.METHOD_HANDLE))),
                 identifier);
         LValue caught = new LocalVariable("except", new InferredJavaType(TypeConstants.THROWABLE, InferredJavaType.Source.EXPRESSION));
-        List<JavaRefTypeInstance> catchTypes = new ObjectArrayList<>(new JavaRefTypeInstance[]{ TypeConstants.NOSUCHMETHOD_EXCEPTION, TypeConstants.ILLEGALACCESS_EXCEPTION });
+        ObjectList<JavaRefTypeInstance> catchTypes = new ObjectArrayList<>(new JavaRefTypeInstance[]{ TypeConstants.NOSUCHMETHOD_EXCEPTION, TypeConstants.ILLEGALACCESS_EXCEPTION });
         Expression[] original = new Expression[]{ new LValueExpression(caught) };
         StructuredCatch catche = new StructuredCatch(
                 catchTypes,
@@ -154,9 +155,9 @@ public class MethodHandlePlaceholder extends AbstractExpression {
 
     private static Expression from(ConstantPoolEntryMethodHandle cpe) {
         Expression lookup = new StaticFunctionInvokationExplicit(BytecodeLoc.TODO,
-                new InferredJavaType(
+                                                                 new InferredJavaType(
                         TypeConstants.METHOD_HANDLES$LOOKUP, InferredJavaType.Source.EXPRESSION), TypeConstants.METHOD_HANDLES, "lookup",
-                Collections.emptyList()
+                                                                 ObjectLists.emptyList()
         );
 
         String behaviourName = lookupFunction(cpe.getReferenceKind());
@@ -237,7 +238,7 @@ public class MethodHandlePlaceholder extends AbstractExpression {
         return new StaticFunctionInvokationExplicit(BytecodeLoc.TODO,
                 new InferredJavaType(
                         TypeConstants.METHOD_TYPE, InferredJavaType.Source.EXPRESSION), TypeConstants.METHOD_TYPE, TypeConstants.fromMethodDescriptorString,
-                Arrays.asList(descriptorString, new Literal(TypedLiteral.getNull()))
+                ObjectList.of(descriptorString, new Literal(TypedLiteral.getNull()))
         );
     }
 }

@@ -3,7 +3,9 @@ package org.benf.cfr.reader.bytecode.analysis.types;
 import java.lang.annotation.ElementType;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
+
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 import org.benf.cfr.reader.entities.annotations.AnnotationTableEntry;
@@ -52,13 +54,13 @@ public class DeclarationAnnotationHelper {
      * because it was different values or appears in a different order.
      */
     public static class DeclarationAnnotationsInfo {
-        private final List<AnnotationTableEntry> declAnnotationsAdmissible;
-        private final List<AnnotationTableEntry> declAnnotationsNonAdmissible;
-        private final List<AnnotationTableTypeEntry> typeAnnotationsAdmissible;
-        private final List<AnnotationTableTypeEntry> typeAnnotationsNonAdmissible;
+        private final ObjectList<AnnotationTableEntry> declAnnotationsAdmissible;
+        private final ObjectList<AnnotationTableEntry> declAnnotationsNonAdmissible;
+        private final ObjectList<AnnotationTableTypeEntry> typeAnnotationsAdmissible;
+        private final ObjectList<AnnotationTableTypeEntry> typeAnnotationsNonAdmissible;
         private final boolean requiresNonAdmissibleType;
 
-        private DeclarationAnnotationsInfo(List<AnnotationTableEntry> declAnnotationsAdmissible, List<AnnotationTableEntry> declAnnotationsNonAdmissible, List<AnnotationTableTypeEntry> typeAnnotationsAdmissible, List<AnnotationTableTypeEntry> typeAnnotationsNonAdmissible, boolean requiresNonAdmissibleType) {
+        private DeclarationAnnotationsInfo(ObjectList<AnnotationTableEntry> declAnnotationsAdmissible, ObjectList<AnnotationTableEntry> declAnnotationsNonAdmissible, ObjectList<AnnotationTableTypeEntry> typeAnnotationsAdmissible, ObjectList<AnnotationTableTypeEntry> typeAnnotationsNonAdmissible, boolean requiresNonAdmissibleType) {
             this.declAnnotationsAdmissible = declAnnotationsAdmissible;
             this.declAnnotationsNonAdmissible = declAnnotationsNonAdmissible;
             this.typeAnnotationsAdmissible = typeAnnotationsAdmissible;
@@ -66,15 +68,15 @@ public class DeclarationAnnotationHelper {
             this.requiresNonAdmissibleType = requiresNonAdmissibleType;
         }
 
-        private static DeclarationAnnotationsInfo possibleAdmissible(List<AnnotationTableEntry> declAnnotations, List<AnnotationTableTypeEntry> typeAnnotations) {
+        private static DeclarationAnnotationsInfo possibleAdmissible(ObjectList<AnnotationTableEntry> declAnnotations, ObjectList<AnnotationTableTypeEntry> typeAnnotations) {
             return new DeclarationAnnotationsInfo(declAnnotations, declAnnotations, typeAnnotations, typeAnnotations, false);
         }
 
-        private static DeclarationAnnotationsInfo possibleAdmissible(List<AnnotationTableEntry> declAnnotationsAdmissible, List<AnnotationTableEntry> declAnnotationsNonAdmissible, List<AnnotationTableTypeEntry> typeAnnotationsAdmissible, List<AnnotationTableTypeEntry> typeAnnotationsNonAdmissible) {
+        private static DeclarationAnnotationsInfo possibleAdmissible(ObjectList<AnnotationTableEntry> declAnnotationsAdmissible, ObjectList<AnnotationTableEntry> declAnnotationsNonAdmissible, ObjectList<AnnotationTableTypeEntry> typeAnnotationsAdmissible, ObjectList<AnnotationTableTypeEntry> typeAnnotationsNonAdmissible) {
             return new DeclarationAnnotationsInfo(declAnnotationsAdmissible, declAnnotationsNonAdmissible, typeAnnotationsAdmissible, typeAnnotationsNonAdmissible, false);
         }
 
-        private static DeclarationAnnotationsInfo requiringNonAdmissible(List<AnnotationTableEntry> declAnnotations, List<AnnotationTableTypeEntry> typeAnnotations) {
+        private static DeclarationAnnotationsInfo requiringNonAdmissible(ObjectList<AnnotationTableEntry> declAnnotations, ObjectList<AnnotationTableTypeEntry> typeAnnotations) {
             return new DeclarationAnnotationsInfo(null, declAnnotations, null, typeAnnotations, true);
         }
 
@@ -104,7 +106,7 @@ public class DeclarationAnnotationHelper {
          *      If annotations for an admissible type are requested, but this placement information
          *      {@linkplain #requiresNonAdmissibleType() does not support it}
          */
-        public List<AnnotationTableEntry> getDeclarationAnnotations(boolean usesAdmissibleType) {
+        public ObjectList<AnnotationTableEntry> getDeclarationAnnotations(boolean usesAdmissibleType) {
             checkCanProvideAnnotations(usesAdmissibleType);
             return usesAdmissibleType ? declAnnotationsAdmissible : declAnnotationsNonAdmissible;
         }
@@ -119,7 +121,7 @@ public class DeclarationAnnotationHelper {
          *      If annotations for an admissible type are requested, but this placement information
          *      {@linkplain #requiresNonAdmissibleType() does not support it}
          */
-        public List<AnnotationTableTypeEntry> getTypeAnnotations(boolean usesAdmissibleType) {
+        public ObjectList<AnnotationTableTypeEntry> getTypeAnnotations(boolean usesAdmissibleType) {
             checkCanProvideAnnotations(usesAdmissibleType);
             return usesAdmissibleType ? typeAnnotationsAdmissible : typeAnnotationsNonAdmissible;
         }
@@ -176,7 +178,7 @@ public class DeclarationAnnotationHelper {
         }
     }
 
-    private static Set<JavaTypeInstance> getDeclAndTypeUseAnnotationTypes(List<AnnotationTableEntry> declAnnotations, List<AnnotationTableTypeEntry> typeAnnotations) {
+    private static Set<JavaTypeInstance> getDeclAndTypeUseAnnotationTypes(ObjectList<AnnotationTableEntry> declAnnotations, ObjectList<AnnotationTableTypeEntry> typeAnnotations) {
         /*
          * TODO: To be more correct the @Target meta annotation on the annotation
          * types would have to be checked, however that is currently not easily
@@ -188,7 +190,7 @@ public class DeclarationAnnotationHelper {
         for (AnnotationTableEntry declAnn : declAnnotations) {
             declTypeAnnotations.add(declAnn.getClazz());
         }
-        List<JavaTypeInstance> typeAnnotationClasses = new ArrayList<>();
+        ObjectList<JavaTypeInstance> typeAnnotationClasses = new ObjectArrayList<>();
         for (AnnotationTableTypeEntry typeAnn : typeAnnotations) {
             typeAnnotationClasses.add(typeAnn.getClazz());
         }
@@ -211,7 +213,7 @@ public class DeclarationAnnotationHelper {
      * @return
      *      Common annotation index or {@code null}
      */
-    private static Integer getCommonInnerClassAnnotationIndex(List<AnnotationTableTypeEntry> typeAnnotations) {
+    private static Integer getCommonInnerClassAnnotationIndex(ObjectList<AnnotationTableTypeEntry> typeAnnotations) {
         Integer commonIndex = null;
 
         for (AnnotationTableTypeEntry annotation : typeAnnotations) {
@@ -274,7 +276,7 @@ public class DeclarationAnnotationHelper {
     // This assumes that JDK-8223936 is fixed and would only apply the annotation to the
     // declaration, but not the type
     private static boolean canTypeAnnotationBeMovedToDecl(JavaTypeInstance annotatedType, AnnotationTableTypeEntry typeAnnotation, Integer commonInnerAnnotationIndex) {
-        List<TypePathPart> typePathParts = typeAnnotation.getTypePath().segments();
+        ObjectList<TypePathPart> typePathParts = typeAnnotation.getTypePath().segments();
 
         if (annotatedType.getInnerClassHereInfo().isInnerClass()) {
             NestedCountingIterator annotationIterator = new NestedCountingIterator();
@@ -310,7 +312,7 @@ public class DeclarationAnnotationHelper {
         }
     }
 
-    private static boolean areAnnotationsEqual(List<AnnotationTableEntry> declAnnotations, List<AnnotationTableTypeEntry> typeAnnotations) {
+    private static boolean areAnnotationsEqual(ObjectList<AnnotationTableEntry> declAnnotations, ObjectList<AnnotationTableTypeEntry> typeAnnotations) {
         if (declAnnotations.size() != typeAnnotations.size()) {
             return false;
         }
@@ -338,7 +340,7 @@ public class DeclarationAnnotationHelper {
      * @return
      *      Information about how to place the annotations
      */
-    public static DeclarationAnnotationsInfo getDeclarationInfo(JavaTypeInstance nullableAnnotatedType, List<AnnotationTableEntry> declarationAnnotations, List<AnnotationTableTypeEntry> typeAnnotations) {
+    public static DeclarationAnnotationsInfo getDeclarationInfo(JavaTypeInstance nullableAnnotatedType, ObjectList<AnnotationTableEntry> declarationAnnotations, ObjectList<AnnotationTableTypeEntry> typeAnnotations) {
         if (declarationAnnotations == null || declarationAnnotations.isEmpty() || typeAnnotations == null || typeAnnotations.isEmpty()) {
             return DeclarationAnnotationsInfo.possibleAdmissible(ListFactory.orEmptyList(declarationAnnotations), ListFactory.orEmptyList(typeAnnotations));
         }
@@ -356,7 +358,7 @@ public class DeclarationAnnotationHelper {
         }
 
         Integer commonInnerAnnotationIndex = getCommonInnerClassAnnotationIndex(typeAnnotations);
-        List<AnnotationTableTypeEntry> typeDeclTypeAnnotations = new ArrayList<>();
+        ObjectList<AnnotationTableTypeEntry> typeDeclTypeAnnotations = new ObjectArrayList<>();
         boolean requiresMoveToTypeAnn = false;
         // Index of the first decl + TYPE_USE annotation which must be placed on the
         // type due to ordering constraints; only relevant if requiresMoveToTypeAnn == true
@@ -383,7 +385,7 @@ public class DeclarationAnnotationHelper {
         // Index of last decl + TYPE_USE annotation which must be placed on the
         // declaration due to ordering constraints
         int lastNonMovableDeclAnnIndex = -1;
-        List<AnnotationTableEntry> declDeclTypeAnnotations = new ArrayList<>();
+        ObjectList<AnnotationTableEntry> declDeclTypeAnnotations = new ObjectArrayList<>();
         for (AnnotationTableEntry declAnn : declarationAnnotations) {
             if (declTypeAnnotations.contains(declAnn.getClazz())) {
                 declDeclTypeAnnotations.add(declAnn);
@@ -428,11 +430,11 @@ public class DeclarationAnnotationHelper {
              * Here TypeAndDecl2 must be moved to the type because it is placed after TYPE_USE
              * only annotation Type.
              */
-            List<AnnotationTableEntry> declAnnotationsAdmissible = new ArrayList<>(declarationAnnotations);
+            ObjectList<AnnotationTableEntry> declAnnotationsAdmissible = new ObjectArrayList<>(declarationAnnotations);
             declAnnotationsAdmissible.removeAll(declDeclTypeAnnotations.subList(firstMovedTypeAnnIndex, declDeclTypeAnnotations.size()));
             // For annotations to place on type need to remove all other decl + TYPE_USE
             // annotations which remain on declaration
-            List<AnnotationTableTypeEntry> typeAnnotationsAdmissible = new ArrayList<>(typeAnnotations);
+            ObjectList<AnnotationTableTypeEntry> typeAnnotationsAdmissible = new ObjectArrayList<>(typeAnnotations);
             typeAnnotationsAdmissible.removeAll(typeDeclTypeAnnotations.subList(0, firstMovedTypeAnnIndex));
 
             return DeclarationAnnotationsInfo.possibleAdmissible(declAnnotationsAdmissible, declarationAnnotations, typeAnnotationsAdmissible, typeAnnotations);
@@ -440,7 +442,7 @@ public class DeclarationAnnotationHelper {
         else {
             // Move all annotations applicable to declaration and type to the
             // declaration
-            List<AnnotationTableTypeEntry> typeAnnotationsAdmissible = new ArrayList<>(typeAnnotations);
+            ObjectList<AnnotationTableTypeEntry> typeAnnotationsAdmissible = new ObjectArrayList<>(typeAnnotations);
             typeAnnotationsAdmissible.removeAll(typeDeclTypeAnnotations);
 
             return DeclarationAnnotationsInfo.possibleAdmissible(declarationAnnotations, declarationAnnotations, typeAnnotationsAdmissible, typeAnnotations);

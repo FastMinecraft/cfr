@@ -12,7 +12,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.*;
 import org.benf.cfr.reader.util.collections.MapFactory;
 
 import java.util.Collection;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.Set;
 
@@ -72,8 +72,8 @@ public class LValuePropSimple {
             }
         }
 
-        List<StackSSALabel> getSingleUsages() {
-            List<StackSSALabel> res = new ObjectArrayList<>();
+        ObjectList<StackSSALabel> getSingleUsages() {
+            ObjectList<StackSSALabel> res = new ObjectArrayList<>();
             for (Map.Entry<StackSSALabel, Boolean> entry : singleUsages.entrySet()) {
                 if (entry.getValue() == Boolean.TRUE) res.add(entry.getKey());
             }
@@ -81,7 +81,7 @@ public class LValuePropSimple {
         }
     }
 
-    public static List<Op03SimpleStatement> condenseSimpleLValues(List<Op03SimpleStatement> statementList) {
+    public static ObjectList<Op03SimpleStatement> condenseSimpleLValues(ObjectList<Op03SimpleStatement> statementList) {
         AssignmentCollector assignmentCollector = new AssignmentCollector();
         UsageCollector usageCollector = new UsageCollector();
 
@@ -91,7 +91,7 @@ public class LValuePropSimple {
         }
 
         Map<StackSSALabel, StatementContainer<Statement>> created = assignmentCollector.assignments;
-        List<StackSSALabel> singleUsages = usageCollector.getSingleUsages();
+        ObjectList<StackSSALabel> singleUsages = usageCollector.getSingleUsages();
         Map<StackSSALabel, Op03SimpleStatement> createdAndUsed = MapFactory.newMap();
         Map<Op03SimpleStatement, StackSSALabel> creations = MapFactory.newIdentityMap();
         for (StackSSALabel single : singleUsages) {

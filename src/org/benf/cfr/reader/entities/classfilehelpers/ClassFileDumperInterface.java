@@ -9,7 +9,7 @@ import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.MiscConstants;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 import static org.benf.cfr.reader.util.DecompilerComment.PACKAGE_INFO_CODE;
 
@@ -32,7 +32,7 @@ public class ClassFileDumperInterface extends AbstractClassFileDumper {
         d.newln();
 
         ClassSignature signature = c.getClassSignature();
-        List<JavaTypeInstance> interfaces = signature.interfaces();
+        ObjectList<JavaTypeInstance> interfaces = signature.interfaces();
         if (!interfaces.isEmpty()) {
             d.print("extends ");
             int size = interfaces.size();
@@ -67,7 +67,7 @@ public class ClassFileDumperInterface extends AbstractClassFileDumper {
         d.separator("{").newln();
         d.indent(1);
         // Horrid, but an interface can have fields....
-        List<ClassFileField> fields = classFile.getFields();
+        ObjectList<ClassFileField> fields = classFile.getFields();
         for (ClassFileField field : fields) {
             field.dump(d, classFile);
             first = false;
@@ -83,7 +83,7 @@ public class ClassFileDumperInterface extends AbstractClassFileDumper {
         JavaRefTypeInstance classType = classFile.getRefClassType();
         if (!MiscConstants.PACKAGE_INFO.equals(classType.getRawShortName())) return false;
         // A package info should have no methods.
-        List<Method> methods = classFile.getMethods();
+        ObjectList<Method> methods = classFile.getMethods();
         if (!methods.isEmpty()) {
             classFile.ensureDecompilerComments().addComment(PACKAGE_INFO_CODE);
             return false;

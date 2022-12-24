@@ -10,7 +10,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.JumpType;
 import org.benf.cfr.reader.util.collections.SetUtil;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 public class PointlessJumps {
@@ -18,7 +18,7 @@ public class PointlessJumps {
      *
      * Normalise code by removing jumps which have been introduced to confuse.
      */
-    public static void removePointlessJumps(List<Op03SimpleStatement> statements) {
+    public static void removePointlessJumps(ObjectList<Op03SimpleStatement> statements) {
 
         /*
          * Odd first pass, but we want to translate
@@ -132,7 +132,7 @@ public class PointlessJumps {
      * If we're jumping into an instruction just after a try block, (or multiple try blocks), we move the jump to the try
      * block, IF we're jumping from outside the try block.
      */
-    private static Op03SimpleStatement maybeMoveTarget(Op03SimpleStatement expectedRetarget, Op03SimpleStatement source, List<Op03SimpleStatement> statements) {
+    private static Op03SimpleStatement maybeMoveTarget(Op03SimpleStatement expectedRetarget, Op03SimpleStatement source, ObjectList<Op03SimpleStatement> statements) {
         if (expectedRetarget.getBlockIdentifiers().equals(source.getBlockIdentifiers())) return expectedRetarget;
 
         int idx = statements.indexOf(expectedRetarget);

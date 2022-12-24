@@ -1,13 +1,11 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
+import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import org.benf.cfr.reader.bytecode.BytecodeMeta;
+import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op2rewriters.TypeHintRecovery;
-import org.benf.cfr.reader.bytecode.analysis.variables.Ident;
-import org.benf.cfr.reader.bytecode.analysis.variables.Slot;
-import org.benf.cfr.reader.bytecode.analysis.variables.VariableFactory;
-import org.benf.cfr.reader.bytecode.analysis.variables.VariableNamerDefault;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
 import org.benf.cfr.reader.bytecode.analysis.parse.Statement;
@@ -24,11 +22,16 @@ import org.benf.cfr.reader.bytecode.analysis.stack.StackEntryHolder;
 import org.benf.cfr.reader.bytecode.analysis.stack.StackSim;
 import org.benf.cfr.reader.bytecode.analysis.types.*;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
+import org.benf.cfr.reader.bytecode.analysis.variables.Ident;
+import org.benf.cfr.reader.bytecode.analysis.variables.Slot;
+import org.benf.cfr.reader.bytecode.analysis.variables.VariableFactory;
+import org.benf.cfr.reader.bytecode.analysis.variables.VariableNamerDefault;
 import org.benf.cfr.reader.bytecode.opcode.DecodedLookupSwitch;
 import org.benf.cfr.reader.bytecode.opcode.DecodedTableSwitch;
 import org.benf.cfr.reader.bytecode.opcode.JVMInstr;
 import org.benf.cfr.reader.bytecode.opcode.OperationFactoryMultiANewArray;
-import org.benf.cfr.reader.entities.*;
+import org.benf.cfr.reader.entities.ClassFile;
+import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.entities.bootstrap.BootstrapMethodInfo;
 import org.benf.cfr.reader.entities.bootstrap.MethodHandleBehaviour;
 import org.benf.cfr.reader.entities.constantpool.*;
@@ -44,7 +47,10 @@ import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 import org.benf.cfr.reader.util.graph.GraphVisitorFIFO;
 import org.benf.cfr.reader.util.lambda.LambdaUtils;
-import org.benf.cfr.reader.util.output.*;
+import org.benf.cfr.reader.util.output.Dumpable;
+import org.benf.cfr.reader.util.output.Dumper;
+import org.benf.cfr.reader.util.output.LoggerFactory;
+import org.benf.cfr.reader.util.output.ToStringDumper;
 
 import java.util.*;
 import java.util.function.BiPredicate;
@@ -61,19 +67,19 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
     private final BytecodeLoc loc;
     private final byte[] rawData;
 
-    private List<BlockIdentifier> containedInTheseBlocks = new ObjectArrayList<>();
-    private List<ExceptionGroup> exceptionGroups = new ObjectArrayList<>();
-    private List<ExceptionGroup.Entry> catchExceptionGroups = new ObjectArrayList<>();
+    private ObjectList<BlockIdentifier> containedInTheseBlocks = new ObjectArrayList<>();
+    private ObjectList<ExceptionGroup> exceptionGroups = new ObjectArrayList<>();
+    private ObjectList<ExceptionGroup.Entry> catchExceptionGroups = new ObjectArrayList<>();
 
-    private final List<Op02WithProcessedDataAndRefs> targets = new ObjectArrayList<>();
-    private final List<Op02WithProcessedDataAndRefs> sources = new ObjectArrayList<>();
+    private final ObjectList<Op02WithProcessedDataAndRefs> targets = new ObjectArrayList<>();
+    private final ObjectList<Op02WithProcessedDataAndRefs> sources = new ObjectArrayList<>();
     private final ConstantPool cp;
     private final ConstantPoolEntry[] cpEntries;
     private long stackDepthBeforeExecution = -1;
     @SuppressWarnings("unused")
     private long stackDepthAfterExecution;
-    private final List<StackEntryHolder> stackConsumed = new ObjectArrayList<>();
-    private final List<StackEntryHolder> stackProduced = new ObjectArrayList<>();
+    private final ObjectList<StackEntryHolder> stackConsumed = new ObjectArrayList<>();
+    private final ObjectList<StackEntryHolder> stackProduced = new ObjectArrayList<>();
     private StackSim unconsumedJoinedStack = null;
     private boolean hasCatchParent = false;
 
@@ -91,11 +97,27 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         this.loc = other.loc;
     }
 
-    public Op02WithProcessedDataAndRefs(JVMInstr instr, byte[] rawData, int index, ConstantPool cp, ConstantPoolEntry[] cpEntries, int originalRawOffset, BytecodeLoc loc) {
+    public Op02WithProcessedDataAndRefs(
+        JVMInstr instr,
+        byte[] rawData,
+        int index,
+        ConstantPool cp,
+        ConstantPoolEntry[] cpEntries,
+        int originalRawOffset,
+        BytecodeLoc loc
+    ) {
         this(instr, rawData, new InstrIndex(index), cp, cpEntries, originalRawOffset, loc);
     }
 
-    public Op02WithProcessedDataAndRefs(JVMInstr instr, byte[] rawData, InstrIndex index, ConstantPool cp, ConstantPoolEntry[] cpEntries, int originalRawOffset, BytecodeLoc loc) {
+    public Op02WithProcessedDataAndRefs(
+        JVMInstr instr,
+        byte[] rawData,
+        InstrIndex index,
+        ConstantPool cp,
+        ConstantPoolEntry[] cpEntries,
+        int originalRawOffset,
+        BytecodeLoc loc
+    ) {
         this.instr = instr;
         this.rawData = rawData;
         this.index = index;
@@ -112,7 +134,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         stackProduced.clear();
         unconsumedJoinedStack = null;
     }
-    
+
     public InstrIndex getIndex() {
         return index;
     }
@@ -179,12 +201,12 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
     }
 
     @Override
-    public List<Op02WithProcessedDataAndRefs> getTargets() {
+    public ObjectList<Op02WithProcessedDataAndRefs> getTargets() {
         return targets;
     }
 
     @Override
-    public List<Op02WithProcessedDataAndRefs> getSources() {
+    public ObjectList<Op02WithProcessedDataAndRefs> getSources() {
         return sources;
     }
 
@@ -192,7 +214,12 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         return cpEntries;
     }
 
-    private void populateStackInfo(StackSim stackSim, Method method, Set<DecompilerComment> comments, LinkedList<Pair<StackSim, Op02WithProcessedDataAndRefs>> next) {
+    private void populateStackInfo(
+        StackSim stackSim,
+        Method method,
+        Set<DecompilerComment> comments,
+        LinkedList<Pair<StackSim, Op02WithProcessedDataAndRefs>> next
+    ) {
         StackDelta stackDelta = instr.getStackDelta(rawData, cpEntries, stackSim, method);
         if (stackDepthBeforeExecution != -1) {
             /* Catch instructions are funny, as we know we'll get here with 1 thing on the stack. */
@@ -204,8 +231,8 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
                 throw new ConfusedCFRException("Invalid stack depths @ " + this + " : trying to set " + stackSim.getDepth() + " previously set to " + stackDepthBeforeExecution);
             }
 
-            List<StackEntryHolder> alsoConsumed = new ObjectArrayList<>();
-            List<StackEntryHolder> alsoProduced = new ObjectArrayList<>();
+            ObjectList<StackEntryHolder> alsoConsumed = new ObjectArrayList<>();
+            ObjectList<StackEntryHolder> alsoProduced = new ObjectArrayList<>();
             StackSim newStackSim = stackSim.getChange(stackDelta, alsoConsumed, alsoProduced, this);
             if (alsoConsumed.size() != stackConsumed.size()) {
                 throw new ConfusedCFRException("Unexpected stack sizes on merge");
@@ -220,8 +247,11 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             if (unconsumedJoinedStack != null) {
                 // Need to take the unconsumedJoinedStack, ignore the
                 long depth = unconsumedJoinedStack.getDepth() - alsoProduced.size();
-                List<StackEntryHolder> unconsumedEntriesOld = unconsumedJoinedStack.getHolders(alsoProduced.size(), depth);
-                List<StackEntryHolder> unconsumedEntriesNew = newStackSim.getHolders(alsoProduced.size(), depth);
+                ObjectList<StackEntryHolder> unconsumedEntriesOld = unconsumedJoinedStack.getHolders(
+                    alsoProduced.size(),
+                    depth
+                );
+                ObjectList<StackEntryHolder> unconsumedEntriesNew = newStackSim.getHolders(alsoProduced.size(), depth);
                 for (int i = 0; i < unconsumedEntriesOld.size(); ++i) {
                     unconsumedEntriesOld.get(i).mergeWith(unconsumedEntriesNew.get(i), comments);
                 }
@@ -291,8 +321,8 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         return d;
     }
 
-    private static List<Boolean> getNullsByType(List<Expression> expressions) {
-        List<Boolean> res = new ObjectArrayList<>(expressions.size());
+    private static ObjectList<Boolean> getNullsByType(ObjectList<Expression> expressions) {
+        ObjectList<Boolean> res = new ObjectArrayList<>(expressions.size());
         for (Expression e : expressions) {
             res.add(e.getInferredJavaType().getJavaTypeInstance() == RawJavaType.NULL);
         }
@@ -302,9 +332,9 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
     private Statement buildInvoke(Method thisCallerMethod) {
         ConstantPoolEntryMethodRef function = (ConstantPoolEntryMethodRef) cpEntries[0];
         StackValue object = getStackRValue(stackConsumed.size() - 1);
-                /*
-                 * See above re invokespecial
-                 */
+        /*
+         * See above re invokespecial
+         */
         boolean special = false;
         boolean isSuper = false;
         if (instr == JVMInstr.INVOKESPECIAL) {
@@ -317,7 +347,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             boolean typesMatch = callType.equals(objType);
             if (funcName.equals(MiscConstants.INIT_METHOD)) {
                 if (thisCallerMethod.getName().equals(MiscConstants.INIT_METHOD) &&
-                        !(typesMatch || objType.getRawName().equals(TypeConstants.objectName))) {
+                    !(typesMatch || objType.getRawName().equals(TypeConstants.objectName))) {
                     isSuper = true;
                 }
             } else {
@@ -326,11 +356,11 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             }
         }
         MethodPrototype methodPrototype = function.getMethodPrototype();
-        List<Expression> args = getNStackRValuesAsExpressions(stackConsumed.size() - 1);
+        ObjectList<Expression> args = getNStackRValuesAsExpressions(stackConsumed.size() - 1);
         /*
          * Use information about arguments to help us deduce lValue types.
          */
-        List<Boolean> nulls = getNullsByType(args);
+        ObjectList<Boolean> nulls = getNullsByType(args);
         /*
          * This doesn't affect the methodprototype, just uses it to tweak the arguments.
          */
@@ -359,8 +389,8 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             }
         }
         AbstractMemberFunctionInvokation funcCall = isSuper ?
-                new SuperFunctionInvokation(loc, cp, function, object, args, nulls, superOnInterface) :
-                new MemberFunctionInvokation(loc, cp, function, object, bestType, special, args, nulls);
+            new SuperFunctionInvokation(loc, cp, function, object, args, nulls, superOnInterface) :
+            new MemberFunctionInvokation(loc, cp, function, object, bestType, special, args, nulls);
 
         if (object.getInferredJavaType().getJavaTypeInstance() == RawJavaType.NULL) {
             JavaTypeInstance type = methodPrototype.getClassType();
@@ -385,12 +415,35 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         int idx = invokeDynamic.getBootstrapMethodAttrIndex();
         ConstantPoolEntryUTF8 descriptor = nameAndType.getDescriptor();
         ConstantPoolEntryUTF8 name = nameAndType.getName();
-        MethodPrototype dynamicPrototype = ConstantPoolUtils.parseJavaMethodPrototype(dcCommonState, null, null, "", false, Method.MethodConstructor.NOT, descriptor, cp, false, false, new VariableNamerDefault(), descriptor.getValue());
-        return buildInvokeDynamic(method.getClassFile(), dcCommonState, name.getValue(), dynamicPrototype, idx, false, comments);
+        MethodPrototype dynamicPrototype = ConstantPoolUtils.parseJavaMethodPrototype(
+            dcCommonState,
+            null,
+            null,
+            "",
+            false,
+            Method.MethodConstructor.NOT,
+            descriptor,
+            cp,
+            false,
+            false,
+            new VariableNamerDefault(),
+            descriptor.getValue()
+        );
+        return buildInvokeDynamic(
+            method.getClassFile(),
+            dcCommonState,
+            name.getValue(),
+            dynamicPrototype,
+            idx,
+            false,
+            comments
+        );
     }
 
-    private Statement buildInvokeDynamic(ClassFile classFile, DCCommonState dcCommonState, String name, MethodPrototype dynamicPrototype,
-                                         int idx, boolean showBoilerArgs, DecompilerComments comments) {
+    private Statement buildInvokeDynamic(
+        ClassFile classFile, DCCommonState dcCommonState, String name, MethodPrototype dynamicPrototype,
+        int idx, boolean showBoilerArgs, DecompilerComments comments
+    ) {
 
         BootstrapMethodInfo bootstrapMethodInfo = classFile.getBootstrapMethods().getBootStrapMethodInfo(idx);
         ConstantPoolEntryMethodRef methodRef = bootstrapMethodInfo.getConstantPoolEntryMethodRef();
@@ -400,8 +453,8 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
 
         DynamicInvokeType dynamicInvokeType = DynamicInvokeType.lookup(methodName);
 
-        List<JavaTypeInstance> markerTypes = new ObjectArrayList<>();
-        List<Expression> callargs;
+        ObjectList<JavaTypeInstance> markerTypes = new ObjectArrayList<>();
+        ObjectList<Expression> callargs;
         switch (dynamicInvokeType) {
             case UNKNOWN, BOOTSTRAP -> {
                 callargs = buildInvokeBootstrapArgs(
@@ -415,9 +468,9 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
                     dcCommonState,
                     comments
                 );
-                List<Expression> dynamicArgs = getNStackRValuesAsExpressions(stackConsumed.size());
+                ObjectList<Expression> dynamicArgs = getNStackRValuesAsExpressions(stackConsumed.size());
                 if (dynamicInvokeType == DynamicInvokeType.UNKNOWN) {
-                    List<JavaTypeInstance> typeArgs = dynamicPrototype.getArgs();
+                    ObjectList<JavaTypeInstance> typeArgs = dynamicPrototype.getArgs();
                     if (typeArgs.size() == dynamicArgs.size()) {
                         // Infer arg types from dynamic args.
                         dynamicPrototype.tightenArgs(null, dynamicArgs);
@@ -433,13 +486,15 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
                     return new AssignmentSimple(loc, getStackLValue(0), funcCall);
                 }
             }
-            case METAFACTORY_1, METAFACTORY_2 -> callargs = buildInvokeDynamicMetaFactoryArgs(prototype,
+            case METAFACTORY_1, METAFACTORY_2 -> callargs = buildInvokeDynamicMetaFactoryArgs(
+                prototype,
                 dynamicPrototype,
                 bootstrapBehaviour,
                 bootstrapMethodInfo,
                 methodRef
             );
-            case ALTMETAFACTORY_1, ALTMETAFACTORY_2 -> callargs = buildInvokeDynamicAltMetaFactoryArgs(prototype,
+            case ALTMETAFACTORY_1, ALTMETAFACTORY_2 -> callargs = buildInvokeDynamicAltMetaFactoryArgs(
+                prototype,
                 dynamicPrototype,
                 bootstrapBehaviour,
                 bootstrapMethodInfo,
@@ -456,9 +511,14 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
          * Try to determine the relevant method on the functional interface.
          */
         JavaTypeInstance callSiteReturnType = dynamicPrototype.getReturnType();
-        callSiteReturnType = determineDynamicGeneric(callSiteReturnType, dynamicPrototype, instantiatedType, dcCommonState);
+        callSiteReturnType = determineDynamicGeneric(
+            callSiteReturnType,
+            dynamicPrototype,
+            instantiatedType,
+            dcCommonState
+        );
 
-        List<Expression> dynamicArgs = getNStackRValuesAsExpressions(stackConsumed.size());
+        ObjectList<Expression> dynamicArgs = getNStackRValuesAsExpressions(stackConsumed.size());
         dynamicPrototype.tightenArgs(null, dynamicArgs);
 
         Expression funcCall;
@@ -496,7 +556,12 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         }
     }
 
-    private JavaTypeInstance determineDynamicGeneric(final JavaTypeInstance callsiteReturn, MethodPrototype proto, Expression instantiated, DCCommonState dcCommonState) {
+    private JavaTypeInstance determineDynamicGeneric(
+        final JavaTypeInstance callsiteReturn,
+        MethodPrototype proto,
+        Expression instantiated,
+        DCCommonState dcCommonState
+    ) {
 
         ClassFile classFile = null;
         try {
@@ -507,7 +572,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         if (classFile == null) return callsiteReturn;
 
         // Note - we need to examine the methods, but NOT look at their code.
-        List<Method> methods = Functional.filter(classFile.getMethods(), in -> !in.hasCodeAttribute());
+        ObjectList<Method> methods = Functional.filter(classFile.getMethods(), in -> !in.hasCodeAttribute());
         if (methods.size() != 1) return callsiteReturn;
         Method method = methods.get(0);
         MethodPrototype genericProto = method.getMethodPrototype();
@@ -518,7 +583,10 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         JavaTypeInstance unboundReturn = genericProto.getReturnType();
         JavaTypeInstance boundReturn = boundProto.getReturnType();
         if (unboundReturn instanceof JavaGenericBaseInstance) {
-            GenericTypeBinder gtb2 = GenericTypeBinder.extractBindings((JavaGenericBaseInstance) unboundReturn, boundReturn);
+            GenericTypeBinder gtb2 = GenericTypeBinder.extractBindings(
+                (JavaGenericBaseInstance) unboundReturn,
+                boundReturn
+            );
             gtb = gtb.mergeWith(gtb2, true);
         }
 
@@ -541,7 +609,14 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
     }
 
     @SuppressWarnings("unused")
-    private List<Expression> buildInvokeDynamicAltMetaFactoryArgs(MethodPrototype prototype, MethodPrototype dynamicPrototype, MethodHandleBehaviour bootstrapBehaviour, BootstrapMethodInfo bootstrapMethodInfo, ConstantPoolEntryMethodRef methodRef, List<JavaTypeInstance> markerTypes) {
+    private ObjectList<Expression> buildInvokeDynamicAltMetaFactoryArgs(
+        MethodPrototype prototype,
+        MethodPrototype dynamicPrototype,
+        MethodHandleBehaviour bootstrapBehaviour,
+        BootstrapMethodInfo bootstrapMethodInfo,
+        ConstantPoolEntryMethodRef methodRef,
+        ObjectList<JavaTypeInstance> markerTypes
+    ) {
         final int FLAG_BRIDGES = 4;
         final int FLAG_MARKERS = 2;
         final int FLAG_SERIALIZABLE = 1;
@@ -565,13 +640,13 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
          * IF flags has BRIDGES set - int bridgeCount,
          * IF flags has BRIDGES set - MethodType... bridges )
          */
-        List<JavaTypeInstance> argTypes = prototype.getArgs();
+        ObjectList<JavaTypeInstance> argTypes = prototype.getArgs();
         ConstantPoolEntry[] bootstrapArguments = bootstrapMethodInfo.getBootstrapArguments();
         if (bootstrapArguments.length < 4) {
             throw new IllegalStateException("Dynamic invoke arg count mismatch ");
         }
 
-        List<Expression> callargs = new ObjectArrayList<>();
+        ObjectList<Expression> callargs = new ObjectArrayList<>();
         Expression nullExp = new Literal(TypedLiteral.getNull());
         callargs.add(nullExp);
         callargs.add(nullExp);
@@ -591,9 +666,9 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             // as we won't need it if so.
             markerTypes.add(TypeConstants.SERIALIZABLE);
         }
-        if ((iFlags & FLAG_MARKERS ) != 0) {
+        if ((iFlags & FLAG_MARKERS) != 0) {
             int nMarkers = getBootstrapArg(bootstrapArguments, nextArgIdx++, cp).getIntValue();
-            for (int x=0;x<nMarkers;++x) {
+            for (int x = 0; x < nMarkers; ++x) {
                 TypedLiteral marker = getBootstrapArg(bootstrapArguments, nextArgIdx++, cp);
                 if (marker.getType() == TypedLiteral.LiteralType.Class) {
                     JavaTypeInstance classType = marker.getClassValue();
@@ -616,10 +691,19 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
     }
 
     @SuppressWarnings("unused")
-    private List<Expression> buildInvokeBootstrapArgs(MethodPrototype prototype, MethodPrototype dynamicPrototype, MethodHandleBehaviour bootstrapBehaviour, BootstrapMethodInfo bootstrapMethodInfo, ConstantPoolEntryMethodRef methodRef,
-                                                      boolean showBoilerArgs, ClassFile classFile, DCCommonState state, DecompilerComments comments) {
+    private ObjectList<Expression> buildInvokeBootstrapArgs(
+        MethodPrototype prototype,
+        MethodPrototype dynamicPrototype,
+        MethodHandleBehaviour bootstrapBehaviour,
+        BootstrapMethodInfo bootstrapMethodInfo,
+        ConstantPoolEntryMethodRef methodRef,
+        boolean showBoilerArgs,
+        ClassFile classFile,
+        DCCommonState state,
+        DecompilerComments comments
+    ) {
         final int ARG_OFFSET = 3;
-        List<JavaTypeInstance> argTypes = prototype.getArgs();
+        ObjectList<JavaTypeInstance> argTypes = prototype.getArgs();
         ConstantPoolEntry[] bootstrapArguments = bootstrapMethodInfo.getBootstrapArguments();
 
         boolean countMismatch = (bootstrapArguments.length + ARG_OFFSET) != argTypes.size();
@@ -642,16 +726,29 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             comments.addComment(DecompilerComment.DYNAMIC_SIGNATURE_MISMATCH);
         }
 
-        List<Expression> callargs = new ObjectArrayList<>();
+        ObjectList<Expression> callargs = new ObjectArrayList<>();
 
         // We're trying to show the boilerplate arguments.  This will never work,
         // but will hopefully point readers in the right direction.
         if (showBoilerArgs) {
-            Pair<JavaRefTypeInstance, JavaRefTypeInstance> methodHandlesLookup = state.getClassCache().getRefClassForInnerOuterPair(TypeConstants.methodHandlesLookupName, TypeConstants.methodHandlesName);
-            callargs.add(new StaticFunctionInvokationExplicit(loc, new InferredJavaType(methodHandlesLookup.getFirst(), InferredJavaType.Source.LITERAL),
-                    methodHandlesLookup.getSecond(), "lookup", Collections.emptyList()));
+            Pair<JavaRefTypeInstance, JavaRefTypeInstance> methodHandlesLookup = state.getClassCache().getRefClassForInnerOuterPair(
+                TypeConstants.methodHandlesLookupName,
+                TypeConstants.methodHandlesName
+            );
+            callargs.add(new StaticFunctionInvokationExplicit(loc,
+                new InferredJavaType(methodHandlesLookup.getFirst(), InferredJavaType.Source.LITERAL),
+                methodHandlesLookup.getSecond(),
+                "lookup",
+                ObjectLists.emptyList()
+            ));
             callargs.add(new Literal(TypedLiteral.getString(QuotingUtils.enquoteString(methodRef.getName()))));
-            callargs.add(new LValueExpression(loc, new StaticVariable(new InferredJavaType(TypeConstants.CLASS, InferredJavaType.Source.LITERAL), classFile.getClassType(), "class")));
+            callargs.add(new LValueExpression(
+                loc,
+                new StaticVariable(new InferredJavaType(TypeConstants.CLASS, InferredJavaType.Source.LITERAL),
+                    classFile.getClassType(),
+                    "class"
+                )
+            ));
         }
         for (int x = 0; x < bootstrapArguments.length; ++x) {
             JavaTypeInstance expected = argTypes.get(ARG_OFFSET + x);
@@ -659,7 +756,11 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             Expression literal = new Literal(typedLiteral);
             if (!expected.equals(typedLiteral.getInferredJavaType().getJavaTypeInstance())) {
                 // This may not be a *LEGAL* cast, but it's probably the best we can do.
-                literal = new CastExpression(loc, new InferredJavaType(expected, InferredJavaType.Source.BOOTSTRAP), literal);
+                literal = new CastExpression(
+                    loc,
+                    new InferredJavaType(expected, InferredJavaType.Source.BOOTSTRAP),
+                    literal
+                );
             }
             callargs.add(literal);
         }
@@ -667,21 +768,27 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         return callargs;
     }
 
-    private List<Expression> getVarArgs(JavaTypeInstance last, ConstantPoolEntry[] bootstrapArguments) {
-        List<Expression> content = new ObjectArrayList<>();
-        for (int i=0;i<bootstrapArguments.length;++i) {
+    private ObjectList<Expression> getVarArgs(JavaTypeInstance last, ConstantPoolEntry[] bootstrapArguments) {
+        ObjectList<Expression> content = new ObjectArrayList<>();
+        for (int i = 0; i < bootstrapArguments.length; ++i) {
             TypedLiteral typedLiteral = getBootstrapArg(bootstrapArguments, i, cp);
             content.add(new Literal(typedLiteral));
         }
         InferredJavaType arrayType = new InferredJavaType(last.getArrayStrippedType(), InferredJavaType.Source.UNKNOWN);
         Expression res = new NewAnonymousArray(loc, arrayType, 1, content, false);
-        List<Expression> callargs = new ObjectArrayList<>();
+        ObjectList<Expression> callargs = new ObjectArrayList<>();
         callargs.add(res);
         return callargs;
     }
 
     @SuppressWarnings("unused")
-    private List<Expression> buildInvokeDynamicMetaFactoryArgs(MethodPrototype prototype, MethodPrototype dynamicPrototype, MethodHandleBehaviour bootstrapBehaviour, BootstrapMethodInfo bootstrapMethodInfo, ConstantPoolEntryMethodRef methodRef) {
+    private ObjectList<Expression> buildInvokeDynamicMetaFactoryArgs(
+        MethodPrototype prototype,
+        MethodPrototype dynamicPrototype,
+        MethodHandleBehaviour bootstrapBehaviour,
+        BootstrapMethodInfo bootstrapMethodInfo,
+        ConstantPoolEntryMethodRef methodRef
+    ) {
 
         final int ARG_OFFSET = 3;
         /*
@@ -694,13 +801,13 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
          *
          * So we expect our prototype to be equal to these 3, plus the arguments from our bootstrap.
          */
-        List<JavaTypeInstance> argTypes = prototype.getArgs();
+        ObjectList<JavaTypeInstance> argTypes = prototype.getArgs();
         ConstantPoolEntry[] bootstrapArguments = bootstrapMethodInfo.getBootstrapArguments();
         if ((bootstrapArguments.length + ARG_OFFSET) != argTypes.size()) {
             throw new IllegalStateException("Dynamic invoke arg count mismatch " + bootstrapArguments.length + "(+3) vs " + argTypes.size());
         }
 
-        List<Expression> callargs = new ObjectArrayList<>();
+        ObjectList<Expression> callargs = new ObjectArrayList<>();
         Expression nullExp = new Literal(TypedLiteral.getNull());
         callargs.add(nullExp);
         callargs.add(nullExp);
@@ -783,7 +890,11 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         int slot = storageTypeAndIdx.getSecond();
         Ident ident = localVariablesBySlot.get(slot);
 
-        return new AssignmentSimple(loc, variableFactory.localVariable(slot, ident, originalRawOffset), getStackRValue(0));
+        return new AssignmentSimple(
+            loc,
+            variableFactory.localVariable(slot, ident, originalRawOffset),
+            getStackRValue(0)
+        );
     }
 
     private Statement mkRetrieve(VariableFactory variableFactory) {
@@ -799,15 +910,30 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         InferredJavaType inferredJavaType = e.getInferredJavaType();
         if (inferredJavaType.getRawType() == RawJavaType.BOOLEAN) {
             if (inferredJavaType.getSource() == InferredJavaType.Source.LITERAL) {
-                e.getInferredJavaType().useInArithOp(new InferredJavaType(RawJavaType.INT, InferredJavaType.Source.LITERAL), RawJavaType.INT, true);
+                e.getInferredJavaType().useInArithOp(new InferredJavaType(
+                    RawJavaType.INT,
+                    InferredJavaType.Source.LITERAL
+                ), RawJavaType.INT, true);
             } else {
-                e = new TernaryExpression(BytecodeLoc.NONE, new BooleanExpression(e), Literal.INT_ONE, Literal.INT_ZERO);
+                e = new TernaryExpression(
+                    BytecodeLoc.NONE,
+                    new BooleanExpression(e),
+                    Literal.INT_ONE,
+                    Literal.INT_ZERO
+                );
             }
         }
         return e;
     }
 
-    private Statement createStatement(final Method method, DecompilerComments comments, VariableFactory variableFactory, BlockIdentifierFactory blockIdentifierFactory, DCCommonState dcCommonState, TypeHintRecovery typeHintRecovery) {
+    private Statement createStatement(
+        final Method method,
+        DecompilerComments comments,
+        VariableFactory variableFactory,
+        BlockIdentifierFactory blockIdentifierFactory,
+        DCCommonState dcCommonState,
+        TypeHintRecovery typeHintRecovery
+    ) {
         switch (instr) {
             case ALOAD, ILOAD, LLOAD, DLOAD, FLOAD, ALOAD_0, ILOAD_0, LLOAD_0, DLOAD_0, FLOAD_0, ALOAD_1, ILOAD_1, LLOAD_1, DLOAD_1, FLOAD_1, ALOAD_2, ILOAD_2, LLOAD_2, DLOAD_2, FLOAD_2, ALOAD_3, ILOAD_3, LLOAD_3, DLOAD_3, FLOAD_3, ALOAD_WIDE, ILOAD_WIDE, LLOAD_WIDE, FLOAD_WIDE, DLOAD_WIDE -> {
                 return mkRetrieve(variableFactory);
@@ -881,7 +1007,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
                 );
             }
             case ANEWARRAY -> {
-                List<Expression> tmp = new ObjectArrayList<>();
+                ObjectList<Expression> tmp = new ObjectArrayList<>();
                 tmp.add(getStackRValue(0));
                 // Type of cpEntries[0] will be the type of the array slice being allocated.
                 // i.e. for A a[][] = new A[2][] it will be [LA
@@ -956,7 +1082,8 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
                 return new AssignmentSimple(
                     loc,
                     lValue,
-                    new CastExpression(loc,
+                    new CastExpression(
+                        loc,
                         new InferredJavaType(instr.getRawJavaType(), InferredJavaType.Source.INSTRUCTION),
                         rValue
                     )
@@ -999,7 +1126,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             case INVOKESTATIC -> {
                 ConstantPoolEntryMethodRef function = (ConstantPoolEntryMethodRef) cpEntries[0];
                 MethodPrototype methodPrototype = function.getMethodPrototype();
-                List<Expression> args = getNStackRValuesAsExpressions(stackConsumed.size());
+                ObjectList<Expression> args = getNStackRValuesAsExpressions(stackConsumed.size());
                 methodPrototype.tightenArgs(null, args);
 
                 // FIXME - BIND RESULT.
@@ -1355,7 +1482,8 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         if (cpe instanceof ConstantPoolEntryMethodType) {
             return getMethodTypeLiteral((ConstantPoolEntryMethodType) cpe);
         }
-        throw new ConfusedCFRException("Constant pool entry is neither literal, dynamic literal, method handle or method type.");
+        throw new ConfusedCFRException(
+            "Constant pool entry is neither literal, dynamic literal, method handle or method type.");
     }
 
     private Expression getMethodTypeLiteral(ConstantPoolEntryMethodType cpe) {
@@ -1371,10 +1499,30 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         ClassFile classFile = method.getClassFile();
         ConstantPoolEntryNameAndType nameAndType = cpe.getNameAndTypeEntry();
         int idx = cpe.getBootstrapMethodAttrIndex();
-        MethodPrototype dynamicProto = new MethodPrototype(cp.getDCCommonState(), classFile, classFile.getClassType(), "???",
-                false, Method.MethodConstructor.NOT, Collections.emptyList(), Collections.emptyList(),
-                nameAndType.decodeTypeTok(), Collections.emptyList(), false, new VariableNamerDefault(), false, "");
-        Statement s = buildInvokeDynamic(method.getClassFile(), cp.getDCCommonState(), nameAndType.getName().getValue(), dynamicProto, idx, true, comments);
+        MethodPrototype dynamicProto = new MethodPrototype(cp.getDCCommonState(),
+            classFile,
+            classFile.getClassType(),
+            "???",
+            false,
+            Method.MethodConstructor.NOT,
+            ObjectLists.emptyList(),
+            ObjectLists.emptyList(),
+            nameAndType.decodeTypeTok(),
+            ObjectLists.emptyList(),
+            false,
+            new VariableNamerDefault(),
+            false,
+            ""
+        );
+        Statement s = buildInvokeDynamic(
+            method.getClassFile(),
+            cp.getDCCommonState(),
+            nameAndType.getName().getValue(),
+            dynamicProto,
+            idx,
+            true,
+            comments
+        );
         if (!(s instanceof AssignmentSimple as)) {
             throw new ConfusedCFRException("Expected a result from a dynamic literal");
         }
@@ -1394,8 +1542,8 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         return stackEntry.getLValue();
     }
 
-    private List<Expression> getNStackRValuesAsExpressions(int count) {
-        List<Expression> res = new ObjectArrayList<>();
+    private ObjectList<Expression> getNStackRValuesAsExpressions(int count) {
+        ObjectList<Expression> res = new ObjectArrayList<>();
         for (int i = count - 1; i >= 0; --i) {
             res.add(getStackRValue(i));
         }
@@ -1408,7 +1556,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
     }
 
 
-    public static DecompilerComment populateStackInfo(List<Op02WithProcessedDataAndRefs> op2list, Method method) {
+    public static DecompilerComment populateStackInfo(ObjectList<Op02WithProcessedDataAndRefs> op2list, Method method) {
         Set<DecompilerComment> comments = SetFactory.newSet();
         // We might have two passes if there are JSRS.  Reset.
         for (Op02WithProcessedDataAndRefs op : op2list) {
@@ -1438,7 +1586,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         return SetUtil.getSingle(comments);
     }
 
-    public static void unlinkUnreachable(List<Op02WithProcessedDataAndRefs> op2list) {
+    public static void unlinkUnreachable(ObjectList<Op02WithProcessedDataAndRefs> op2list) {
 
         final Set<Op02WithProcessedDataAndRefs> reached = SetFactory.newSet();
         GraphVisitor<Op02WithProcessedDataAndRefs> reachableVisitor =
@@ -1491,13 +1639,26 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         ssaIdentifiers = new SSAIdentifiers<>();
     }
 
-    private static void assignSSAIdentifiers(SSAIdentifierFactory<Slot, StackType> ssaIdentifierFactory, Method method, DecompilerComments comments, List<Op02WithProcessedDataAndRefs> statements, BytecodeMeta bytecodeMeta) {
-        NavigableMap<Integer, JavaTypeInstance> missing = assignIdentsAndGetMissingMap(ssaIdentifierFactory, method, statements, bytecodeMeta, true);
+    private static void assignSSAIdentifiers(
+        SSAIdentifierFactory<Slot, StackType> ssaIdentifierFactory,
+        Method method,
+        DecompilerComments comments,
+        ObjectList<Op02WithProcessedDataAndRefs> statements,
+        BytecodeMeta bytecodeMeta
+    ) {
+        NavigableMap<Integer, JavaTypeInstance> missing = assignIdentsAndGetMissingMap(
+            ssaIdentifierFactory,
+            method,
+            statements,
+            bytecodeMeta,
+            true
+        );
 
         if (missing.isEmpty()) return;
 
         if (!method.getConstructorFlag().isConstructor()) {
-            throw new IllegalStateException("Invisible function parameters on a non-constructor (or reads of uninitialised local variables).");
+            throw new IllegalStateException(
+                "Invisible function parameters on a non-constructor (or reads of uninitialised local variables).");
         }
         /*
          * our signature doesn't match the actual arguments.
@@ -1516,13 +1677,23 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
              * The (now known) missing arguments should be in the first available slots.
              * Add them to the method prototype, and re-scan.
              */
-            method.getMethodPrototype().setNonMethodScopedSyntheticConstructorParameters(method.getConstructorFlag(), comments, missing);
+            method.getMethodPrototype().setNonMethodScopedSyntheticConstructorParameters(
+                method.getConstructorFlag(),
+                comments,
+                missing
+            );
         }
 
         assignSSAIdentifiersInner(ssaIdentifierFactory, method, statements, bytecodeMeta, true);
     }
 
-    private static NavigableMap<Integer, JavaTypeInstance> assignIdentsAndGetMissingMap(SSAIdentifierFactory<Slot, StackType> ssaIdentifierFactory, Method method, List<Op02WithProcessedDataAndRefs> statements, BytecodeMeta bytecodeMeta, boolean useProtoArgs) {
+    private static NavigableMap<Integer, JavaTypeInstance> assignIdentsAndGetMissingMap(
+        SSAIdentifierFactory<Slot, StackType> ssaIdentifierFactory,
+        Method method,
+        ObjectList<Op02WithProcessedDataAndRefs> statements,
+        BytecodeMeta bytecodeMeta,
+        boolean useProtoArgs
+    ) {
         assignSSAIdentifiersInner(ssaIdentifierFactory, method, statements, bytecodeMeta, useProtoArgs);
 
         /*
@@ -1543,15 +1714,22 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         return missing;
     }
 
-    private static void assignSSAIdentifiersInner(SSAIdentifierFactory<Slot, StackType> ssaIdentifierFactory, Method method, List<Op02WithProcessedDataAndRefs> statements, BytecodeMeta bytecodeMeta, boolean useProtoArgs) {
+    private static void assignSSAIdentifiersInner(
+        SSAIdentifierFactory<Slot, StackType> ssaIdentifierFactory,
+        Method method,
+        ObjectList<Op02WithProcessedDataAndRefs> statements,
+        BytecodeMeta bytecodeMeta,
+        boolean useProtoArgs
+    ) {
         /*
          * before we do anything, we need to generate identifiers for the parameters.
          *
          * The problem is if we have actual parameters, AND hidden synthetics - in this case
          * we will mark our actual parameters as eliding our synthetics
          */
-        Map<Slot, SSAIdent> idents = useProtoArgs ? method.getMethodPrototype().collectInitialSlotUsage(ssaIdentifierFactory) :
-                MapFactory.newMap();
+        Map<Slot, SSAIdent> idents = useProtoArgs ? method.getMethodPrototype().collectInitialSlotUsage(
+            ssaIdentifierFactory) :
+            MapFactory.newMap();
 
         for (Op02WithProcessedDataAndRefs statement : statements) {
             statement.collectLocallyMutatedVariables(ssaIdentifierFactory);
@@ -1613,8 +1791,12 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
      * Detect that this aliasing is never READ, and therefore these two can be considered to be seperate.
      */
     @SuppressWarnings("unused")
-    private static void removeUnusedSSAIdentifiers(SSAIdentifierFactory<Slot, StackType> ssaIdentifierFactory, Method method, List<Op02WithProcessedDataAndRefs> op2list) {
-        final List<Op02WithProcessedDataAndRefs> endPoints = new ObjectArrayList<>();
+    private static void removeUnusedSSAIdentifiers(
+        SSAIdentifierFactory<Slot, StackType> ssaIdentifierFactory,
+        Method method,
+        ObjectList<Op02WithProcessedDataAndRefs> op2list
+    ) {
+        final ObjectList<Op02WithProcessedDataAndRefs> endPoints = new ObjectArrayList<>();
         GraphVisitor<Op02WithProcessedDataAndRefs> gv = new GraphVisitorDFS<>(
             op2list.get(0),
             (arg1, arg2) -> {
@@ -1633,7 +1815,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
 
         SSAIdentifiers<Slot> initial = new SSAIdentifiers<>(op2list.get(0).ssaIdentifiers);
 
-        List<Op02WithProcessedDataAndRefs> storeWithoutRead = new ObjectArrayList<>();
+        ObjectList<Op02WithProcessedDataAndRefs> storeWithoutRead = new ObjectArrayList<>();
         while (!toProcess.isEmpty()) {
             Op02WithProcessedDataAndRefs node = toProcess.removeFirst();
 
@@ -1713,7 +1895,12 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         op2list.get(0).ssaIdentifiers.mergeWith(initial);
     }
 
-    public static void discoverStorageLiveness(Method method, DecompilerComments comments, List<Op02WithProcessedDataAndRefs> op2list, BytecodeMeta bytecodeMeta) {
+    public static void discoverStorageLiveness(
+        Method method,
+        DecompilerComments comments,
+        ObjectList<Op02WithProcessedDataAndRefs> op2list,
+        BytecodeMeta bytecodeMeta
+    ) {
         SSAIdentifierFactory<Slot, StackType> ssaIdentifierFactory = new SSAIdentifierFactory<>(arg -> arg.javaTypeInstance().getStackType());
 
         assignSSAIdentifiers(ssaIdentifierFactory, method, comments, op2list, bytecodeMeta);
@@ -1884,12 +2071,18 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
     }
 
 
-    public static List<Op03SimpleStatement> convertToOp03List(List<Op02WithProcessedDataAndRefs> op2list,
-                                                              final Method method, final VariableFactory variableFactory, final BlockIdentifierFactory blockIdentifierFactory, final DCCommonState dcCommonState, final DecompilerComments comments,
-                                                              final TypeHintRecovery typeHintRecovery) {
+    public static ObjectList<Op03SimpleStatement> convertToOp03List(
+        ObjectList<Op02WithProcessedDataAndRefs> op2list,
+        final Method method,
+        final VariableFactory variableFactory,
+        final BlockIdentifierFactory blockIdentifierFactory,
+        final DCCommonState dcCommonState,
+        final DecompilerComments comments,
+        final TypeHintRecovery typeHintRecovery
+    ) {
 
 
-        final List<Op03SimpleStatement> op03SimpleParseNodesTmp = new ObjectArrayList<>();
+        final ObjectList<Op03SimpleStatement> op03SimpleParseNodesTmp = new ObjectArrayList<>();
         // Convert the op2s into a simple set of statements.
         // Do these need to be processed in a sensible order?  Could just iterate?
 
@@ -1903,7 +2096,8 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             (arg1, arg2) -> {
                 Op03SimpleStatement res = new Op03SimpleStatement(
                     arg1,
-                    arg1.createStatement(method,
+                    arg1.createStatement(
+                        method,
                         comments,
                         variableFactory,
                         blockIdentifierFactory,
@@ -1967,12 +2161,13 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
      * then we need to find where this /should/ go.
      */
     private static Op02WithProcessedDataAndRefs adjustOrdering(
-            Map<InstrIndex, List<ExceptionTempStatement>> insertions,
-            Op02WithProcessedDataAndRefs infrontOf,
-            ExceptionGroup exceptionGroup,
-            Op02WithProcessedDataAndRefs newNode) {
+        Map<InstrIndex, ObjectList<ExceptionTempStatement>> insertions,
+        Op02WithProcessedDataAndRefs infrontOf,
+        ExceptionGroup exceptionGroup,
+        Op02WithProcessedDataAndRefs newNode
+    ) {
         InstrIndex idxInfrontOf = infrontOf.getIndex();
-        List<ExceptionTempStatement> collides = insertions.get(idxInfrontOf);
+        ObjectList<ExceptionTempStatement> collides = insertions.get(idxInfrontOf);
         ExceptionTempStatement exceptionTempStatement = new ExceptionTempStatement(exceptionGroup, newNode);
         if (collides.isEmpty()) {
             collides.add(exceptionTempStatement);
@@ -2015,8 +2210,8 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         return afterThis;
     }
 
-    private static void tidyMultipleInsertionIdentifiers(Collection<List<ExceptionTempStatement>> etsList) {
-        for (List<ExceptionTempStatement> ets : etsList) {
+    private static void tidyMultipleInsertionIdentifiers(Collection<ObjectList<ExceptionTempStatement>> etsList) {
+        for (ObjectList<ExceptionTempStatement> ets : etsList) {
             /*
              * For each of these, find the ones which mark try statements, and remove that block from anything infront.
              */
@@ -2050,19 +2245,19 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         return iinclusiveLastIndex;
     }
 
-    public static List<Op02WithProcessedDataAndRefs> insertExceptionBlocks(
-            List<Op02WithProcessedDataAndRefs> op2list,
-            ExceptionAggregator exceptions,
-            Map<Integer, Integer> lutByOffset,
-            ConstantPool cp,
-            long codeLength,
-            Options options
+    public static ObjectList<Op02WithProcessedDataAndRefs> insertExceptionBlocks(
+        ObjectList<Op02WithProcessedDataAndRefs> op2list,
+        ExceptionAggregator exceptions,
+        Map<Integer, Integer> lutByOffset,
+        ConstantPool cp,
+        long codeLength,
+        Options options
     ) {
         int originalInstrCount = op2list.size();
 
         if (exceptions.getExceptionsGroups().isEmpty()) return op2list;
 
-        Map<InstrIndex, List<ExceptionTempStatement>> insertions = MapFactory.newLazyMap(
+        Map<InstrIndex, ObjectList<ExceptionTempStatement>> insertions = MapFactory.newLazyMap(
             ignore -> new ObjectArrayList<>());
 
 //        Iterator<ExceptionGroup> iter = exceptions.getExceptionsGroups().iterator();
@@ -2080,7 +2275,12 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         for (ExceptionGroup exceptionGroup : exceptions.getExceptionsGroups()) {
             BlockIdentifier tryBlockIdentifier = exceptionGroup.getTryBlockIdentifier();
             int originalIndex = lutByOffset.get(exceptionGroup.getBytecodeIndexFrom());
-            int exclusiveLastIndex = getLastIndex(lutByOffset, originalInstrCount, codeLength, exceptionGroup.getBytecodeIndexTo());
+            int exclusiveLastIndex = getLastIndex(
+                lutByOffset,
+                originalInstrCount,
+                codeLength,
+                exceptionGroup.getBytecodeIndexTo()
+            );
 
             for (int x = originalIndex; x < exclusiveLastIndex; ++x) {
                 op2list.get(x).containedInTheseBlocks.add(tryBlockIdentifier);
@@ -2093,15 +2293,20 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         // only usable here until we mess around with the instruction structure, so do it early!
         for (ExceptionGroup exceptionGroup : exceptions.getExceptionsGroups()) {
 
-            List<ExceptionGroup.Entry> rawes = exceptionGroup.getEntries();
+            ObjectList<ExceptionGroup.Entry> rawes = exceptionGroup.getEntries();
             int originalIndex = lutByOffset.get(exceptionGroup.getBytecodeIndexFrom());
             Op02WithProcessedDataAndRefs startInstruction = op2list.get(originalIndex);
 
-            int inclusiveLastIndex = getLastIndex(lutByOffset, originalInstrCount, codeLength, exceptionGroup.getBytecodeIndexTo());
+            int inclusiveLastIndex = getLastIndex(
+                lutByOffset,
+                originalInstrCount,
+                codeLength,
+                exceptionGroup.getBytecodeIndexTo()
+            );
             Op02WithProcessedDataAndRefs lastTryInstruction = op2list.get(inclusiveLastIndex);
 
 
-            List<Pair<Op02WithProcessedDataAndRefs, ExceptionGroup.Entry>> handlerTargets = new ObjectArrayList<>();
+            ObjectList<Pair<Op02WithProcessedDataAndRefs, ExceptionGroup.Entry>> handlerTargets = new ObjectArrayList<>();
             for (ExceptionGroup.Entry exceptionEntry : rawes) {
                 int handler = exceptionEntry.getBytecodeIndexHandler();
                 int handlerIndex = lutByOffset.get(handler);
@@ -2117,7 +2322,15 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             // Unlink startInstruction from its source, add a new instruction in there, which has a
             // default target of startInstruction, but additional targets of handlerTargets.
             Op02WithProcessedDataAndRefs tryOp =
-                    new Op02WithProcessedDataAndRefs(JVMInstr.FAKE_TRY, null, startInstruction.getIndex().justBefore(), cp, null, -1, BytecodeLoc.NONE);
+                new Op02WithProcessedDataAndRefs(
+                    JVMInstr.FAKE_TRY,
+                    null,
+                    startInstruction.getIndex().justBefore(),
+                    cp,
+                    null,
+                    -1,
+                    BytecodeLoc.NONE
+                );
             // It might turn out we want to insert it before something which has already been added BEFORE startInstruction!
             startInstruction = adjustOrdering(insertions, startInstruction, exceptionGroup, tryOp);
             tryOp.containedInTheseBlocks.addAll(startInstruction.containedInTheseBlocks);
@@ -2129,13 +2342,13 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
 //            if (startInstruction.getSources().isEmpty()) {
 //                throw new ConfusedCFRException("Can't install exception handler infront of nothing");
 //            }
-            List<Op02WithProcessedDataAndRefs> removeThese = new ObjectArrayList<>();
+            ObjectList<Op02WithProcessedDataAndRefs> removeThese = new ObjectArrayList<>();
             for (Op02WithProcessedDataAndRefs source : startInstruction.getSources()) {
                 // If it's a back jump from WITHIN the try block, we don't want to repoint at 'try'.
                 // However, we haven't yet 'splayed' the try block out to cover extra instructions, so we might
                 // miss something.....
                 if (startInstruction.getIndex().isBackJumpFrom(source.getIndex()) &&
-                        !lastTryInstruction.getIndex().isBackJumpFrom(source.getIndex())) {
+                    !lastTryInstruction.getIndex().isBackJumpFrom(source.getIndex())) {
                     // it was a backjump inside the block.
                 } else {
                     source.replaceTarget(startInstruction, tryOp);
@@ -2155,9 +2368,9 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             for (Pair<Op02WithProcessedDataAndRefs, ExceptionGroup.Entry> catchTargets : handlerTargets) {
                 Op02WithProcessedDataAndRefs tryTarget = catchTargets.getFirst();
                 /*
-                * tryTarget should not have a previous FAKE_CATCH source.
-                */
-                List<Op02WithProcessedDataAndRefs> tryTargetSources = tryTarget.getSources();
+                 * tryTarget should not have a previous FAKE_CATCH source.
+                 */
+                ObjectList<Op02WithProcessedDataAndRefs> tryTargetSources = tryTarget.getSources();
                 Op02WithProcessedDataAndRefs preCatchOp = null;
 
                 boolean addFakeCatch = false;
@@ -2195,7 +2408,15 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
                     }
                     // Add a fake catch here.  This injects a stack value, which will later be popped into the
                     // actual exception value.  (probably with an astore... but not neccessarily!)
-                    preCatchOp = new Op02WithProcessedDataAndRefs(JVMInstr.FAKE_CATCH, data, tryTarget.getIndex().justBefore(), cp, null, -1, BytecodeLoc.NONE);
+                    preCatchOp = new Op02WithProcessedDataAndRefs(
+                        JVMInstr.FAKE_CATCH,
+                        data,
+                        tryTarget.getIndex().justBefore(),
+                        cp,
+                        null,
+                        -1,
+                        BytecodeLoc.NONE
+                    );
                     tryTarget = adjustOrdering(insertions, tryTarget, exceptionGroup, preCatchOp);
                     preCatchOp.containedInTheseBlocks.addAll(tryTarget.getContainedInTheseBlocks());
                     preCatchOp.addTarget(tryTarget);
@@ -2225,7 +2446,12 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
          */
         for (ExceptionGroup exceptionGroup : exceptions.getExceptionsGroups()) {
             BlockIdentifier tryBlockIdentifier = exceptionGroup.getTryBlockIdentifier();
-            int beforeLastIndex = getLastIndex(lutByOffset, originalInstrCount, codeLength, exceptionGroup.getBytecodeIndexTo()) - 1;
+            int beforeLastIndex = getLastIndex(
+                lutByOffset,
+                originalInstrCount,
+                codeLength,
+                exceptionGroup.getBytecodeIndexTo()
+            ) - 1;
 
             Op02WithProcessedDataAndRefs lastStatement = op2list.get(beforeLastIndex);
             Set<BlockIdentifier> blocks = SetFactory.newSet(lastStatement.containedInTheseBlocks);
@@ -2260,14 +2486,14 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         }
 
         /* For all lists where we've got multiple fake insertions in a single location now, make sure that
-        * try block insertions aren't referenced before they exist.  I.e. for each try block in the ExceptionTemps
-        * remove it from previous ones.
-        */
+         * try block insertions aren't referenced before they exist.  I.e. for each try block in the ExceptionTemps
+         * remove it from previous ones.
+         */
         tidyMultipleInsertionIdentifiers(insertions.values());
         return op2list;
     }
 
-    public List<BlockIdentifier> getContainedInTheseBlocks() {
+    public ObjectList<BlockIdentifier> getContainedInTheseBlocks() {
         return containedInTheseBlocks;
     }
 
@@ -2298,14 +2524,14 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
      *
      * PROBLEM : what if a store is a common target of a goto after two JSR targets?
      */
-    public static boolean processJSR(List<Op02WithProcessedDataAndRefs> ops) {
-        List<Op02WithProcessedDataAndRefs> jsrInstrs = justJSRs(ops);
+    public static boolean processJSR(ObjectList<Op02WithProcessedDataAndRefs> ops) {
+        ObjectList<Op02WithProcessedDataAndRefs> jsrInstrs = justJSRs(ops);
         if (jsrInstrs.isEmpty()) return false;
         processJSRs(jsrInstrs, ops);
         return true;
     }
 
-    private static List<Op02WithProcessedDataAndRefs> justJSRs(List<Op02WithProcessedDataAndRefs> ops) {
+    private static ObjectList<Op02WithProcessedDataAndRefs> justJSRs(ObjectList<Op02WithProcessedDataAndRefs> ops) {
         return Functional.filter(ops, Op02WithProcessedDataAndRefs::isJSR);
     }
 
@@ -2323,7 +2549,10 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         return op;
     }
 
-    private static void processJSRs(List<Op02WithProcessedDataAndRefs> jsrs, List<Op02WithProcessedDataAndRefs> ops) {
+    private static void processJSRs(
+        ObjectList<Op02WithProcessedDataAndRefs> jsrs,
+        ObjectList<Op02WithProcessedDataAndRefs> ops
+    ) {
         /* try seeing if we have multiple JSRs that jump to the same place, and afterwards end up in the
          * same place also - if so, these are all effectively a single JSR, and all but one can be replaced with a
          * goto the first.
@@ -2332,16 +2561,17 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
          */
         Map<Op02WithProcessedDataAndRefs, Integer> idxOf = Functional.indexedIdentityMapOf(ops);
 
-        Map<Op02WithProcessedDataAndRefs, List<Op02WithProcessedDataAndRefs>> targets = getJsrsWithCommonTarget(jsrs);
+        Map<Op02WithProcessedDataAndRefs, ObjectList<Op02WithProcessedDataAndRefs>> targets = getJsrsWithCommonTarget(
+            jsrs);
         nextjsr:
-        for (Map.Entry<Op02WithProcessedDataAndRefs, List<Op02WithProcessedDataAndRefs>> entry : targets.entrySet()) {
-            List<Op02WithProcessedDataAndRefs> onetarget = entry.getValue();
+        for (Map.Entry<Op02WithProcessedDataAndRefs, ObjectList<Op02WithProcessedDataAndRefs>> entry : targets.entrySet()) {
+            ObjectList<Op02WithProcessedDataAndRefs> onetarget = entry.getValue();
             if (onetarget.size() < 2) continue;
             int idx = idxOf.get(onetarget.get(0));
             // this shouldn't be possible.
             if (idx >= ops.size()) continue;
             Op02WithProcessedDataAndRefs eventual = followNopGoto(ops.get(idx + 1));
-            for (int x = 1;x<onetarget.size();++x) {
+            for (int x = 1; x < onetarget.size(); ++x) {
                 idx = idxOf.get(onetarget.get(x));
                 // this shouldn't be possible.
                 if (idx >= ops.size()) continue nextjsr;
@@ -2350,8 +2580,8 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             }
             // All the results after these jsrs go to the same place.
             // so let's make all but one jump to the last JSR.
-            Op02WithProcessedDataAndRefs saveJsr = onetarget.get(onetarget.size()-1);
-            for (int x=0;x<onetarget.size()-1;++x) {
+            Op02WithProcessedDataAndRefs saveJsr = onetarget.get(onetarget.size() - 1);
+            for (int x = 0; x < onetarget.size() - 1; ++x) {
                 Op02WithProcessedDataAndRefs j = onetarget.get(x);
                 j.targets.get(0).removeSource(j);
                 j.targets.clear();
@@ -2380,7 +2610,8 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         targets = getJsrsWithCommonTarget(jsrs);
         Set<Op02WithProcessedDataAndRefs> inlineCandidates = SetFactory.newSet();
         for (final Op02WithProcessedDataAndRefs target : targets.keySet()) {
-            GraphVisitor<Op02WithProcessedDataAndRefs> gv = new GraphVisitorDFS<Op02WithProcessedDataAndRefs>(target.getTargets(),
+            GraphVisitor<Op02WithProcessedDataAndRefs> gv = new GraphVisitorDFS<Op02WithProcessedDataAndRefs>(
+                target.getTargets(),
                 (arg1, arg2) -> {
                     if (isRET(arg1)) {
                         return;
@@ -2418,12 +2649,13 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         for (final Op02WithProcessedDataAndRefs jsr : jsrs) {
             if (!isJSR(jsr)) continue;
             final Op02WithProcessedDataAndRefs target = jsr.targets.get(0);
-            List<Op02WithProcessedDataAndRefs> sources = targets.get(target);
+            ObjectList<Op02WithProcessedDataAndRefs> sources = targets.get(target);
             if (sources == null || sources.size() > 1) continue;
 
             // Process everything, but no longer abort if we cycle, just don't retrace.
-            final List<Op02WithProcessedDataAndRefs> rets = new ObjectArrayList<>();
-            GraphVisitor<Op02WithProcessedDataAndRefs> gv = new GraphVisitorDFS<Op02WithProcessedDataAndRefs>(target.getTargets(),
+            final ObjectList<Op02WithProcessedDataAndRefs> rets = new ObjectArrayList<>();
+            GraphVisitor<Op02WithProcessedDataAndRefs> gv = new GraphVisitorDFS<Op02WithProcessedDataAndRefs>(
+                target.getTargets(),
                 (arg1, arg2) -> {
                     if (isRET(arg1)) {
                         rets.add(arg1);
@@ -2464,17 +2696,22 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         // result not used for anything any more - remove?
     }
 
-    private static Map<Op02WithProcessedDataAndRefs, List<Op02WithProcessedDataAndRefs>> getJsrsWithCommonTarget(List<Op02WithProcessedDataAndRefs> jsrs) {
+    private static Map<Op02WithProcessedDataAndRefs, ObjectList<Op02WithProcessedDataAndRefs>> getJsrsWithCommonTarget(
+        ObjectList<Op02WithProcessedDataAndRefs> jsrs
+    ) {
         return Functional.groupToMapBy(jsrs, arg -> arg.getTargets().get(0));
     }
 
     // A very simple (and impossibly naive VM simulator which can only step over deliberate JSR obfuscations).
     // the only thing we allow on the operand stack is RETADDR.
-    private static boolean SimulateJSR(Op02WithProcessedDataAndRefs start, List<Op02WithProcessedDataAndRefs> ops) {
+    private static boolean SimulateJSR(
+        Op02WithProcessedDataAndRefs start,
+        ObjectList<Op02WithProcessedDataAndRefs> ops
+    ) {
         Op02WithProcessedDataAndRefs currInstr = start;
         Stack<Op02WithProcessedDataAndRefs> stackJumpLocs = StackFactory.newStack();
         Map<Integer, Op02WithProcessedDataAndRefs> stackJumpLocLocals = MapFactory.newMap();
-        List<Op02WithProcessedDataAndRefs> processed = new ObjectArrayList<>();
+        ObjectList<Op02WithProcessedDataAndRefs> processed = new ObjectArrayList<>();
         Op02WithProcessedDataAndRefs afterThis = null;
         // ShitSim(TM)(C)(R).
         // We're never going to be able to generally model this, but we can catch some cases.
@@ -2525,16 +2762,17 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
                     break;
                 case SWAP:
                     if (stackJumpLocs.size() < 2) return false;
-                    {
-                        Op02WithProcessedDataAndRefs tmp1 = stackJumpLocs.pop();
-                        Op02WithProcessedDataAndRefs tmp2 = stackJumpLocs.pop();
-                        stackJumpLocs.push(tmp1);
-                        stackJumpLocs.push(tmp2);
-                    }
-                    break;
+                {
+                    Op02WithProcessedDataAndRefs tmp1 = stackJumpLocs.pop();
+                    Op02WithProcessedDataAndRefs tmp2 = stackJumpLocs.pop();
+                    stackJumpLocs.push(tmp1);
+                    stackJumpLocs.push(tmp2);
+                }
+                break;
                 case RET:
                 case RET_WIDE: {
-                    int idx = currInstr.getInstr() == JVMInstr.RET ? currInstr.getInstrArgU1(0) : currInstr.getInstrArgShort(1);
+                    int idx = currInstr.getInstr() == JVMInstr.RET ? currInstr.getInstrArgU1(0) : currInstr.getInstrArgShort(
+                        1);
                     afterThis = stackJumpLocLocals.get(idx);
                     if (afterThis == null) return false;
                     break;
@@ -2560,9 +2798,9 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             // Check that if we're visiting any JSRS in order, they're the same order as those left on the stack.
             // we can ignore any not on the stack, and nop them (as gotos).
             int remainIdx = 0;
-            List<Op02WithProcessedDataAndRefs> canGoto = new ObjectArrayList<>();
+            ObjectList<Op02WithProcessedDataAndRefs> canGoto = new ObjectArrayList<>();
             // (skipping one we want to remove).
-            for (int x=1, len=processed.size();x<len;++x) {
+            for (int x = 1, len = processed.size(); x < len; ++x) {
                 Op02WithProcessedDataAndRefs node = processed.get(x);
                 if (isJSR(node)) {
                     if (remainIdx < remaining.length && node == remaining[remainIdx]) {
@@ -2579,7 +2817,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             }
 
             int idxStart = ops.indexOf(start);
-            Op02WithProcessedDataAndRefs afterStart = ops.get(idxStart+1);
+            Op02WithProcessedDataAndRefs afterStart = ops.get(idxStart + 1);
             start.instr = JVMInstr.GOTO;
             currInstr.instr = JVMInstr.GOTO;
             currInstr.addTarget(afterStart);
@@ -2592,17 +2830,21 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         return false;
     }
 
-    private static void inlineReplaceJSR(Op02WithProcessedDataAndRefs jsrCall, List<Op02WithProcessedDataAndRefs> ops) {
+    private static void inlineReplaceJSR(
+        Op02WithProcessedDataAndRefs jsrCall,
+        ObjectList<Op02WithProcessedDataAndRefs> ops
+    ) {
         Op02WithProcessedDataAndRefs jsrTarget = jsrCall.getTargets().get(0);
 
         Op02WithProcessedDataAndRefs newGoto = new Op02WithProcessedDataAndRefs(
-                JVMInstr.GOTO,
-                null,
-                jsrCall.getIndex().justAfter(),
-                jsrCall.cp,
-                null,
-                -1,
-                BytecodeLoc.NONE); // offset is a fake, obviously, as it's synthetic.
+            JVMInstr.GOTO,
+            null,
+            jsrCall.getIndex().justAfter(),
+            jsrCall.cp,
+            null,
+            -1,
+            BytecodeLoc.NONE
+        ); // offset is a fake, obviously, as it's synthetic.
         jsrTarget.removeSource(jsrCall);
         jsrCall.removeTarget(jsrTarget);
         newGoto.addTarget(jsrTarget);
@@ -2614,27 +2856,30 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         ops.add(jsrIdx + 1, newGoto);
     }
 
-    private static void inlineJSR(Op02WithProcessedDataAndRefs start, Set<Op02WithProcessedDataAndRefs> nodes,
-                                  List<Op02WithProcessedDataAndRefs> ops) {
-        List<Op02WithProcessedDataAndRefs> instrs = new ObjectArrayList<>(nodes);
+    private static void inlineJSR(
+        Op02WithProcessedDataAndRefs start, Set<Op02WithProcessedDataAndRefs> nodes,
+        ObjectList<Op02WithProcessedDataAndRefs> ops
+    ) {
+        ObjectList<Op02WithProcessedDataAndRefs> instrs = new ObjectArrayList<>(nodes);
         instrs.sort(Comparator.comparing(Op02WithProcessedDataAndRefs::getIndex));
         ops.removeAll(instrs);
         // Take a copy, as we're going to be hacking this....
         Collection<Op02WithProcessedDataAndRefs> original = start.getSources();
-        List<Op02WithProcessedDataAndRefs> sources = new ObjectArrayList<>(original);
+        ObjectList<Op02WithProcessedDataAndRefs> sources = new ObjectArrayList<>(original);
         //
         // Now, insert an ACONST_NULL infront of the first instruction, to fake production of the original
         // stack value (this avoids us having inconsistent local usage, alternately we could simply pretend it
         // never existed, but then we'd have to find the store/pop if it happened much later on.
         //
         Op02WithProcessedDataAndRefs newStart = new Op02WithProcessedDataAndRefs(
-                JVMInstr.ACONST_NULL,
-                null,
-                start.getIndex().justBefore(),
-                start.cp,
-                null,
-                -1,
-                BytecodeLoc.NONE); // offset is a fake, obviously, as it's synthetic.
+            JVMInstr.ACONST_NULL,
+            null,
+            start.getIndex().justBefore(),
+            start.cp,
+            null,
+            -1,
+            BytecodeLoc.NONE
+        ); // offset is a fake, obviously, as it's synthetic.
         instrs.add(0, newStart);
         start.getSources().clear();
         start.addSource(newStart);
@@ -2645,7 +2890,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             source.removeTarget(start);
             // We take a copy of the ENTIRE instrs block, and add it inline after the JSR. The JSR is replaced
             // with a NOP.
-            List<Op02WithProcessedDataAndRefs> instrCopy = copyBlock(instrs, source.getIndex());
+            ObjectList<Op02WithProcessedDataAndRefs> instrCopy = copyBlock(instrs, source.getIndex());
             // Find each RET in instrCopy, and point them at the node immediately following source.
             // If there's no following instruction, there can be no ret. (cunning, eh?)
             int idx = ops.indexOf(source) + 1;
@@ -2671,8 +2916,11 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         }
     }
 
-    private static List<Op02WithProcessedDataAndRefs> copyBlock(List<Op02WithProcessedDataAndRefs> orig, InstrIndex afterThis) {
-        List<Op02WithProcessedDataAndRefs> output = new ObjectArrayList<>(orig.size());
+    private static ObjectList<Op02WithProcessedDataAndRefs> copyBlock(
+        ObjectList<Op02WithProcessedDataAndRefs> orig,
+        InstrIndex afterThis
+    ) {
+        ObjectList<Op02WithProcessedDataAndRefs> output = new ObjectArrayList<>(orig.size());
         Map<Op02WithProcessedDataAndRefs, Op02WithProcessedDataAndRefs> fromTo = MapFactory.newMap();
         for (Op02WithProcessedDataAndRefs in : orig) {
             Op02WithProcessedDataAndRefs copy = new Op02WithProcessedDataAndRefs(in);
@@ -2695,7 +2943,11 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         return output;
     }
 
-    private static void tieUpRelations(List<Op02WithProcessedDataAndRefs> out, List<Op02WithProcessedDataAndRefs> in, Map<Op02WithProcessedDataAndRefs, Op02WithProcessedDataAndRefs> map) {
+    private static void tieUpRelations(
+        ObjectList<Op02WithProcessedDataAndRefs> out,
+        ObjectList<Op02WithProcessedDataAndRefs> in,
+        Map<Op02WithProcessedDataAndRefs, Op02WithProcessedDataAndRefs> map
+    ) {
         out.clear();
         for (Op02WithProcessedDataAndRefs i : in) {
             Op02WithProcessedDataAndRefs mapped = map.get(i);

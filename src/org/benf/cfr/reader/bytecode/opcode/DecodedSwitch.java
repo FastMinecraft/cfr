@@ -1,8 +1,8 @@
 package org.benf.cfr.reader.bytecode.opcode;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public interface DecodedSwitch {
 
-    List<DecodedSwitchEntry> getJumpTargets();
+    ObjectList<DecodedSwitchEntry> getJumpTargets();
 }

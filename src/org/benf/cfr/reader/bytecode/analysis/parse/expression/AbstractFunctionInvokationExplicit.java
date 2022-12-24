@@ -13,7 +13,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.SSAIdentifiers;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 /**
  * A call that doesn't necessarily exist, for a type we don't necessarily have.
@@ -21,9 +21,9 @@ import java.util.List;
 public abstract class AbstractFunctionInvokationExplicit extends AbstractExpression {
     private final JavaTypeInstance clazz;
     private final String method;
-    private final List<Expression> args;
+    private final ObjectList<Expression> args;
 
-    AbstractFunctionInvokationExplicit(BytecodeLoc loc, InferredJavaType res, JavaTypeInstance clazz, String method, List<Expression> args) {
+    AbstractFunctionInvokationExplicit(BytecodeLoc loc, InferredJavaType res, JavaTypeInstance clazz, String method, ObjectList<Expression> args) {
         super(loc, res);
         this.clazz = clazz;
         this.method = method;
@@ -38,7 +38,7 @@ public abstract class AbstractFunctionInvokationExplicit extends AbstractExpress
         return method;
     }
 
-    protected List<Expression> getArgs() {
+    protected ObjectList<Expression> getArgs() {
         return args;
     }
 

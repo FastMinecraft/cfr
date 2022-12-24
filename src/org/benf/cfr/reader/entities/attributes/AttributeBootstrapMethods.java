@@ -8,7 +8,7 @@ import org.benf.cfr.reader.entities.bootstrap.BootstrapMethodInfo;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class AttributeBootstrapMethods extends Attribute {
     public static final String ATTRIBUTE_NAME = "BootstrapMethods";
@@ -19,7 +19,7 @@ public class AttributeBootstrapMethods extends Attribute {
     private static final long OFFSET_OF_NUM_METHODS = 6;
 
     private final int length;
-    private final List<BootstrapMethodInfo> methodInfoList;
+    private final ObjectList<BootstrapMethodInfo> methodInfoList;
 
     public AttributeBootstrapMethods(ByteData raw, ConstantPool cp) {
         this.length = raw.getS4At(OFFSET_OF_ATTRIBUTE_LENGTH);
@@ -33,9 +33,9 @@ public class AttributeBootstrapMethods extends Attribute {
         return methodInfoList.get(idx);
     }
 
-    private static List<BootstrapMethodInfo> decodeMethods(ByteData raw, ConstantPool cp) {
+    private static ObjectList<BootstrapMethodInfo> decodeMethods(ByteData raw, ConstantPool cp) {
 
-        List<BootstrapMethodInfo> res = new ObjectArrayList<>();
+        ObjectList<BootstrapMethodInfo> res = new ObjectArrayList<>();
         int numMethods = raw.getU2At(OFFSET_OF_NUM_METHODS);
         long offset = OFFSET_OF_NUM_METHODS + 2;
         for (int x = 0; x < numMethods; ++x) {

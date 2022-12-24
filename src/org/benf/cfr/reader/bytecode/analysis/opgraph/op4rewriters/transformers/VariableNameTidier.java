@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers;
 
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.BytecodeMeta;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
@@ -53,7 +54,7 @@ public class VariableNameTidier implements StructuredStatementTransformer {
     public void transform(Op04StructuredStatement root) {
         StructuredScopeWithVars structuredScopeWithVars = new StructuredScopeWithVars();
         structuredScopeWithVars.add(null);
-        List<LocalVariable> params = method.getMethodPrototype().getComputedParameters();
+        ObjectList<LocalVariable> params = method.getMethodPrototype().getComputedParameters();
         for (LocalVariable param : params) {
             structuredScopeWithVars.defineHere(null, param);
         }
@@ -121,7 +122,7 @@ public class VariableNameTidier implements StructuredStatementTransformer {
         }
     }
 
-    public void renameToAvoidHiding(Set<String> avoid, List<LocalVariable> collisions) {
+    public void renameToAvoidHiding(Set<String> avoid, ObjectList<LocalVariable> collisions) {
         StructuredScopeWithVars structuredScopeWithVars = new StructuredScopeWithVars();
         structuredScopeWithVars.add(null);
         structuredScopeWithVars.markInitiallyDefined(avoid);
@@ -139,7 +140,7 @@ public class VariableNameTidier implements StructuredStatementTransformer {
     public StructuredStatement transform(StructuredStatement in, StructuredScope scope) {
         StructuredScopeWithVars structuredScopeWithVars = (StructuredScopeWithVars) scope;
 
-        List<LValue> definedHere = in.findCreatedHere();
+        ObjectList<LValue> definedHere = in.findCreatedHere();
         if (definedHere != null) {
             for (LValue scopedEntity : definedHere) {
                 if (scopedEntity instanceof LocalVariable) {

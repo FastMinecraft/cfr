@@ -5,7 +5,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
 import org.benf.cfr.reader.util.collections.MapFactory;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 
 public class CloneHelper {
@@ -28,8 +28,8 @@ public class CloneHelper {
         this.lValueMap = MapFactory.newMap();
     }
 
-    public <X extends DeepCloneable<X>> List<X> replaceOrClone(List<X> in) {
-        List<X> res = new ObjectArrayList<>();
+    public <X extends DeepCloneable<X>> ObjectList<X> replaceOrClone(ObjectList<X> in) {
+        ObjectList<X> res = new ObjectArrayList<>();
         for (X i : in) {
             res.add(i.outerDeepClone(this));
         }

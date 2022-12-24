@@ -17,7 +17,7 @@ import org.benf.cfr.reader.util.output.Dumper;
 import org.benf.cfr.reader.util.output.IllegalIdentifierDump;
 import org.benf.cfr.reader.util.output.TypeContext;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -28,9 +28,9 @@ public class Mapping implements ObfuscationMapping {
     private final Map<JavaTypeInstance, ClassMapping> erasedTypeMap = MapFactory.newMap();
     private final Function<JavaTypeInstance, JavaTypeInstance> getter = this::get;
     private final Options options;
-    private final Map<JavaTypeInstance, List<InnerClassAttributeInfo>> innerInfo;
+    private final Map<JavaTypeInstance, ObjectList<InnerClassAttributeInfo>> innerInfo;
 
-    Mapping(Options options, List<ClassMapping> classMappings, Map<JavaTypeInstance, List<InnerClassAttributeInfo>> innerInfo) {
+    Mapping(Options options, ObjectList<ClassMapping> classMappings, Map<JavaTypeInstance, ObjectList<InnerClassAttributeInfo>> innerInfo) {
         this.options = options;
         this.innerInfo = innerInfo;
         for (ClassMapping cls : classMappings) {
@@ -65,7 +65,7 @@ public class Mapping implements ObfuscationMapping {
     }
 
     @Override
-    public List<JavaTypeInstance> get(List<JavaTypeInstance> types) {
+    public ObjectList<JavaTypeInstance> get(ObjectList<JavaTypeInstance> types) {
         return Functional.map(types, this::get);
     }
 
@@ -74,7 +74,7 @@ public class Mapping implements ObfuscationMapping {
     }
 
     @Override
-    public List<InnerClassAttributeInfo> getInnerClassInfo(JavaTypeInstance classType) {
+    public ObjectList<InnerClassAttributeInfo> getInnerClassInfo(JavaTypeInstance classType) {
         return innerInfo.get(classType);
     }
 

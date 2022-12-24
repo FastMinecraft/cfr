@@ -8,7 +8,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.statement.GotoStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.IfStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.Nop;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class EclipseLoops {
     /*
@@ -41,7 +41,7 @@ public class EclipseLoops {
      * If this is the case, replace (a) with negated (b), which jumps on success to (c).
      * replace (b) with an unconditional jump to a.
      */
-    public static void eclipseLoopPass(List<Op03SimpleStatement> statements) {
+    public static void eclipseLoopPass(ObjectList<Op03SimpleStatement> statements) {
         boolean effect = false;
         for (int x = 0, len = statements.size() - 1; x < len; ++x) {
             Op03SimpleStatement statement = statements.get(x);

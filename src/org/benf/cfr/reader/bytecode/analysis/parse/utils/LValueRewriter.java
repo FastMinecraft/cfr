@@ -5,7 +5,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
 import org.benf.cfr.reader.bytecode.analysis.parse.StatementContainer;
 
 import java.util.Collection;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 public interface LValueRewriter<T> {
@@ -22,7 +22,7 @@ public interface LValueRewriter<T> {
     LValueRewriter<T> keepConstant(Collection<LValue> usedLValues);
 
     class Util {
-        public static void rewriteArgArray(LValueRewriter lValueRewriter, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, List<Expression> args) {
+        public static void rewriteArgArray(LValueRewriter lValueRewriter, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ObjectList<Expression> args) {
             boolean lr = lValueRewriter.needLR();
             int argsSize = args.size();
             for (int x = 0; x < argsSize; ++x) {

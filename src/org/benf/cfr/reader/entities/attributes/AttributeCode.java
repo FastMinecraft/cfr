@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.entities.attributes;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.CodeAnalyser;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.entities.Method;
@@ -13,7 +14,7 @@ import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.ArrayList;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class AttributeCode extends Attribute {
     public static final String ATTRIBUTE_NAME = "Code";
@@ -26,7 +27,7 @@ public class AttributeCode extends Attribute {
     private final int maxStack;
     private final int maxLocals;
     private final int codeLength;
-    private final List<ExceptionTableEntry> exceptionTableEntries;
+    private final ObjectList<ExceptionTableEntry> exceptionTableEntries;
     private final AttributeMap attributes;
     private final ConstantPool cp;
     private final ByteData rawData;
@@ -65,9 +66,8 @@ public class AttributeCode extends Attribute {
         final long OFFSET_OF_EXCEPTION_TABLE_LENGTH = OFFSET_OF_CODE + codeLength;
         final long OFFSET_OF_EXCEPTION_TABLE = OFFSET_OF_EXCEPTION_TABLE_LENGTH + 2;
 
-        ArrayList<ExceptionTableEntry> etis = new ArrayList<>();
         final int numExceptions = raw.getU2At(OFFSET_OF_EXCEPTION_TABLE_LENGTH);
-        etis.ensureCapacity(numExceptions);
+        ObjectList<ExceptionTableEntry> etis = new ObjectArrayList<>(numExceptions);
         final long numBytesExceptionInfo =
                 ContiguousEntityFactory.buildSized(raw.getOffsetData(OFFSET_OF_EXCEPTION_TABLE), numExceptions, 8, etis,
                         ExceptionTableEntry.getBuilder());
@@ -76,8 +76,7 @@ public class AttributeCode extends Attribute {
         final long OFFSET_OF_ATTRIBUTES_COUNT = OFFSET_OF_EXCEPTION_TABLE + numBytesExceptionInfo;
         final long OFFSET_OF_ATTRIBUTES = OFFSET_OF_ATTRIBUTES_COUNT + 2;
         final int numAttributes = raw.getU2At(OFFSET_OF_ATTRIBUTES_COUNT);
-        ArrayList<Attribute> tmpAttributes = new ArrayList<>();
-        tmpAttributes.ensureCapacity(numAttributes);
+        ObjectList<Attribute> tmpAttributes = new ObjectArrayList<>(numAttributes);
         ContiguousEntityFactory.build(raw.getOffsetData(OFFSET_OF_ATTRIBUTES), numAttributes, tmpAttributes,
                 AttributeFactory.getBuilder(cp, classFileVersion));
         this.attributes = new AttributeMap(tmpAttributes);
@@ -118,7 +117,7 @@ public class AttributeCode extends Attribute {
         return rawData;
     }
 
-    public List<ExceptionTableEntry> getExceptionTableEntries() {
+    public ObjectList<ExceptionTableEntry> getExceptionTableEntries() {
         return exceptionTableEntries;
     }
 

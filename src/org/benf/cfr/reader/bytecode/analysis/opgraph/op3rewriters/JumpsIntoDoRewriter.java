@@ -28,7 +28,7 @@ import org.benf.cfr.reader.util.DecompilerComments;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.Collection;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 /*
@@ -90,7 +90,7 @@ public class JumpsIntoDoRewriter {
         this.vf = vf;
     }
 
-    private boolean maybeRewriteImmediate(List<Op03SimpleStatement> op03SimpleParseNodes, int x) {
+    private boolean maybeRewriteImmediate(ObjectList<Op03SimpleStatement> op03SimpleParseNodes, int x) {
         Op03SimpleStatement doS = op03SimpleParseNodes.get(x);
         Statement doStatement = doS.getStatement();
         if (doStatement instanceof DoStatement) {
@@ -144,7 +144,7 @@ public class JumpsIntoDoRewriter {
     }
 
 
-    public void rewrite(List<Op03SimpleStatement> op03SimpleParseNodes, DecompilerComments comments) {
+    public void rewrite(ObjectList<Op03SimpleStatement> op03SimpleParseNodes, DecompilerComments comments) {
         outer: for (int idx=op03SimpleParseNodes.size()-1;idx>=0;--idx) {
             Op03SimpleStatement stm = op03SimpleParseNodes.get(idx);
             if (stm.getStatement() instanceof DoStatement) {
@@ -165,7 +165,7 @@ public class JumpsIntoDoRewriter {
                     }
                 }
                 if (!externals.isEmpty()) {
-                    List<Op03SimpleStatement> extList = new ObjectArrayList<>(externals);
+                    ObjectList<Op03SimpleStatement> extList = new ObjectArrayList<>(externals);
                     extList.sort(new CompareByIndex());
                     if (extList.size() == 1) {
                         if (maybeRewriteImmediate(op03SimpleParseNodes, idx)) continue;

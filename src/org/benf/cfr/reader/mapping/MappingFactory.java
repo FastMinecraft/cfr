@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.mapping;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaArrayTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
@@ -19,7 +20,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collections;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,7 +44,7 @@ public class MappingFactory {
 
     private Mapping createFromPath(String path) {
         FileInputStream is;
-        List<ClassMapping> classMappings = new ObjectArrayList<>();
+        ObjectList<ClassMapping> classMappings = new ObjectArrayList<>();
         try {
             is = new FileInputStream(path);
             BufferedReader isr = new BufferedReader(new InputStreamReader(is));
@@ -71,7 +72,7 @@ public class MappingFactory {
         }
 
         Map<JavaRefTypeInstance, JavaRefTypeInstance> parents = MapFactory.newMap();
-        Map<JavaTypeInstance, List<InnerClassAttributeInfo>> innerInfo = inferInnerClasses(classMappings, parents);
+        Map<JavaTypeInstance, ObjectList<InnerClassAttributeInfo>> innerInfo = inferInnerClasses(classMappings, parents);
         /*
          * We will have to ALTER the inner class info of each of the children, as that won't have been detected
          * when they were created.
@@ -84,13 +85,13 @@ public class MappingFactory {
         return new Mapping(options, classMappings, innerInfo);
     }
 
-    private Map<JavaTypeInstance, List<InnerClassAttributeInfo>> inferInnerClasses(List<ClassMapping> classMappings, Map<JavaRefTypeInstance, JavaRefTypeInstance> parents) {
+    private Map<JavaTypeInstance, ObjectList<InnerClassAttributeInfo>> inferInnerClasses(ObjectList<ClassMapping> classMappings, Map<JavaRefTypeInstance, JavaRefTypeInstance> parents) {
         Map<String, ClassMapping> byRealName = MapFactory.newMap();
         for (ClassMapping classMapping : classMappings) {
             String real = classMapping.getRealClass().getRawName();
             byRealName.put(real, classMapping);
         }
-        Map<JavaTypeInstance, List<JavaTypeInstance>> children = MapFactory.newLazyMap(arg -> new ObjectArrayList<>());
+        Map<JavaTypeInstance, ObjectList<JavaTypeInstance>> children = MapFactory.newLazyMap(arg -> new ObjectArrayList<>());
         for (ClassMapping classMapping : classMappings) {
             String real = classMapping.getRealClass().getRawName();
             int idx = real.lastIndexOf(MiscConstants.INNER_CLASS_SEP_CHAR);
@@ -107,13 +108,13 @@ public class MappingFactory {
             parents.put(childClass, parentClass);
             children.get(parentClass).add(childClass);
         }
-        Map<JavaTypeInstance, List<InnerClassAttributeInfo>> res = MapFactory.newMap();
-        Map<JavaTypeInstance, List<InnerClassAttributeInfo>> lazyRes = MapFactory.newLazyMap(res,
+        Map<JavaTypeInstance, ObjectList<InnerClassAttributeInfo>> res = MapFactory.newMap();
+        Map<JavaTypeInstance, ObjectList<InnerClassAttributeInfo>> lazyRes = MapFactory.newLazyMap(res,
             arg -> new ObjectArrayList<>()
         );
-        for (Map.Entry<JavaTypeInstance, List<JavaTypeInstance>> entry : children.entrySet()) {
+        for (Map.Entry<JavaTypeInstance, ObjectList<JavaTypeInstance>> entry : children.entrySet()) {
             JavaTypeInstance parent = entry.getKey();
-            List<InnerClassAttributeInfo> parentIac = lazyRes.get(parent);
+            ObjectList<InnerClassAttributeInfo> parentIac = lazyRes.get(parent);
             for (JavaTypeInstance child : entry.getValue()) {
                 InnerClassAttributeInfo iac = new InnerClassAttributeInfo(child, parent, null, Collections.emptySet());
                 parentIac.add(iac);
@@ -147,9 +148,9 @@ public class MappingFactory {
         String name = m.group(3);
         String args = m.group(4);
         String rename = m.group(5);
-        List<JavaTypeInstance> argTypes;
+        ObjectList<JavaTypeInstance> argTypes;
         if (args.isEmpty()) {
-            argTypes = Collections.emptyList();
+            argTypes = ObjectLists.emptyList();
         } else {
             argTypes = new ObjectArrayList<>();
             for (String arg : args.split(",")) {

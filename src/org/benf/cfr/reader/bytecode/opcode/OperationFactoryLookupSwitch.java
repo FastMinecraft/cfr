@@ -4,7 +4,7 @@ import org.benf.cfr.reader.bytecode.analysis.opgraph.Op01WithProcessedDataAndByt
 import org.benf.cfr.reader.entities.constantpool.ConstantPool;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class OperationFactoryLookupSwitch extends OperationFactoryDefault {
 
@@ -25,7 +25,7 @@ public class OperationFactoryLookupSwitch extends OperationFactoryDefault {
         byte[] rawData = bd.getBytesAt(size, 1);
 
         DecodedSwitch dts = new DecodedLookupSwitch(rawData, offset);
-        List<DecodedSwitchEntry> targets = dts.getJumpTargets();
+        ObjectList<DecodedSwitchEntry> targets = dts.getJumpTargets();
         int[] targetOffsets = new int[targets.size()];
         int out = 0;
         for (DecodedSwitchEntry target : targets) {

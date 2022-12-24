@@ -8,14 +8,14 @@ import org.benf.cfr.reader.entities.exceptions.ExceptionAggregator;
 import org.benf.cfr.reader.entities.exceptions.ExceptionGroup;
 
 import java.util.Collection;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.SortedMap;
 
 public abstract class SimpleControlFlowBase {
 
-    public void process(Method method, ExceptionAggregator exceptions, List<Op02WithProcessedDataAndRefs> op2list, SortedMap<Integer, Integer> lutByOffset) {
+    public void process(Method method, ExceptionAggregator exceptions, ObjectList<Op02WithProcessedDataAndRefs> op2list, SortedMap<Integer, Integer> lutByOffset) {
         Collection<ExceptionGroup> original = exceptions.getExceptionsGroups();
-        List<ExceptionGroup> groups = new ObjectArrayList<>(original);
+        ObjectList<ExceptionGroup> groups = new ObjectArrayList<>(original);
         for (ExceptionGroup group : groups) {
             Op02WithProcessedDataAndRefs handlerJmp = checkHandler(group, op2list, lutByOffset);
             if (handlerJmp == null) continue;
@@ -29,7 +29,7 @@ public abstract class SimpleControlFlowBase {
         }
     }
 
-    public boolean check(ExceptionAggregator exceptions, List<Op02WithProcessedDataAndRefs> op2list, SortedMap<Integer, Integer> lutByOffset) {
+    public boolean check(ExceptionAggregator exceptions, ObjectList<Op02WithProcessedDataAndRefs> op2list, SortedMap<Integer, Integer> lutByOffset) {
         for (ExceptionGroup group : exceptions.getExceptionsGroups()) {
             Op02WithProcessedDataAndRefs handlerJmp = checkHandler(group, op2list, lutByOffset);
             if (handlerJmp == null) continue;
@@ -44,7 +44,7 @@ public abstract class SimpleControlFlowBase {
         return false;
     }
 
-    protected Op02WithProcessedDataAndRefs getLastTargetIf(List<Op02WithProcessedDataAndRefs> op2list, Integer start, JVMInstr... instrs) {
+    protected Op02WithProcessedDataAndRefs getLastTargetIf(ObjectList<Op02WithProcessedDataAndRefs> op2list, Integer start, JVMInstr... instrs) {
         if (start + instrs.length > op2list.size()) return null;
         for (int x = 0;x<instrs.length;++x) {
             Op02WithProcessedDataAndRefs instr = op2list.get(start + x);
@@ -54,12 +54,12 @@ public abstract class SimpleControlFlowBase {
         return op2list.get(start + instrs.length -1).getTargets().get(0);
     }
 
-    protected Op02WithProcessedDataAndRefs getLastTargetIf(List<Op02WithProcessedDataAndRefs> op2list, Op02WithProcessedDataAndRefs current, JVMInstr... instrs) {
+    protected Op02WithProcessedDataAndRefs getLastTargetIf(ObjectList<Op02WithProcessedDataAndRefs> op2list, Op02WithProcessedDataAndRefs current, JVMInstr... instrs) {
         return getLastTargetIf(op2list, op2list.indexOf(current), instrs);
     }
 
-    protected Op02WithProcessedDataAndRefs checkHandler(ExceptionGroup group, List<Op02WithProcessedDataAndRefs> op2list, SortedMap<Integer, Integer> lutByOffset) {
-        List<ExceptionGroup.Entry> entries = group.getEntries();
+    protected Op02WithProcessedDataAndRefs checkHandler(ExceptionGroup group, ObjectList<Op02WithProcessedDataAndRefs> op2list, SortedMap<Integer, Integer> lutByOffset) {
+        ObjectList<ExceptionGroup.Entry> entries = group.getEntries();
         if (entries.size() != 1) return null;
         int handler = entries.get(0).getBytecodeIndexHandler();
         Integer tgtIdx = lutByOffset.get(handler);
@@ -92,8 +92,8 @@ public abstract class SimpleControlFlowBase {
         return op;
     }
 
-    protected abstract Op02WithProcessedDataAndRefs checkHandler(List<Op02WithProcessedDataAndRefs> op2list, int idx);
+    protected abstract Op02WithProcessedDataAndRefs checkHandler(ObjectList<Op02WithProcessedDataAndRefs> op2list, int idx);
 
-    protected abstract boolean checkTry(List<Op02WithProcessedDataAndRefs> op2list, int from, int to, Op02WithProcessedDataAndRefs handlerJmp);
+    protected abstract boolean checkTry(ObjectList<Op02WithProcessedDataAndRefs> op2list, int from, int to, Op02WithProcessedDataAndRefs handlerJmp);
 
 }

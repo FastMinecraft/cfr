@@ -5,7 +5,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.opcode.JVMInstr;
 import org.benf.cfr.reader.entities.Method;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 /*
  * Java integers just wrap around, so obfuscating heedlessly with
@@ -16,7 +16,7 @@ import java.util.List;
 public class ControlFlowNumericObf {
     public static final ControlFlowNumericObf Instance = new ControlFlowNumericObf();
 
-    public void process(Method method, List<Op02WithProcessedDataAndRefs> op2list) {
+    public void process(Method method, ObjectList<Op02WithProcessedDataAndRefs> op2list) {
         for (int idx = 0; idx < op2list.size(); ++idx) {
             Op02WithProcessedDataAndRefs op = op2list.get(idx);
             JVMInstr instr = op.getInstr();
@@ -26,7 +26,7 @@ public class ControlFlowNumericObf {
         }
     }
 
-    private void processOne(Op02WithProcessedDataAndRefs op, List<Op02WithProcessedDataAndRefs> op2list, int idx) {
+    private void processOne(Op02WithProcessedDataAndRefs op, ObjectList<Op02WithProcessedDataAndRefs> op2list, int idx) {
         Op02WithProcessedDataAndRefs next = op.getTargets().get(0);
         if (next != op2list.get(idx+1)) return;
         if (next.getSources().size() != 1) return;

@@ -13,19 +13,19 @@ import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.MiscConstants;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class SuperFunctionInvokation extends AbstractMemberFunctionInvokation {
     private final boolean isOnInterface;
     private final JavaTypeInstance typeName;
 
-    public SuperFunctionInvokation(BytecodeLoc loc, ConstantPool cp, ConstantPoolEntryMethodRef function, Expression object, List<Expression> args, List<Boolean> nulls, boolean isOnInterface) {
+    public SuperFunctionInvokation(BytecodeLoc loc, ConstantPool cp, ConstantPoolEntryMethodRef function, Expression object, ObjectList<Expression> args, ObjectList<Boolean> nulls, boolean isOnInterface) {
         super(loc, cp, function, object, args, nulls);
         this.isOnInterface = isOnInterface;
         this.typeName = null;
     }
 
-    private SuperFunctionInvokation(BytecodeLoc loc, ConstantPool cp, ConstantPoolEntryMethodRef function, Expression object, List<Expression> args, List<Boolean> nulls, boolean isOnInterface, JavaTypeInstance name) {
+    private SuperFunctionInvokation(BytecodeLoc loc, ConstantPool cp, ConstantPoolEntryMethodRef function, Expression object, ObjectList<Expression> args, ObjectList<Boolean> nulls, boolean isOnInterface, JavaTypeInstance name) {
         super(loc, cp, function, object, args, nulls);
         this.isOnInterface = isOnInterface;
         this.typeName = name;
@@ -74,7 +74,7 @@ public class SuperFunctionInvokation extends AbstractMemberFunctionInvokation {
     @Override
     public Dumper dumpInner(Dumper d) {
         MethodPrototype methodPrototype = getMethodPrototype();
-        List<Expression> args = getArgs();
+        ObjectList<Expression> args = getArgs();
         if (methodPrototype.getName().equals(MiscConstants.INIT_METHOD)) {
             d.print("super(");
         } else {

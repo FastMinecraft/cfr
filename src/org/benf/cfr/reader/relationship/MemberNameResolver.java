@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.relationship;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.types.*;
 import org.benf.cfr.reader.entities.AccessFlagMethod;
 import org.benf.cfr.reader.entities.ClassFile;
@@ -55,7 +56,7 @@ public class MemberNameResolver {
     }
 
     private void initialise(Collection<? extends JavaTypeInstance> types) {
-        List<ClassFile> classFiles = new ObjectArrayList<>();
+        ObjectList<ClassFile> classFiles = new ObjectArrayList<>();
         for (JavaTypeInstance type : types) {
             try {
                 classFiles.add(dcCommonState.getClassFile(type));
@@ -101,7 +102,7 @@ public class MemberNameResolver {
         /*
          * java.lang.object AND interfaces, unless things are very weird.
          */
-        List<ClassFile> roots = SetUtil.differenceAtakeBtoList(parentToChild.keySet(), childToParent.keySet());
+        ObjectList<ClassFile> roots = SetUtil.differenceAtakeBtoList(parentToChild.keySet(), childToParent.keySet());
         for (ClassFile root : roots) {
             checkBadNames(root);
         }
@@ -238,7 +239,7 @@ public class MemberNameResolver {
 
             MethodPrototype prototype = method.getMethodPrototype();
             String name = prototype.getName();
-            List<JavaTypeInstance> args = Functional.map(prototype.getArgs(), JavaTypeInstance::getDeGenerifiedType);
+            ObjectList<JavaTypeInstance> args = Functional.map(prototype.getArgs(), JavaTypeInstance::getDeGenerifiedType);
             MethodKey methodKey = new MethodKey(name, args);
             JavaTypeInstance type = prototype.getReturnType();
             if (type instanceof JavaGenericBaseInstance) return;
@@ -308,7 +309,7 @@ public class MemberNameResolver {
         }
     }
 
-    private record MethodKey(String name, List<JavaTypeInstance> args) {
+    private record MethodKey(String name, ObjectList<JavaTypeInstance> args) {
 
         @Override
             public boolean equals(Object o) {

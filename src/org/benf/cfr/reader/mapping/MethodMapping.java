@@ -2,15 +2,15 @@ package org.benf.cfr.reader.mapping;
 
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class MethodMapping {
     private final String name;
     private final String rename;
     private final JavaTypeInstance res;
-    private final List<JavaTypeInstance> argTypes;
+    private final ObjectList<JavaTypeInstance> argTypes;
 
-    public MethodMapping(String rename, String name, JavaTypeInstance res, List<JavaTypeInstance> argTypes) {
+    public MethodMapping(String rename, String name, JavaTypeInstance res, ObjectList<JavaTypeInstance> argTypes) {
         this.name = name;
         this.rename = rename;
         this.res = res;
@@ -29,7 +29,7 @@ public class MethodMapping {
         return res;
     }
 
-    public List<JavaTypeInstance> getArgTypes() {
+    public ObjectList<JavaTypeInstance> getArgTypes() {
         return argTypes;
     }
 }

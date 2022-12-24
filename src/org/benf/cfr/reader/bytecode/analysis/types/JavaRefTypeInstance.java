@@ -18,7 +18,7 @@ import org.benf.cfr.reader.util.output.IllegalIdentifierDump;
 import org.benf.cfr.reader.util.output.ToStringDumper;
 import org.benf.cfr.reader.util.output.TypeContext;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.Set;
 
@@ -119,7 +119,7 @@ public class JavaRefTypeInstance implements JavaTypeInstance {
     }
 
     private static class Annotated implements JavaAnnotatedTypeInstance {
-        private final List<AnnotationTableEntry> entries = new ObjectArrayList<>();
+        private final ObjectList<AnnotationTableEntry> entries = new ObjectArrayList<>();
         private final Annotated inner;
         private final JavaRefTypeInstance outerThis;
         private DecompilerComment nullableComment = null;

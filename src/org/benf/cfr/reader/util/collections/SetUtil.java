@@ -3,7 +3,7 @@ package org.benf.cfr.reader.util.collections;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.util.Collection;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 public class SetUtil {
@@ -58,8 +58,8 @@ public class SetUtil {
         return res;
     }
 
-    public static <X> List<X> differenceAtakeBtoList(Set<? extends X> a, Set<? extends X> b) {
-        List<X> res = new ObjectArrayList<>();
+    public static <X> ObjectList<X> differenceAtakeBtoList(Set<? extends X> a, Set<? extends X> b) {
+        ObjectList<X> res = new ObjectArrayList<>();
         for (X a1 : a) {
             if (!b.contains(a1)) res.add(a1);
         }

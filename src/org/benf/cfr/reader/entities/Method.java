@@ -1,5 +1,8 @@
 package org.benf.cfr.reader.entities;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.types.annotated.JavaAnnotatedTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.variables.Ident;
@@ -111,8 +114,7 @@ public class Method implements KnowsRawSize, TypeUsageCollectable {
         String initialName = cp.getUTF8Entry(nameIndex).getValue();
 
         int numAttributes = raw.getU2At(OFFSET_OF_ATTRIBUTES_COUNT);
-        ArrayList<Attribute> tmpAttributes = new ArrayList<>();
-        tmpAttributes.ensureCapacity(numAttributes);
+        ObjectArrayList<Attribute> tmpAttributes = new ObjectArrayList<>(numAttributes);
         long attributesLength = ContiguousEntityFactory.build(raw.getOffsetData(OFFSET_OF_ATTRIBUTES), numAttributes, tmpAttributes,
                 AttributeFactory.getBuilder(cp, classFileVersion));
 
@@ -321,8 +323,8 @@ public class Method implements KnowsRawSize, TypeUsageCollectable {
     private static boolean checkSigProto(MethodPrototype desproto, MethodPrototype sigproto, boolean isEnumConstructor, boolean isInnerConstructor) {
         if (sigproto == null) return false;
 
-        List<JavaTypeInstance> desargs = desproto.getArgs();
-        List<JavaTypeInstance> sigargs = sigproto.getArgs();
+        ObjectList<JavaTypeInstance> desargs = desproto.getArgs();
+        ObjectList<JavaTypeInstance> sigargs = sigproto.getArgs();
 
         int offset = 0;
         if (desargs.size() != sigargs.size()) {
@@ -344,8 +346,8 @@ public class Method implements KnowsRawSize, TypeUsageCollectable {
     }
 
     private static void fixupInnerClassSignature(MethodPrototype descriptor, MethodPrototype signature) {
-        List<JavaTypeInstance> descriptorArgs = descriptor.getArgs();
-        List<JavaTypeInstance> signatureArgs = signature.getArgs();
+        ObjectList<JavaTypeInstance> descriptorArgs = descriptor.getArgs();
+        ObjectList<JavaTypeInstance> signatureArgs = signature.getArgs();
         if (signatureArgs.size() != descriptorArgs.size() - 1) {
             // It's not the known issue, can't really deal with it.
             signature.setDescriptorProto(descriptor);
@@ -383,7 +385,7 @@ public class Method implements KnowsRawSize, TypeUsageCollectable {
         markUsedLocalClassType(javaTypeInstance, null);
     }
 
-    private void dumpMethodAnnotations(Dumper d, List<AnnotationTableEntry> nullableDeclAnnotations) {
+    private void dumpMethodAnnotations(Dumper d, ObjectList<AnnotationTableEntry> nullableDeclAnnotations) {
         // Explicitly dump override first.
         if (isOverride) {
             OVERRIDE_ANNOTATION.dump(d).newln();
@@ -398,13 +400,13 @@ public class Method implements KnowsRawSize, TypeUsageCollectable {
 
     // We can get the declared thrown types from an attribute, or from the signature.
     // Of course, the signature can lie.
-    private List<JavaTypeInstance> getDeclaredThrownTypes() {
-        List<JavaTypeInstance> attributeTypes = getAttributeDeclaredThrownTypes();
-        List<JavaTypeInstance> prototypeExceptionTypes = methodPrototype.getExceptionTypes();
+    private ObjectList<JavaTypeInstance> getDeclaredThrownTypes() {
+        ObjectList<JavaTypeInstance> attributeTypes = getAttributeDeclaredThrownTypes();
+        ObjectList<JavaTypeInstance> prototypeExceptionTypes = methodPrototype.getExceptionTypes();
         // trust the attributes before the signature.
         int len = attributeTypes.size();
         if (len != prototypeExceptionTypes.size()) return attributeTypes;
-        List<JavaTypeInstance> boundProtoExceptionTypes = methodPrototype.getSignatureBoundExceptions();
+        ObjectList<JavaTypeInstance> boundProtoExceptionTypes = methodPrototype.getSignatureBoundExceptions();
 
         for (int x=0; x<len; ++x) {
             JavaTypeInstance signatureType = boundProtoExceptionTypes.get(x);
@@ -417,13 +419,13 @@ public class Method implements KnowsRawSize, TypeUsageCollectable {
         return prototypeExceptionTypes;
     }
 
-    private List<JavaTypeInstance> getAttributeDeclaredThrownTypes() {
+    private ObjectList<JavaTypeInstance> getAttributeDeclaredThrownTypes() {
         AttributeExceptions exceptionsAttribute = attributes.getByName(AttributeExceptions.ATTRIBUTE_NAME);
         if (exceptionsAttribute != null) {
             return Functional.map(exceptionsAttribute.getExceptionClassList(), ConstantPoolEntryClass::getTypeInstance);
         }
         else {
-            return Collections.emptyList();
+            return ObjectLists.emptyList();
         }
     }
 
@@ -435,7 +437,7 @@ public class Method implements KnowsRawSize, TypeUsageCollectable {
     }
 
     /** Gets the annotations with target {@code METHOD} */
-    public List<AnnotationTableEntry> getMethodAnnotations() {
+    public ObjectList<AnnotationTableEntry> getMethodAnnotations() {
         MethodPrototypeAnnotationsHelper annotationsHelper = new MethodPrototypeAnnotationsHelper(attributes);
         return ListFactory.orEmptyList(annotationsHelper.getMethodAnnotations());
     }
@@ -483,7 +485,7 @@ public class Method implements KnowsRawSize, TypeUsageCollectable {
         getMethodPrototype().dumpDeclarationSignature(d, displayName, isConstructor, annotationsHelper, annotationsInfo.getTypeAnnotations(usesAdmissibleType));
         AttributeExceptions exceptionsAttribute = attributes.getByName(AttributeExceptions.ATTRIBUTE_NAME);
         if (exceptionsAttribute != null) {
-            List<AnnotationTableTypeEntry> att = annotationsHelper.getTypeTargetAnnotations(TypeAnnotationEntryValue.type_throws);
+            ObjectList<AnnotationTableTypeEntry> att = annotationsHelper.getTypeTargetAnnotations(TypeAnnotationEntryValue.type_throws);
             d.print(" throws ");
             boolean first = true;
             int idx = -1;
@@ -493,7 +495,7 @@ public class Method implements KnowsRawSize, TypeUsageCollectable {
                 if (att != null) {
                     JavaAnnotatedTypeInstance jat = typeInstance.getAnnotatedInstance();
                     final int sidx = idx;
-                    List<AnnotationTableTypeEntry> exceptionAnnotations = Functional.filter(att,
+                    ObjectList<AnnotationTableTypeEntry> exceptionAnnotations = Functional.filter(att,
                         in -> sidx == ((TypeAnnotationTargetInfo.TypeAnnotationThrowsTarget)in.getTargetInfo()).getIndex()
                     );
                     DecompilerComments comments = new DecompilerComments();

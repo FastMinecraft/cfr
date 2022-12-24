@@ -12,7 +12,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.statement.AssignmentSimple;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.IfStatement;
 import org.benf.cfr.reader.util.collections.Functional;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class DupAssigns {
     /* Search for
@@ -26,7 +26,7 @@ public class DupAssigns {
     private static boolean normalizeDupAssigns_type1(Op03SimpleStatement stm) {
         Statement inner1 = stm.getStatement();
         if (!(inner1 instanceof AssignmentSimple a1)) return false;
-        List<Op03SimpleStatement> tgts = stm.getTargets();
+        ObjectList<Op03SimpleStatement> tgts = stm.getTargets();
         if (tgts.size() != 1) return false;
         Op03SimpleStatement next = tgts.get(0);
         Statement inner2 = next.getStatement();
@@ -51,8 +51,8 @@ public class DupAssigns {
         return true;
     }
 
-    public static boolean normalizeDupAssigns(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> assignStatements = Functional.filter(statements,
+    public static boolean normalizeDupAssigns(ObjectList<Op03SimpleStatement> statements) {
+        ObjectList<Op03SimpleStatement> assignStatements = Functional.filter(statements,
             new TypeFilter<>(AssignmentSimple.class));
         boolean result = false;
         for (Op03SimpleStatement assign : assignStatements) {

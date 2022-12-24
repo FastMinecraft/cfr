@@ -9,12 +9,12 @@ import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.Collection;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 public class MonitorRewriter {
-    public static void commentMonitors(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> monitors = Functional.filter(statements, new TypeFilter<>(MonitorStatement.class));
+    public static void commentMonitors(ObjectList<Op03SimpleStatement> statements) {
+        ObjectList<Op03SimpleStatement> monitors = Functional.filter(statements, new TypeFilter<>(MonitorStatement.class));
         if (monitors.isEmpty()) return;
         for (Op03SimpleStatement monitor : monitors) {
             monitor.replaceStatement(new CommentStatement(monitor.getStatement()));

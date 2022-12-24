@@ -10,13 +10,13 @@ import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.util.StringUtils;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 /**
  * A static call that doesn't necessarily exist, for a type we don't necessarily have.
  */
 public class StaticFunctionInvokationExplicit extends AbstractFunctionInvokationExplicit {
-    public StaticFunctionInvokationExplicit(BytecodeLoc loc, InferredJavaType res, JavaTypeInstance clazz, String method, List<Expression> args) {
+    public StaticFunctionInvokationExplicit(BytecodeLoc loc, InferredJavaType res, JavaTypeInstance clazz, String method, ObjectList<Expression> args) {
         super(loc, res, clazz, method, args);
     }
 

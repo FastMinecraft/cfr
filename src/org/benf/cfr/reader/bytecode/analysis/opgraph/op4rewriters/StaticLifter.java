@@ -16,6 +16,8 @@ import org.benf.cfr.reader.util.collections.Functional;
 import java.util.LinkedList;
 import java.util.List;
 
+import it.unimi.dsi.fastutil.objects.ObjectList;
+
 public class StaticLifter {
 
     private final ClassFile classFile;

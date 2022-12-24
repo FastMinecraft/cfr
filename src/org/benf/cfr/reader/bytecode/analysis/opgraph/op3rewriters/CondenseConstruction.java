@@ -6,7 +6,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.CreationCollector;
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.state.DCCommonState;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 class CondenseConstruction {
     /*
@@ -21,7 +21,7 @@ class CondenseConstruction {
      *
      * a1 = new foo(x,y,z)
      */
-    static void condenseConstruction(DCCommonState state, Method method, List<Op03SimpleStatement> statements, AnonymousClassUsage anonymousClassUsage) {
+    static void condenseConstruction(DCCommonState state, Method method, ObjectList<Op03SimpleStatement> statements, AnonymousClassUsage anonymousClassUsage) {
         CreationCollector creationCollector = new CreationCollector(anonymousClassUsage);
         for (Op03SimpleStatement statement : statements) {
             statement.findCreation(creationCollector);

@@ -72,7 +72,7 @@ import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -180,7 +180,7 @@ public class CodeAnalyser {
         analysed = POISON;
 
         Options options = dcCommonState.getOptions();
-        List<Op01WithProcessedDataAndByteJumps> instrs = getInstrs();
+        ObjectList<Op01WithProcessedDataAndByteJumps> instrs = getInstrs();
 
         AnalysisResult res;
 
@@ -252,10 +252,10 @@ public class CodeAnalyser {
      * This list isn't going to change with recovery passes, so avoid recomputing.
      * (though we may infer additional items from it if we recover from illegal bytecode)
      */
-    private List<Op01WithProcessedDataAndByteJumps> getInstrs() {
+    private ObjectList<Op01WithProcessedDataAndByteJumps> getInstrs() {
         ByteData rawCode = originalCodeAttribute.getRawData();
         long codeLength = originalCodeAttribute.getCodeLength();
-        ArrayList<Op01WithProcessedDataAndByteJumps> instrs = new ArrayList<>();
+        ObjectList<Op01WithProcessedDataAndByteJumps> instrs = new ObjectArrayList<>();
         OffsettingByteData bdCode = rawCode.getOffsettingOffsetData(0);
         int offset = 0;
 
@@ -273,7 +273,7 @@ public class CodeAnalyser {
         return instrs;
     }
 
-    private AnalysisResult getAnalysisOrWrapFail(int passIdx, List<Op01WithProcessedDataAndByteJumps> instrs, DCCommonState commonState, Options options, List<DecompilerComment> extraComments, BytecodeMeta bytecodeMeta) {
+    private AnalysisResult getAnalysisOrWrapFail(int passIdx, ObjectList<Op01WithProcessedDataAndByteJumps> instrs, DCCommonState commonState, Options options, ObjectList<DecompilerComment> extraComments, BytecodeMeta bytecodeMeta) {
         try {
             AnalysisResult res = getAnalysisInner(instrs, commonState, options, bytecodeMeta, passIdx);
             if (extraComments != null) res.getComments().addComments(extraComments);
@@ -288,7 +288,7 @@ public class CodeAnalyser {
      *
      * passIdx is only useful for breakpointing.
      */
-    private AnalysisResult getAnalysisInner(List<Op01WithProcessedDataAndByteJumps> instrs, DCCommonState dcCommonState, Options options, BytecodeMeta bytecodeMeta, int passIdx) {
+    private AnalysisResult getAnalysisInner(ObjectList<Op01WithProcessedDataAndByteJumps> instrs, DCCommonState dcCommonState, Options options, BytecodeMeta bytecodeMeta, int passIdx) {
 
         boolean willSort = options.getOption(OptionsImpl.FORCE_TOPSORT) == Troolean.TRUE;
 
@@ -315,8 +315,8 @@ public class CodeAnalyser {
         lutByIdx.put(0, -1);
         lutByOffset.put(-1, 0);
 
-        List<Op01WithProcessedDataAndByteJumps> op1list = new ObjectArrayList<>();
-        List<Op02WithProcessedDataAndRefs> op2list = new ObjectArrayList<>();
+        ObjectList<Op01WithProcessedDataAndByteJumps> op1list = new ObjectArrayList<>();
+        ObjectList<Op02WithProcessedDataAndRefs> op2list = new ObjectArrayList<>();
         // Now walk the indexed ops
         BytecodeLocFactory locFactory = options.getOption(OptionsImpl.TRACK_BYTECODE_LOC) ? BytecodeLocFactoryImpl.INSTANCE : BytecodeLocFactoryStub.INSTANCE;
         for (int x = 0; x < instrs.size(); ++x) {
@@ -360,7 +360,7 @@ public class CodeAnalyser {
         BlockIdentifierFactory blockIdentifierFactory = new BlockIdentifierFactory();
 
         // These are 'processed' exceptions, which we can use to lay out code.
-        List<ExceptionTableEntry> exceptionTableEntries = originalCodeAttribute.getExceptionTableEntries();
+        ObjectList<ExceptionTableEntry> exceptionTableEntries = originalCodeAttribute.getExceptionTableEntries();
         if (options.getOption(OptionsImpl.IGNORE_EXCEPTIONS_ALWAYS)) {
             exceptionTableEntries = new ObjectArrayList<>();
         }
@@ -466,7 +466,7 @@ public class CodeAnalyser {
         TypeHintRecovery typeHintRecovery = options.optionIsSet(OptionsImpl.USE_RECOVERED_ITERATOR_TYPE_HINTS) ?
                 new TypeHintRecoveryImpl(bytecodeMeta) : TypeHintRecoveryNone.INSTANCE;
 
-        List<Op03SimpleStatement> op03SimpleParseNodes = Op02WithProcessedDataAndRefs.convertToOp03List(op2list, method, variableFactory, blockIdentifierFactory, dcCommonState, comments, typeHintRecovery);
+        ObjectList<Op03SimpleStatement> op03SimpleParseNodes = Op02WithProcessedDataAndRefs.convertToOp03List(op2list, method, variableFactory, blockIdentifierFactory, dcCommonState, comments, typeHintRecovery);
         // Renumber, just in case JSR stage (or something) has left bad labellings.
         op03SimpleParseNodes = Cleaner.sortAndRenumber(op03SimpleParseNodes);
 
@@ -970,7 +970,7 @@ public class CodeAnalyser {
         return new AnalysisResultSuccessful(comments, block, anonymousClassUsage);
     }
 
-    private void generateUnverifiable(int x, List<Op01WithProcessedDataAndByteJumps> op1list, List<Op02WithProcessedDataAndRefs> op2list, Map<Integer, Integer> lutByIdx, SortedMap<Integer, Integer> lutByOffset, BytecodeLocFactory locFactory) {
+    private void generateUnverifiable(int x, ObjectList<Op01WithProcessedDataAndByteJumps> op1list, ObjectList<Op02WithProcessedDataAndRefs> op2list, Map<Integer, Integer> lutByIdx, SortedMap<Integer, Integer> lutByOffset, BytecodeLocFactory locFactory) {
         Op01WithProcessedDataAndByteJumps instr = op1list.get(x);
         int thisRaw = instr.getOriginalRawOffset();
         int[] thisTargets = instr.getRawTargetOffsets();
@@ -981,7 +981,7 @@ public class CodeAnalyser {
         }
     }
 
-    private void generateUnverifiableInstr(int offset, List<Op01WithProcessedDataAndByteJumps> op1list, List<Op02WithProcessedDataAndRefs> op2list, Map<Integer, Integer> lutByIdx, SortedMap<Integer, Integer> lutByOffset, BytecodeLocFactory locFactory) {
+    private void generateUnverifiableInstr(int offset, ObjectList<Op01WithProcessedDataAndByteJumps> op1list, ObjectList<Op02WithProcessedDataAndRefs> op2list, Map<Integer, Integer> lutByIdx, SortedMap<Integer, Integer> lutByOffset, BytecodeLocFactory locFactory) {
         ByteData rawData = originalCodeAttribute.getRawData();
         int codeLength = originalCodeAttribute.getCodeLength();
         do {

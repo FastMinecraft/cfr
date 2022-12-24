@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.structured.statement;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
@@ -172,8 +173,8 @@ public class Block extends AbstractStructuredStatement {
         return Pair.make(res==null, res);
     }
 
-    public List<Op04StructuredStatement> getFilteredBlockStatements() {
-        List<Op04StructuredStatement> res = new ObjectArrayList<>();
+    public ObjectList<Op04StructuredStatement> getFilteredBlockStatements() {
+        ObjectList<Op04StructuredStatement> res = new ObjectArrayList<>();
         for (Op04StructuredStatement statement : containedStatements) {
             if (!(statement.getStatement() instanceof StructuredComment)) {
                 res.add(statement);
@@ -242,7 +243,7 @@ public class Block extends AbstractStructuredStatement {
 
     public void extractLabelledBlocks() {
         Iterator<Op04StructuredStatement> iterator = containedStatements.descendingIterator();
-        List<Op04StructuredStatement> newEntries = new ObjectArrayList<>();
+        ObjectList<Op04StructuredStatement> newEntries = new ObjectArrayList<>();
         while (iterator.hasNext()) {
             Op04StructuredStatement stm = iterator.next();
             StructuredStatement statement = stm.getStatement();
@@ -270,7 +271,7 @@ public class Block extends AbstractStructuredStatement {
                 );
                 newEntries.add(newStm);
 
-                List<Op04StructuredStatement> sources = stm.getSources();
+                ObjectList<Op04StructuredStatement> sources = stm.getSources();
                 /*
                  * Any source which is an unstructured break to this block, replace with a structured labelled break.
                  */
@@ -479,7 +480,7 @@ public class Block extends AbstractStructuredStatement {
     }
 
     @Override
-    public void linearizeInto(List<StructuredStatement> out) {
+    public void linearizeInto(ObjectList<StructuredStatement> out) {
         out.add(new BeginBlock(this));
         for (Op04StructuredStatement structuredBlock : containedStatements) {
             structuredBlock.linearizeStatementsInto(out);

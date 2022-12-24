@@ -7,12 +7,12 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockType;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.SetUtil;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 class SwitchUtils {
     static void checkFixNewCase(Op03SimpleStatement possCaseItem, Op03SimpleStatement possCase) {
         if (possCase.getStatement().getClass() != CaseStatement.class) return;
-        List<BlockIdentifier> idents = SetUtil.differenceAtakeBtoList(possCaseItem.getBlockIdentifiers(), possCase.getBlockIdentifiers());
+        ObjectList<BlockIdentifier> idents = SetUtil.differenceAtakeBtoList(possCaseItem.getBlockIdentifiers(), possCase.getBlockIdentifiers());
         idents = Functional.filter(idents, in -> in.getBlockType() == BlockType.CASE);
         if (idents.isEmpty()) {
             BlockIdentifier blockIdentifier = ((CaseStatement)possCase.getStatement()).getCaseBlock();

@@ -5,7 +5,7 @@ import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,9 +25,9 @@ public class GenericTypeBinder {
     }
 
     @SafeVarargs
-    public static GenericTypeBinder create(List<FormalTypeParameter> ... ftps) {
+    public static GenericTypeBinder create(ObjectList<FormalTypeParameter> ... ftps) {
         Map<String, JavaTypeInstance> bounds = MapFactory.newMap();
-        for (List<FormalTypeParameter> ftp : ftps) {
+        for (ObjectList<FormalTypeParameter> ftp : ftps) {
             if (ftp == null) continue;
             for (FormalTypeParameter f : ftp) {
                 bounds.put(f.getName(), f.getBound());
@@ -36,14 +36,14 @@ public class GenericTypeBinder {
         return new GenericTypeBinder(bounds);
     }
 
-    static GenericTypeBinder bind(List<FormalTypeParameter> methodFormalTypeParameters,
-                                  ClassSignature classSignature, List<JavaTypeInstance> args,
-                                  JavaGenericRefTypeInstance boundInstance, List<JavaTypeInstance> boundArgs) {
+    static GenericTypeBinder bind(ObjectList<FormalTypeParameter> methodFormalTypeParameters,
+                                  ClassSignature classSignature, ObjectList<JavaTypeInstance> args,
+                                  JavaGenericRefTypeInstance boundInstance, ObjectList<JavaTypeInstance> boundArgs) {
         Map<String, JavaTypeInstance> nameToBoundType = MapFactory.newMap();
 
         if (boundInstance != null) {    // null for static.
-            List<FormalTypeParameter> unboundParameters = classSignature.formalTypeParameters();
-            List<JavaTypeInstance> boundParameters = boundInstance.getGenericTypes();
+            ObjectList<FormalTypeParameter> unboundParameters = classSignature.formalTypeParameters();
+            ObjectList<JavaTypeInstance> boundParameters = boundInstance.getGenericTypes();
 
             if (unboundParameters == null || boundParameters.size() != unboundParameters.size()) {
                 // I suspect this will happen all the time, but on the face of it I can't see why it should
@@ -58,7 +58,7 @@ public class GenericTypeBinder {
             }
         }
 
-        List<FormalTypeParameter> classFormalTypeParamters = classSignature.formalTypeParameters();
+        ObjectList<FormalTypeParameter> classFormalTypeParamters = classSignature.formalTypeParameters();
         // TODO: Pretty sure this is a tautology given the calling pattern.
 
         GenericTypeBinder res = new GenericTypeBinder(nameToBoundType);
@@ -98,7 +98,7 @@ public class GenericTypeBinder {
     }
 
     public static GenericTypeBinder buildIdentityBindings(JavaGenericRefTypeInstance unbound) {
-        List<JavaTypeInstance> typeParameters = unbound.getGenericTypes();
+        ObjectList<JavaTypeInstance> typeParameters = unbound.getGenericTypes();
 
         Map<String, JavaTypeInstance> unboundNames = MapFactory.newMap();
         //noinspection ForLoopReplaceableByForEach
@@ -141,14 +141,14 @@ public class GenericTypeBinder {
             return;
         }
 
-        List<JavaTypeInstance> typeParameters = unbound.getGenericTypes();
+        ObjectList<JavaTypeInstance> typeParameters = unbound.getGenericTypes();
 
 
         if (!(maybeBound instanceof JavaGenericBaseInstance bound)) {
             return;
         }
 
-        List<JavaTypeInstance> boundTypeParameters = bound.getGenericTypes();
+        ObjectList<JavaTypeInstance> boundTypeParameters = bound.getGenericTypes();
         if (typeParameters.size() != boundTypeParameters.size()) {
             return;
 //            throw new IllegalStateException("Generic info mismatch");

@@ -8,7 +8,7 @@ import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
 import java.io.*;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class FileSummaryDumper implements SummaryDumper {
     private final BufferedWriter writer;
@@ -65,7 +65,7 @@ public class FileSummaryDumper implements SummaryDumper {
 
     private void notifyAdditionalAtEnd() {
         try {
-            List<DecompilerComment> comments = additionalComments != null ? additionalComments.getComments() : null;
+            ObjectList<DecompilerComment> comments = additionalComments != null ? additionalComments.getComments() : null;
             if (comments != null && !comments.isEmpty()) {
                 writer.write("\n");
                 for (DecompilerComment comment : comments) {

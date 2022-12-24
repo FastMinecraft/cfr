@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.entities.attributes;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.entities.annotations.*;
@@ -12,7 +13,7 @@ import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.Collections;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public abstract class AttributeAnnotations extends Attribute implements TypeUsageCollectable {
 
@@ -21,7 +22,7 @@ public abstract class AttributeAnnotations extends Attribute implements TypeUsag
     private static final long OFFSET_OF_NUMBER_OF_ANNOTATIONS = 6;
     private static final long OFFSET_OF_ANNOTATION_TABLE = 8;
 
-    private final List<AnnotationTableEntry> annotationTableEntryList = new ObjectArrayList<>();
+    private final ObjectList<AnnotationTableEntry> annotationTableEntryList = new ObjectArrayList<>();
 
     private final int length;
 
@@ -37,7 +38,7 @@ public abstract class AttributeAnnotations extends Attribute implements TypeUsag
     }
 
     public void hide(final JavaTypeInstance type) {
-        List<AnnotationTableEntry> hideThese = Functional.filter(annotationTableEntryList,
+        ObjectList<AnnotationTableEntry> hideThese = Functional.filter(annotationTableEntryList,
             in -> in.getClazz().equals(type)
         );
         for (AnnotationTableEntry hide : hideThese) {
@@ -56,9 +57,9 @@ public abstract class AttributeAnnotations extends Attribute implements TypeUsag
         return d;
     }
 
-    public List<AnnotationTableEntry> getEntryList() {
+    public ObjectList<AnnotationTableEntry> getEntryList() {
         // Prevent accidental modification
-        return Collections.unmodifiableList(annotationTableEntryList);
+        return ObjectLists.unmodifiable(annotationTableEntryList);
     }
 
     @Override

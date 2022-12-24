@@ -5,7 +5,7 @@ import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class ClassFileDumperAnnotation extends AbstractClassFileDumper {
 
@@ -42,7 +42,7 @@ public class ClassFileDumperAnnotation extends AbstractClassFileDumper {
         d.separator("{").newln();
         d.indent(1);
         // Horrid, but an interface can have fields....
-        List<ClassFileField> fields = classFile.getFields();
+        ObjectList<ClassFileField> fields = classFile.getFields();
         for (ClassFileField field : fields) {
             field.dump(d, classFile);
             first = false;

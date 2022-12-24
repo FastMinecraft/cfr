@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.utils.finalhelp;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
@@ -32,7 +33,7 @@ public class FinalAnalyzer {
      * This is the INITIAL entry point - i.e. we'll call this once for a finally block.
      * If it's recalled later for a different try in the same block, that try should have already been nopped out.
      */
-    public static void identifyFinally(Method method, final Op03SimpleStatement in, List<Op03SimpleStatement> allStatements,
+    public static void identifyFinally(Method method, final Op03SimpleStatement in, ObjectList<Op03SimpleStatement> allStatements,
                                        BlockIdentifierFactory blockIdentifierFactory,
                                        Set<Op03SimpleStatement> analysedTries) {
         // Already modified.
@@ -45,12 +46,12 @@ public class FinalAnalyzer {
         /*
          * We only need worry about try statements which have a 'Throwable' handler.
          */
-        final List<Op03SimpleStatement> targets = in.getTargets();
-        List<Op03SimpleStatement> catchStarts = Functional.filter(targets, new TypeFilter<>(CatchStatement.class));
+        final ObjectList<Op03SimpleStatement> targets = in.getTargets();
+        ObjectList<Op03SimpleStatement> catchStarts = Functional.filter(targets, new TypeFilter<>(CatchStatement.class));
         Set<Op03SimpleStatement> possibleCatches = SetFactory.newOrderedSet();
         for (Op03SimpleStatement catchS : catchStarts) {
             CatchStatement catchStatement = (CatchStatement) catchS.getStatement();
-            List<ExceptionGroup.Entry> exceptions = catchStatement.getExceptions();
+            ObjectList<ExceptionGroup.Entry> exceptions = catchStatement.getExceptions();
             for (ExceptionGroup.Entry exception : exceptions) {
                 if (exception.getExceptionGroup().getTryBlockIdentifier() == tryBlockIdentifier) {
                     JavaRefTypeInstance catchType = exception.getCatchType();
@@ -116,7 +117,7 @@ public class FinalAnalyzer {
          * Looking at the ORIGINAL try block, find the last catch block for it.
          */
         Collection<Op03SimpleStatement> original3 = SetFactory.newOrderedSet(in.getTargets());
-        List<Op03SimpleStatement> originalTryTargets = new ObjectArrayList<>(original3);
+        ObjectList<Op03SimpleStatement> originalTryTargets = new ObjectArrayList<>(original3);
         originalTryTargets.sort(new CompareByIndex());
         Op03SimpleStatement lastCatch = originalTryTargets.get(originalTryTargets.size() - 1);
         if (!(lastCatch.getStatement() instanceof CatchStatement)) {
@@ -129,7 +130,7 @@ public class FinalAnalyzer {
          * We will unlink the finally catch block from all try statements, then
          * try to run peerSets at the same level together.
          */
-        List<PeerTries.PeerTrySet> triesByLevel = peerTries.getPeerTryGroups();
+        ObjectList<PeerTries.PeerTrySet> triesByLevel = peerTries.getPeerTryGroups();
 
         Set<Op03SimpleStatement> catchBlocksToNop = SetFactory.newOrderedSet();
 
@@ -166,7 +167,7 @@ public class FinalAnalyzer {
                  * If it's got a target which is other than the outer throwable, then
                  */
                 Collection<Op03SimpleStatement> original = peerTry.getTargets();
-                List<Op03SimpleStatement> handlers = new ObjectArrayList<>(original);
+                ObjectList<Op03SimpleStatement> handlers = new ObjectArrayList<>(original);
 //                if (firstTryInBlock) {
 //                    firstTryInBlock = false;
 //                    Set<Op03SimpleStatement> inHandlers = SetFactory.newSet(originalTryTargets);
@@ -194,7 +195,7 @@ public class FinalAnalyzer {
                      * We need to remove tgt (and its entire catchblock) from the block set of
                      * any removed inner.
                      */
-                    List<Op03SimpleStatement> catchSources = tgt.getSources();
+                    ObjectList<Op03SimpleStatement> catchSources = tgt.getSources();
                     final Set<BlockIdentifier> unionBlocks = SetFactory.newOrderedSet();
                     for (Op03SimpleStatement catchSource : catchSources) {
                         unionBlocks.addAll(catchSource.getBlockIdentifiers());
@@ -288,9 +289,9 @@ public class FinalAnalyzer {
 
         Result cloneThis = results.iterator().next();
         Collection<Op03SimpleStatement> original2 = cloneThis.getToRemove();
-        List<Op03SimpleStatement> oldFinallyBody = new ObjectArrayList<>(original2);
+        ObjectList<Op03SimpleStatement> oldFinallyBody = new ObjectArrayList<>(original2);
         oldFinallyBody.sort(new CompareByIndex());
-        List<Op03SimpleStatement> newFinallyBody = new ObjectArrayList<>();
+        ObjectList<Op03SimpleStatement> newFinallyBody = new ObjectArrayList<>();
         Set<BlockIdentifier> oldStartBlocks = SetFactory.newOrderedSet(oldFinallyBody.get(0).getBlockIdentifiers());
 
         /*
@@ -409,7 +410,7 @@ public class FinalAnalyzer {
             Op03SimpleStatement afterEnd = result.getAfterEnd();
 
             Collection<Op03SimpleStatement> original1 = start.getSources();
-            List<Op03SimpleStatement> startSources = new ObjectArrayList<>(original1);
+            ObjectList<Op03SimpleStatement> startSources = new ObjectArrayList<>(original1);
             for (Op03SimpleStatement source : startSources) {
                 if (!toRemove.contains(source)) {
                     if (afterEnd != null) {
@@ -523,7 +524,7 @@ public class FinalAnalyzer {
 
             if (afterEnd != null) {
                 Collection<Op03SimpleStatement> original = afterEnd.getSources();
-                List<Op03SimpleStatement> endSources = new ObjectArrayList<>(original);
+                ObjectList<Op03SimpleStatement> endSources = new ObjectArrayList<>(original);
                 for (Op03SimpleStatement source : endSources) {
                     if (toRemove.contains(source)) {
                         afterEnd.removeSource(source);
@@ -621,13 +622,13 @@ public class FinalAnalyzer {
          * We only need worry about try statements which have a 'Throwable' handler...
          * ... except if they immediately jump into try blocks.
          */
-        List<Op03SimpleStatement> targets = in.getTargets();
-        List<Op03SimpleStatement> catchStarts = Functional.filter(targets, new TypeFilter<>(CatchStatement.class));
+        ObjectList<Op03SimpleStatement> targets = in.getTargets();
+        ObjectList<Op03SimpleStatement> catchStarts = Functional.filter(targets, new TypeFilter<>(CatchStatement.class));
         Set<Op03SimpleStatement> possibleCatches = SetFactory.newOrderedSet();
         Set<Op03SimpleStatement> recTries = SetFactory.newOrderedSet();
         for (Op03SimpleStatement catchS : catchStarts) {
             CatchStatement catchStatement = (CatchStatement) catchS.getStatement();
-            List<ExceptionGroup.Entry> exceptions = catchStatement.getExceptions();
+            ObjectList<ExceptionGroup.Entry> exceptions = catchStatement.getExceptions();
             for (ExceptionGroup.Entry exception : exceptions) {
                 if (exception.getExceptionGroup().getTryBlockIdentifier() == tryBlockIdentifier) {
                     JavaRefTypeInstance catchType = exception.getCatchType();
@@ -767,7 +768,7 @@ public class FinalAnalyzer {
             results.add(legitExitResult);
         }
 
-        List<Op03SimpleStatement> tryTargets = in.getTargets();
+        ObjectList<Op03SimpleStatement> tryTargets = in.getTargets();
         for (int x = 1, len = tryTargets.size(); x < len; ++x) {
             Op03SimpleStatement tryCatch = tryTargets.get(x);
             if (!verifyCatchFinally(tryCatch, finallyGraphHelper, peerTries, results)) {
@@ -828,7 +829,7 @@ public class FinalAnalyzer {
         Op03SimpleStatement firstStatementInCatch = in.getTargets().get(0);
 
         // Not neccessarily in order.
-        final List<Op03SimpleStatement> statementsInCatch = new ObjectArrayList<>();
+        final ObjectList<Op03SimpleStatement> statementsInCatch = new ObjectArrayList<>();
 
         final Set<Op03SimpleStatement> targetsOutsideCatch = SetFactory.newOrderedSet();
         final Set<Op03SimpleStatement> directExitsFromCatch = SetFactory.newOrderedSet();
@@ -877,11 +878,11 @@ public class FinalAnalyzer {
 
         final Statement finallyStartStatement = finallyCodeStart.getStatement();
 
-        List<Op03SimpleStatement> possibleFinalStarts = Functional.filter(statementsInCatch,
+        ObjectList<Op03SimpleStatement> possibleFinalStarts = Functional.filter(statementsInCatch,
             in1 -> in1.getStatement().getClass() == finallyStartStatement.getClass()
         );
 
-        List<Result> possibleFinallyBlocks = new ObjectArrayList<>();
+        ObjectList<Result> possibleFinallyBlocks = new ObjectArrayList<>();
         for (Op03SimpleStatement possibleFinallyStart : possibleFinalStarts) {
             Result res = finallyGraphHelper.match(possibleFinallyStart);
             if (!res.isFail()) {
@@ -906,7 +907,7 @@ public class FinalAnalyzer {
          * For try blocks which START inside the catch block, and ALSO vector to the same finally
          * as the ORIGINAL outer try, we expect them to have a Result after them.
          */
-        List<Op03SimpleStatement> tryStatements = Functional.filter(statementsInCatch,
+        ObjectList<Op03SimpleStatement> tryStatements = Functional.filter(statementsInCatch,
             new TypeFilter<>(TryStatement.class));
         addPeerTries(tryStatements, peerTries);
 
@@ -967,7 +968,7 @@ public class FinalAnalyzer {
         /*
          * This is a hack.
          */
-        List<Op03SimpleStatement> tmp = new ObjectArrayList<>(possibleCatches);
+        ObjectList<Op03SimpleStatement> tmp = new ObjectArrayList<>(possibleCatches);
         tmp.sort(new CompareByIndex());
         return tmp.get(tmp.size() - 1);
     }

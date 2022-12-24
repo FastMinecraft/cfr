@@ -21,7 +21,7 @@ import org.benf.cfr.reader.entities.AccessFlagMethod;
 import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.entities.Method;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class TryResourcesTransformerJ9 extends TryResourceTransformerFinally {
     public TryResourcesTransformerJ9(ClassFile classFile) {
@@ -35,7 +35,7 @@ public class TryResourcesTransformerJ9 extends TryResourceTransformerFinally {
         Op04StructuredStatement content = finalli.getCatchBlock();
 
         WildcardMatch wcm = new WildcardMatch();
-        List<StructuredStatement> structuredStatements = MiscStatementTools.linearise(content);
+        ObjectList<StructuredStatement> structuredStatements = MiscStatementTools.linearise(content);
         if (structuredStatements == null) return null;
 
         InferredJavaType inferredThrowable = new InferredJavaType(TypeConstants.THROWABLE, InferredJavaType.Source.LITERAL, true);

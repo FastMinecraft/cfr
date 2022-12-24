@@ -2,18 +2,18 @@ package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.matchutil;
 
 import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class MatchIterator<T> {
-    private final List<T> data;
+    private final ObjectList<T> data;
     private int idx;
 
-    public MatchIterator(List<T> data) {
+    public MatchIterator(ObjectList<T> data) {
         this.data = data;
         this.idx = -1;
     }
 
-    private MatchIterator(List<T> data, int idx) {
+    private MatchIterator(ObjectList<T> data, int idx) {
         this.data = data;
         this.idx = idx;
     }

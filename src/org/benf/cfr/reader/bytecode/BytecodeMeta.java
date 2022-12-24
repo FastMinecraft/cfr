@@ -10,7 +10,7 @@ import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.PermittedOptionProvider;
 
 import java.util.EnumSet;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -35,7 +35,7 @@ public class BytecodeMeta {
     private final Map<Integer, JavaTypeInstance> iteratedTypeHints = MapFactory.newMap();
     private final Options options;
 
-    public BytecodeMeta(List<Op01WithProcessedDataAndByteJumps> op1s, AttributeCode code, Options options) {
+    public BytecodeMeta(ObjectList<Op01WithProcessedDataAndByteJumps> op1s, AttributeCode code, Options options) {
         this.options = options;
         int flagCount = CodeInfoFlag.values().length;
         if (!code.getExceptionTableEntries().isEmpty()) flags.add(CodeInfoFlag.USES_EXCEPTIONS);

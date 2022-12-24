@@ -16,7 +16,7 @@ import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.Troolean;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.Set;
 
@@ -148,7 +148,7 @@ public class BooleanOperation extends AbstractExpression implements ConditionalE
         return this;
     }
 
-    public static ConditionalExpression makeRightDeep(List<ConditionalExpression> c, BoolOp op) {
+    public static ConditionalExpression makeRightDeep(ObjectList<ConditionalExpression> c, BoolOp op) {
         ConditionalExpression res = c.get(c.size()-1);
         for (int x=c.size()-2; x>=0;x--) {
             res = new BooleanOperation(BytecodeLoc.NONE, /* lose info :( */ c.get(x), res, op);

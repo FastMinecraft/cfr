@@ -15,7 +15,7 @@ import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.util.CannotLoadClassException;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class ConstructorInvokationAnonymousInner extends AbstractConstructorInvokation {
     private final MemberFunctionInvokation constructorInvokation;
@@ -24,7 +24,7 @@ public class ConstructorInvokationAnonymousInner extends AbstractConstructorInvo
 
     public ConstructorInvokationAnonymousInner(BytecodeLoc loc,
                                                MemberFunctionInvokation constructorInvokation,
-                                               InferredJavaType inferredJavaType, List<Expression> args,
+                                               InferredJavaType inferredJavaType, ObjectList<Expression> args,
                                                DCCommonState dcCommonState, JavaTypeInstance anonymousTypeInstance) {
         super(loc, (inferredJavaType), constructorInvokation.getFunction(), args);
         this.constructorInvokation = constructorInvokation;
@@ -78,7 +78,7 @@ public class ConstructorInvokationAnonymousInner extends AbstractConstructorInvo
         MethodPrototype prototype = improveMethodPrototype(d);
 
         ClassFileDumperAnonymousInner cfd = new ClassFileDumperAnonymousInner();
-        List<Expression> args = getArgs();
+        ObjectList<Expression> args = getArgs();
         cfd.dumpWithArgs(classFile, prototype, args, false, d);
         d.removePendingCarriageReturn();
         return d;
@@ -109,7 +109,7 @@ public class ConstructorInvokationAnonymousInner extends AbstractConstructorInvo
     public void dumpForEnum(Dumper d) {
         // ConstantPool cp = constructorInvokation.getCp();
         ClassFileDumperAnonymousInner cfd = new ClassFileDumperAnonymousInner();
-        List<Expression> args = getArgs();
+        ObjectList<Expression> args = getArgs();
 
         /* Enums always have 2 initial arguments */
         cfd.dumpWithArgs(classFile, null, args.subList(2, args.size()), true, d);

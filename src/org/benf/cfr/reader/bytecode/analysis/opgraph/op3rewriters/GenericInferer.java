@@ -14,7 +14,7 @@ import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.util.collections.*;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.Set;
 
@@ -64,9 +64,9 @@ public class GenericInferer {
     }
 
     private static GenericInferData getGtbNullFiltered(MemberFunctionInvokation m) {
-        List<Expression> args = m.getArgs();
+        ObjectList<Expression> args = m.getArgs();
         GenericTypeBinder res =  m.getMethodPrototype().getTypeBinderFor(args);
-        List<Boolean> nulls = m.getNulls();
+        ObjectList<Boolean> nulls = m.getNulls();
         if (args.size() != nulls.size()) return new GenericInferData(res);
         boolean found = false;
         for (Boolean b : nulls) {
@@ -95,9 +95,9 @@ public class GenericInferer {
         return new GenericInferData(res, nullBindings);
     }
 
-    public static void inferGenericObjectInfoFromCalls(List<Op03SimpleStatement> statements) {
+    public static void inferGenericObjectInfoFromCalls(ObjectList<Op03SimpleStatement> statements) {
         // memberFunctionInvokations will either be wrapped in ExpressionStatement or SimpleAssignment.
-        List<MemberFunctionInvokation> memberFunctionInvokations = new ObjectArrayList<>();
+        ObjectList<MemberFunctionInvokation> memberFunctionInvokations = new ObjectArrayList<>();
         for (Op03SimpleStatement statement : statements) {
             Statement contained = statement.getStatement();
             if (contained instanceof ExpressionStatement) {
@@ -116,14 +116,14 @@ public class GenericInferer {
             return;
         }
 
-        Map<Integer, List<MemberFunctionInvokation>> byTypKey = MapFactory.newTreeMap();
+        Map<Integer, ObjectList<MemberFunctionInvokation>> byTypKey = MapFactory.newTreeMap();
         Functional.groupToMapBy(memberFunctionInvokations, byTypKey,
             arg -> arg.getObject().getInferredJavaType().getLocalId()
         );
 
         invokationGroup:
-        for (Map.Entry<Integer, List<MemberFunctionInvokation>> entry : byTypKey.entrySet()) {
-            List<MemberFunctionInvokation> invokations = entry.getValue();
+        for (Map.Entry<Integer, ObjectList<MemberFunctionInvokation>> entry : byTypKey.entrySet()) {
+            ObjectList<MemberFunctionInvokation> invokations = entry.getValue();
             if (invokations.isEmpty()) continue;
 
             Expression obj0 = invokations.get(0).getObject();

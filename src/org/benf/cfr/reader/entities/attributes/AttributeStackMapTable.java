@@ -7,7 +7,7 @@ import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.bytestream.OffsettingByteData;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 /*
  * https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.4
@@ -46,7 +46,7 @@ public class AttributeStackMapTable extends Attribute {
 
     private final int length;
     private final boolean valid; // apparently, anyway!
-    private final List<StackMapFrame> stackMapFrames;
+    private final ObjectList<StackMapFrame> stackMapFrames;
 
     public AttributeStackMapTable(ByteData raw, ConstantPool cp) {
         this.length = raw.getS4At(OFFSET_OF_ATTRIBUTE_LENGTH);
@@ -61,7 +61,7 @@ public class AttributeStackMapTable extends Attribute {
     public AttributeStackMapTable(ByteData raw, ConstantPool cp, ClassFileVersion classFileVersion) {
         this.length = raw.getS4At(OFFSET_OF_ATTRIBUTE_LENGTH);
         int numEntries = raw.getU2At(OFFSET_OF_NUMBER_OF_ENTRIES);
-        List<StackMapFrame> frames = new ObjectArrayList<>();
+        ObjectList<StackMapFrame> frames = new ObjectArrayList<>();
         boolean isValid = true;
         OffsettingByteData data = raw.getOffsettingOffsetData(OFFSET_OF_STACK_MAP_FRAMES);
         try {
@@ -80,7 +80,7 @@ public class AttributeStackMapTable extends Attribute {
         return valid;
     }
 
-    public List<StackMapFrame> getStackMapFrames() {
+    public ObjectList<StackMapFrame> getStackMapFrames() {
         return stackMapFrames;
     }
 

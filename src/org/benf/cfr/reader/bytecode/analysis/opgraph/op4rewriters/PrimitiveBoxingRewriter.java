@@ -15,7 +15,7 @@ import org.benf.cfr.reader.bytecode.analysis.types.*;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.entities.classfilehelpers.OverloadMethodSet;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 /**
  * This seems daft - why do I need to have all this boilerplate?
@@ -89,7 +89,7 @@ public class PrimitiveBoxingRewriter implements ExpressionRewriter {
         if (in instanceof CastExpression) {
             boolean wasRaw = true;
             if (methodPrototype != null) {
-                List<JavaTypeInstance> argTypes = methodPrototype.getArgs();
+                ObjectList<JavaTypeInstance> argTypes = methodPrototype.getArgs();
                 if (argIdx <= argTypes.size() - 1) {
                     wasRaw = argTypes.get(argIdx) instanceof RawJavaType;
                 }
@@ -123,7 +123,7 @@ public class PrimitiveBoxingRewriter implements ExpressionRewriter {
 //        return sugarParameterBoxing(res, argIdx, possibleMethods);
     }
 
-    public void removeRedundantCastOnly(List<Expression> mutableIn) {
+    public void removeRedundantCastOnly(ObjectList<Expression> mutableIn) {
         for (int x = 0, len = mutableIn.size(); x < len; ++x) {
             mutableIn.set(x, removeRedundantCastOnly(mutableIn.get(x)));
         }

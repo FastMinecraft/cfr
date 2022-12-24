@@ -10,7 +10,7 @@ import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,9 +21,9 @@ public class ClassMapping {
     private final Map<String, FieldMapping> fieldMappings = MapFactory.newMap();
 
     private static class MethodData {
-        final List<JavaTypeInstance> args;
+        final ObjectList<JavaTypeInstance> args;
 
-        MethodData(List<JavaTypeInstance> argTypes) {
+        MethodData(ObjectList<JavaTypeInstance> argTypes) {
             if (!argTypes.isEmpty()) {
                 argTypes = Functional.map(argTypes, JavaTypeInstance::getDeGenerifiedType);
             }
@@ -82,7 +82,7 @@ public class ClassMapping {
         return obClass;
     }
 
-    String getMethodName(String displayName, List<JavaTypeInstance> args, final Mapping mapping, Dumper d) {
+    String getMethodName(String displayName, ObjectList<JavaTypeInstance> args, final Mapping mapping, Dumper d) {
         Map<MethodData, String> poss = methodMappings.get(displayName);
         if (poss == null) {
             return displayName;

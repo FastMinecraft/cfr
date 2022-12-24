@@ -10,7 +10,7 @@ import org.benf.cfr.reader.util.collections.SetUtil;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Set;
 
 public class Op02RedundantStoreRewriter {
@@ -51,7 +51,7 @@ public class Op02RedundantStoreRewriter {
        bipush 8
        istore 5
      */
-    private void removeOverwrittenStores(List<Op02WithProcessedDataAndRefs> instrs, int maxLocals) {
+    private void removeOverwrittenStores(ObjectList<Op02WithProcessedDataAndRefs> instrs, int maxLocals) {
 //        if (instrs.size() < 1000) return;
         int[] laststore = new int[maxLocals];
         int[] lastload = new int[maxLocals];
@@ -62,8 +62,8 @@ public class Op02RedundantStoreRewriter {
 
         for (int x=0, maxm1=instrs.size()-1;x<maxm1;++x) {
             Op02WithProcessedDataAndRefs instr = instrs.get(x);
-            List<Op02WithProcessedDataAndRefs> targets = instr.getTargets();
-            List<Op02WithProcessedDataAndRefs> sources = instr.getSources();
+            ObjectList<Op02WithProcessedDataAndRefs> targets = instr.getTargets();
+            ObjectList<Op02WithProcessedDataAndRefs> sources = instr.getSources();
             if (sources.size() != 1 || targets.size() != 1 || targets.get(0) != instrs.get(x+1)) {
                 lastCutOff = x;
                 continue;
@@ -149,12 +149,12 @@ public class Op02RedundantStoreRewriter {
             while (iterator.hasNext()) {
                 Op02WithProcessedDataAndRefs instr = iterator.next();
                 if (instr.getInstr() == JVMInstr.NOP) {
-                    List<Op02WithProcessedDataAndRefs> targets = instr.getTargets();
+                    ObjectList<Op02WithProcessedDataAndRefs> targets = instr.getTargets();
                     if (targets.size() != 1) continue;
                     Op02WithProcessedDataAndRefs target = targets.get(0);
                     targets.clear();
                     target.removeSource(instr);
-                    List<Op02WithProcessedDataAndRefs> sources = instr.getSources();
+                    ObjectList<Op02WithProcessedDataAndRefs> sources = instr.getSources();
                     for (Op02WithProcessedDataAndRefs source : sources) {
                         source.replaceTarget(instr, target);
                         target.addSource(source);
@@ -172,7 +172,7 @@ public class Op02RedundantStoreRewriter {
      *
      * If we *never* _load0, then _store0 is never useful.
      */
-    private void removeUnreadStores(List<Op02WithProcessedDataAndRefs> instrs) {
+    private void removeUnreadStores(ObjectList<Op02WithProcessedDataAndRefs> instrs) {
         Set<Integer> retrieves = SetFactory.newSet();
         for (Op02WithProcessedDataAndRefs op : instrs) {
             Integer idx = op.getRetrieveIdx();
@@ -192,7 +192,7 @@ public class Op02RedundantStoreRewriter {
         }
     }
 
-    public static void rewrite(List<Op02WithProcessedDataAndRefs> instrs, int maxLocals) {
+    public static void rewrite(ObjectList<Op02WithProcessedDataAndRefs> instrs, int maxLocals) {
         INSTANCE.removeUnreadStores(instrs);
         INSTANCE.removeOverwrittenStores(instrs, maxLocals);
     }

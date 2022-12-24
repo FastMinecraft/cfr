@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.util.graph;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.*;
@@ -15,7 +16,7 @@ public class GraphVisitorDFS<T> implements GraphVisitor<T> {
     private boolean aborted = false;
 
     public GraphVisitorDFS(T first, BiConsumer<T, GraphVisitor<T>> callee) {
-        this.start = Collections.singletonList(first);
+        this.start = ObjectLists.singleton(first);
         this.callee = callee;
     }
 

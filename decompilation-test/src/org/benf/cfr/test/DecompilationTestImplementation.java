@@ -39,7 +39,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -140,7 +140,7 @@ class DecompilationTestImplementation {
         @Override
         public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
 
-            List<Arguments> res = new ArrayList<>();
+            ObjectList<Arguments> res = new ObjectArrayList<>();
 
             DocumentBuilder db = dbf.newDocumentBuilder();
             Document doc = db.parse(TEST_SPECS_DIR.resolve(configFilePath).toString());
@@ -196,9 +196,9 @@ class DecompilationTestImplementation {
     private static class DecompilationResult {
         public final String summary;
         public final String exceptions;
-        public final List<DecompiledMultiVer> decompiled;
+        public final ObjectList<DecompiledMultiVer> decompiled;
 
-        public DecompilationResult(String summary, String exceptions, List<DecompiledMultiVer> decompiled) {
+        public DecompilationResult(String summary, String exceptions, ObjectList<DecompiledMultiVer> decompiled) {
             this.summary = summary;
             this.exceptions = exceptions;
             this.decompiled = decompiled;
@@ -222,22 +222,22 @@ class DecompilationTestImplementation {
                 .append("\n\n");
         };
 
-        List<DecompiledMultiVer> decompiledList = new ArrayList<>();
+        ObjectList<DecompiledMultiVer> decompiledList = new ObjectArrayList<>();
         Sink<DecompiledMultiVer> decompiledSourceSink = decompiledList::add;
 
         OutputSinkFactory sinkFactory = new OutputSinkFactory() {
             @Override
-            public List<SinkClass> getSupportedSinks(SinkType sinkType, Collection<SinkClass> collection) {
+            public ObjectList<SinkClass> getSupportedSinks(SinkType sinkType, Collection<SinkClass> collection) {
                 switch (sinkType) {
                     case JAVA:
-                        return Collections.singletonList(SinkClass.DECOMPILED_MULTIVER);
+                        return ObjectLists.singleton(SinkClass.DECOMPILED_MULTIVER);
                     case EXCEPTION:
-                        return Collections.singletonList(SinkClass.EXCEPTION_MESSAGE);
+                        return ObjectLists.singleton(SinkClass.EXCEPTION_MESSAGE);
                     case SUMMARY:
-                        return Collections.singletonList(SinkClass.STRING);
+                        return ObjectLists.singleton(SinkClass.STRING);
                     default:
                         // Required to always support STRING
-                        return Collections.singletonList(SinkClass.STRING);
+                        return ObjectLists.singleton(SinkClass.STRING);
                 }
             }
 
@@ -277,7 +277,7 @@ class DecompilationTestImplementation {
             .withOutputSink(sinkFactory)
             .build();
         String pathString = path.toAbsolutePath().toString();
-        driver.analyse(Collections.singletonList(pathString));
+        driver.analyse(ObjectLists.singleton(pathString));
 
         // Replace version information and file path to prevent changes in the output
         String summary = summaryOutput.toString().replace(CfrVersionInfo.VERSION_INFO, "<version>").replace(pathString, "<path>/" + path.getFileName().toString());
@@ -357,12 +357,12 @@ class DecompilationTestImplementation {
                 return new DiffCodeResult(null, false, true);
             }
         } else {
-            List<String> expectedLines = Arrays.asList(expectedCodeWithoutNotes.split("\\R", -1));
-            List<String> actualLines = Arrays.asList(actualCode.split("\\R", -1));
+            ObjectList<String> expectedLines = Arrays.asList(expectedCodeWithoutNotes.split("\\R", -1));
+            ObjectList<String> actualLines = Arrays.asList(actualCode.split("\\R", -1));
             Patch<String> diff = DiffUtils.diff(expectedLines, actualLines);
 
             String fileName = expectedCodeFilePath.getFileName().toString();
-            List<String> unifiedDiff = UnifiedDiffUtils.generateUnifiedDiff(fileName, "actual-code", expectedLines, diff, 1);
+            ObjectList<String> unifiedDiff = UnifiedDiffUtils.generateUnifiedDiff(fileName, "actual-code", expectedLines, diff, 1);
             Path outputPath = TEST_FAILURE_DIFF_OUTPUT_DIR.resolve(TEST_DATA_EXPECTED_OUTPUT_ROOT_DIR.toAbsolutePath().relativize(expectedCodeFilePath.toAbsolutePath()).getParent().resolve(fileName + ".diff"));
             Files.createDirectories(outputPath.getParent());
             Files.write(outputPath, unifiedDiff);
@@ -388,11 +388,11 @@ class DecompilationTestImplementation {
      * Fail the test because expected data was updated.
      *
      * @param filesWithDecompilationNotes
-     *      List of expected Java files which could not be updated because they contain
+     *      ObjectList of expected Java files which could not be updated because they contain
      *      decompilation notes
      * @see #UPDATE_EXPECTED_DATA
      */
-    private static void failUpdatedExpectedData(List<Path> filesWithDecompilationNotes) {
+    private static void failUpdatedExpectedData(ObjectList<Path> filesWithDecompilationNotes) {
         String message = "Updated expected data";
 
         if (!filesWithDecompilationNotes.isEmpty()) {
@@ -407,11 +407,11 @@ class DecompilationTestImplementation {
      * decompilation notes which would get lost.
      *
      * @param filesWithDecompilationNotes
-     *      List of expected Java files which could not be updated because they contain
+     *      ObjectList of expected Java files which could not be updated because they contain
      *      decompilation notes
      * @see #UPDATE_EXPECTED_DATA
      */
-    private static void failNotUpdatableDueToDecompilationNotes(List<Path> filesWithDecompilationNotes) {
+    private static void failNotUpdatableDueToDecompilationNotes(ObjectList<Path> filesWithDecompilationNotes) {
         String filesList = filesWithDecompilationNotes.stream().map(Path::toString).collect(Collectors.joining(", "));
         fail("Failed updating these files due to decompilation notes which would get lost: " + filesList);
     }
@@ -442,9 +442,9 @@ class DecompilationTestImplementation {
 
         boolean createdExpectedFile = false;
         boolean updatedExpectedFile = false;
-        List<Path> notUpdatableDueToDecompilationNotes = new ArrayList<>();
+        ObjectList<Path> notUpdatableDueToDecompilationNotes = new ObjectArrayList<>();
 
-        List<DecompiledMultiVer> decompiledList = decompilationResult.decompiled;
+        ObjectList<DecompiledMultiVer> decompiledList = decompilationResult.decompiled;
         assertEquals(1, decompiledList.size());
         DecompiledMultiVer decompiled = decompiledList.get(0);
         assertEquals(0, decompiled.getRuntimeFrom());

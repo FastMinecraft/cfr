@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.structured.statement;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.ConditionalExpression;
@@ -83,7 +84,7 @@ public class UnstructuredWhile extends AbstractUnStructuredStatement {
          */
         StructuredStatement whileLoop = new StructuredWhile(condition, innerBlock, blockIdentifier);
 
-        BlockIdentifier externalBreak = BlockIdentifier.getOutermostEnding(blocksCurrentlyIn, blocksEndedAfter);
+        BlockIdentifier externalBreak = BlockIdentifier.getOutermostEnding(new ObjectArrayList<>(blocksCurrentlyIn), blocksEndedAfter);
         if (externalBreak == null) {
             return whileLoop;
         }

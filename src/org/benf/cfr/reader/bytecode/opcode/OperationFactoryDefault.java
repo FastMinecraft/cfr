@@ -13,7 +13,7 @@ import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.bytestream.ByteData;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class OperationFactoryDefault implements OperationFactory {
 
@@ -50,7 +50,7 @@ public class OperationFactoryDefault implements OperationFactory {
         if (indexes.length == 1) {
             return stackSim.getEntry(indexes[0]).getType().asList();
         } else {
-            List<StackType> stackTypes = new ObjectArrayList<>();
+            ObjectList<StackType> stackTypes = new ObjectArrayList<>();
             for (Integer index : indexes) {
                 stackTypes.add(stackSim.getEntry(index).getType());
             }

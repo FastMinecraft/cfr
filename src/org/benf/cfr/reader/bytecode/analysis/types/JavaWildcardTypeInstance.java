@@ -13,7 +13,7 @@ import org.benf.cfr.reader.util.output.IllegalIdentifierDump;
 import org.benf.cfr.reader.util.output.ToStringDumper;
 import org.benf.cfr.reader.util.output.TypeContext;
 
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
 
 public class JavaWildcardTypeInstance implements JavaGenericBaseInstance {
@@ -41,7 +41,7 @@ public class JavaWildcardTypeInstance implements JavaGenericBaseInstance {
     }
 
     private class Annotated implements JavaAnnotatedTypeInstance {
-        private final List<AnnotationTableEntry> entries = new ObjectArrayList<>();
+        private final ObjectList<AnnotationTableEntry> entries = new ObjectArrayList<>();
         private final JavaAnnotatedTypeInstance underlyingAnnotated;
 
         private Annotated() {
@@ -128,7 +128,7 @@ public class JavaWildcardTypeInstance implements JavaGenericBaseInstance {
     }
 
     @Override
-    public List<JavaTypeInstance> getGenericTypes() {
+    public ObjectList<JavaTypeInstance> getGenericTypes() {
         if (underlyingType instanceof JavaGenericBaseInstance) {
             return ((JavaGenericBaseInstance) underlyingType).getGenericTypes();
         }
