@@ -13,7 +13,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.statement.AssignmentPreMutati
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.AssignmentSimple;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.SSAIdentifiers;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 
 import java.util.List;
 
@@ -54,8 +54,7 @@ class PrePostchangeAssignmentRewriter {
              * Otherwise, if it's v0 = x, it's a candidate.
              */
             Statement innerStatement = current.getStatement();
-            if (innerStatement instanceof AssignmentSimple) {
-                AssignmentSimple assignmentSimple = (AssignmentSimple) innerStatement;
+            if (innerStatement instanceof AssignmentSimple assignmentSimple) {
                 if (assignmentSimple.getRValue().equals(lvalueExpression)) {
                     LValue tgt = assignmentSimple.getCreatedLValue();
                     tgt.applyExpressionRewriter(usageWatcher, null, current, ExpressionRewriterFlags.LVALUE);
@@ -123,7 +122,8 @@ class PrePostchangeAssignmentRewriter {
     }
 
     static void pushPreChangeBack(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> assignments = Functional.filter(statements, new TypeFilter<AssignmentPreMutation>(AssignmentPreMutation.class));
+        List<Op03SimpleStatement> assignments = Functional.filter(statements,
+            new TypeFilter<>(AssignmentPreMutation.class));
         assignments = Functional.filter(assignments, new StatementCanBePostMutation());
         if (assignments.isEmpty()) return;
 
@@ -145,10 +145,9 @@ class PrePostchangeAssignmentRewriter {
 
         // Is it an arithop
         Expression rValue = assignmentSimple.getRValue();
-        if (!(rValue instanceof ArithmeticOperation)) return false;
+        if (!(rValue instanceof ArithmeticOperation arithmeticOperation)) return false;
 
         // Which is a mutation
-        ArithmeticOperation arithmeticOperation = (ArithmeticOperation) rValue;
         if (!arithmeticOperation.isMutationOf(lValue)) return false;
 
         // Create an assignment prechange with the mutation
@@ -176,20 +175,17 @@ class PrePostchangeAssignmentRewriter {
 
         Op03SimpleStatement prior = statement.getSources().get(0);
         Statement statementPrior = prior.getStatement();
-        if (!(statementPrior instanceof AssignmentSimple)) return;
+        if (!(statementPrior instanceof AssignmentSimple assignmentSimplePrior)) return;
 
-        AssignmentSimple assignmentSimplePrior = (AssignmentSimple) statementPrior;
         LValue tmp = assignmentSimplePrior.getCreatedLValue();
-        if (!(tmp instanceof StackSSALabel)) return;
+        if (!(tmp instanceof StackSSALabel tmpStackVar)) return;
 
         if (!assignmentSimplePrior.getRValue().equals(new LValueExpression(postIncLValue))) return;
 
-        StackSSALabel tmpStackVar = (StackSSALabel) tmp;
         Expression stackValue = new StackValue(assignmentSimplePrior.getLoc(), tmpStackVar);
         Expression incrRValue = assignmentSimple.getRValue();
 
-        if (!(incrRValue instanceof ArithmeticOperation)) return;
-        ArithmeticOperation arithOp = (ArithmeticOperation) incrRValue;
+        if (!(incrRValue instanceof ArithmeticOperation arithOp)) return;
         ArithOp op = arithOp.getOp();
         if (!(op.equals(ArithOp.PLUS) || op.equals(ArithOp.MINUS))) return;
 
@@ -210,7 +206,7 @@ class PrePostchangeAssignmentRewriter {
     }
 
     static void replacePrePostChangeAssignments(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> assignments = Functional.filter(statements, new TypeFilter<AssignmentSimple>(AssignmentSimple.class));
+        List<Op03SimpleStatement> assignments = Functional.filter(statements, new TypeFilter<>(AssignmentSimple.class));
         for (Op03SimpleStatement assignment : assignments) {
             if (replacePreChangeAssignment(assignment)) continue;
             replacePostChangeAssignment(assignment);

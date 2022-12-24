@@ -112,8 +112,7 @@ public class StructuredSwitch extends AbstractStructuredBlockStatement implement
     @Override
     public boolean match(MatchIterator<StructuredStatement> matchIterator, MatchResultCollector matchResultCollector) {
         StructuredStatement o = matchIterator.getCurrent();
-        if (!(o instanceof StructuredSwitch)) return false;
-        StructuredSwitch other = (StructuredSwitch) o;
+        if (!(o instanceof StructuredSwitch other)) return false;
         if (!switchOn.equals(other.switchOn)) return false;
         if (!blockIdentifier.equals(other.blockIdentifier)) return false;
         matchIterator.advance();
@@ -133,8 +132,7 @@ public class StructuredSwitch extends AbstractStructuredBlockStatement implement
         if (onestm.getSecond() == null) return false;
         StructuredStatement single = onestm.getSecond().getStatement();
         // should be!
-        if (!(single instanceof StructuredCase)) return false;
-        StructuredCase cs = (StructuredCase)single;
+        if (!(single instanceof StructuredCase cs)) return false;
         if (!cs.isDefault()) return false;
         StructuredStatement caseBody = cs.getBody().getStatement();
         if (!(caseBody instanceof Block)) return false;

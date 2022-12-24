@@ -53,8 +53,7 @@ public class ClashDeclarationReducer extends AbstractExpressionRewriter implemen
         for (int x=statements.size()-1;x>0;--x) {
             Op04StructuredStatement stm = statements.get(x);
             StructuredStatement s = stm.getStatement();
-            if (s instanceof StructuredAssignment) {
-                StructuredAssignment sa = (StructuredAssignment)s;
+            if (s instanceof StructuredAssignment sa) {
                 LValue lv = sa.getLvalue();
                 if (lv instanceof LocalVariable) {
                     int slot = ((LocalVariable) lv).getIdx();
@@ -100,9 +99,8 @@ public class ClashDeclarationReducer extends AbstractExpressionRewriter implemen
             StructuredStatement s = stm.getStatement();
             // can't use isEffectivelyNop, in case it has multiple sources.
             if (s instanceof StructuredComment) continue;
-            if (!(s instanceof StructuredAssignment)) return x;
+            if (!(s instanceof StructuredAssignment sa)) return x;
 
-            StructuredAssignment sa = (StructuredAssignment) s;
             LValue lv = sa.getLvalue();
             if (!(lv instanceof LocalVariable)) return x;
             if (((LocalVariable) lv).getIdx() != slot) return x;

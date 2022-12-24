@@ -20,7 +20,7 @@ import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 import org.benf.cfr.reader.util.functors.UnaryFunction;
 
 import java.util.*;
@@ -28,7 +28,7 @@ import java.util.*;
 public class ExceptionRewriters {
 
     static List<Op03SimpleStatement> eliminateCatchTemporaries(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> catches = Functional.filter(statements, new TypeFilter<CatchStatement>(CatchStatement.class));
+        List<Op03SimpleStatement> catches = Functional.filter(statements, new TypeFilter<>(CatchStatement.class));
         boolean effect = false;
         for (Op03SimpleStatement catchh : catches) {
             effect = effect | eliminateCatchTemporary(catchh);
@@ -48,8 +48,7 @@ public class ExceptionRewriters {
         CatchStatement catchStatement = (CatchStatement) catchh.getStatement();
         LValue catching = catchStatement.getCreatedLValue();
 
-        if (!(catching instanceof StackSSALabel)) return false;
-        StackSSALabel catchingSSA = (StackSSALabel) catching;
+        if (!(catching instanceof StackSSALabel catchingSSA)) return false;
         if (catchingSSA.getStackEntry().getUsageCount() != 1) return false;
 
         while (maybeAssign.getStatement() instanceof TryStatement) {
@@ -81,7 +80,7 @@ public class ExceptionRewriters {
      * unwind all tentatives which assume that it was.
      */
     static void identifyCatchBlocks(List<Op03SimpleStatement> in, BlockIdentifierFactory blockIdentifierFactory) {
-        List<Op03SimpleStatement> catchStarts = Functional.filter(in, new TypeFilter<CatchStatement>(CatchStatement.class));
+        List<Op03SimpleStatement> catchStarts = Functional.filter(in, new TypeFilter<>(CatchStatement.class));
         for (Op03SimpleStatement catchStart : catchStarts) {
             CatchStatement catchStatement = (CatchStatement) catchStart.getStatement();
             if (catchStatement.getCatchBlockIdent() == null) {
@@ -125,12 +124,7 @@ public class ExceptionRewriters {
             seen.add(target);
         }
 
-        Map<Op03SimpleStatement, Set<Op03SimpleStatement>> allows = MapFactory.newLazyMap(new UnaryFunction<Op03SimpleStatement, Set<Op03SimpleStatement>>() {
-            @Override
-            public Set<Op03SimpleStatement> invoke(Op03SimpleStatement ignore) {
-                return SetFactory.newSet();
-            }
-        });
+        Map<Op03SimpleStatement, Set<Op03SimpleStatement>> allows = MapFactory.newLazyMap(ignore -> SetFactory.newSet());
         int sinceDefinite = 0;
         while (!pendingPossibilities.isEmpty() && sinceDefinite <= pendingPossibilities.size()) {
             Op03SimpleStatement maybe = pendingPossibilities.removeFirst();
@@ -196,7 +190,7 @@ public class ExceptionRewriters {
          * Sort knownMembers
          */
         List<Op03SimpleStatement> knownMemberList = ListFactory.newList(knownMembers);
-        Collections.sort(knownMemberList, new CompareByIndex());
+        knownMemberList.sort(new CompareByIndex());
 
         List<Op03SimpleStatement> truncatedKnownMembers = ListFactory.newList();
         int x = statements.indexOf(knownMemberList.get(0));
@@ -236,7 +230,7 @@ public class ExceptionRewriters {
     }
 
     private static List<Op03SimpleStatement> getTries(List<Op03SimpleStatement> in) {
-        return Functional.filter(in, new TypeFilter<TryStatement>(TryStatement.class));
+        return Functional.filter(in, new TypeFilter<>(TryStatement.class));
     }
 
 
@@ -248,8 +242,7 @@ public class ExceptionRewriters {
 
         // all in block, reachable
         for (Op03SimpleStatement target : tryStatement.getTargets()) {
-            if (target.getStatement() instanceof CatchStatement) {
-                CatchStatement catchStatement = (CatchStatement) target.getStatement();
+            if (target.getStatement() instanceof CatchStatement catchStatement) {
                 allStatements.addAll(Misc.GraphVisitorBlockReachable.getBlockReachable(target, catchStatement.getCatchBlockIdent()));
             }
         }
@@ -260,16 +253,13 @@ public class ExceptionRewriters {
         /* See Tock test for why we should only extend try/catch.
          */
         Set<BlockIdentifier> tryBlocks = tryStatement.getBlockIdentifiers();
-        tryBlocks = SetFactory.newSet(Functional.filter(tryBlocks, new Predicate<BlockIdentifier>() {
-            @Override
-            public boolean test(BlockIdentifier in) {
-                return in.getBlockType() == BlockType.TRYBLOCK || in.getBlockType() == BlockType.CATCHBLOCK;
-            }
-        }));
+        tryBlocks = SetFactory.newSet(Functional.filter(tryBlocks,
+            in -> in.getBlockType() == BlockType.TRYBLOCK || in.getBlockType() == BlockType.CATCHBLOCK
+        ));
         if (tryBlocks.isEmpty()) return;
 
         List<Op03SimpleStatement> orderedStatements = ListFactory.newList(allStatements);
-        Collections.sort(orderedStatements, new CompareByIndex(false));
+        orderedStatements.sort(new CompareByIndex(false));
 
         for (Op03SimpleStatement statement : orderedStatements) {
             for (BlockIdentifier ident : tryBlocks) {
@@ -319,7 +309,7 @@ public class ExceptionRewriters {
      *
      */
     static void extractExceptionMiddle(List<Op03SimpleStatement> in) {
-        List<Op03SimpleStatement> tryStatements = Functional.filter(in, new ExactTypeFilter<TryStatement>(TryStatement.class));
+        List<Op03SimpleStatement> tryStatements = Functional.filter(in, new ExactTypeFilter<>(TryStatement.class));
         if (tryStatements.isEmpty()) return;
         Collections.reverse(tryStatements);
         for (Op03SimpleStatement tryStatement : tryStatements) {
@@ -408,8 +398,7 @@ public class ExceptionRewriters {
         if (tryBlock == null) return null;
         Op03SimpleStatement catchs = trystm.getTargets().get(1);
         Statement testCatch = catchs.getStatement();
-        if (!(testCatch instanceof CatchStatement)) return null;
-        CatchStatement catchStatement = (CatchStatement)testCatch;
+        if (!(testCatch instanceof CatchStatement catchStatement)) return null;
         BlockIdentifier catchBlockIdent = catchStatement.getCatchBlockIdent();
         LinearScannedBlock catchBlock = getLinearScannedBlock(statements, statements.indexOf(catchs), catchs, catchBlockIdent, true);
         if (catchBlock == null) return null;

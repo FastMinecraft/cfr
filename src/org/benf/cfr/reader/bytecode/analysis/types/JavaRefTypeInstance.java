@@ -384,8 +384,7 @@ public class JavaRefTypeInstance implements JavaTypeInstance {
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof JavaRefTypeInstance)) return false;
-        JavaRefTypeInstance other = (JavaRefTypeInstance) o;
+        if (!(o instanceof JavaRefTypeInstance other)) return false;
         return other.className.equals(className);
     }
 

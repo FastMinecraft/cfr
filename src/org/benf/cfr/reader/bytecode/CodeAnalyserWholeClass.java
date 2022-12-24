@@ -20,7 +20,6 @@ import org.benf.cfr.reader.util.*;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.Predicate;
 import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
@@ -134,12 +133,7 @@ public class CodeAnalyserWholeClass {
     }
 
     private static void renameAnonymousScopeHidingVariables(ClassFile classFile, ClassCache classCache) {
-        List<ClassFileField> fields = Functional.filter(classFile.getFields(), new Predicate<ClassFileField>() {
-            @Override
-            public boolean test(ClassFileField in) {
-                return in.isSyntheticOuterRef();
-            }
-        });
+        List<ClassFileField> fields = Functional.filter(classFile.getFields(), ClassFileField::isSyntheticOuterRef);
         if (fields.isEmpty()) return;
 
 
@@ -201,12 +195,7 @@ public class CodeAnalyserWholeClass {
             if (argsThis.size() != argsThat.size() + 1) continue;
             JavaTypeInstance last = argsThis.get(argsThis.size()-1);
 
-            UnaryFunction<JavaTypeInstance, JavaTypeInstance> degenerifier = new UnaryFunction<JavaTypeInstance, JavaTypeInstance>() {
-                @Override
-                public JavaTypeInstance invoke(JavaTypeInstance arg) {
-                    return arg.getDeGenerifiedType();
-                }
-            };
+            UnaryFunction<JavaTypeInstance, JavaTypeInstance> degenerifier = JavaTypeInstance::getDeGenerifiedType;
             argsThis = Functional.map(argsThis, degenerifier);
             argsThat = Functional.map(argsThat, degenerifier);
             argsThis.remove(argsThis.size()-1);
@@ -429,12 +418,8 @@ public class CodeAnalyserWholeClass {
 
     private static void tryRemoveConstructor(ClassFile classFile) {
         List<Method> constructors = Functional.filter(classFile.getConstructors(),
-                new Predicate<Method>() {
-                    @Override
-                    public boolean test(Method in) {
-                        return in.hiddenState() == Method.Visibility.Visible;
-                    }
-                });
+            in -> in.hiddenState() == Method.Visibility.Visible
+        );
         if (constructors.size() != 1) return;
         Method constructor = constructors.get(0);
 
@@ -456,7 +441,7 @@ public class CodeAnalyserWholeClass {
     private static void removeIllegalGenerics(ClassFile classFile, Options state) {
         ConstantPool cp = classFile.getConstantPool();
         JavaRefTypeInstance classType = classFile.getRefClassType();
-        Map<String, FormalTypeParameter> params = FormalTypeParameter.getMap(classFile.getClassSignature().getFormalTypeParameters());
+        Map<String, FormalTypeParameter> params = FormalTypeParameter.getMap(classFile.getClassSignature().formalTypeParameters());
 
         for (Method m : classFile.getMethods()) {
             if (!m.hasCodeAttribute()) continue;

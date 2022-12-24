@@ -26,12 +26,7 @@ public class ClassMapping {
 
         MethodData(List<JavaTypeInstance> argTypes) {
             if (!argTypes.isEmpty()) {
-                argTypes = Functional.map(argTypes, new UnaryFunction<JavaTypeInstance, JavaTypeInstance>() {
-                    @Override
-                    public JavaTypeInstance invoke(JavaTypeInstance arg) {
-                        return arg.getDeGenerifiedType();
-                    }
-                });
+                argTypes = Functional.map(argTypes, JavaTypeInstance::getDeGenerifiedType);
             }
             this.args = argTypes;
         }
@@ -66,6 +61,7 @@ public class ClassMapping {
 
     void addMethodMapping(MethodMapping m) {
         Map<MethodData, String> byName = methodMappings.get(m.getName());
+        //noinspection Java8MapApi
         if (byName == null) {
             byName = MapFactory.newOrderedMap();
             methodMappings.put(m.getName(), byName);
@@ -92,12 +88,9 @@ public class ClassMapping {
         if (poss == null) {
             return displayName;
         }
-        MethodData md = new MethodData(Functional.map(args, new UnaryFunction<JavaTypeInstance, JavaTypeInstance>() {
-            @Override
-            public JavaTypeInstance invoke(JavaTypeInstance arg) {
-                JavaTypeInstance deGenerifiedType = arg.getDeGenerifiedType();
-                return mapping.get(deGenerifiedType);
-            }
+        MethodData md = new MethodData(Functional.map(args, arg -> {
+            JavaTypeInstance deGenerifiedType = arg.getDeGenerifiedType();
+            return mapping.get(deGenerifiedType);
         }));
         String name = poss.get(md);
         if (name != null) {

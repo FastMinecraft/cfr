@@ -14,7 +14,7 @@ import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.entities.exceptions.ExceptionGroup;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.List;
@@ -61,12 +61,9 @@ public class CatchStatement extends AbstractStatement {
     }
 
     public void removeCatchBlockFor(final BlockIdentifier tryBlockIdent) {
-        List<ExceptionGroup.Entry> toRemove = Functional.filter(exceptions, new Predicate<ExceptionGroup.Entry>() {
-            @Override
-            public boolean test(ExceptionGroup.Entry in) {
-                return in.getTryBlockIdentifier().equals(tryBlockIdent);
-            }
-        });
+        List<ExceptionGroup.Entry> toRemove = Functional.filter(exceptions,
+            in -> in.getTryBlockIdentifier().equals(tryBlockIdent)
+        );
         exceptions.removeAll(toRemove);
     }
 

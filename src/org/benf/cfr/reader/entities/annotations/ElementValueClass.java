@@ -31,8 +31,7 @@ public class ElementValueClass implements ElementValue {
         if (obj == this) {
             return true;
         }
-        else if (obj instanceof ElementValueClass) {
-            ElementValueClass other = (ElementValueClass) obj;
+        else if (obj instanceof ElementValueClass other) {
             return classType.equals(other.classType);
         }
         else {

@@ -55,16 +55,7 @@ public class ConstantPool {
         return dynamicConstants;
     }
 
-    private static class RawTmp {
-        final List<ConstantPoolEntry> entries;
-        final long rawLength;
-        final boolean dynamicConstants;
-
-        RawTmp(List<ConstantPoolEntry> entries, long rawLength, boolean dynamicConstants) {
-            this.entries = entries;
-            this.rawLength = rawLength;
-            this.dynamicConstants = dynamicConstants;
-        }
+    private record RawTmp(List<ConstantPoolEntry> entries, long rawLength, boolean dynamicConstants) {
     }
 
     private RawTmp processRaw(ByteData raw, int count) {
@@ -76,69 +67,35 @@ public class ConstantPool {
             ConstantPoolEntry.Type type = ConstantPoolEntry.Type.get(data.getS1At(0));
             ConstantPoolEntry cpe;
             switch (type) {
-                case CPT_NameAndType:
-                    cpe = new ConstantPoolEntryNameAndType(this, data);
-                    break;
-                case CPT_String:
-                    cpe = new ConstantPoolEntryString(this, data);
-                    break;
-                case CPT_FieldRef:
-                    cpe = new ConstantPoolEntryFieldRef(this, data);
-                    break;
-                case CPT_MethodRef:
-                    cpe = new ConstantPoolEntryMethodRef(this, data, false);
-                    break;
-                case CPT_InterfaceMethodRef:
-                    cpe = new ConstantPoolEntryMethodRef(this, data, true);
-                    break;
-                case CPT_Class:
-                    cpe = new ConstantPoolEntryClass(this, data);
-                    break;
-                case CPT_Double:
-                    cpe = new ConstantPoolEntryDouble(this, data);
-                    break;
-                case CPT_Float:
-                    cpe = new ConstantPoolEntryFloat(this, data);
-                    break;
-                case CPT_Long:
-                    cpe = new ConstantPoolEntryLong(this, data);
-                    break;
-                case CPT_Integer:
-                    cpe = new ConstantPoolEntryInteger(this, data);
-                    break;
-                case CPT_UTF8:
-                    cpe = new ConstantPoolEntryUTF8(this, data, options);
-                    break;
-                case CPT_MethodHandle:
-                    cpe = new ConstantPoolEntryMethodHandle(this, data);
-                    break;
-                case CPT_MethodType:
-                    cpe = new ConstantPoolEntryMethodType(this, data);
-                    break;
-                case CPT_DynamicInfo:
+                case CPT_NameAndType -> cpe = new ConstantPoolEntryNameAndType(this, data);
+                case CPT_String -> cpe = new ConstantPoolEntryString(this, data);
+                case CPT_FieldRef -> cpe = new ConstantPoolEntryFieldRef(this, data);
+                case CPT_MethodRef -> cpe = new ConstantPoolEntryMethodRef(this, data, false);
+                case CPT_InterfaceMethodRef -> cpe = new ConstantPoolEntryMethodRef(this, data, true);
+                case CPT_Class -> cpe = new ConstantPoolEntryClass(this, data);
+                case CPT_Double -> cpe = new ConstantPoolEntryDouble(this, data);
+                case CPT_Float -> cpe = new ConstantPoolEntryFloat(this, data);
+                case CPT_Long -> cpe = new ConstantPoolEntryLong(this, data);
+                case CPT_Integer -> cpe = new ConstantPoolEntryInteger(this, data);
+                case CPT_UTF8 -> cpe = new ConstantPoolEntryUTF8(this, data, options);
+                case CPT_MethodHandle -> cpe = new ConstantPoolEntryMethodHandle(this, data);
+                case CPT_MethodType -> cpe = new ConstantPoolEntryMethodType(this, data);
+                case CPT_DynamicInfo -> {
                     cpe = new ConstantPoolEntryDynamicInfo(this, data);
                     dynamicConstant = true;
-                    break;
-                case CPT_InvokeDynamic:
-                    cpe = new ConstantPoolEntryInvokeDynamic(this, data);
-                    break;
-                case CPT_ModuleInfo:
-                    cpe = new ConstantPoolEntryModuleInfo(this, data);
-                    break;
-                case CPT_PackageInfo:
-                    cpe = new ConstantPoolEntryPackageInfo(this, data);
-                    break;
-                default:
-                    throw new ConfusedCFRException("Invalid constant pool entry : " + type);
+                }
+                case CPT_InvokeDynamic -> cpe = new ConstantPoolEntryInvokeDynamic(this, data);
+                case CPT_ModuleInfo -> cpe = new ConstantPoolEntryModuleInfo(this, data);
+                case CPT_PackageInfo -> cpe = new ConstantPoolEntryPackageInfo(this, data);
+                default -> throw new ConfusedCFRException("Invalid constant pool entry : " + type);
             }
             logger.info("" + (x + 1) + " : " + cpe);
             tgt.add(cpe);
             switch (type) {
-                case CPT_Double:
-                case CPT_Long:
+                case CPT_Double, CPT_Long -> {
                     tgt.add(null);
                     x++;
-                    break;
+                }
             }
 
             long size = cpe.getRawByteLength();

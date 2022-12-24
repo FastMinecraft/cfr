@@ -68,8 +68,7 @@ public class LambdaExpressionNewArray extends AbstractExpression implements Lamb
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof LambdaExpressionNewArray)) return false;
-        LambdaExpressionNewArray other = (LambdaExpressionNewArray)o;
+        if (!(o instanceof LambdaExpressionNewArray other)) return false;
         return other.getInferredJavaType().getJavaTypeInstance().equals(getInferredJavaType().getJavaTypeInstance());
     }
 

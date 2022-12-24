@@ -12,7 +12,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.JumpType;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.util.MiscUtils;
 import org.benf.cfr.reader.util.collections.*;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 import org.benf.cfr.reader.util.functors.UnaryFunction;
 
 import java.util.List;
@@ -24,12 +24,7 @@ class ClassifyGotos {
         List<Pair<Op03SimpleStatement, Integer>> gotos = ListFactory.newList();
         Map<BlockIdentifier, Op03SimpleStatement> tryStatementsByBlock = MapFactory.newMap();
         Map<BlockIdentifier, List<BlockIdentifier>> catchStatementsByBlock = MapFactory.newMap();
-        Map<BlockIdentifier, Set<BlockIdentifier>> catchToTries = MapFactory.newLazyMap(new UnaryFunction<BlockIdentifier, Set<BlockIdentifier>>() {
-            @Override
-            public Set<BlockIdentifier> invoke(BlockIdentifier arg) {
-                return SetFactory.newOrderedSet();
-            }
-        });
+        Map<BlockIdentifier, Set<BlockIdentifier>> catchToTries = MapFactory.newLazyMap(arg -> SetFactory.newOrderedSet());
         for (int x = 0, len = in.size(); x < len; ++x) {
             Op03SimpleStatement stm = in.get(x);
             Statement statement = stm.getStatement();
@@ -171,8 +166,7 @@ class ClassifyGotos {
          */
         for (Op03SimpleStatement statement : in) {
             Statement inner = statement.getStatement();
-            if (inner instanceof JumpingStatement) {
-                JumpingStatement jumpingStatement = (JumpingStatement) inner;
+            if (inner instanceof JumpingStatement jumpingStatement) {
                 JumpType jumpType = jumpingStatement.getJumpType();
                 if (jumpType != JumpType.GOTO) continue;
                 Op03SimpleStatement targetStatement = (Op03SimpleStatement) jumpingStatement.getJumpTarget().getContainer();
@@ -184,14 +178,11 @@ class ClassifyGotos {
                         /*
                          * Remove all the switch blocks from srcBlocks.
                          */
-                        srcBlocks = Functional.filterSet(srcBlocks, new Predicate<BlockIdentifier>() {
-                            @Override
-                            public boolean test(BlockIdentifier in) {
-                                BlockType blockType = in.getBlockType();
-                                if (blockType == BlockType.CASE) return false;
-                                if (blockType == BlockType.SWITCH) return false;
-                                return true;
-                            }
+                        srcBlocks = Functional.filterSet(srcBlocks, in1 -> {
+                            BlockType blockType = in1.getBlockType();
+                            if (blockType == BlockType.CASE) return false;
+                            if (blockType == BlockType.SWITCH) return false;
+                            return true;
                         });
                         if (targetBlocks.size() < srcBlocks.size() + agressiveOffset && srcBlocks.containsAll(targetBlocks)) {
                             /*

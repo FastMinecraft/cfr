@@ -69,8 +69,6 @@ public class MappingFactory {
                     currentClassMapping.addFieldMapping(parseFieldMapping(line));
                 }
             } while (true);
-        } catch (FileNotFoundException e) {
-            throw new ConfusedCFRException(e);
         } catch (IOException e) {
             throw new ConfusedCFRException(e);
         }
@@ -95,12 +93,7 @@ public class MappingFactory {
             String real = classMapping.getRealClass().getRawName();
             byRealName.put(real, classMapping);
         }
-        Map<JavaTypeInstance, List<JavaTypeInstance>> children = MapFactory.newLazyMap(new UnaryFunction<JavaTypeInstance, List<JavaTypeInstance>>() {
-            @Override
-            public List<JavaTypeInstance> invoke(JavaTypeInstance arg) {
-                return ListFactory.newList();
-            }
-        });
+        Map<JavaTypeInstance, List<JavaTypeInstance>> children = MapFactory.newLazyMap(arg -> ListFactory.newList());
         for (ClassMapping classMapping : classMappings) {
             String real = classMapping.getRealClass().getRawName();
             int idx = real.lastIndexOf(MiscConstants.INNER_CLASS_SEP_CHAR);
@@ -118,12 +111,9 @@ public class MappingFactory {
             children.get(parentClass).add(childClass);
         }
         Map<JavaTypeInstance, List<InnerClassAttributeInfo>> res = MapFactory.newMap();
-        Map<JavaTypeInstance, List<InnerClassAttributeInfo>> lazyRes = MapFactory.newLazyMap(res, new UnaryFunction<JavaTypeInstance, List<InnerClassAttributeInfo>>() {
-            @Override
-            public List<InnerClassAttributeInfo> invoke(JavaTypeInstance arg) {
-                return ListFactory.newList();
-            }
-        });
+        Map<JavaTypeInstance, List<InnerClassAttributeInfo>> lazyRes = MapFactory.newLazyMap(res,
+            arg -> ListFactory.newList()
+        );
         for (Map.Entry<JavaTypeInstance, List<JavaTypeInstance>> entry : children.entrySet()) {
             JavaTypeInstance parent = entry.getKey();
             List<InnerClassAttributeInfo> parentIac = lazyRes.get(parent);

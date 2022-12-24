@@ -93,7 +93,7 @@ public class InstrIndex implements Comparable<InstrIndex> {
 
 
     private static class TempRelatives {
-        private final LinkedList<InstrIndex> rels = new LinkedList<InstrIndex>();
+        private final LinkedList<InstrIndex> rels = new LinkedList<>();
 
         TempRelatives(InstrIndex start) {
             rels.add(start);

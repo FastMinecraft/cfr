@@ -212,11 +212,9 @@ public class StructuredTry extends AbstractStructuredStatement {
         if (!catchBlocks.isEmpty()) return false;
         if (finallyBlock == null) return true;
         // If finally block is empty, we can remove.
-        if (!(finallyBlock.getStatement() instanceof StructuredFinally)) return false;
-        StructuredFinally structuredFinally = (StructuredFinally) finallyBlock.getStatement();
+        if (!(finallyBlock.getStatement() instanceof StructuredFinally structuredFinally)) return false;
         Op04StructuredStatement finallyCode = structuredFinally.getCatchBlock();
-        if (!(finallyCode.getStatement() instanceof Block)) return false;
-        Block block = (Block) finallyCode.getStatement();
+        if (!(finallyCode.getStatement() instanceof Block block)) return false;
         if (block.isEffectivelyNOP()) return true;
         return false;
     }
@@ -227,8 +225,7 @@ public class StructuredTry extends AbstractStructuredStatement {
         if (catchBlocks.size() != 1) return false;
         Op04StructuredStatement catchBlock = catchBlocks.get(0);
         StructuredStatement catchS = catchBlock.getStatement();
-        if (!(catchS instanceof StructuredCatch)) return false;
-        StructuredCatch structuredCatch = (StructuredCatch) catchS;
+        if (!(catchS instanceof StructuredCatch structuredCatch)) return false;
         return structuredCatch.isRethrow();
     }
 

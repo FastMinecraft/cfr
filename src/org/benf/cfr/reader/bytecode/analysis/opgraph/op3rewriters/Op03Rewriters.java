@@ -78,7 +78,7 @@ public class Op03Rewriters {
 
 
     public static void optimiseForTypes(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> conditionals = Functional.filter(statements, new TypeFilter<IfStatement>(IfStatement.class));
+        List<Op03SimpleStatement> conditionals = Functional.filter(statements, new TypeFilter<>(IfStatement.class));
         for (Op03SimpleStatement conditional : conditionals) {
             IfStatement ifStatement = (IfStatement) (conditional.getStatement());
             ifStatement.optimiseForTypes();

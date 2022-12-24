@@ -10,8 +10,6 @@ import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.Predicate;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
@@ -40,7 +38,7 @@ public class ClassFileSourceImpl implements ClassFileSource2 {
      * Initialisation info
      */
     private static final boolean JrtPresent = CheckJrt();
-    private static final Map<String, String> packMap = JrtPresent ? getPackageToModuleMap() : new HashMap<String, String>();
+    private static final Map<String, String> packMap = JrtPresent ? getPackageToModuleMap() : new HashMap<>();
 
     private static boolean CheckJrt() {
         try {
@@ -104,7 +102,7 @@ public class ClassFileSourceImpl implements ClassFileSource2 {
             long length;
 
             String usePath = classRelocator.correctPath(path);
-            boolean forceJar = jarEntry != null && explicitJars.contains(jarEntry.getPath());
+            boolean forceJar = jarEntry != null && explicitJars.contains(jarEntry.path());
             File file = forceJar ? null : new File(usePath);
             byte[] content;
             if (file != null && file.exists()) {
@@ -112,7 +110,7 @@ public class ClassFileSourceImpl implements ClassFileSource2 {
                 length = file.length();
                 content = getBytesFromFile(is, length);
             } else if (jarEntry != null) {
-                zipFile = new ZipFile(new File(jarEntry.getPath()), ZipFile.OPEN_READ);
+                zipFile = new ZipFile(new File(jarEntry.path()), ZipFile.OPEN_READ);
                 if (jarEntry.analysisType == AnalysisType.WAR) {
                     path = MiscConstants.WAR_PREFIX + path;
                 }
@@ -284,24 +282,14 @@ public class ClassFileSourceImpl implements ClassFileSource2 {
         return jarContent;
     }
 
-    private static class JarSourceEntry {
-        private final AnalysisType analysisType;
-        private final String path;
+    private record JarSourceEntry(AnalysisType analysisType, String path) {
 
-        JarSourceEntry(AnalysisType analysisType, String path) {
-            this.analysisType = analysisType;
-            this.path = path;
-        }
-
+        @Override
         @SuppressWarnings("unused")
-        public AnalysisType getAnalysisType() {
-            return analysisType;
+            public AnalysisType analysisType() {
+                return analysisType;
+            }
         }
-
-        public String getPath() {
-            return path;
-        }
-    }
 
     private Map<String, JarSourceEntry> getClassPathClasses() {
         if (classToPathMap == null) {
@@ -396,8 +384,8 @@ public class ClassFileSourceImpl implements ClassFileSource2 {
         Map<String, String> manifest;
         try {
             ZipFile zipFile = new ZipFile(file, ZipFile.OPEN_READ);
-            manifest = getManifestContent(zipFile);
-            try {
+            try (zipFile) {
+                manifest = getManifestContent(zipFile);
                 Enumeration<? extends ZipEntry> enumeration = zipFile.entries();
                 while (enumeration.hasMoreElements()) {
                     ZipEntry entry = enumeration.nextElement();
@@ -415,8 +403,6 @@ public class ClassFileSourceImpl implements ClassFileSource2 {
                         }
                     }
                 }
-            } finally {
-                zipFile.close();
             }
         } catch (IOException e) {
             return null;
@@ -424,17 +410,9 @@ public class ClassFileSourceImpl implements ClassFileSource2 {
         if (analysisType == AnalysisType.WAR) {
             // Strip WEB-INF/classes from the front of class files.
             final int prefixLen = MiscConstants.WAR_PREFIX.length();
-            content = Functional.map(Functional.filter(content, new Predicate<String>() {
-                @Override
-                public boolean test(String in) {
-                    return in.startsWith(MiscConstants.WAR_PREFIX);
-                }
-            }), new UnaryFunction<String, String>() {
-                @Override
-                public String invoke(String arg) {
-                    return arg.substring(prefixLen);
-                }
-            });
+            content = Functional.map(Functional.filter(content, in -> in.startsWith(MiscConstants.WAR_PREFIX)),
+                arg -> arg.substring(prefixLen)
+            );
         }
 
         return new JarContentImpl(content, manifest, analysisType);

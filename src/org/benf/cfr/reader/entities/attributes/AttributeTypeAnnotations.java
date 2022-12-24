@@ -29,12 +29,9 @@ public abstract class AttributeTypeAnnotations extends Attribute {
         int numAnnotations = raw.getU2At(OFFSET_OF_NUMBER_OF_ANNOTATIONS);
         long offset = OFFSET_OF_ANNOTATION_TABLE;
 
-        Map<TypeAnnotationEntryValue, List<AnnotationTableTypeEntry>> entryData = MapFactory.newLazyMap(annotationTableEntryData, new UnaryFunction<TypeAnnotationEntryValue, List<AnnotationTableTypeEntry>>() {
-            @Override
-            public List<AnnotationTableTypeEntry> invoke(TypeAnnotationEntryValue arg) {
-                return ListFactory.newList();
-            }
-        });
+        Map<TypeAnnotationEntryValue, List<AnnotationTableTypeEntry>> entryData = MapFactory.newLazyMap(annotationTableEntryData,
+            arg -> ListFactory.newList()
+        );
 
         for (int x = 0; x < numAnnotations; ++x) {
             Pair<Long, AnnotationTableTypeEntry> ape = AnnotationHelpers.getTypeAnnotation(raw, offset, cp);

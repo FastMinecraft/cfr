@@ -18,6 +18,8 @@ import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.CannotLoadClassException;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 
+import java.util.Objects;
+
 public abstract class AbstractFieldVariable extends AbstractLValue {
 
     private final ClassFileField classFileField;
@@ -160,8 +162,7 @@ public abstract class AbstractFieldVariable extends AbstractLValue {
 
             ClassFileField field = classFile.getFieldByName(name, fieldRef.getJavaTypeInstance());
             return field;
-        } catch (NoSuchFieldException ignore) {
-        } catch (CannotLoadClassException ignore) {
+        } catch (NoSuchFieldException | CannotLoadClassException ignore) {
         }
         return null;
     }
@@ -177,8 +178,7 @@ public abstract class AbstractFieldVariable extends AbstractLValue {
                 Field field = classFile.getFieldByName(name, fieldRef.getJavaTypeInstance()).getField();
                 return new InferredJavaType(field.getJavaTypeInstance(), InferredJavaType.Source.FIELD, true);
             }
-        } catch (CannotLoadClassException ignore) {
-        } catch (NoSuchFieldException ignore) {
+        } catch (CannotLoadClassException | NoSuchFieldException ignore) {
         }
         return new InferredJavaType(fieldRef.getJavaTypeInstance(), InferredJavaType.Source.FIELD, true);
     }
@@ -186,12 +186,10 @@ public abstract class AbstractFieldVariable extends AbstractLValue {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof AbstractFieldVariable)) return false;
-
-        AbstractFieldVariable that = (AbstractFieldVariable) o;
+        if (!(o instanceof AbstractFieldVariable that)) return false;
 
         if (!getFieldName().equals(that.getFieldName())) return false;
-        if (owningClass != null ? !owningClass.equals(that.owningClass) : that.owningClass != null) return false;
+        if (!Objects.equals(owningClass, that.owningClass)) return false;
         return true;
     }
 

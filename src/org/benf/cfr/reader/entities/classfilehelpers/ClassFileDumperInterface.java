@@ -32,7 +32,7 @@ public class ClassFileDumperInterface extends AbstractClassFileDumper {
         d.newln();
 
         ClassSignature signature = c.getClassSignature();
-        List<JavaTypeInstance> interfaces = signature.getInterfaces();
+        List<JavaTypeInstance> interfaces = signature.interfaces();
         if (!interfaces.isEmpty()) {
             d.print("extends ");
             int size = interfaces.size();

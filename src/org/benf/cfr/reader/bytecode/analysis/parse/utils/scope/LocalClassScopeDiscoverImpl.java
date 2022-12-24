@@ -24,6 +24,7 @@ import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class LocalClassScopeDiscoverImpl extends AbstractLValueScopeDiscoverer {
     private final Map<JavaTypeInstance, Boolean> localClassTypes = MapFactory.newIdentityMap();
@@ -43,59 +44,50 @@ public class LocalClassScopeDiscoverImpl extends AbstractLValueScopeDiscoverer {
         }
     }
 
-    private static class SentinelNV implements NamedVariable {
-        private final JavaTypeInstance typeInstance;
-
-        private SentinelNV(JavaTypeInstance typeInstance) {
-            this.typeInstance = typeInstance;
-        }
+    private record SentinelNV(JavaTypeInstance typeInstance) implements NamedVariable {
 
         @Override
-        public void forceName(String name) {
-        }
+            public void forceName(String name) {
+            }
 
-        @Override
-        public String getStringName() {
-            return typeInstance.getRawName();
-        }
+            @Override
+            public String getStringName() {
+                return typeInstance.getRawName();
+            }
 
-        @Override
-        public boolean isGoodName() {
-            return true;
-        }
+            @Override
+            public boolean isGoodName() {
+                return true;
+            }
 
-        @Override
-        public Dumper dump(Dumper d) {
-            return null;
-        }
+            @Override
+            public Dumper dump(Dumper d) {
+                return null;
+            }
 
-        @Override
-        public Dumper dump(Dumper d, boolean defines) {
-            return null;
-        }
+            @Override
+            public Dumper dump(Dumper d, boolean defines) {
+                return null;
+            }
 
-        @Override
-        public Dumper dumpParameter(Dumper d, MethodPrototype methodPrototype, int index, boolean defines) {
-            return null;
-        }
+            @Override
+            public Dumper dumpParameter(Dumper d, MethodPrototype methodPrototype, int index, boolean defines) {
+                return null;
+            }
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
 
-            SentinelNV that = (SentinelNV) o;
+                SentinelNV that = (SentinelNV) o;
 
-            if (typeInstance != null ? !typeInstance.equals(that.typeInstance) : that.typeInstance != null)
-                return false;
+                if (!Objects.equals(typeInstance, that.typeInstance))
+                    return false;
 
-            return true;
-        }
+                return true;
+            }
 
-        @Override
-        public int hashCode() {
-            return typeInstance != null ? typeInstance.hashCode() : 0;
-        }
     }
 
     @Override

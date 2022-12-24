@@ -42,11 +42,9 @@ public class LocalInlinedStringConstantRewriter extends AbstractExpressionRewrit
     @Override
     public Expression rewriteExpression(Expression expression, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
         // would be nicer perhaps to replace this with a dictonary<Expression, Expression> rewriter.
-        if (expression instanceof Literal && expression.getInferredJavaType().getJavaTypeInstance() == TypeConstants.STRING) {
-            Literal exp = (Literal)expression;
+        if (expression instanceof Literal exp && expression.getInferredJavaType().getJavaTypeInstance() == TypeConstants.STRING) {
             Object val = exp.getValue().getValue();
-            if (val instanceof String) {
-                String str = (String)val;
+            if (val instanceof String str) {
                 Expression replacement = rewrites.get(str);
                 if (replacement != null) return replacement;
             }

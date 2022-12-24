@@ -7,7 +7,7 @@ import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.StringUtils;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.List;
@@ -28,12 +28,9 @@ public class ClassFileDumperRecord extends AbstractClassFileDumper {
         d.keyword("record ");
         c.dumpClassIdentity(d);
         d.print("(");
-        List<ClassFileField> fields = Functional.filter(c.getFields(), new Predicate<ClassFileField>() {
-                    @Override
-                    public boolean test(ClassFileField in) {
-                        return !in.getField().testAccessFlag(AccessFlag.ACC_STATIC);
-                    }
-                });
+        List<ClassFileField> fields = Functional.filter(c.getFields(),
+            in -> !in.getField().testAccessFlag(AccessFlag.ACC_STATIC)
+        );
         boolean first = true;
         for (ClassFileField f : fields) {
             first = StringUtils.comma(first, d);

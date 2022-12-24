@@ -37,7 +37,7 @@ public class ClassFileDumperEnum extends AbstractClassFileDumper {
         d.print("enum ").dump(c.getThisClassConstpoolEntry().getTypeInstance(), true).print(" ");
 
         ClassSignature signature = c.getClassSignature();
-        List<JavaTypeInstance> interfaces = signature.getInterfaces();
+        List<JavaTypeInstance> interfaces = signature.interfaces();
         if (!interfaces.isEmpty()) {
             d.print("implements ");
             int size = interfaces.size();

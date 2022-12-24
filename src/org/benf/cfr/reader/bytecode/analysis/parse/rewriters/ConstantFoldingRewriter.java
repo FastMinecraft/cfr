@@ -23,9 +23,8 @@ public class ConstantFoldingRewriter extends AbstractExpressionRewriter {
 		expression.applyExpressionRewriter(this, ssaIdentifiers, statementContainer, flags);
 		// Skip if expression type is non-primitive
 		JavaTypeInstance type = expression.getInferredJavaType().getJavaTypeInstance();
-		if (type instanceof RawJavaType) {
-			RawJavaType rawType = (RawJavaType) type;
-			if (!rawType.isNumber())
+		if (type instanceof RawJavaType rawType) {
+            if (!rawType.isNumber())
 				return expression;
 		} else {
 			return expression;

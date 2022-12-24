@@ -10,26 +10,14 @@ import org.benf.cfr.reader.relationship.MemberNameResolver;
 import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.state.TypeUsageCollectingDumper;
 import org.benf.cfr.reader.state.TypeUsageInformation;
-import org.benf.cfr.reader.util.AnalysisType;
-import org.benf.cfr.reader.util.CannotLoadClassException;
-import org.benf.cfr.reader.util.CfrVersionInfo;
-import org.benf.cfr.reader.util.MiscConstants;
-import org.benf.cfr.reader.util.MiscUtils;
+import org.benf.cfr.reader.util.*;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.BinaryFunction;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
-import org.benf.cfr.reader.util.output.Dumper;
-import org.benf.cfr.reader.util.output.DumperFactory;
-import org.benf.cfr.reader.util.output.ExceptionDumper;
-import org.benf.cfr.reader.util.output.IllegalIdentifierDump;
-import org.benf.cfr.reader.util.output.NopSummaryDumper;
-import org.benf.cfr.reader.util.output.ProgressDumper;
-import org.benf.cfr.reader.util.output.SummaryDumper;
-import org.benf.cfr.reader.util.output.ToStringDumper;
+import org.benf.cfr.reader.util.output.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -201,32 +189,24 @@ public class Driver {
             dumperFactory = dumperFactory.getFactoryWithPrefix("/" + MiscConstants.MULTI_RELEASE_PREFIX + forVersion + "/", forVersion);
             Collections.reverse(versionsSeen);
             // We create a new classfile source, which will preferentially hit X, then X-1 down to X.
-            dcCommonState = new DCCommonState(dcCommonState, new BinaryFunction<String, DCCommonState, ClassFile>() {
-                @Override
-                public ClassFile invoke(String arg, DCCommonState arg2) {
-                    // First we try to load forVersion, then forVersion-1, etc.
-                    Exception lastException = null;
-                    for (int version : versionsSeen) {
-                        try {
-                            if (version == 0) {
-                                return arg2.loadClassFileAtPath(arg);
-                            }
-                            return arg2.loadClassFileAtPath(MiscConstants.MULTI_RELEASE_PREFIX + version + "/" + arg);
-                        } catch (CannotLoadClassException e) {
-                            lastException = e;
+            dcCommonState = new DCCommonState(dcCommonState, (arg, arg2) -> {
+                // First we try to load forVersion, then forVersion-1, etc.
+                Exception lastException = null;
+                for (int version : versionsSeen) {
+                    try {
+                        if (version == 0) {
+                            return arg2.loadClassFileAtPath(arg);
                         }
+                        return arg2.loadClassFileAtPath(MiscConstants.MULTI_RELEASE_PREFIX + version + "/" + arg);
+                    } catch (CannotLoadClassException e) {
+                        lastException = e;
                     }
-                    throw new CannotLoadClassException(arg, lastException);
                 }
+                throw new CannotLoadClassException(arg, lastException);
             });
         }
 
-        types = Functional.filter(types, new Predicate<JavaTypeInstance>() {
-            @Override
-            public boolean test(JavaTypeInstance in) {
-                return matcher.test(in.getRawName());
-            }
-        });
+        types = Functional.filter(types, in -> matcher.test(in.getRawName()));
         /*
          * If resolving names, we need a first pass...... otherwise foreign referents will
          * not see the renaming, depending on order of class files....

@@ -12,7 +12,7 @@ import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredDefinition;
 import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredExpressionStatement;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 
 import java.util.List;
 import java.util.Set;
@@ -40,7 +40,7 @@ public class RedundantSuperRewriter implements Op04Rewriter {
         Matcher<StructuredStatement> m = new CollectMatch("ass1", new StructuredExpressionStatement(BytecodeLoc.NONE, wcm1.getSuperFunction("s1", getSuperArgs(wcm1)), false));
 
 
-        MatchIterator<StructuredStatement> mi = new MatchIterator<StructuredStatement>(structuredStatements);
+        MatchIterator<StructuredStatement> mi = new MatchIterator<>(structuredStatements);
         MatchResultCollector collector = new SuperResultCollector(wcm1, structuredStatements);
         while (mi.hasNext()) {
             mi.advance();
@@ -73,12 +73,9 @@ public class RedundantSuperRewriter implements Op04Rewriter {
                 statement.getContainer().nopOut();
                 Set<LValue> declarationsToNop = getDeclarationsToNop(wcm);
                 if (declarationsToNop != null) {
-                    List<StructuredStatement> decls = Functional.filter(structuredStatements, new Predicate<StructuredStatement>() {
-                        @Override
-                        public boolean test(StructuredStatement in) {
-                            return (in instanceof StructuredDefinition);
-                        }
-                    });
+                    List<StructuredStatement> decls = Functional.filter(structuredStatements,
+                        in -> (in instanceof StructuredDefinition)
+                    );
                     for (StructuredStatement decl : decls) {
                         StructuredDefinition defn = (StructuredDefinition) decl;
                         if (declarationsToNop.contains(defn.getLvalue())) {

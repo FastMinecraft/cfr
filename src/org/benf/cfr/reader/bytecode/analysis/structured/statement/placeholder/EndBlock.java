@@ -16,8 +16,7 @@ public class EndBlock extends AbstractPlaceholder {
     @Override
     public boolean match(MatchIterator<StructuredStatement> matchIterator, MatchResultCollector matchResultCollector) {
         StructuredStatement current = matchIterator.getCurrent();
-        if (current instanceof EndBlock) {
-            EndBlock other = (EndBlock) current;
+        if (current instanceof EndBlock other) {
             if (block == null || block.equals(other.block)) {
                 matchIterator.advance();
                 return true;

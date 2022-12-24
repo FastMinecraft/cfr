@@ -7,7 +7,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.statement.JumpingStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.WhileStatement;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.BinaryProcedure;
+import java.util.function.BiConsumer;
 import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
@@ -19,9 +19,9 @@ public class Cleaner {
     public static List<Op03SimpleStatement> removeUnreachableCode(final List<Op03SimpleStatement> statements, final boolean checkBackJumps) {
         final Set<Op03SimpleStatement> reachable = SetFactory.newSet();
         reachable.add(statements.get(0));
-        GraphVisitor<Op03SimpleStatement> gv = new GraphVisitorDFS<Op03SimpleStatement>(statements.get(0), new BinaryProcedure<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>>() {
-            @Override
-            public void call(Op03SimpleStatement arg1, GraphVisitor<Op03SimpleStatement> arg2) {
+        GraphVisitor<Op03SimpleStatement> gv = new GraphVisitorDFS<>(
+            statements.get(0),
+            (arg1, arg2) -> {
                 reachable.add(arg1);
 //                if (!statements.contains(arg1)) {
 //                    throw new IllegalStateException("Statement missing");
@@ -50,7 +50,7 @@ public class Cleaner {
                     }
                 }
             }
-        });
+        );
         gv.process();
 
         List<Op03SimpleStatement> result = ListFactory.newList();
@@ -94,7 +94,7 @@ public class Cleaner {
     }
 
     static void sortAndRenumberFromInPlace(List<Op03SimpleStatement> statements, InstrIndex start) {
-        Collections.sort(statements, new CompareByIndex());
+        statements.sort(new CompareByIndex());
         for (Op03SimpleStatement statement : statements) {
             statement.setIndex(start);
             start = start.justAfter();
@@ -103,7 +103,7 @@ public class Cleaner {
 
     static void sortAndRenumberInPlace(List<Op03SimpleStatement> statements) {
         // Sort result by existing index.
-        Collections.sort(statements, new CompareByIndex());
+        statements.sort(new CompareByIndex());
         reindexInPlace(statements);
     }
 

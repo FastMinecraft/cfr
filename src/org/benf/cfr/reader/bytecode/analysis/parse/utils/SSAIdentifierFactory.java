@@ -8,12 +8,8 @@ import java.util.Map;
 public class SSAIdentifierFactory<KEYTYPE, CMPTYPE> {
     private final Map<KEYTYPE, Integer> nextIdentFor = MapFactory.newLazyMap(
             MapFactory.<KEYTYPE, Integer>newOrderedMap(),
-            new UnaryFunction<KEYTYPE, Integer>() {
-                @Override
-                public Integer invoke(KEYTYPE ignore) {
-                    return 0;
-                }
-            });
+        ignore -> 0
+    );
 
     private final UnaryFunction<KEYTYPE, CMPTYPE> typeComparisonFunction;
 

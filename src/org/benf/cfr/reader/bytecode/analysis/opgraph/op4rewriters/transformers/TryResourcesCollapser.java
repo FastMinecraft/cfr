@@ -21,8 +21,7 @@ public class TryResourcesCollapser implements StructuredStatementTransformer {
             if (!maybeJustOneStatement.isSet()) return stm;
             inside = maybeJustOneStatement.getValue().getStatement();
         }
-        if (!(inside instanceof StructuredTry)) return stm;
-        StructuredTry inner = (StructuredTry)inside;
+        if (!(inside instanceof StructuredTry inner)) return stm;
         if (!inner.hasResources()) return stm;
         if (inner.getFinallyBlock() != null) return stm;
         if (!inner.getCatchBlocks().isEmpty()) return stm;

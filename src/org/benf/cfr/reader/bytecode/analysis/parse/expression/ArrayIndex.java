@@ -118,8 +118,7 @@ public class ArrayIndex extends AbstractExpression implements BoxingProcessor {
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof ArrayIndex)) return false;
-        ArrayIndex other = (ArrayIndex) o;
+        if (!(o instanceof ArrayIndex other)) return false;
         return array.equals(other.array) &&
                 index.equals(other.index);
     }
@@ -127,8 +126,7 @@ public class ArrayIndex extends AbstractExpression implements BoxingProcessor {
     @Override
     public boolean equivalentUnder(Object o, EquivalenceConstraint constraint) {
         if (o == this) return true;
-        if (!(o instanceof ArrayIndex)) return false;
-        ArrayIndex other = (ArrayIndex) o;
+        if (!(o instanceof ArrayIndex other)) return false;
         if (!constraint.equivalent(array, other.array)) return false;
         if (!constraint.equivalent(index, other.index)) return false;
         return true;

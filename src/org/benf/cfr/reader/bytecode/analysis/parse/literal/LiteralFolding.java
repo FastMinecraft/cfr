@@ -25,126 +25,136 @@ public class LiteralFolding {
 	}
 
 	private static TypedLiteral computeLiteral(RawJavaType type, TypedLiteral l, TypedLiteral r, ArithOp op) {
-		switch (type) {
-			case BYTE: {
-				Integer val = computeLiteral(l.getIntValue(), r.getIntValue(), op);
-				if (val == null) return null;
-				return TypedLiteral.getInt((byte)(int)val, type);
-			}
-			case SHORT: {
-				Integer val = computeLiteral(l.getIntValue(), r.getIntValue(), op);
-				if (val == null) return null;
-				return TypedLiteral.getInt((short)(int)val, type);
-			}
-			case INT: {
-				Integer val = computeLiteral(l.getIntValue(), r.getIntValue(), op);
-				if (val == null) return null;
-				return TypedLiteral.getInt(val, type);
-			}
-			case LONG: {
-				Long val = computeLiteral(l.getLongValue(), r.getLongValue(), op);
-				if (val == null) return null;
-				return TypedLiteral.getLong(val);
-			}
-			case FLOAT: {
-				Float val = computeLiteral(l.getFloatValue(), r.getFloatValue(), op);
-				if (val == null) return null;
-				return TypedLiteral.getFloat(val);
-			}
-			case DOUBLE: {
-				Double val = computeLiteral(l.getDoubleValue(), r.getDoubleValue(), op);
-				if (val == null) return null;
-				return TypedLiteral.getDouble(val);
-			}
-		}
+        switch (type) {
+            case BYTE -> {
+                Integer val = computeLiteral(l.getIntValue(), r.getIntValue(), op);
+                if (val == null) return null;
+                return TypedLiteral.getInt((byte) (int) val, type);
+            }
+            case SHORT -> {
+                Integer val = computeLiteral(l.getIntValue(), r.getIntValue(), op);
+                if (val == null) return null;
+                return TypedLiteral.getInt((short) (int) val, type);
+            }
+            case INT -> {
+                Integer val = computeLiteral(l.getIntValue(), r.getIntValue(), op);
+                if (val == null) return null;
+                return TypedLiteral.getInt(val, type);
+            }
+            case LONG -> {
+                Long val = computeLiteral(l.getLongValue(), r.getLongValue(), op);
+                if (val == null) return null;
+                return TypedLiteral.getLong(val);
+            }
+            case FLOAT -> {
+                Float val = computeLiteral(l.getFloatValue(), r.getFloatValue(), op);
+                if (val == null) return null;
+                return TypedLiteral.getFloat(val);
+            }
+            case DOUBLE -> {
+                Double val = computeLiteral(l.getDoubleValue(), r.getDoubleValue(), op);
+                if (val == null) return null;
+                return TypedLiteral.getDouble(val);
+            }
+        }
 		return null;
 	}
 
 	private static Double computeLiteral(double l, double r, ArithOp op) {
-		switch (op) {
-			case PLUS:
-				return l+r;
-			case MINUS:
-				return l-r;
-			case MULTIPLY:
-				return l*r;
-			case DIVIDE:
-				return l/r;
-			case REM:
-				return l%r;
-		}
-		return null;
-	}
+        return switch (op) {
+            case PLUS -> l + r;
+            case MINUS -> l - r;
+            case MULTIPLY -> l * r;
+            case DIVIDE -> l / r;
+            case REM -> l % r;
+            default -> null;
+        };
+    }
 
 	private static Float computeLiteral(float l, float r, ArithOp op) {
-		switch (op) {
-			case PLUS:
-				return l+r;
-			case MINUS:
-				return l-r;
-			case MULTIPLY:
-				return l*r;
-			case DIVIDE:
-				return l/r;
-			case REM:
-				return l%r;
-		}
-		return null;
-	}
+        return switch (op) {
+            case PLUS -> l + r;
+            case MINUS -> l - r;
+            case MULTIPLY -> l * r;
+            case DIVIDE -> l / r;
+            case REM -> l % r;
+            default -> null;
+        };
+    }
 
 	private static Long computeLiteral(long l, long r, ArithOp op) {
-		switch (op) {
-			case PLUS:
-				return l + r;
-			case MINUS:
-				return l - r;
-			case MULTIPLY:
-				return l * r;
-			case DIVIDE:
-				if (r == 0) return null;
-				return l / r;
-			case REM:
-				if (r == 0) return null;
-				return l % r;
-			case SHR:
-				return l >> r;
-			case SHL:
-				return l << r;
-			case SHRU:
-				return l >>> r;
-			case XOR:
-				return l ^ r;
-		}
+        switch (op) {
+            case PLUS -> {
+                return l + r;
+            }
+            case MINUS -> {
+                return l - r;
+            }
+            case MULTIPLY -> {
+                return l * r;
+            }
+            case DIVIDE -> {
+                if (r == 0) return null;
+                return l / r;
+            }
+            case REM -> {
+                if (r == 0) return null;
+                return l % r;
+            }
+            case SHR -> {
+                return l >> r;
+            }
+            case SHL -> {
+                return l << r;
+            }
+            case SHRU -> {
+                return l >>> r;
+            }
+            case XOR -> {
+                return l ^ r;
+            }
+        }
 		return null;
 	}
 
 	private static Integer computeLiteral(int l, int r, ArithOp op) {
-		switch (op) {
-			case PLUS:
-				return l + r;
-			case MINUS:
-				return l - r;
-			case MULTIPLY:
-				return l * r;
-			case DIVIDE:
-				if (r == 0) return null;
-				return l / r;
-			case REM:
-				if (r == 0) return null;
-				return l % r;
-			case OR:
-				return l | r;
-			case AND:
-				return l & r;
-			case SHR:
-				return l >> r;
-			case SHL:
-				return l << r;
-			case SHRU:
-				return l >>> r;
-			case XOR:
-				return l ^ r;
-		}
+        switch (op) {
+            case PLUS -> {
+                return l + r;
+            }
+            case MINUS -> {
+                return l - r;
+            }
+            case MULTIPLY -> {
+                return l * r;
+            }
+            case DIVIDE -> {
+                if (r == 0) return null;
+                return l / r;
+            }
+            case REM -> {
+                if (r == 0) return null;
+                return l % r;
+            }
+            case OR -> {
+                return l | r;
+            }
+            case AND -> {
+                return l & r;
+            }
+            case SHR -> {
+                return l >> r;
+            }
+            case SHL -> {
+                return l << r;
+            }
+            case SHRU -> {
+                return l >>> r;
+            }
+            case XOR -> {
+                return l ^ r;
+            }
+        }
 		return null;
 	}
 
@@ -159,38 +169,38 @@ public class LiteralFolding {
 	}
 
 	private static TypedLiteral computeLiteral(RawJavaType type, TypedLiteral l, ArithOp op) {
-		switch (type) {
-			case BYTE: {
-				Integer val = computeLiteral(l.getIntValue(), op);
-				if (val == null) return null;
-				return TypedLiteral.getInt((byte)(int)val, type);
-			}
-			case SHORT: {
-				Integer val = computeLiteral(l.getIntValue(), op);
-				if (val == null) return null;
-				return TypedLiteral.getInt((short)(int)val, type);
-			}
-			case INT: {
-				Integer val = computeLiteral(l.getIntValue(), op);
-				if (val == null) return null;
-				return TypedLiteral.getInt(val, type);
-			}
-			case LONG: {
-				Long val = computeLiteral(l.getLongValue(), op);
-				if (val == null) return null;
-				return TypedLiteral.getLong(val);
-			}
-			case FLOAT: {
-				Float val = computeLiteral(l.getFloatValue(), op);
-				if (val == null) return null;
-				return TypedLiteral.getFloat(val);
-			}
-			case DOUBLE: {
-				Double val = computeLiteral(l.getDoubleValue(), op);
-				if (val == null) return null;
-				return TypedLiteral.getDouble(val);
-			}
-		}
+        switch (type) {
+            case BYTE -> {
+                Integer val = computeLiteral(l.getIntValue(), op);
+                if (val == null) return null;
+                return TypedLiteral.getInt((byte) (int) val, type);
+            }
+            case SHORT -> {
+                Integer val = computeLiteral(l.getIntValue(), op);
+                if (val == null) return null;
+                return TypedLiteral.getInt((short) (int) val, type);
+            }
+            case INT -> {
+                Integer val = computeLiteral(l.getIntValue(), op);
+                if (val == null) return null;
+                return TypedLiteral.getInt(val, type);
+            }
+            case LONG -> {
+                Long val = computeLiteral(l.getLongValue(), op);
+                if (val == null) return null;
+                return TypedLiteral.getLong(val);
+            }
+            case FLOAT -> {
+                Float val = computeLiteral(l.getFloatValue(), op);
+                if (val == null) return null;
+                return TypedLiteral.getFloat(val);
+            }
+            case DOUBLE -> {
+                Double val = computeLiteral(l.getDoubleValue(), op);
+                if (val == null) return null;
+                return TypedLiteral.getDouble(val);
+            }
+        }
 		return null;
 	}
 
@@ -205,24 +215,20 @@ public class LiteralFolding {
 	}
 
 	private static Long computeLiteral(long l, ArithOp op) {
-		switch (op) {
-			case MINUS:
-				return -l;
-			case NEG:
-				return ~l;
-		}
-		return null;
-	}
+        return switch (op) {
+            case MINUS -> -l;
+            case NEG -> ~l;
+            default -> null;
+        };
+    }
 
 	private static Integer computeLiteral(int l, ArithOp op) {
-		switch (op) {
-			case MINUS:
-				return -l;
-			case NEG:
-				return ~l;
-		}
-		return null;
-	}
+        return switch (op) {
+            case MINUS -> -l;
+            case NEG -> ~l;
+            default -> null;
+        };
+    }
 
 	public static Literal foldCast(Literal val, RawJavaType returnType) {
 		if (val == null) return null;
@@ -248,89 +254,95 @@ public class LiteralFolding {
 	 */
 	private static TypedLiteral getCast(TypedLiteral val, RawJavaType fromType, RawJavaType returnType) {
 		if (fromType == returnType) return val;
-		switch (returnType) {
-			case BYTE:
-				switch (fromType) {
-					case BOOLEAN:
-					case SHORT:
-					case INT:
-						return TypedLiteral.getInt((byte)val.getIntValue(), returnType);
-					case LONG:
-						return TypedLiteral.getInt((byte)val.getLongValue());
-					case FLOAT:
-						return TypedLiteral.getInt((byte)val.getFloatValue());
-					case DOUBLE:
-						return TypedLiteral.getInt((byte)val.getDoubleValue());
-				}
-				break;
-			case SHORT:
-				switch (fromType) {
-					case BOOLEAN:
-					case BYTE:
-					case INT:
-						return TypedLiteral.getInt((short)val.getIntValue(), returnType);
-					case LONG:
-						return TypedLiteral.getInt((short)val.getLongValue());
-					case FLOAT:
-						return TypedLiteral.getInt((short)val.getFloatValue());
-					case DOUBLE:
-						return TypedLiteral.getInt((short)val.getDoubleValue());
-				}
-				break;
-			case INT:
-				switch (fromType) {
-					case BOOLEAN:
-					case BYTE:
-					case SHORT:
-						return TypedLiteral.getInt(val.getIntValue(), returnType);
-					case LONG:
-						return TypedLiteral.getInt((int)val.getLongValue());
-					case FLOAT:
-						return TypedLiteral.getInt((int)val.getFloatValue());
-					case DOUBLE:
-						return TypedLiteral.getInt((int)val.getDoubleValue());
-				}
-				break;
-			case LONG:
-				switch (fromType) {
-					case BOOLEAN:
-					case BYTE:
-					case SHORT:
-					case INT:
-						return TypedLiteral.getLong(val.getIntValue());
-					case FLOAT:
-						return TypedLiteral.getLong((long)val.getFloatValue());
-					case DOUBLE:
-						return TypedLiteral.getLong((long)val.getDoubleValue());
-				}
-				break;
-			case FLOAT:
-				switch (fromType) {
-					case BOOLEAN:
-					case BYTE:
-					case SHORT:
-					case INT:
-						return TypedLiteral.getFloat(val.getIntValue());
-					case LONG:
-						return TypedLiteral.getFloat((float)val.getLongValue());
-					case DOUBLE:
-						return TypedLiteral.getFloat((float)val.getDoubleValue());
-				}
-				break;
-			case DOUBLE:
-				switch (fromType) {
-					case BOOLEAN:
-					case BYTE:
-					case SHORT:
-					case INT:
-						return TypedLiteral.getDouble(val.getIntValue());
-					case LONG:
-						return TypedLiteral.getDouble(val.getLongValue());
-					case FLOAT:
-						return TypedLiteral.getDouble(val.getFloatValue());
-				}
-				break;
-		}
+        switch (returnType) {
+            case BYTE -> {
+                switch (fromType) {
+                    case BOOLEAN, SHORT, INT -> {
+                        return TypedLiteral.getInt((byte) val.getIntValue(), returnType);
+                    }
+                    case LONG -> {
+                        return TypedLiteral.getInt((byte) val.getLongValue());
+                    }
+                    case FLOAT -> {
+                        return TypedLiteral.getInt((byte) val.getFloatValue());
+                    }
+                    case DOUBLE -> {
+                        return TypedLiteral.getInt((byte) val.getDoubleValue());
+                    }
+                }
+            }
+            case SHORT -> {
+                switch (fromType) {
+                    case BOOLEAN, BYTE, INT -> {
+                        return TypedLiteral.getInt((short) val.getIntValue(), returnType);
+                    }
+                    case LONG -> {
+                        return TypedLiteral.getInt((short) val.getLongValue());
+                    }
+                    case FLOAT -> {
+                        return TypedLiteral.getInt((short) val.getFloatValue());
+                    }
+                    case DOUBLE -> {
+                        return TypedLiteral.getInt((short) val.getDoubleValue());
+                    }
+                }
+            }
+            case INT -> {
+                switch (fromType) {
+                    case BOOLEAN, BYTE, SHORT -> {
+                        return TypedLiteral.getInt(val.getIntValue(), returnType);
+                    }
+                    case LONG -> {
+                        return TypedLiteral.getInt((int) val.getLongValue());
+                    }
+                    case FLOAT -> {
+                        return TypedLiteral.getInt((int) val.getFloatValue());
+                    }
+                    case DOUBLE -> {
+                        return TypedLiteral.getInt((int) val.getDoubleValue());
+                    }
+                }
+            }
+            case LONG -> {
+                switch (fromType) {
+                    case BOOLEAN, BYTE, SHORT, INT -> {
+                        return TypedLiteral.getLong(val.getIntValue());
+                    }
+                    case FLOAT -> {
+                        return TypedLiteral.getLong((long) val.getFloatValue());
+                    }
+                    case DOUBLE -> {
+                        return TypedLiteral.getLong((long) val.getDoubleValue());
+                    }
+                }
+            }
+            case FLOAT -> {
+                switch (fromType) {
+                    case BOOLEAN, BYTE, SHORT, INT -> {
+                        return TypedLiteral.getFloat(val.getIntValue());
+                    }
+                    case LONG -> {
+                        return TypedLiteral.getFloat((float) val.getLongValue());
+                    }
+                    case DOUBLE -> {
+                        return TypedLiteral.getFloat((float) val.getDoubleValue());
+                    }
+                }
+            }
+            case DOUBLE -> {
+                switch (fromType) {
+                    case BOOLEAN, BYTE, SHORT, INT -> {
+                        return TypedLiteral.getDouble(val.getIntValue());
+                    }
+                    case LONG -> {
+                        return TypedLiteral.getDouble(val.getLongValue());
+                    }
+                    case FLOAT -> {
+                        return TypedLiteral.getDouble(val.getFloatValue());
+                    }
+                }
+            }
+        }
 		return null;
 	}
 

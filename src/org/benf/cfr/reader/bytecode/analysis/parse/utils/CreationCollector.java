@@ -26,7 +26,6 @@ import org.benf.cfr.reader.util.CannotLoadClassException;
 import org.benf.cfr.reader.util.ClassFileVersion;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 
 import java.util.List;
 import java.util.Map;
@@ -37,31 +36,11 @@ import java.util.Map;
  */
 public class CreationCollector {
 
-    private static class StatementPair<X> {
-        private final X value;
-        private final StatementContainer location;
-
-        private StatementPair(X value, StatementContainer location) {
-            this.value = value;
-            this.location = location;
-        }
-
-        private X getValue() {
-            return value;
-        }
-
-        private StatementContainer getLocation() {
-            return location;
-        }
+    private record StatementPair<X>(X value, StatementContainer location) {
     }
 
     private final List<Pair<LValue, StatementPair<MemberFunctionInvokation>>> collectedConstructions = ListFactory.newList();
-    private final Map<LValue, List<StatementContainer>> collectedCreations = MapFactory.newLazyMap(new UnaryFunction<LValue, List<StatementContainer>>() {
-        @Override
-        public List<StatementContainer> invoke(LValue arg) {
-            return ListFactory.newList();
-        }
-    });
+    private final Map<LValue, List<StatementContainer>> collectedCreations = MapFactory.newLazyMap(arg -> ListFactory.newList());
 
     private final AnonymousClassUsage anonymousClassUsage;
 
@@ -100,7 +79,7 @@ public class CreationCollector {
 
 
     private void markConstruction(LValue lValue, MemberFunctionInvokation rValue, StatementContainer container) {
-        collectedConstructions.add(Pair.make(lValue, new StatementPair<MemberFunctionInvokation>(rValue, container)));
+        collectedConstructions.add(Pair.make(lValue, new StatementPair<>(rValue, container)));
     }
 
     /*
@@ -115,7 +94,7 @@ public class CreationCollector {
             StatementPair<MemberFunctionInvokation> constructionValue = construction.getSecond();
             if (constructionValue == null) continue;
 
-            InstrIndex idx = constructionValue.getLocation().getIndex();
+            InstrIndex idx = constructionValue.location().getIndex();
             if (lValue != null) {
                 if (!collectedCreations.containsKey(lValue)) continue;
                 List<StatementContainer> creations = collectedCreations.get(lValue);
@@ -130,7 +109,7 @@ public class CreationCollector {
                 if (!found) continue;
             }
 
-            MemberFunctionInvokation memberFunctionInvokation = constructionValue.getValue();
+            MemberFunctionInvokation memberFunctionInvokation = constructionValue.value();
             JavaTypeInstance lValueType = memberFunctionInvokation.getClassTypeInstance();
             InferredJavaType inferredJavaType = lValue == null ? memberFunctionInvokation.getInferredJavaType() : lValue.getInferredJavaType();
 
@@ -221,14 +200,13 @@ public class CreationCollector {
             } else {
                 replacement = new AssignmentSimple(constructorInvokation.getLoc(), lValue, constructorInvokation);
 
-                if (lValue instanceof StackSSALabel) {
-                    StackSSALabel stackSSALabel = (StackSSALabel) lValue;
+                if (lValue instanceof StackSSALabel stackSSALabel) {
                     StackEntry stackEntry = stackSSALabel.getStackEntry();
                     stackEntry.decrementUsage();
                     stackEntry.incSourceCount();
                 }
             }
-            StatementContainer constructionContainer = constructionValue.getLocation();
+            StatementContainer constructionContainer = constructionValue.location();
             //noinspection unchecked
             constructionContainer.replaceStatement(replacement);
             if (lValue != null) {

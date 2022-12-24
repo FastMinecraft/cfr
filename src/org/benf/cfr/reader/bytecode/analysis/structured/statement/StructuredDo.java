@@ -38,8 +38,7 @@ public class StructuredDo extends AbstractStructuredConditionalLoopStatement {
     @Override
     public boolean match(MatchIterator<StructuredStatement> matchIterator, MatchResultCollector matchResultCollector) {
         StructuredStatement o = matchIterator.getCurrent();
-        if (!(o instanceof StructuredDo)) return false;
-        StructuredDo other = (StructuredDo) o;
+        if (!(o instanceof StructuredDo other)) return false;
         if (condition == null) {
             if (other.condition != null) return false;
         } else {

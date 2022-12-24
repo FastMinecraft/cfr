@@ -52,22 +52,18 @@ public class GetOptParser {
         }
         max += 4;
         List<? extends PermittedOptionProvider.ArgumentParam<?, ?>> args = permittedOptionProvider.getArguments();
-        Collections.sort(args, new Comparator<PermittedOptionProvider.ArgumentParam<?, ?>>() {
-            @Override
-            public int compare(PermittedOptionProvider.ArgumentParam<?, ?> a1, PermittedOptionProvider.ArgumentParam<?, ?> a2) {
-                if (a1.getName().equals("help")) return 1;
-                if (a2.getName().equals("help")) return -1;
-                return a1.getName().compareTo(a2.getName());
-            }
+        args.sort((Comparator<PermittedOptionProvider.ArgumentParam<?, ?>>) (a1, a2) -> {
+            if (a1.getName().equals("help")) return 1;
+            if (a2.getName().equals("help")) return -1;
+            return a1.getName().compareTo(a2.getName());
         });
         for (PermittedOptionProvider.ArgumentParam param : args) {
             if (!param.isHidden()) {
                 String name = param.getName();
                 int pad = max - name.length();
                 sb.append("   --").append(param.getName());
-                for (int x = 0; x < pad; ++x) { // there really should be a better way to do this.
-                    sb.append(' ');
-                }
+                // there really should be a better way to do this.
+                sb.append(" ".repeat(Math.max(0, pad)));
                 sb.append(param.shortDescribe()).append("\n");
             }
         }

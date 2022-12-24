@@ -20,6 +20,7 @@ import org.benf.cfr.reader.util.StringUtils;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.List;
+import java.util.Objects;
 
 public class LambdaExpression extends AbstractExpression implements LambdaExpressionCommon {
 
@@ -68,9 +69,12 @@ public class LambdaExpression extends AbstractExpression implements LambdaExpres
 
     @Override
     public Expression applyExpressionRewriter(ExpressionRewriter expressionRewriter, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
-        for (int x = 0; x < args.size(); ++x) {
-            args.set(x, expressionRewriter.rewriteExpression(args.get(x), ssaIdentifiers, statementContainer, flags));
-        }
+        args.replaceAll(lValue -> expressionRewriter.rewriteExpression(
+            lValue,
+            ssaIdentifiers,
+            statementContainer,
+            flags
+        ));
         result = expressionRewriter.rewriteExpression(result, ssaIdentifiers, statementContainer, flags);
         return this;
     }
@@ -152,8 +156,8 @@ public class LambdaExpression extends AbstractExpression implements LambdaExpres
 
         LambdaExpression that = (LambdaExpression) o;
 
-        if (args != null ? !args.equals(that.args) : that.args != null) return false;
-        if (result != null ? !result.equals(that.result) : that.result != null) return false;
+        if (!Objects.equals(args, that.args)) return false;
+        if (!Objects.equals(result, that.result)) return false;
 
         return true;
     }

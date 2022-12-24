@@ -14,6 +14,7 @@ import org.benf.cfr.reader.util.StringUtils;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class ExceptionGroup {
 
@@ -57,11 +58,7 @@ public class ExceptionGroup {
     public void removeSynchronisedHandlers(final Map<Integer, Integer> lutByOffset,
                                            final Map<Integer, Integer> lutByIdx,
                                            List<Op01WithProcessedDataAndByteJumps> instrs) {
-        Iterator<Entry> entryIterator = entries.iterator();
-        while (entryIterator.hasNext()) {
-            Entry entry = entryIterator.next();
-            if (isSynchronisedHandler(entry, lutByOffset, lutByIdx, instrs)) entryIterator.remove();
-        }
+        entries.removeIf(entry -> isSynchronisedHandler(entry, lutByOffset, lutByIdx, instrs));
     }
 
     private boolean isSynchronisedHandler(Entry entry,
@@ -211,7 +208,7 @@ public class ExceptionGroup {
             ExtenderKey that = (ExtenderKey) o;
 
             if (handler != that.handler) return false;
-            if (type != null ? !type.equals(that.type) : that.type != null) return false;
+            if (!Objects.equals(type, that.type)) return false;
 
             return true;
         }

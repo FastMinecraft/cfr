@@ -13,9 +13,8 @@ import java.util.List;
 public class MiscStatementTools {
     public static List<Op04StructuredStatement> getBlockStatements(Op04StructuredStatement code) {
         StructuredStatement topCode = code.getStatement();
-        if (!(topCode instanceof Block)) return null;
+        if (!(topCode instanceof Block block)) return null;
 
-        Block block = (Block) topCode;
         List<Op04StructuredStatement> statements = block.getBlockStatements();
         return statements;
     }

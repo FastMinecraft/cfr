@@ -1,7 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.utils.scope;
 
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
-import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers.InstanceOfAssignRewriter;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
 import org.benf.cfr.reader.bytecode.analysis.parse.StatementContainer;
@@ -26,7 +25,6 @@ import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.getopt.Options;
 
 import java.util.*;
@@ -38,15 +36,10 @@ public abstract class AbstractLValueScopeDiscoverer implements LValueScopeDiscov
      * is defined at (i.e. scope depth goes above) we have to remove all earliest definitions at that level.
      */
     final Map<NamedVariable, ScopeDefinition> earliestDefinition = MapFactory.newOrderedMap();
-    final Map<Integer, Map<NamedVariable, Boolean>> earliestDefinitionsByLevel = MapFactory.newLazyMap(new UnaryFunction<Integer, Map<NamedVariable, Boolean>>() {
-        @Override
-        public Map<NamedVariable, Boolean> invoke(Integer arg) {
-            return MapFactory.newIdentityMap();
-        }
-    });
+    final Map<Integer, Map<NamedVariable, Boolean>> earliestDefinitionsByLevel = MapFactory.newLazyMap(arg -> MapFactory.newIdentityMap());
     int currentDepth = 0;
 
-    Stack<StatementContainer<StructuredStatement>> currentBlock = new Stack<StatementContainer<StructuredStatement>>();
+    Stack<StatementContainer<StructuredStatement>> currentBlock = new Stack<>();
 
     final List<ScopeDefinition> discoveredCreations = ListFactory.newList();
     final VariableFactory variableFactory;
@@ -128,41 +121,24 @@ public abstract class AbstractLValueScopeDiscoverer implements LValueScopeDiscov
 
     }
 
-    private static class ScopeKey {
-        private final LValue lValue;
-        private final JavaTypeInstance type;
-
-        private ScopeKey(LValue lValue, JavaTypeInstance type) {
-            this.lValue = lValue;
-//            this.type = type.getDeGenerifiedType();
-            // Using the degenerified type causes us to 'correctly' combine a variable where it's been split into generic
-            // and non-generic types, but I can't convince myself it doesn't have scope for illegal combining.
-            this.type = type;
-        }
+    private record ScopeKey(LValue lValue, JavaTypeInstance type) {
+        //            this.type = type.getDeGenerifiedType();
+        // Using the degenerified type causes us to 'correctly' combine a variable where it's been split into generic
+        // and non-generic types, but I can't convince myself it doesn't have scope for illegal combining.
 
         @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
 
-            ScopeKey scopeKey = (ScopeKey) o;
+                ScopeKey scopeKey = (ScopeKey) o;
 
-            if (!lValue.equals(scopeKey.lValue)) return false;
-            if (!type.equals(scopeKey.type)) return false;
+                if (!lValue.equals(scopeKey.lValue)) return false;
+                if (!type.equals(scopeKey.type)) return false;
 
-            return true;
-        }
+                return true;
+            }
 
-        private LValue getlValue() {
-            return lValue;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = lValue.hashCode();
-            result = 31 * result + type.hashCode();
-            return result;
-        }
     }
 
     public void markDiscoveredCreations() {
@@ -172,12 +148,8 @@ public abstract class AbstractLValueScopeDiscoverer implements LValueScopeDiscov
          */
         Map<ScopeKey, List<ScopeDefinition>> definitionsByType = Functional.groupToMapBy(discoveredCreations,
                 MapFactory.<ScopeKey, List<ScopeDefinition>>newOrderedMap(),
-                new UnaryFunction<ScopeDefinition, ScopeKey>() {
-                    @Override
-                    public ScopeKey invoke(ScopeDefinition arg) {
-                        return arg.getScopeKey();
-                    }
-                });
+            ScopeDefinition::getScopeKey
+        );
 
         creation : for (Map.Entry<ScopeKey, List<ScopeDefinition>> entry : definitionsByType.entrySet()) {
             ScopeKey scopeKey = entry.getKey();
@@ -186,7 +158,7 @@ public abstract class AbstractLValueScopeDiscoverer implements LValueScopeDiscov
 
             List<StatementContainer<StructuredStatement>> commonScope = null;
             ScopeDefinition bestDefn = null;
-            LValue scopedEntity = scopeKey.getlValue();
+            LValue scopedEntity = scopeKey.lValue();
             for (int x=definitions.size()-1;x>=0;--x) {
                 ScopeDefinition definition = definitions.get(x);
                 StructuredStatement statement = definition.getStatementContainer().getStatement();
@@ -234,8 +206,7 @@ public abstract class AbstractLValueScopeDiscoverer implements LValueScopeDiscov
                 if (scope != null) {
                     for (int i = scope.size() - 1; i >= 0; --i) {
                         StatementContainer<StructuredStatement> thisItem = scope.get(i);
-                        if (thisItem.getStatement() instanceof Block) {
-                            Block block = (Block) thisItem.getStatement();
+                        if (thisItem.getStatement() instanceof Block block) {
                             block.setIndenting(true);
                             creationContainer = thisItem;
                             break;

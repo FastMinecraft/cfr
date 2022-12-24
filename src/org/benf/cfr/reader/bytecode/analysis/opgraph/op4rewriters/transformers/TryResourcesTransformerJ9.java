@@ -65,7 +65,7 @@ public class TryResourcesTransformerJ9 extends TryResourceTransformerFinally {
                         new EndBlock(null)
                 )
         ));
-        MatchIterator<StructuredStatement> mi = new MatchIterator<StructuredStatement>(structuredStatements);
+        MatchIterator<StructuredStatement> mi = new MatchIterator<>(structuredStatements);
 
         TryResourcesMatchResultCollector collector = new TryResourcesMatchResultCollector();
         mi.advance();

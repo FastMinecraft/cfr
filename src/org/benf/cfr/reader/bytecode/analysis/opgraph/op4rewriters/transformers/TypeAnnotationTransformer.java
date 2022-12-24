@@ -21,7 +21,7 @@ import org.benf.cfr.reader.entities.attributes.TypeAnnotationTargetInfo;
 import org.benf.cfr.reader.util.DecompilerComments;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 
 import java.util.Collections;
 import java.util.List;
@@ -90,12 +90,9 @@ public class TypeAnnotationTransformer implements StructuredStatementTransformer
         List<AnnotationTableTypeEntry> entries = variableAnnotations;
         if (entries.isEmpty()) return Collections.emptyList();
 
-        entries = Functional.filter(entries, new Predicate<AnnotationTableTypeEntry>() {
-            @Override
-            public boolean test(AnnotationTableTypeEntry in) {
-                TypeAnnotationTargetInfo.TypeAnnotationLocalVarTarget tgt = (TypeAnnotationTargetInfo.TypeAnnotationLocalVarTarget)in.getTargetInfo();
-                return tgt.matches(offset, slot, tolerance);
-            }
+        entries = Functional.filter(entries, in -> {
+            TypeAnnotationTargetInfo.TypeAnnotationLocalVarTarget tgt = (TypeAnnotationTargetInfo.TypeAnnotationLocalVarTarget)in.getTargetInfo();
+            return tgt.matches(offset, slot, tolerance);
         });
         return entries;
     }
@@ -103,8 +100,7 @@ public class TypeAnnotationTransformer implements StructuredStatementTransformer
     @Override
     public void handleStatement(StatementContainer statementContainer) {
         Object rawStatement = statementContainer.getStatement();
-        if (!(rawStatement instanceof StructuredStatement)) return;
-        StructuredStatement stm = (StructuredStatement)rawStatement;
+        if (!(rawStatement instanceof StructuredStatement stm)) return;
 
         if (stm instanceof StructuredCatch) {
             handleCatchStatement((StructuredCatch)stm);
@@ -119,8 +115,7 @@ public class TypeAnnotationTransformer implements StructuredStatementTransformer
         if (createdHere == null || createdHere.isEmpty()) return;
 
         for (LValue lValue : createdHere) {
-            if (lValue instanceof LocalVariable) {
-                LocalVariable localVariable = (LocalVariable)lValue;
+            if (lValue instanceof LocalVariable localVariable) {
                 int offset = localVariable.getOriginalRawOffset();
                 int slot = localVariable.getIdx();
                 if (offset < 0 || slot < 0) continue;

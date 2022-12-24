@@ -157,8 +157,7 @@ public class StructuredIf extends AbstractStructuredStatement implements CanRemo
     @Override
     public boolean match(MatchIterator<StructuredStatement> matchIterator, MatchResultCollector matchResultCollector) {
         StructuredStatement o = matchIterator.getCurrent();
-        if (!(o instanceof StructuredIf)) return false;
-        StructuredIf other = (StructuredIf) o;
+        if (!(o instanceof StructuredIf other)) return false;
         if (!conditionalExpression.equals(other.conditionalExpression)) return false;
 
         matchIterator.advance();

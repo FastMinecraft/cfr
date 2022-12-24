@@ -11,7 +11,7 @@ import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.collections.SetUtil;
-import org.benf.cfr.reader.util.functors.BinaryProcedure;
+import java.util.function.BiConsumer;
 import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
@@ -38,7 +38,7 @@ public class SynchronizedBlocks {
     * What would be nasty is a switch statement which enters on one branch and exits on another...
     */
     public static void findSynchronizedBlocks(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> enters = Functional.filter(statements, new TypeFilter<MonitorEnterStatement>(MonitorEnterStatement.class));
+        List<Op03SimpleStatement> enters = Functional.filter(statements, new TypeFilter<>(MonitorEnterStatement.class));
         // Each exit can be tied to one enter, which is the first one found by
         // walking code backwards and not passing any other exit/enter for this var.
         // (Every exit from a synchronised block has to exit, so if there's any possibiliy of an exception... )
@@ -73,69 +73,65 @@ public class SynchronizedBlocks {
 
         final Set<BlockIdentifier> leaveExitsMutex = SetFactory.newSet();
 
-        GraphVisitor<Op03SimpleStatement> marker = new GraphVisitorDFS<Op03SimpleStatement>(start.getTargets(),
-                new BinaryProcedure<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>>() {
-                    @Override
-                    public void call(Op03SimpleStatement arg1, GraphVisitor<Op03SimpleStatement> arg2) {
-                        Statement statement = arg1.getStatement();
+        GraphVisitor<Op03SimpleStatement> marker = new GraphVisitorDFS<Op03SimpleStatement>(
+            start.getTargets(),
+            (arg1, arg2) -> {
+                Statement statement = arg1.getStatement();
 
-                        if (statement instanceof TryStatement) {
-                            TryStatement tryStatement = (TryStatement) statement;
-                            Set<Expression> tryMonitors = tryStatement.getMonitors();
-                            // TODO
-                            // It's possible that this is a function of monitor, as per https://github.com/leibnitz27/cfr/issues/154
-                            // However, if that's the case, we'll need to potentially leave a different mutex at different exit points
-                            if (tryMonitors.contains(monitor)) {
-                                leaveExitsMutex.add(tryStatement.getBlockIdentifier());
-                                List<Op03SimpleStatement> tgts = arg1.getTargets();
-                                for (int x = 1, len = tgts.size(); x < len; ++x) {
-                                    Statement innerS = tgts.get(x).getStatement();
-                                    if (innerS instanceof CatchStatement) {
-                                        leaveExitsMutex.add(((CatchStatement) innerS).getCatchBlockIdent());
-                                    } else if (innerS instanceof FinallyStatement) {
-                                        leaveExitsMutex.add(((FinallyStatement) innerS).getFinallyBlockIdent());
-                                    }
-                                }
+                if (statement instanceof TryStatement tryStatement) {
+                    Set<Expression> tryMonitors = tryStatement.getMonitors();
+                    // TODO
+                    // It's possible that this is a function of monitor, as per https://github.com/leibnitz27/cfr/issues/154
+                    // However, if that's the case, we'll need to potentially leave a different mutex at different exit points
+                    if (tryMonitors.contains(monitor)) {
+                        leaveExitsMutex.add(tryStatement.getBlockIdentifier());
+                        List<Op03SimpleStatement> tgts = arg1.getTargets();
+                        for (int x = 1, len = tgts.size(); x < len; ++x) {
+                            Statement innerS = tgts.get(x).getStatement();
+                            if (innerS instanceof CatchStatement) {
+                                leaveExitsMutex.add(((CatchStatement) innerS).getCatchBlockIdent());
+                            } else if (innerS instanceof FinallyStatement) {
+                                leaveExitsMutex.add(((FinallyStatement) innerS).getFinallyBlockIdent());
                             }
-                        }
-
-                        if (statement instanceof MonitorExitStatement) {
-                            MonitorExitStatement monitorExitStatement = (MonitorExitStatement) statement;
-                            Expression exitMonitor = monitorExitStatement.getMonitor();
-                            if (monitor.equals(removeCasts(exitMonitor))) {
-                                foundExits.put(arg1, monitorExitStatement);
-                                addToBlock.add(arg1);
-                                /*
-                                 * If there's a return / throw / goto immediately after this, then we know that the brace
-                                 * is validly moved.
-                                 */
-                                if (arg1.getTargets().size() == 1) {
-                                    arg1 = arg1.getTargets().get(0);
-                                    Statement targetStatement = arg1.getStatement();
-                                    if (targetStatement instanceof ThrowStatement ||
-                                        targetStatement instanceof ReturnStatement ||
-                                        targetStatement instanceof Nop ||
-                                        targetStatement instanceof GotoStatement) {
-                                        // TODO : Should perform a block check on targetStatement.
-                                        extraNodes.add(arg1);
-                                    }
-                                }
-
-                                return;
-                            }
-                        }
-                        addToBlock.add(arg1);
-                        if (SetUtil.hasIntersection(arg1.getBlockIdentifiers(), leaveExitsMutex)) {
-                            for (Op03SimpleStatement tgt : arg1.getTargets()) {
-                                if (SetUtil.hasIntersection(tgt.getBlockIdentifiers(), leaveExitsMutex)) {
-                                    arg2.enqueue(tgt);
-                                }
-                            }
-                        } else {
-                            arg2.enqueue(arg1.getTargets());
                         }
                     }
                 }
+
+                if (statement instanceof MonitorExitStatement monitorExitStatement) {
+                    Expression exitMonitor = monitorExitStatement.getMonitor();
+                    if (monitor.equals(removeCasts(exitMonitor))) {
+                        foundExits.put(arg1, monitorExitStatement);
+                        addToBlock.add(arg1);
+                        /*
+                         * If there's a return / throw / goto immediately after this, then we know that the brace
+                         * is validly moved.
+                         */
+                        if (arg1.getTargets().size() == 1) {
+                            arg1 = arg1.getTargets().get(0);
+                            Statement targetStatement = arg1.getStatement();
+                            if (targetStatement instanceof ThrowStatement ||
+                                targetStatement instanceof ReturnStatement ||
+                                targetStatement instanceof Nop ||
+                                targetStatement instanceof GotoStatement) {
+                                // TODO : Should perform a block check on targetStatement.
+                                extraNodes.add(arg1);
+                            }
+                        }
+
+                        return;
+                    }
+                }
+                addToBlock.add(arg1);
+                if (SetUtil.hasIntersection(arg1.getBlockIdentifiers(), leaveExitsMutex)) {
+                    for (Op03SimpleStatement tgt : arg1.getTargets()) {
+                        if (SetUtil.hasIntersection(tgt.getBlockIdentifiers(), leaveExitsMutex)) {
+                            arg2.enqueue(tgt);
+                        }
+                    }
+                } else {
+                    arg2.enqueue(arg1.getTargets());
+                }
+            }
         );
         marker.process();
 
@@ -167,9 +163,9 @@ public class SynchronizedBlocks {
             final Set<BlockIdentifier> exitBlocks = SetFactory.newSet(foundExit.getBlockIdentifiers());
             exitBlocks.removeAll(start.getBlockIdentifiers());
             final List<Op03SimpleStatement> added = ListFactory.newList();
-            GraphVisitor<Op03SimpleStatement> additional = new GraphVisitorDFS<Op03SimpleStatement>(foundExit, new BinaryProcedure<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>>() {
-                @Override
-                public void call(Op03SimpleStatement arg1, GraphVisitor<Op03SimpleStatement> arg2) {
+            GraphVisitor<Op03SimpleStatement> additional = new GraphVisitorDFS<>(
+                foundExit,
+                (arg1, arg2) -> {
                     if (SetUtil.hasIntersection(exitBlocks, arg1.getBlockIdentifiers())) {
                         if (arg1 == foundExit) {
                             arg2.enqueue(arg1.getTargets());
@@ -179,7 +175,7 @@ public class SynchronizedBlocks {
                         }
                     }
                 }
-            });
+            );
             additional.process();
             // If we had an effect, then we want to redesignate this monitor exit as a 'required comment'
             if (anyOpHasEffect(added)) {

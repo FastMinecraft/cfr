@@ -18,15 +18,13 @@ public class Pair<X, Y> {
     }
 
     public static <A, B> Pair<A, B> make(A a, B b) {
-        return new Pair<A, B>(a, b);
+        return new Pair<>(a, b);
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof Pair)) return false;
-
-        Pair other = (Pair) o;
+        if (!(o instanceof Pair other)) return false;
 
         if (x == null) {
             if (other.x != null) return false;

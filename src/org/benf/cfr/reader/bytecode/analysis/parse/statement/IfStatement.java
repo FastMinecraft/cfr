@@ -14,6 +14,8 @@ import org.benf.cfr.reader.bytecode.analysis.structured.statement.*;
 import org.benf.cfr.reader.entities.exceptions.ExceptionCheck;
 import org.benf.cfr.reader.util.output.Dumper;
 
+import java.util.Objects;
+
 public class IfStatement extends GotoStatement {
 
     private static final int JUMP_NOT_TAKEN = 0;
@@ -102,22 +104,36 @@ public class IfStatement extends GotoStatement {
     @Override
     public StructuredStatement getStructuredStatement() {
         switch (getJumpType()) {
-            case GOTO:
-            case GOTO_OUT_OF_IF:
-            case GOTO_OUT_OF_TRY:
+            case GOTO, GOTO_OUT_OF_IF, GOTO_OUT_OF_TRY -> {
                 return new UnstructuredIf(getLoc(), condition, knownIfBlock, knownElseBlock);
-            case CONTINUE:
-                return new StructuredIf(getLoc(), condition, new Op04StructuredStatement(new UnstructuredContinue(getLoc(), getTargetStartBlock())));
-            case BREAK:
-                return new StructuredIf(getLoc(), condition, new Op04StructuredStatement(new UnstructuredBreak(getLoc(), getJumpTarget().getContainer().getBlocksEnded())));
-            case BREAK_ANONYMOUS: {
+            }
+            case CONTINUE -> {
+                return new StructuredIf(
+                    getLoc(),
+                    condition,
+                    new Op04StructuredStatement(new UnstructuredContinue(getLoc(), getTargetStartBlock()))
+                );
+            }
+            case BREAK -> {
+                return new StructuredIf(
+                    getLoc(),
+                    condition,
+                    new Op04StructuredStatement(new UnstructuredBreak(
+                        getLoc(),
+                        getJumpTarget().getContainer().getBlocksEnded()
+                    ))
+                );
+            }
+            case BREAK_ANONYMOUS -> {
                 Statement target = getJumpTarget();
-                if (!(target instanceof AnonBreakTarget)) {
+                if (!(target instanceof AnonBreakTarget anonBreakTarget)) {
                     throw new IllegalStateException("Target of anonymous break unexpected.");
                 }
-                AnonBreakTarget anonBreakTarget = (AnonBreakTarget) target;
                 BlockIdentifier breakFrom = anonBreakTarget.getBlockIdentifier();
-                Op04StructuredStatement unstructuredBreak = new Op04StructuredStatement(new UnstructuredAnonymousBreak(getLoc(), breakFrom));
+                Op04StructuredStatement unstructuredBreak = new Op04StructuredStatement(new UnstructuredAnonymousBreak(
+                    getLoc(),
+                    breakFrom
+                ));
                 return new StructuredIf(getLoc(), condition, unstructuredBreak);
             }
         }
@@ -152,7 +168,7 @@ public class IfStatement extends GotoStatement {
 
         IfStatement that = (IfStatement) o;
 
-        if (condition != null ? !condition.equals(that.condition) : that.condition != null) return false;
+        if (!Objects.equals(condition, that.condition)) return false;
 
         return true;
     }

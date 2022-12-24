@@ -2,6 +2,7 @@ package org.benf.cfr.reader.bytecode.analysis.parse.utils.finalhelp;
 
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 
+import java.util.Objects;
 import java.util.Set;
 
 public class Result {
@@ -38,7 +39,7 @@ public class Result {
         Result result = (Result) o;
 
         if (res != result.res) return false;
-        if (start != null ? !start.equals(result.start) : result.start != null) return false;
+        if (!Objects.equals(start, result.start)) return false;
 
         return true;
     }

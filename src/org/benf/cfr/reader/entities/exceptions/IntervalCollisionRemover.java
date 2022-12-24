@@ -14,13 +14,13 @@ import java.util.TreeMap;
  * 0->5 (Throwable) -> 0    <-- not illegal, but will never be seen...
  */
 public class IntervalCollisionRemover {
-    private final TreeMap<Integer, Boolean> covered = new TreeMap<Integer, Boolean>();
+    private final TreeMap<Integer, Boolean> covered = new TreeMap<>();
 
     public List<ClosedIdxExceptionEntry> removeIllegals(ClosedIdxExceptionEntry e) {
         List<ClosedIdxExceptionEntry> res = ListFactory.newList();
 
-        int start = e.getStart();
-        int end = e.getEnd();
+        int start = e.start();
+        int end = e.end();
 
         do {
             Map.Entry<Integer, Boolean> before = covered.floorEntry(start);

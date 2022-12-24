@@ -82,8 +82,7 @@ public class GenericInferer {
         for (int x=0,len=args.size();x<len;++x) {
             if (nulls.get(x)) {
                 JavaTypeInstance t = args.get(x).getInferredJavaType().getJavaTypeInstance();
-                if (t instanceof JavaGenericPlaceholderTypeInstance) {
-                    JavaGenericPlaceholderTypeInstance placeholder = (JavaGenericPlaceholderTypeInstance)t;
+                if (t instanceof JavaGenericPlaceholderTypeInstance placeholder) {
                     JavaTypeInstance t2 = res.getBindingFor(placeholder);
                     if (!t2.equals(placeholder)) continue;
                     if (nullBindings == null) nullBindings = SetFactory.newSet();
@@ -118,12 +117,9 @@ public class GenericInferer {
         }
 
         Map<Integer, List<MemberFunctionInvokation>> byTypKey = MapFactory.newTreeMap();
-        Functional.groupToMapBy(memberFunctionInvokations, byTypKey, new UnaryFunction<MemberFunctionInvokation, Integer>() {
-            @Override
-            public Integer invoke(MemberFunctionInvokation arg) {
-                return arg.getObject().getInferredJavaType().getLocalId();
-            }
-        });
+        Functional.groupToMapBy(memberFunctionInvokations, byTypKey,
+            arg -> arg.getObject().getInferredJavaType().getLocalId()
+        );
 
         invokationGroup:
         for (Map.Entry<Integer, List<MemberFunctionInvokation>> entry : byTypKey.entrySet()) {
@@ -132,8 +128,7 @@ public class GenericInferer {
 
             Expression obj0 = invokations.get(0).getObject();
             JavaTypeInstance objectType = obj0.getInferredJavaType().getJavaTypeInstance();
-            if (!(objectType instanceof JavaGenericBaseInstance)) continue;
-            JavaGenericBaseInstance genericType = (JavaGenericBaseInstance) objectType;
+            if (!(objectType instanceof JavaGenericBaseInstance genericType)) continue;
             if (!genericType.hasUnbound()) continue;
 
             GenericInferData inferData = getGtbNullFiltered(invokations.get(0));

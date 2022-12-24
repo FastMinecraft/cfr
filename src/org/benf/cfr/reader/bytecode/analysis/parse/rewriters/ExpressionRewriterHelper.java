@@ -8,9 +8,12 @@ import java.util.List;
 
 public class ExpressionRewriterHelper {
     public static void applyForwards(List<Expression> list, ExpressionRewriter expressionRewriter, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
-        for (int x = 0; x < list.size(); ++x) {
-            list.set(x, expressionRewriter.rewriteExpression(list.get(x), ssaIdentifiers, statementContainer, flags));
-        }
+        list.replaceAll(expression -> expressionRewriter.rewriteExpression(
+            expression,
+            ssaIdentifiers,
+            statementContainer,
+            flags
+        ));
     }
 
     public static void applyBackwards(List<Expression> list, ExpressionRewriter expressionRewriter, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {

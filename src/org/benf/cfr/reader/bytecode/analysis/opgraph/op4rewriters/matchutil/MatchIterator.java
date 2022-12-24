@@ -27,7 +27,7 @@ public class MatchIterator<T> {
     }
 
     public MatchIterator<T> copy() {
-        return new MatchIterator<T>(data, idx);
+        return new MatchIterator<>(data, idx);
     }
 
     void advanceTo(MatchIterator<StructuredStatement> other) {

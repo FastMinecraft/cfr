@@ -78,11 +78,9 @@ public class UnstructuredDo extends AbstractUnStructuredStatement {
             Op04StructuredStatement singleStatement = maybeStatement.getValue();
             StructuredStatement stm = singleStatement.getStatement();
             boolean canRemove = true;
-            if (stm instanceof StructuredBreak) {
-                StructuredBreak brk = (StructuredBreak) stm;
+            if (stm instanceof StructuredBreak brk) {
                 if (brk.getBreakBlock().equals(blockIdentifier)) canRemove = false;
-            } else if (stm instanceof StructuredContinue) {
-                StructuredContinue cnt = (StructuredContinue) stm;
+            } else if (stm instanceof StructuredContinue cnt) {
                 if (cnt.getContinueTgt().equals(blockIdentifier)) canRemove = false;
             } else if (stm.canFall()) {
                 canRemove = false;

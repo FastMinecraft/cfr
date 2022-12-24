@@ -12,28 +12,19 @@ import java.util.List;
  */
 public class MethodOrdering  {
 
-    private static class OrderData implements Comparable<OrderData> {
-        private final Method method;
-        private final boolean hasLineNumber;
-        private final int origIdx;
-
-        private OrderData(Method method, boolean hasLineNumber, int origIdx){
-            this.method = method;
-            this.hasLineNumber = hasLineNumber;
-            this.origIdx = origIdx;
-        }
+    private record OrderData(Method method, boolean hasLineNumber, int origIdx) implements Comparable<OrderData> {
 
         @Override
-        public int compareTo(OrderData o) {
-            if (hasLineNumber != o.hasLineNumber) {
-                return hasLineNumber ? -1 : 1;
+            public int compareTo(OrderData o) {
+                if (hasLineNumber != o.hasLineNumber) {
+                    return hasLineNumber ? -1 : 1;
+                }
+                return origIdx - o.origIdx;
             }
-            return origIdx - o.origIdx;
         }
-    }
 
     public static List<Method> sort(List<Method> methods) {
-        List<OrderData> od = new ArrayList<OrderData>();
+        List<OrderData> od = new ArrayList<>();
         boolean hasLineNumbers = false;
         for (int x=0,len=methods.size();x<len;++x) {
             Method method = methods.get(x);
@@ -52,7 +43,7 @@ public class MethodOrdering  {
         }
         if (!hasLineNumbers) return methods;
         Collections.sort(od);
-        List<Method> res = new ArrayList<Method>(methods.size());
+        List<Method> res = new ArrayList<>(methods.size());
         for (OrderData o : od) {
             res.add(o.method);
         }

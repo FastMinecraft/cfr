@@ -180,8 +180,7 @@ public class JavaArrayTypeInstance implements JavaTypeInstance {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof JavaArrayTypeInstance)) return false;
-        JavaArrayTypeInstance other = (JavaArrayTypeInstance) o;
+        if (!(o instanceof JavaArrayTypeInstance other)) return false;
         return (other.dimensions == dimensions && other.underlyingType.equals(underlyingType));
     }
 
@@ -223,8 +222,7 @@ public class JavaArrayTypeInstance implements JavaTypeInstance {
     @Override
     public boolean implicitlyCastsTo(JavaTypeInstance other, GenericTypeBinder gtb) {
         if (other == TypeConstants.OBJECT) return true;
-        if (other instanceof JavaArrayTypeInstance) {
-            JavaArrayTypeInstance arrayOther = (JavaArrayTypeInstance) other;
+        if (other instanceof JavaArrayTypeInstance arrayOther) {
             if (getNumArrayDimensions() != arrayOther.getNumArrayDimensions()) return false;
             return getArrayStrippedType().implicitlyCastsTo(arrayOther.getArrayStrippedType(), gtb);
         }

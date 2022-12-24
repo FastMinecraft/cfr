@@ -105,7 +105,7 @@ public class ArrayVariable extends AbstractLValue {
 
     @Override
     public SSAIdentifiers<LValue> collectVariableMutation(SSAIdentifierFactory<LValue, ?> ssaIdentifierFactory) {
-        return new SSAIdentifiers<LValue>();
+        return new SSAIdentifiers<>();
     }
 
     @Override
@@ -113,8 +113,7 @@ public class ArrayVariable extends AbstractLValue {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof ArrayVariable)) return false;
-        ArrayVariable other = (ArrayVariable) o;
+        if (!(o instanceof ArrayVariable other)) return false;
         return arrayIndex.equals(other.arrayIndex);
     }
 }

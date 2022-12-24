@@ -2,10 +2,10 @@ package org.benf.cfr.reader.bytecode.analysis.parse.utils;
 
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.BinaryPredicate;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiPredicate;
 
 public class SSAIdentifiers<KEYTYPE> {
 
@@ -94,7 +94,7 @@ public class SSAIdentifiers<KEYTYPE> {
     /*
      * We're being called with the idents of our sources.
      */
-    public boolean mergeWith(SSAIdentifiers<KEYTYPE> other, BinaryPredicate<KEYTYPE, KEYTYPE> pred) {
+    public boolean mergeWith(SSAIdentifiers<KEYTYPE> other, BiPredicate<KEYTYPE, KEYTYPE> pred) {
         boolean changed = false;
         for (Map.Entry<KEYTYPE, SSAIdent> valueSetEntry : other.knownIdentifiersOnExit.entrySet()) {
             KEYTYPE lValue = valueSetEntry.getKey();

@@ -12,21 +12,18 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.JumpType;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 
 import java.util.List;
 import java.util.Set;
 
 public class AnonymousBlocks {
     public static void labelAnonymousBlocks(List<Op03SimpleStatement> statements, BlockIdentifierFactory blockIdentifierFactory) {
-        List<Op03SimpleStatement> anonBreaks = Functional.filter(statements, new Predicate<Op03SimpleStatement>() {
-            @Override
-            public boolean test(Op03SimpleStatement in) {
-                Statement statement = in.getStatement();
-                if (!(statement instanceof JumpingStatement)) return false;
-                JumpType jumpType = ((JumpingStatement) statement).getJumpType();
-                return jumpType == JumpType.BREAK_ANONYMOUS;
-            }
+        List<Op03SimpleStatement> anonBreaks = Functional.filter(statements, in -> {
+            Statement statement = in.getStatement();
+            if (!(statement instanceof JumpingStatement)) return false;
+            JumpType jumpType = ((JumpingStatement) statement).getJumpType();
+            return jumpType == JumpType.BREAK_ANONYMOUS;
         });
         if (anonBreaks.isEmpty()) return;
 

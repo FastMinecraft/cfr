@@ -37,12 +37,10 @@ public class TokenStreamDumper extends AbstractDumper {
     private final IllegalIdentifierDump illegalIdentifierDump;
 
     // We don't want to expose internals - we are simply making a offering to allow consumers to associate tokens.
-    private final Map<Object, Object> refMap = MapFactory.newLazyMap(new IdentityHashMap<Object, Object>(), new UnaryFunction<Object, Object>() {
-        @Override
-        public Object invoke(Object arg) {
-            return new Object();
-        }
-    });
+    private final Map<Object, Object> refMap = MapFactory.newLazyMap(
+        new IdentityHashMap<>(),
+        arg -> new Object()
+    );
 
     private final Set<JavaTypeInstance> emitted = SetFactory.newSet();
 

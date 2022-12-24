@@ -146,9 +146,9 @@ public class ArithmeticOperation extends AbstractExpression implements BoxingPro
         if (lhs.getInferredJavaType().getJavaTypeInstance() != RawJavaType.BOOLEAN &&
                 Literal.equalsAnyOne(rhs)) {
             switch (op) {
-                case PLUS:
-                case MINUS:
+                case PLUS, MINUS -> {
                     return new ArithmeticPreMutationOperation(getLoc(), lValue, op);
+                }
             }
         }
         return new ArithmeticMutationOperation(getLoc(), lValue, rhs, op);
@@ -194,8 +194,7 @@ public class ArithmeticOperation extends AbstractExpression implements BoxingPro
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof ArithmeticOperation)) return false;
-        ArithmeticOperation other = (ArithmeticOperation) o;
+        if (!(o instanceof ArithmeticOperation other)) return false;
         if (op != other.op) return false;
         if (!lhs.equals(other.lhs)) return false;
         if (!rhs.equals(other.rhs)) return false;
@@ -218,15 +217,15 @@ public class ArithmeticOperation extends AbstractExpression implements BoxingPro
         if (on == 0) {
             if (nanG) {
                 switch (from) {
-                    case GTE:
-                    case GT:
+                    case GTE, GT -> {
                         return true;
+                    }
                 }
             } else {
                 switch (from) {
-                    case LT:
-                    case LTE:
+                    case LT, LTE -> {
                         return true;
+                    }
                 }
             }
         }
@@ -235,12 +234,10 @@ public class ArithmeticOperation extends AbstractExpression implements BoxingPro
 
     private static boolean canNegateAroundNaN(CompOp from, int on) {
         if (on == 0) {
-            switch (from) {
-                case EQ:
-                case NE:
-                    return true;
-            }
-            return false;
+            return switch (from) {
+                case EQ, NE -> true;
+                default -> false;
+            };
         }
         return true;
     }
@@ -250,39 +247,25 @@ public class ArithmeticOperation extends AbstractExpression implements BoxingPro
             return from;
         }
         if (on < 0) {
-            switch (from) {
-                case LT:
-                    throw new IllegalStateException("Bad CMP");
-                case LTE:
-                    return CompOp.LT;  // <= -1 -> < 0
-                case GTE:
-                    throw new IllegalStateException("Bad CMP");
-                case GT:
-                    return CompOp.GTE; // > -1 -> >= 0
-                case EQ:
-                    return CompOp.LT;  // == -1 -> < 0
-                case NE:
-                    return CompOp.GTE; // != -1 -> >= 0
-                default:
-                    throw new IllegalStateException("Unknown enum");
-            }
+            return switch (from) {
+                case LT -> throw new IllegalStateException("Bad CMP");
+                case LTE -> CompOp.LT;  // <= -1 -> < 0
+                case GTE -> throw new IllegalStateException("Bad CMP");
+                case GT -> CompOp.GTE; // > -1 -> >= 0
+                case EQ -> CompOp.LT;  // == -1 -> < 0
+                case NE -> CompOp.GTE; // != -1 -> >= 0
+                default -> throw new IllegalStateException("Unknown enum");
+            };
         } else {
-            switch (from) {
-                case LT:
-                    return CompOp.LTE; // < 1 -> <= 0
-                case LTE:
-                    throw new IllegalStateException("Bad CMP");
-                case GTE:
-                    return CompOp.GT; // >= 1 -> > 1
-                case GT:
-                    throw new IllegalStateException("Bad CMP");
-                case EQ:
-                    return CompOp.GT; // == 1 -> > 0
-                case NE:
-                    return CompOp.LTE; // != 1 -> <= 0
-                default:
-                    throw new IllegalStateException("Unknown enum");
-            }
+            return switch (from) {
+                case LT -> CompOp.LTE; // < 1 -> <= 0
+                case LTE -> throw new IllegalStateException("Bad CMP");
+                case GTE -> CompOp.GT; // >= 1 -> > 1
+                case GT -> throw new IllegalStateException("Bad CMP");
+                case EQ -> CompOp.GT; // == 1 -> > 0
+                case NE -> CompOp.LTE; // != 1 -> <= 0
+                default -> throw new IllegalStateException("Unknown enum");
+            };
         }
     }
 
@@ -335,14 +318,12 @@ public class ArithmeticOperation extends AbstractExpression implements BoxingPro
          */
     @Override
     public Expression pushDown(Expression toPush, Expression parent) {
-        if (!(parent instanceof ComparisonOperation)) return null;
+        if (!(parent instanceof ComparisonOperation comparisonOperation)) return null;
         if (!op.isTemporary()) return null;
-        if (!(toPush instanceof Literal)) {
+        if (!(toPush instanceof Literal literal)) {
             throw new ConfusedCFRException("Pushing with a non-literal as pushee.");
         }
-        ComparisonOperation comparisonOperation = (ComparisonOperation) parent;
         CompOp compOp = comparisonOperation.getOp();
-        Literal literal = (Literal) toPush;
         TypedLiteral typedLiteral = literal.getValue();
         if (typedLiteral.getType() != TypedLiteral.LiteralType.Integer) {
             throw new ConfusedCFRException("<xCMP> , non integer!");

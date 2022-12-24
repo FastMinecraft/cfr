@@ -24,6 +24,7 @@ public class GenericTypeBinder {
         return new GenericTypeBinder(MapFactory.<String, JavaTypeInstance>newMap());
     }
 
+    @SafeVarargs
     public static GenericTypeBinder create(List<FormalTypeParameter> ... ftps) {
         Map<String, JavaTypeInstance> bounds = MapFactory.newMap();
         for (List<FormalTypeParameter> ftp : ftps) {
@@ -41,7 +42,7 @@ public class GenericTypeBinder {
         Map<String, JavaTypeInstance> nameToBoundType = MapFactory.newMap();
 
         if (boundInstance != null) {    // null for static.
-            List<FormalTypeParameter> unboundParameters = classSignature.getFormalTypeParameters();
+            List<FormalTypeParameter> unboundParameters = classSignature.formalTypeParameters();
             List<JavaTypeInstance> boundParameters = boundInstance.getGenericTypes();
 
             if (unboundParameters == null || boundParameters.size() != unboundParameters.size()) {
@@ -57,7 +58,7 @@ public class GenericTypeBinder {
             }
         }
 
-        List<FormalTypeParameter> classFormalTypeParamters = classSignature.getFormalTypeParameters();
+        List<FormalTypeParameter> classFormalTypeParamters = classSignature.formalTypeParameters();
         // TODO: Pretty sure this is a tautology given the calling pattern.
 
         GenericTypeBinder res = new GenericTypeBinder(nameToBoundType);
@@ -87,8 +88,7 @@ public class GenericTypeBinder {
                         bound = bound.getArrayStrippedType();
                     }
                 }
-                if (unbound instanceof JavaGenericBaseInstance) {
-                    JavaGenericBaseInstance unboundGeneric = (JavaGenericBaseInstance) unbound;
+                if (unbound instanceof JavaGenericBaseInstance unboundGeneric) {
                     unboundGeneric.tryFindBinding(bound, res);
                 }
             }
@@ -101,6 +101,7 @@ public class GenericTypeBinder {
         List<JavaTypeInstance> typeParameters = unbound.getGenericTypes();
 
         Map<String, JavaTypeInstance> unboundNames = MapFactory.newMap();
+        //noinspection ForLoopReplaceableByForEach
         for (int x = 0, len = typeParameters.size(); x < len; ++x) {
             JavaTypeInstance unboundParam = typeParameters.get(x);
             if (!(unboundParam instanceof JavaGenericPlaceholderTypeInstance)) {
@@ -115,11 +116,8 @@ public class GenericTypeBinder {
      * Extra faffing if we don't know that the two classes are the same.
      */
     public static GenericTypeBinder extractBaseBindings(JavaGenericBaseInstance unbound, JavaTypeInstance maybeBound) {
-        if (!(unbound instanceof JavaGenericRefTypeInstance)) return extractBindings(unbound, maybeBound);
-        if (!(maybeBound instanceof JavaGenericRefTypeInstance)) return extractBindings(unbound, maybeBound);
-
-        JavaGenericRefTypeInstance unboundGeneric = (JavaGenericRefTypeInstance)unbound;
-        JavaGenericRefTypeInstance maybeBoundGeneric = (JavaGenericRefTypeInstance)maybeBound;
+        if (!(unbound instanceof JavaGenericRefTypeInstance unboundGeneric)) return extractBindings(unbound, maybeBound);
+        if (!(maybeBound instanceof JavaGenericRefTypeInstance maybeBoundGeneric)) return extractBindings(unbound, maybeBound);
 
         BindingSuperContainer maybeBindingContainer = maybeBound.getBindingSupers();
         JavaTypeInstance boundAssignable = maybeBindingContainer.getBoundAssignable(maybeBoundGeneric, unboundGeneric);
@@ -148,11 +146,10 @@ public class GenericTypeBinder {
         List<JavaTypeInstance> typeParameters = unbound.getGenericTypes();
 
 
-        if (!(maybeBound instanceof JavaGenericBaseInstance)) {
+        if (!(maybeBound instanceof JavaGenericBaseInstance bound)) {
             return;
         }
 
-        JavaGenericBaseInstance bound = (JavaGenericBaseInstance) maybeBound;
         List<JavaTypeInstance> boundTypeParameters = bound.getGenericTypes();
         if (typeParameters.size() != boundTypeParameters.size()) {
             return;
@@ -179,8 +176,7 @@ public class GenericTypeBinder {
     }
 
     public JavaTypeInstance getBindingFor(JavaTypeInstance maybeUnbound) {
-        if (maybeUnbound instanceof JavaGenericPlaceholderTypeInstance) {
-            JavaGenericPlaceholderTypeInstance placeholder = (JavaGenericPlaceholderTypeInstance) maybeUnbound;
+        if (maybeUnbound instanceof JavaGenericPlaceholderTypeInstance placeholder) {
             String name = placeholder.getRawName();
             JavaTypeInstance bound = nameToBoundType.get(name);
             if (bound != null) {
@@ -188,8 +184,7 @@ public class GenericTypeBinder {
             }
         } else if (maybeUnbound instanceof JavaGenericBaseInstance) {
             return ((JavaGenericBaseInstance) maybeUnbound).getBoundInstance(this);
-        } else if (maybeUnbound instanceof JavaArrayTypeInstance) {
-            JavaArrayTypeInstance ja = (JavaArrayTypeInstance)maybeUnbound;
+        } else if (maybeUnbound instanceof JavaArrayTypeInstance ja) {
             JavaTypeInstance jaStripped = ja.getArrayStrippedType();
             JavaTypeInstance bindingFor = getBindingFor(jaStripped);
             if (!jaStripped.equals(bindingFor)) {

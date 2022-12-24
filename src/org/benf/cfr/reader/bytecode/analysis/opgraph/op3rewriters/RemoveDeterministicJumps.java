@@ -299,7 +299,8 @@ public class RemoveDeterministicJumps {
     public static void propagateToReturn(Method method, List<Op03SimpleStatement> statements) {
         boolean success = false;
 
-        List<Op03SimpleStatement> assignmentSimples = Functional.filter(statements, new TypeFilter<AssignmentSimple>(AssignmentSimple.class));
+        List<Op03SimpleStatement> assignmentSimples = Functional.filter(statements,
+            new TypeFilter<>(AssignmentSimple.class));
         Set<BlockIdentifier> affectedByFinally = FinallyRewriter.getBlocksAffectedByFinally(statements);
 
         for (Op03SimpleStatement stm : assignmentSimples) {

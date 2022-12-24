@@ -177,7 +177,7 @@ public class CondenseConditionals {
     }
 
     public static boolean condenseConditionals2(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> ifStatements = Functional.filter(statements, new TypeFilter<IfStatement>(IfStatement.class));
+        List<Op03SimpleStatement> ifStatements = Functional.filter(statements, new TypeFilter<>(IfStatement.class));
         boolean result = false;
         for (Op03SimpleStatement ifStatement : ifStatements) {
             // separated for stepping
@@ -271,8 +271,7 @@ public class CondenseConditionals {
      */
     private static boolean condenseConditional2_type2(Op03SimpleStatement ifStatement) {
         Statement innerStatement = ifStatement.getStatement();
-        if (!(innerStatement instanceof IfStatement)) return false;
-        IfStatement innerIf = (IfStatement)innerStatement;
+        if (!(innerStatement instanceof IfStatement innerIf)) return false;
         Op03SimpleStatement tgt1 = ifStatement.getTargets().get(0);
         final Op03SimpleStatement tgt2 = ifStatement.getTargets().get(1);
         if (tgt1.getSources().size() != 1) return false;
@@ -289,11 +288,9 @@ public class CondenseConditionals {
         if (tgt2.getTargets().get(0) != evTgt) return false; // asserted tgt2 is a source of evTgt.
         Statement stm1 = tgt1.getStatement();
         Statement stm2 = tgt2.getStatement();
-        if (!(stm1 instanceof AssignmentSimple && stm2 instanceof AssignmentSimple)) {
+        if (!(stm1 instanceof AssignmentSimple a1 && stm2 instanceof AssignmentSimple a2)) {
             return false;
         }
-        AssignmentSimple a1 = (AssignmentSimple)stm1;
-        AssignmentSimple a2 = (AssignmentSimple)stm2;
         LValue lv = a1.getCreatedLValue();
         if (!lv.equals(a2.getCreatedLValue())) return false;
         ConditionalExpression condition = innerIf.getCondition().getNegated();
@@ -339,7 +336,7 @@ public class CondenseConditionals {
      * c:
      */
     private static boolean condenseConditional2_type1(Op03SimpleStatement ifStatement, List<Op03SimpleStatement> allStatements) {
-        if (!(ifStatement.getStatement() instanceof IfStatement)) return false;
+        if (!(ifStatement.getStatement() instanceof IfStatement if1)) return false;
 
         final Op03SimpleStatement taken1 = ifStatement.getTargets().get(1);
         final Op03SimpleStatement nottaken1 = ifStatement.getTargets().get(0);
@@ -387,7 +384,6 @@ public class CondenseConditionals {
          *
          *
          */
-        IfStatement if1 = (IfStatement) ifStatement.getStatement();
         IfStatement if2 = (IfStatement) ifStatement2.getStatement();
         IfStatement if3 = (IfStatement) ifStatement3.getStatement();
 

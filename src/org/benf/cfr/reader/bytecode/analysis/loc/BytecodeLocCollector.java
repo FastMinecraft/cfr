@@ -18,6 +18,7 @@ public class BytecodeLocCollector {
 
     private Set<Integer> getForMethod(Method method) {
         Set<Integer> locs = data.get(method);
+        //noinspection Java8MapApi
         if (locs == null) {
             locs = SetFactory.newSet();
             data.put(method, locs);

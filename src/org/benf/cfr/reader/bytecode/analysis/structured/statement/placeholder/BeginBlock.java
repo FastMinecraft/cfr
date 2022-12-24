@@ -19,8 +19,7 @@ public class BeginBlock extends AbstractPlaceholder {
     @Override
     public boolean match(MatchIterator<StructuredStatement> matchIterator, MatchResultCollector matchResultCollector) {
         StructuredStatement current = matchIterator.getCurrent();
-        if (current instanceof BeginBlock) {
-            BeginBlock other = (BeginBlock) current;
+        if (current instanceof BeginBlock other) {
             if (block == null || block.equals(other.block)) {
                 matchIterator.advance();
                 return true;

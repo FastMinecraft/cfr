@@ -21,7 +21,7 @@ import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 import org.benf.cfr.reader.util.functors.UnaryFunction;
 
 import java.util.Collections;
@@ -61,7 +61,7 @@ public class KotlinSwitchHandler {
      * rebuilding COIN code!
      */
     public static List<Op03SimpleStatement> extractStringSwitches(List<Op03SimpleStatement> in, BytecodeMeta bytecodeMeta) {
-        List<Op03SimpleStatement> switchStatements = Functional.filter(in, new TypeFilter<RawSwitchStatement>(RawSwitchStatement.class));
+        List<Op03SimpleStatement> switchStatements = Functional.filter(in, new TypeFilter<>(RawSwitchStatement.class));
         boolean action = false;
         for (Op03SimpleStatement swatch : switchStatements) {
             action |= extractStringSwitch(swatch, in, bytecodeMeta);
@@ -99,8 +99,7 @@ public class KotlinSwitchHandler {
                 Statement backTest = backptr.getStatement();
                 if (backTest instanceof Nop) {
                     // continue
-                } else if (backTest instanceof AssignmentSimple) {
-                    AssignmentSimple backAss = (AssignmentSimple)backTest;
+                } else if (backTest instanceof AssignmentSimple backAss) {
                     Expression lValue = new LValueExpression(backAss.getCreatedLValue());
                     Expression rValue = backAss.getRValue();
                     if (aliases.contains(lValue)) {
@@ -138,12 +137,9 @@ public class KotlinSwitchHandler {
         IfStatement testIf = new IfStatement(BytecodeLoc.NONE,new ComparisonOperation(BytecodeLoc.NONE, eqFn, Literal.FALSE, CompOp.EQ));
         IfStatement testNotIf = new IfStatement(BytecodeLoc.NONE,new ComparisonOperation(BytecodeLoc.NONE, eqFn, Literal.FALSE, CompOp.NE));
         final Set<Op03SimpleStatement> reTargetSet = SetFactory.newIdentitySet();
-        final Map<Op03SimpleStatement, DistinctSwitchTarget> reTargets = MapFactory.newIdentityLazyMap(new UnaryFunction<Op03SimpleStatement, DistinctSwitchTarget>() {
-            @Override
-            public DistinctSwitchTarget invoke(Op03SimpleStatement arg) {
-                reTargetSet.add(arg);
-                return new DistinctSwitchTarget(reTargetSet.size());
-            }
+        final Map<Op03SimpleStatement, DistinctSwitchTarget> reTargets = MapFactory.newIdentityLazyMap(arg -> {
+            reTargetSet.add(arg);
+            return new DistinctSwitchTarget(reTargetSet.size());
         });
         List<List<OriginalSwitchLookupInfo>> matchesFound = ListFactory.newList();
         List<Pair<Op03SimpleStatement, Op03SimpleStatement>> transitiveDefaultSources = ListFactory.newList();
@@ -270,13 +266,10 @@ public class KotlinSwitchHandler {
         }
 
         List<Op03SimpleStatement> secondSwitchTargets = ListFactory.newList(reTargets.keySet());
-        Collections.sort(secondSwitchTargets, new CompareByIndex());
-        List<Op03SimpleStatement> fwds = Functional.filter(secondSwitchTargets, new Predicate<Op03SimpleStatement>() {
-            @Override
-            public boolean test(Op03SimpleStatement in) {
-                return in.getIndex().isBackJumpTo(swatch);
-            }
-        });
+        secondSwitchTargets.sort(new CompareByIndex());
+        List<Op03SimpleStatement> fwds = Functional.filter(secondSwitchTargets,
+            in1 -> in1.getIndex().isBackJumpTo(swatch)
+        );
         if (fwds.isEmpty()) {
             // No forward targets?  Have to introduce a synthetic one?!
             return false;
@@ -514,16 +507,11 @@ public class KotlinSwitchHandler {
         }
     }
 
-    private static class FakeSwitch implements DecodedSwitch {
-        private final List<DecodedSwitchEntry> entry;
-
-        private FakeSwitch(List<DecodedSwitchEntry> entry) {
-            this.entry = entry;
-        }
+    private record FakeSwitch(List<DecodedSwitchEntry> entry) implements DecodedSwitch {
 
         @Override
-        public List<DecodedSwitchEntry> getJumpTargets() {
-            return entry;
+            public List<DecodedSwitchEntry> getJumpTargets() {
+                return entry;
+            }
         }
-    }
 }

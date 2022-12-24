@@ -11,12 +11,7 @@ import java.util.Map;
 // The cost of retaining all overload information may become large.  Keeping it centrally allows us to flush it if in low
 // memory mode.
 public class OverloadMethodSetCache {
-    private final Map<ClassFile, Map<MethodPrototype, OverloadMethodSet>> content = MapFactory.newLazyMap(new UnaryFunction<ClassFile, Map<MethodPrototype, OverloadMethodSet>>() {
-        @Override
-        public Map<MethodPrototype, OverloadMethodSet> invoke(ClassFile arg) {
-            return MapFactory.newIdentityMap();
-        }
-    });
+    private final Map<ClassFile, Map<MethodPrototype, OverloadMethodSet>> content = MapFactory.newLazyMap(arg -> MapFactory.newIdentityMap());
 
     public OverloadMethodSet get(ClassFile classFile, MethodPrototype methodPrototype) {
         return content.get(classFile).get(methodPrototype);

@@ -218,7 +218,7 @@ public class ConditionalCondenser {
      */
     static void collapseAssignmentsIntoConditionals(List<Op03SimpleStatement> statements, Options options, ClassFileVersion classFileVersion) {
         // find all conditionals.
-        List<Op03SimpleStatement> ifStatements = Functional.filter(statements, new TypeFilter<IfStatement>(IfStatement.class));
+        List<Op03SimpleStatement> ifStatements = Functional.filter(statements, new TypeFilter<>(IfStatement.class));
         if (ifStatements.isEmpty()) return;
 
         boolean testEclipse = options.getOption(OptionsImpl.ECLIPSE);

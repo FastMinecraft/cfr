@@ -45,7 +45,7 @@ public class AttributeModule extends Attribute {
 
         public static Set<ModuleFlags> build(int raw)
         {
-            Set<ModuleFlags> res = new TreeSet<ModuleFlags>();
+            Set<ModuleFlags> res = new TreeSet<>();
             if (0 != (raw & 0x20)) res.add(OPEN);
             if (0 != (raw & 0x1000)) res.add(SYNTHETIC);
             if (0 != (raw & 0x8000)) res.add(MANDATED);
@@ -72,7 +72,7 @@ public class AttributeModule extends Attribute {
 
         public static Set<ModuleContentFlags> build(int raw)
         {
-            Set<ModuleContentFlags> res = new TreeSet<ModuleContentFlags>();
+            Set<ModuleContentFlags> res = new TreeSet<>();
             if (0 != (raw & 0x20)) res.add(TRANSITIVE);
             if (0 != (raw & 0x40)) res.add(STATIC_PHASE);
             if (0 != (raw & 0x1000)) res.add(SYNTHETIC);

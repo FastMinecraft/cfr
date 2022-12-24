@@ -64,8 +64,7 @@ public class MonitorExitStatement extends MonitorStatement {
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof MonitorExitStatement)) return false;
-        MonitorExitStatement other = (MonitorExitStatement) o;
+        if (!(o instanceof MonitorExitStatement other)) return false;
         return monitor.equals(other.monitor);
     }
 

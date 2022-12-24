@@ -88,8 +88,7 @@ public class StackValue extends AbstractExpression {
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof StackValue)) return false;
-        StackValue other = (StackValue) o;
+        if (!(o instanceof StackValue other)) return false;
         return stackValue.equals(other.stackValue);
     }
 
@@ -101,8 +100,7 @@ public class StackValue extends AbstractExpression {
     @Override
     public boolean equivalentUnder(Object o, EquivalenceConstraint constraint) {
         if (o == this) return true;
-        if (!(o instanceof StackValue)) return false;
-        StackValue other = (StackValue) o;
+        if (!(o instanceof StackValue other)) return false;
         return constraint.equivalent(stackValue, other.stackValue);
     }
 

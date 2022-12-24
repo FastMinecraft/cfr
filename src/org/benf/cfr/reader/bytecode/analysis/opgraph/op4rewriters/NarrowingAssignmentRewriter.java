@@ -23,14 +23,12 @@ public class NarrowingAssignmentRewriter implements Op04Rewriter {
         List<StructuredStatement> statements = MiscStatementTools.linearise(root);
         if (statements == null) return;
         for (StructuredStatement s : statements) {
-            if (!(s instanceof StructuredAssignment)) continue;
-            StructuredAssignment ass = (StructuredAssignment)s;
+            if (!(s instanceof StructuredAssignment ass)) continue;
             LValue lValue = ass.getLvalue();
             RawJavaType raw =  RawJavaType.getUnboxedTypeFor(lValue.getInferredJavaType().getJavaTypeInstance());
             if (raw == null) continue;
             Expression rhs = ass.getRvalue();
-            if (!(rhs instanceof CastExpression)) continue;
-            CastExpression exp = (CastExpression)rhs;
+            if (!(rhs instanceof CastExpression exp)) continue;
             if (!(exp.isForced() && exp.getInferredJavaType().getRawType() == raw)) continue;
             s.rewriteExpressions(new ExpressionReplacingRewriter(exp, exp.getChild()));
         }

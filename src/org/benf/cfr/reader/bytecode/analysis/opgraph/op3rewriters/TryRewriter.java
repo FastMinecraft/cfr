@@ -57,8 +57,7 @@ class TryRewriter {
         List<Op03SimpleStatement> targets = tryStatement.getTargets();
         for (int i = 1, len = targets.size(); i < len; ++i) {
             Statement statement = targets.get(i).getStatement();
-            if (!(statement instanceof CatchStatement)) continue;
-            CatchStatement catchStatement = (CatchStatement) statement;
+            if (!(statement instanceof CatchStatement catchStatement)) continue;
             List<ExceptionGroup.Entry> exceptions = catchStatement.getExceptions();
             for (ExceptionGroup.Entry entry : exceptions) {
                 caught.add(entry.getCatchType());
@@ -142,14 +141,14 @@ class TryRewriter {
     }
 
     static void extendTryBlocks(DCCommonState dcCommonState, List<Op03SimpleStatement> in) {
-        List<Op03SimpleStatement> tries = Functional.filter(in, new TypeFilter<TryStatement>(TryStatement.class));
+        List<Op03SimpleStatement> tries = Functional.filter(in, new TypeFilter<>(TryStatement.class));
         for (Op03SimpleStatement tryStatement : tries) {
             extendTryBlock(tryStatement, in, dcCommonState);
         }
     }
 
     static void combineTryCatchEnds(List<Op03SimpleStatement> in) {
-        List<Op03SimpleStatement> tries = Functional.filter(in, new TypeFilter<TryStatement>(TryStatement.class));
+        List<Op03SimpleStatement> tries = Functional.filter(in, new TypeFilter<>(TryStatement.class));
         for (Op03SimpleStatement tryStatement : tries) {
             combineTryCatchEnds(tryStatement, in);
         }
@@ -334,7 +333,7 @@ class TryRewriter {
     }
 
     static void extractExceptionJumps(List<Op03SimpleStatement> in) {
-        List<Op03SimpleStatement> tries = Functional.filter(in, new TypeFilter<TryStatement>(TryStatement.class));
+        List<Op03SimpleStatement> tries = Functional.filter(in, new TypeFilter<>(TryStatement.class));
         for (Op03SimpleStatement tryi : tries) {
             extractExceptionJumps(tryi, in);
         }
@@ -363,7 +362,7 @@ class TryRewriter {
      * instruction.
      */
     static void rewriteTryBackJumps(List<Op03SimpleStatement> in) {
-        List<Op03SimpleStatement> tries = Functional.filter(in, new TypeFilter<TryStatement>(TryStatement.class));
+        List<Op03SimpleStatement> tries = Functional.filter(in, new TypeFilter<>(TryStatement.class));
         for (Op03SimpleStatement trystm : tries) {
             rewriteTryBackJump(trystm);
         }

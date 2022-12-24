@@ -175,14 +175,12 @@ public class JavaGenericRefTypeInstance implements JavaGenericBaseInstance, Comp
     @Override
     public boolean tryFindBinding(JavaTypeInstance other, GenericTypeBinder target) {
         boolean res = false;
-        if (other instanceof JavaGenericRefTypeInstance) {
+        if (other instanceof JavaGenericRefTypeInstance otherJavaGenericRef) {
             // We can dig deeper.
-            JavaGenericRefTypeInstance otherJavaGenericRef = (JavaGenericRefTypeInstance) other;
             if (genericTypes.size() == otherJavaGenericRef.genericTypes.size()) {
                 for (int x = 0; x < genericTypes.size(); ++x) {
                     JavaTypeInstance genericType = genericTypes.get(x);
-                    if (genericType instanceof JavaGenericBaseInstance) {
-                        JavaGenericBaseInstance genericBaseInstance = (JavaGenericBaseInstance) genericType;
+                    if (genericType instanceof JavaGenericBaseInstance genericBaseInstance) {
                         res |= genericBaseInstance.tryFindBinding(otherJavaGenericRef.genericTypes.get(x), target);
                     }
                 }
@@ -271,8 +269,7 @@ public class JavaGenericRefTypeInstance implements JavaGenericBaseInstance, Comp
     @Override
     public boolean equivalentUnder(Object o, EquivalenceConstraint constraint) {
         if (o == this) return true;
-        if (!(o instanceof JavaGenericRefTypeInstance)) return false;
-        JavaGenericRefTypeInstance other = (JavaGenericRefTypeInstance) o;
+        if (!(o instanceof JavaGenericRefTypeInstance other)) return false;
         if (!constraint.equivalent(typeInstance, other.typeInstance)) return false;
         if (!constraint.equivalent(genericTypes, other.genericTypes)) return false;
         return true;

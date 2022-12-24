@@ -7,7 +7,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.analysis.types.*;
 import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.util.collections.*;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 import org.benf.cfr.reader.util.functors.UnaryFunction;
 
 import java.util.*;
@@ -77,14 +77,11 @@ public class OverloadMethodSet {
         }
 
         private MethodData getBoundVersion(final GenericTypeBinder genericTypeBinder) {
-            List<JavaTypeInstance> rebound = Functional.map(methodArgs, new UnaryFunction<JavaTypeInstance, JavaTypeInstance>() {
-                @Override
-                public JavaTypeInstance invoke(JavaTypeInstance arg) {
-                    if (arg instanceof JavaGenericBaseInstance) {
-                        return ((JavaGenericBaseInstance) arg).getBoundInstance(genericTypeBinder);
-                    } else {
-                        return arg;
-                    }
+            List<JavaTypeInstance> rebound = Functional.map(methodArgs, arg -> {
+                if (arg instanceof JavaGenericBaseInstance) {
+                    return ((JavaGenericBaseInstance) arg).getBoundInstance(genericTypeBinder);
+                } else {
+                    return arg;
                 }
             });
 
@@ -97,12 +94,7 @@ public class OverloadMethodSet {
 
     public OverloadMethodSet(ClassFile classFile, MethodPrototype actualPrototype, List<MethodPrototype> allPrototypes) {
         this.classFile = classFile;
-        UnaryFunction<MethodPrototype, MethodData> mk = new UnaryFunction<MethodPrototype, MethodData>() {
-            @Override
-            public MethodData invoke(MethodPrototype arg) {
-                return new MethodData(arg, arg.getArgs());
-            }
-        };
+        UnaryFunction<MethodPrototype, MethodData> mk = arg -> new MethodData(arg, arg.getArgs());
         this.actualPrototype = mk.invoke(actualPrototype);
         this.allPrototypes = Functional.map(allPrototypes, mk);
     }
@@ -116,12 +108,7 @@ public class OverloadMethodSet {
     public OverloadMethodSet specialiseTo(JavaGenericRefTypeInstance type) {
         final GenericTypeBinder genericTypeBinder = classFile.getGenericTypeBinder(type);
         if (genericTypeBinder == null) return null;
-        UnaryFunction<MethodData, MethodData> mk = new UnaryFunction<MethodData, MethodData>() {
-            @Override
-            public MethodData invoke(MethodData arg) {
-                return arg.getBoundVersion(genericTypeBinder);
-            }
-        };
+        UnaryFunction<MethodData, MethodData> mk = arg -> arg.getBoundVersion(genericTypeBinder);
         return new OverloadMethodSet(classFile, mk.invoke(actualPrototype), Functional.map(allPrototypes, mk));
     }
 
@@ -143,19 +130,9 @@ public class OverloadMethodSet {
          * Don't even consider any of the matches which have too many required arguments
          */
         Set<MethodData> possibleMatches = SetFactory.newOrderedSet(
-                Functional.filter(allPrototypes, new Predicate<MethodData>() {
-                    @Override
-                    public boolean test(MethodData in) {
-                        return in.methodArgs.size() <= argCount;
-                    }
-                }));
+                Functional.filter(allPrototypes, in -> in.methodArgs.size() <= argCount));
 
-        Map<Integer, Set<MethodData>> weakMatches = MapFactory.newLazyMap(new UnaryFunction<Integer, Set<MethodData>>() {
-            @Override
-            public Set<MethodData> invoke(Integer arg) {
-                return SetFactory.newSet();
-            }
-        });
+        Map<Integer, Set<MethodData>> weakMatches = MapFactory.newLazyMap(arg -> SetFactory.newSet());
 
         Iterator<MethodData> possiter = possibleMatches.iterator();
         MethodData perfectMatch = null;
@@ -465,20 +442,14 @@ public class OverloadMethodSet {
         /*
          * Ok, but if the argument isn't null......
          */
-        if (onlyMatchPod) matches = Functional.filter(matches, new Predicate<MethodData>() {
-            @Override
-            public boolean test(MethodData in) {
-                return (in.getArgType(idx, actual) instanceof RawJavaType);
-            }
-        });
+        if (onlyMatchPod) matches = Functional.filter(matches,
+            in -> (in.getArgType(idx, actual) instanceof RawJavaType)
+        );
         if (!isPOD) {
             // Put object matches to the front.
-            Pair<List<MethodData>, List<MethodData>> partition = Functional.partition(matches, new Predicate<MethodData>() {
-                @Override
-                public boolean test(MethodData in) {
-                    return !(in.getArgType(idx, actual) instanceof RawJavaType);
-                }
-            });
+            Pair<List<MethodData>, List<MethodData>> partition = Functional.partition(matches,
+                in -> !(in.getArgType(idx, actual) instanceof RawJavaType)
+            );
             matches.clear();
             matches.addAll(partition.getFirst());
             if (!nonPodMatchExists) matches.addAll(partition.getSecond());
@@ -487,6 +458,7 @@ public class OverloadMethodSet {
         if (matches.isEmpty()) return false;
         MethodData lowest = matches.get(0);
         JavaTypeInstance lowestType = lowest.getArgType(idx, actual);
+        //noinspection ForLoopReplaceableByForEach
         for (int x = 0; x < matches.size(); ++x) {
             MethodData next = matches.get(x);
             JavaTypeInstance nextType = next.getArgType(idx, actual);

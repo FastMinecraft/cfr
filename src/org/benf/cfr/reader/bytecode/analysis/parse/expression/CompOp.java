@@ -30,55 +30,33 @@ public enum CompOp {
     }
 
     public CompOp getInverted() {
-        switch (this) {
-            case LT:
-                return GTE;
-            case GT:
-                return LTE;
-            case GTE:
-                return LT;
-            case LTE:
-                return GT;
-            case EQ:
-                return NE;
-            case NE:
-                return EQ;
-            default:
-                throw new ConfusedCFRException("Can't invert CompOp " + this);
-        }
+        return switch (this) {
+            case LT -> GTE;
+            case GT -> LTE;
+            case GTE -> LT;
+            case LTE -> GT;
+            case EQ -> NE;
+            case NE -> EQ;
+            default -> throw new ConfusedCFRException("Can't invert CompOp " + this);
+        };
     }
 
 
     public static CompOp getOpFor(JVMInstr instr) {
-        switch (instr) {
-            case IF_ICMPEQ:
-            case IF_ACMPEQ:
-                return EQ;
-            case IF_ICMPLT:
-                return LT;
-            case IF_ICMPGE:
-                return GTE;
-            case IF_ICMPGT:
-                return GT;
-            case IF_ICMPNE:
-            case IF_ACMPNE:
-                return NE;
-            case IF_ICMPLE:
-                return LTE;
-            case IFEQ:
-                return EQ;
-            case IFNE:
-                return NE;
-            case IFLE:
-                return LTE;
-            case IFLT:
-                return LT;
-            case IFGE:
-                return GTE;
-            case IFGT:
-                return GT;
-            default:
-                throw new ConfusedCFRException("Don't know comparison op for " + instr);
-        }
+        return switch (instr) {
+            case IF_ICMPEQ, IF_ACMPEQ -> EQ;
+            case IF_ICMPLT -> LT;
+            case IF_ICMPGE -> GTE;
+            case IF_ICMPGT -> GT;
+            case IF_ICMPNE, IF_ACMPNE -> NE;
+            case IF_ICMPLE -> LTE;
+            case IFEQ -> EQ;
+            case IFNE -> NE;
+            case IFLE -> LTE;
+            case IFLT -> LT;
+            case IFGE -> GTE;
+            case IFGT -> GT;
+            default -> throw new ConfusedCFRException("Don't know comparison op for " + instr);
+        };
     }
 }

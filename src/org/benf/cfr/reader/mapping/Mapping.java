@@ -30,12 +30,7 @@ public class Mapping implements ObfuscationMapping {
     // NB: This is a map of *erased* types.  If they type we're reconstructing is generic, we
     // need to reconstruct it.
     private final Map<JavaTypeInstance, ClassMapping> erasedTypeMap = MapFactory.newMap();
-    private final UnaryFunction<JavaTypeInstance, JavaTypeInstance> getter = new UnaryFunction<JavaTypeInstance, JavaTypeInstance>() {
-        @Override
-        public JavaTypeInstance invoke(JavaTypeInstance arg) {
-            return get(arg);
-        }
-    };
+    private final UnaryFunction<JavaTypeInstance, JavaTypeInstance> getter = this::get;
     private Options options;
     private Map<JavaTypeInstance, List<InnerClassAttributeInfo>> innerInfo;
 
@@ -75,12 +70,7 @@ public class Mapping implements ObfuscationMapping {
 
     @Override
     public List<JavaTypeInstance> get(List<JavaTypeInstance> types) {
-        return Functional.map(types, new UnaryFunction<JavaTypeInstance, JavaTypeInstance>() {
-            @Override
-            public JavaTypeInstance invoke(JavaTypeInstance arg) {
-                return get(arg);
-            }
-        });
+        return Functional.map(types, this::get);
     }
 
     ClassMapping getClassMapping(JavaTypeInstance type) {
@@ -186,12 +176,9 @@ public class Mapping implements ObfuscationMapping {
                 TypeUsageInformation dti = delegate.getTypeUsageInformation();
                 TypeUsageInformation dtr = new TypeUsageInformationImpl(options,
                         (JavaRefTypeInstance)get(dti.getAnalysisType()),
-                        SetFactory.newOrderedSet(Functional.map(dti.getUsedClassTypes(), new UnaryFunction<JavaRefTypeInstance, JavaRefTypeInstance>() {
-                            @Override
-                            public JavaRefTypeInstance invoke(JavaRefTypeInstance arg) {
-                                return (JavaRefTypeInstance)get(arg);
-                            }
-                        })), SetFactory.<DetectedStaticImport>newSet());
+                        SetFactory.newOrderedSet(Functional.map(dti.getUsedClassTypes(),
+                            arg -> (JavaRefTypeInstance)get(arg)
+                        )), SetFactory.<DetectedStaticImport>newSet());
                 mappingTypeUsage = new MappingTypeUsage(dtr, dti);
             }
             return mappingTypeUsage;

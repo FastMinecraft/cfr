@@ -104,11 +104,9 @@ public class AssignmentSimple extends AbstractAssignment {
     public boolean isSelfMutatingOperation() {
         Expression localR = rvalue;
         while (localR instanceof CastExpression) localR = ((CastExpression) localR).getChild();
-        if (localR instanceof ArithmeticOperation) {
-            ArithmeticOperation arithmeticOperation = (ArithmeticOperation) localR;
+        if (localR instanceof ArithmeticOperation arithmeticOperation) {
             return arithmeticOperation.isLiteralFunctionOf(lvalue);
-        } else if (localR instanceof MemberFunctionInvokation) {
-            MemberFunctionInvokation memberFunctionInvokation = (MemberFunctionInvokation)localR;
+        } else if (localR instanceof MemberFunctionInvokation memberFunctionInvokation) {
             Expression object = memberFunctionInvokation.getObject();
             if (object instanceof LValueExpression) {
                 LValue memberLValue = ((LValueExpression) object).getLValue();
@@ -180,9 +178,8 @@ public class AssignmentSimple extends AbstractAssignment {
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof AssignmentSimple)) return false;
+        if (!(o instanceof AssignmentSimple other)) return false;
 
-        AssignmentSimple other = (AssignmentSimple) o;
         return lvalue.equals(other.lvalue) && rvalue.equals(other.rvalue);
     }
 

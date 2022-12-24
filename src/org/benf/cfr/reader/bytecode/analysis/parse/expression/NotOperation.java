@@ -114,9 +114,8 @@ public class NotOperation extends AbstractExpression implements ConditionalExpre
         if (obj == null) return false;
         if (obj == this) return true;
 
-        if (!(obj instanceof NotOperation)) return false;
+        if (!(obj instanceof NotOperation other)) return false;
 
-        NotOperation other = (NotOperation) obj;
         return inner.equals(other.inner);
     }
 

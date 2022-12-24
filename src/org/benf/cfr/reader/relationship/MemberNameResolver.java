@@ -35,12 +35,7 @@ public class MemberNameResolver {
     }
 
     private final DCCommonState dcCommonState;
-    private transient final UnaryFunction<ClassFile, Set<ClassFile>> mapFactory = new UnaryFunction<ClassFile, Set<ClassFile>>() {
-        @Override
-        public Set<ClassFile> invoke(ClassFile arg) {
-            return SetFactory.newOrderedSet();
-        }
-    };
+    private transient final UnaryFunction<ClassFile, Set<ClassFile>> mapFactory = arg -> SetFactory.newOrderedSet();
     private final Map<ClassFile, Set<ClassFile>> childToParent = MapFactory.newLazyMap(mapFactory);
     private final Map<ClassFile, Set<ClassFile>> parentToChild = MapFactory.newLazyMap(mapFactory);
     private final Map<ClassFile, MemberInfo> infoMap = MapFactory.newIdentityMap();
@@ -75,14 +70,14 @@ public class MemberNameResolver {
         for (ClassFile classFile : classFiles) {
             ClassSignature signature = classFile.getClassSignature();
             if (signature == null) continue;
-            JavaTypeInstance superClass = signature.getSuperClass();
+            JavaTypeInstance superClass = signature.superClass();
             if (superClass == null) continue;
             ClassFile base = classFileOrNull(superClass);
             if (base != null) {
                 childToParent.get(classFile).add(base);
                 parentToChild.get(base).add(classFile);
             }
-            for (JavaTypeInstance interfac : signature.getInterfaces()) {
+            for (JavaTypeInstance interfac : signature.interfaces()) {
                 ClassFile iface = classFileOrNull(interfac);
                 if (iface != null) {
                     childToParent.get(classFile).add(iface);
@@ -227,17 +222,8 @@ public class MemberNameResolver {
 
         private final ClassFile classFile;
 
-        private final Map<MethodKey, Map<JavaTypeInstance, Collection<Method>>> knownMethods = MapFactory.newLazyMap(new UnaryFunction<MethodKey, Map<JavaTypeInstance, Collection<Method>>>() {
-            @Override
-            public Map<JavaTypeInstance, Collection<Method>> invoke(MethodKey arg) {
-                return MapFactory.newLazyMap(new UnaryFunction<JavaTypeInstance, Collection<Method>>() {
-                    @Override
-                    public Collection<Method> invoke(JavaTypeInstance arg) {
-                        return SetFactory.newOrderedSet();
-                    }
-                });
-            }
-        });
+        private final Map<MethodKey, Map<JavaTypeInstance, Collection<Method>>> knownMethods = MapFactory.newLazyMap(arg -> MapFactory.newLazyMap(
+            arg1 -> SetFactory.newOrderedSet()));
         private final Set<MethodKey> clashes = SetFactory.newSet();
 
         private MemberInfo(ClassFile classFile) {
@@ -251,12 +237,7 @@ public class MemberNameResolver {
 
             MethodPrototype prototype = method.getMethodPrototype();
             String name = prototype.getName();
-            List<JavaTypeInstance> args = Functional.map(prototype.getArgs(), new UnaryFunction<JavaTypeInstance, JavaTypeInstance>() {
-                @Override
-                public JavaTypeInstance invoke(JavaTypeInstance arg) {
-                    return arg.getDeGenerifiedType();
-                }
-            });
+            List<JavaTypeInstance> args = Functional.map(prototype.getArgs(), JavaTypeInstance::getDeGenerifiedType);
             MethodKey methodKey = new MethodKey(name, args);
             JavaTypeInstance type = prototype.getReturnType();
             if (type instanceof JavaGenericBaseInstance) return;
@@ -326,42 +307,28 @@ public class MemberNameResolver {
         }
     }
 
-    private static class MethodKey {
-        private final String name;
-        private final List<JavaTypeInstance> args;
-
-        private MethodKey(String name, List<JavaTypeInstance> args) {
-            this.name = name;
-            this.args = args;
-        }
+    private record MethodKey(String name, List<JavaTypeInstance> args) {
 
         @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
 
-            MethodKey methodKey = (MethodKey) o;
+                MethodKey methodKey = (MethodKey) o;
 
-            if (!args.equals(methodKey.args)) return false;
-            if (!name.equals(methodKey.name)) return false;
+                if (!args.equals(methodKey.args)) return false;
+                if (!name.equals(methodKey.name)) return false;
 
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = name.hashCode();
-            result = 31 * result + args.hashCode();
-            return result;
-        }
+                return true;
+            }
 
         @Override
-        public String toString() {
-            return "MethodKey{" +
+            public String toString() {
+                return "MethodKey{" +
                     "name='" + name + '\'' +
                     ", args=" + args +
                     '}';
+            }
         }
-    }
 
 }

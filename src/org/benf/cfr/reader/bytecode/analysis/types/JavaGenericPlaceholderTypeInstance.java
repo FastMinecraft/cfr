@@ -181,8 +181,7 @@ public class JavaGenericPlaceholderTypeInstance implements JavaGenericBaseInstan
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof JavaGenericPlaceholderTypeInstance)) return false;
-        JavaGenericPlaceholderTypeInstance other = (JavaGenericPlaceholderTypeInstance) o;
+        if (!(o instanceof JavaGenericPlaceholderTypeInstance other)) return false;
         return other.className.equals(className);
     }
 

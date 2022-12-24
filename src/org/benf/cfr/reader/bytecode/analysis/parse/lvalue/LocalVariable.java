@@ -147,7 +147,7 @@ public class LocalVariable extends AbstractLValue {
 
     @Override
     public SSAIdentifiers<LValue> collectVariableMutation(SSAIdentifierFactory<LValue, ?> ssaIdentifierFactory) {
-        return new SSAIdentifiers<LValue>(this, ssaIdentifierFactory);
+        return new SSAIdentifiers<>(this, ssaIdentifierFactory);
     }
 
     @Override
@@ -158,9 +158,7 @@ public class LocalVariable extends AbstractLValue {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof LocalVariable)) return false;
-
-        LocalVariable that = (LocalVariable) o;
+        if (!(o instanceof LocalVariable that)) return false;
 
         if (!name.equals(that.name)) return false;
         if (idx != that.idx) {

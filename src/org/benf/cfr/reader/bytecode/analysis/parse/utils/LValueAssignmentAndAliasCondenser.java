@@ -103,13 +103,11 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
     private final Map<Expression, Expression> cache = MapFactory.newMap();
 
     private Set<LValue> findAssignees(Statement s) {
-        if (!(s instanceof AssignmentSimple)) return null;
-        AssignmentSimple assignmentSimple = (AssignmentSimple) s;
+        if (!(s instanceof AssignmentSimple assignmentSimple)) return null;
         Set<LValue> res = SetFactory.newSet();
         res.add(assignmentSimple.getCreatedLValue());
         Expression rvalue = assignmentSimple.getRValue();
-        while (rvalue instanceof AssignmentExpression) {
-            AssignmentExpression assignmentExpression = (AssignmentExpression) rvalue;
+        while (rvalue instanceof AssignmentExpression assignmentExpression) {
             res.add(assignmentExpression.getlValue());
             rvalue = assignmentExpression.getrValue();
         }
@@ -137,9 +135,7 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
 
     @SuppressWarnings("unchecked")
     public Expression getLValueReplacement(LValue lValue, SSAIdentifiers<LValue> ssaIdentifiers, StatementContainer<Statement> lvSc) {
-        if (!(lValue instanceof StackSSALabel)) return null;
-
-        StackSSALabel stackSSALabel = (StackSSALabel) lValue;
+        if (!(lValue instanceof StackSSALabel stackSSALabel)) return null;
 
         if (!found.containsKey(stackSSALabel)) return null;
         if (blacklisted.contains(stackSSALabel)) {
@@ -321,8 +317,7 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
      */
     @Override
     public void checkPostConditions(LValue lValue, Expression rValue) {
-        if (!(lValue instanceof StackSSALabel)) return;
-        StackSSALabel label = (StackSSALabel)lValue;
+        if (!(lValue instanceof StackSSALabel label)) return;
         if (aliasReplacements.containsKey(label)) return;
         if (!(found.containsKey(label))) return;
         long count = label.getStackEntry().getUsageCount();
@@ -331,20 +326,13 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
         }
     }
 
-    private static class ExpressionStatementPair {
-        private final Expression expression;
-        private final StatementContainer<Statement> statementContainer;
-
-        private ExpressionStatementPair(Expression expression, StatementContainer<Statement> statementContainer) {
-            this.expression = expression;
-            this.statementContainer = statementContainer;
-        }
+    private record ExpressionStatementPair(Expression expression, StatementContainer<Statement> statementContainer) {
 
         @Override
-        public String toString() {
-            return statementContainer.toString();
+            public String toString() {
+                return statementContainer.toString();
+            }
         }
-    }
 
     public AliasRewriter getAliasRewriter() {
         return new AliasRewriter();
@@ -352,20 +340,10 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
 
     public class AliasRewriter implements LValueRewriter<Statement> {
         private final Map<StackSSALabel, List<StatementContainer<Statement>>> usages = MapFactory.newLazyMap(
-                new UnaryFunction<StackSSALabel, List<StatementContainer<Statement>>>() {
-                    @Override
-                    public List<StatementContainer<Statement>> invoke(StackSSALabel ignore) {
-                        return ListFactory.newList();
-                    }
-                }
+            ignore -> ListFactory.newList()
         );
         private final Map<StackSSALabel, List<LValueStatementContainer>> possibleAliases = MapFactory.newLazyMap(
-                new UnaryFunction<StackSSALabel, List<LValueStatementContainer>>() {
-                    @Override
-                    public List<LValueStatementContainer> invoke(StackSSALabel ignore) {
-                        return ListFactory.newList();
-                    }
-                }
+            ignore -> ListFactory.newList()
         );
 
         @Override
@@ -385,8 +363,7 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
 
         @Override
         public Expression getLValueReplacement(LValue lValue, SSAIdentifiers<LValue> ssaIdentifiers, StatementContainer<Statement> statementContainer) {
-            if (!(lValue instanceof StackSSALabel)) return null;
-            StackSSALabel stackSSALabel = (StackSSALabel) lValue;
+            if (!(lValue instanceof StackSSALabel stackSSALabel)) return null;
 
             if (!multiFound.containsKey(lValue)) return null;
             /* If it's an assignment, then put it in the 'possible alias'
@@ -444,12 +421,10 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
             // so we ban LValues like this, to stop array creation being reordered.
             final LValue returnGuessAlias = guessAlias;
             List<LValue> checkThese = ListFactory.newList();
-            if (guessAlias instanceof ArrayVariable) {
-                ArrayVariable arrayVariable = (ArrayVariable) guessAlias;
+            if (guessAlias instanceof ArrayVariable arrayVariable) {
                 ArrayIndex arrayIndex = arrayVariable.getArrayIndex();
                 Expression array = arrayIndex.getArray();
-                if (!(array instanceof LValueExpression)) return null;
-                LValueExpression lValueArrayIndex = (LValueExpression) array;
+                if (!(array instanceof LValueExpression lValueArrayIndex)) return null;
                 checkThese.add(lValueArrayIndex.getLValue());
                 Expression index = arrayIndex.getIndex();
                 if (index instanceof LValueExpression) {
@@ -518,12 +493,7 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
 
     public class MutationRewriterFirstPass implements LValueRewriter<Statement> {
 
-        private final Map<VersionedLValue, Set<StatementContainer>> mutableUseFound = MapFactory.newLazyMap(new UnaryFunction<VersionedLValue, Set<StatementContainer>>() {
-            @Override
-            public Set<StatementContainer> invoke(VersionedLValue arg) {
-                return SetFactory.newSet();
-            }
-        });
+        private final Map<VersionedLValue, Set<StatementContainer>> mutableUseFound = MapFactory.newLazyMap(arg -> SetFactory.newSet());
 
         /* Bit cheeky, we'll never actually replace here, but use this pass to collect info. */
         @Override
@@ -694,38 +664,18 @@ public class LValueAssignmentAndAliasCondenser implements LValueRewriter<Stateme
     }
 
 
-    private static class LValueStatementContainer {
-        private final LValue lValue;
-        private final StatementContainer statementContainer;
-
-        private LValueStatementContainer(LValue lValue, StatementContainer statementContainer) {
-            this.lValue = lValue;
-            this.statementContainer = statementContainer;
-        }
+    private record LValueStatementContainer(LValue lValue, StatementContainer statementContainer) {
     }
 
-    private final static class VersionedLValue {
-        private final LValue lValue;
-        private final SSAIdent ssaIdent;
-
-        private VersionedLValue(LValue lValue, SSAIdent ssaIdent) {
-            this.lValue = lValue;
-            this.ssaIdent = ssaIdent;
-        }
+    private record VersionedLValue(LValue lValue, SSAIdent ssaIdent) {
 
         @Override
-        public int hashCode() {
-            return lValue.hashCode() + 31 * ssaIdent.hashCode();
-        }
+            public boolean equals(Object o) {
+                if (o == this) return true;
+                if (!(o instanceof VersionedLValue other)) return false;
 
-        @Override
-        public boolean equals(Object o) {
-            if (o == this) return true;
-            if (!(o instanceof VersionedLValue)) return false;
-
-            VersionedLValue other = (VersionedLValue) o;
-            return lValue.equals(other.lValue) &&
+                return lValue.equals(other.lValue) &&
                     ssaIdent.equals(other.ssaIdent);
+            }
         }
-    }
 }

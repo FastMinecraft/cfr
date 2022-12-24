@@ -15,6 +15,8 @@ import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.output.Dumper;
 
+import java.util.Objects;
+
 /**
  * This is NOT an lvalue, however the definition of a local class follows the same scoping rules
  */
@@ -102,7 +104,7 @@ public class SentinelLocalClassLValue extends AbstractLValue {
 
         SentinelLocalClassLValue that = (SentinelLocalClassLValue) o;
 
-        if (localClassType != null ? !localClassType.equals(that.localClassType) : that.localClassType != null)
+        if (!Objects.equals(localClassType, that.localClassType))
             return false;
 
         return true;

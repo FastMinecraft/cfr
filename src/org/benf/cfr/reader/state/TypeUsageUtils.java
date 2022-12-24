@@ -19,10 +19,7 @@ class TypeUsageUtils {
             String possible = clazz.getRawName().substring(analysisType.getRawName().length());
             if (!possible.isEmpty()) {
                 switch (possible.charAt(0)) {
-                    case '$':
-                    case '.':
-                        analysisTypeFound = true;
-                        break;
+                    case '$', '.' -> analysisTypeFound = true;
                 }
             }
         }

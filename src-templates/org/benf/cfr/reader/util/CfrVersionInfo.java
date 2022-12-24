@@ -10,15 +10,11 @@ public class CfrVersionInfo {
     private CfrVersionInfo() {}
 
     /** CFR version */
-    public static final String VERSION = "${project.version}";
+    public static final String VERSION = "0.2-SNAPSHOT";
 
     /** Are we a snapshot? */
     public static final boolean SNAPSHOT = CfrVersionInfo.VERSION.contains("SNAPSHOT");
-    /**
-     * Abbreviated Git commit hash of the commit representing this state
-     * of the project.
-     */
-    public static final String GIT_COMMIT_ABBREVIATED = "${git.commit.id.abbrev}";
+
     /**
      * Whether the working tree contained not yet committed changes when
      * the project was built.
@@ -26,9 +22,9 @@ public class CfrVersionInfo {
      * <p>This information can be useful for error reports to find out
      * if changes have been made.
      */
-    public static final boolean GIT_IS_DIRTY = "${git.dirty}".equals("true");
+    public static final boolean GIT_IS_DIRTY = false;
 
     /** String consisting of CFR version and Git commit hash */
     public static final String VERSION_INFO =
-            VERSION + " (FabricMC " + GIT_COMMIT_ABBREVIATED + (GIT_IS_DIRTY ? "-dirty" : "") + ")";
+            VERSION + " (FabricMC)";
 }

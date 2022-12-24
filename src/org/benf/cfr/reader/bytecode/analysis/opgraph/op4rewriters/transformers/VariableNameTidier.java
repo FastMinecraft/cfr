@@ -28,7 +28,7 @@ import org.benf.cfr.reader.util.*;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 import org.benf.cfr.reader.util.functors.UnaryFunction;
 
 import java.util.*;
@@ -50,7 +50,7 @@ public class VariableNameTidier implements StructuredStatementTransformer {
     }
 
     public VariableNameTidier(Method method, ClassCache classCache) {
-        this(method, new HashSet<String>(), classCache);
+        this(method, new HashSet<>(), classCache);
     }
 
     public void transform(Op04StructuredStatement root) {
@@ -209,12 +209,7 @@ public class VariableNameTidier implements StructuredStatementTransformer {
 
     private class StructuredScopeWithVars extends StructuredScope {
         private final LinkedList<AtLevel> scope = ListFactory.newLinkedList();
-        private final Map<String, Integer> nextPostFixed = MapFactory.newLazyMap(new UnaryFunction<String, Integer>() {
-            @Override
-            public Integer invoke(String arg) {
-                return 2;
-            }
-        });
+        private final Map<String, Integer> nextPostFixed = MapFactory.newLazyMap(arg -> 2);
 
         public void remove(StructuredStatement statement) {
             super.remove(statement);
@@ -310,12 +305,7 @@ public class VariableNameTidier implements StructuredStatementTransformer {
             if (!namedVariable.isGoodName() || illegalUnderscore) {
                 String suggestion = null;
                 if (statement != null) {
-                    suggestion = statement.suggestName(localVariable, new Predicate<String>() {
-                        @Override
-                        public boolean test(String in) {
-                            return alreadyDefined(in);
-                        }
-                    });
+                    suggestion = statement.suggestName(localVariable, this::alreadyDefined);
                 }
                 if (suggestion == null) suggestion = suggestByType(localVariable);
                 if (suggestion != null) {

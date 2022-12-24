@@ -20,8 +20,7 @@ public class ConstructorUtils {
         for (Op04StructuredStatement statement : statements) {
             StructuredStatement structuredStatement = statement.getStatement();
             if (structuredStatement instanceof StructuredComment) continue;
-            if (!(structuredStatement instanceof StructuredExpressionStatement)) return null;
-            StructuredExpressionStatement structuredExpressionStatement = (StructuredExpressionStatement) structuredStatement;
+            if (!(structuredStatement instanceof StructuredExpressionStatement structuredExpressionStatement)) return null;
 
             WildcardMatch wcm1 = new WildcardMatch();
             StructuredStatement test = new StructuredExpressionStatement(BytecodeLoc.NONE, wcm1.getMemberFunction("m", null, true /* this method */, new LValueExpression(wcm1.getLValueWildCard("o")), null), false);

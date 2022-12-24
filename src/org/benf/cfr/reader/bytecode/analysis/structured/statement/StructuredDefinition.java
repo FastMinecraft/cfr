@@ -90,8 +90,7 @@ public class StructuredDefinition extends AbstractStructuredStatement {
     public boolean equals(Object o) {
         if (o == this) return true;
         if (o == null) return false;
-        if (!(o instanceof StructuredDefinition)) return false;
-        StructuredDefinition other = (StructuredDefinition) o;
+        if (!(o instanceof StructuredDefinition other)) return false;
         if (!scopedEntity.equals(other.scopedEntity)) return false;
         return true;
     }

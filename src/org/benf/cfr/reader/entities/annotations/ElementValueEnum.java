@@ -33,8 +33,7 @@ public class ElementValueEnum implements ElementValue {
         if (obj == this) {
             return true;
         }
-        else if (obj instanceof ElementValueEnum) {
-            ElementValueEnum other = (ElementValueEnum) obj;
+        else if (obj instanceof ElementValueEnum other) {
             return type.equals(other.type) && valueName.equals(other.valueName);
         }
         else {

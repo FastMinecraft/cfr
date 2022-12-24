@@ -97,7 +97,7 @@ public class JumpsIntoDoRewriter {
             Op03SimpleStatement prev = op03SimpleParseNodes.get(x-1);
             Statement prevStm = prev.getStatement();
             BlockIdentifier doBlockIdentifier = ((DoStatement) doStatement).getBlockIdentifier();
-            if (prevStm instanceof IfStatement && prev.getTargets().get(1).getBlockIdentifiers().contains(doBlockIdentifier)) {
+            if (prevStm instanceof IfStatement prevIf && prev.getTargets().get(1).getBlockIdentifiers().contains(doBlockIdentifier)) {
                 Op03SimpleStatement prevTgt = prev.getTargets().get(1);
                 // it's implicit that the fall through is the do statement.
                 Set<BlockIdentifier> prevTgtIdents = prevTgt.getBlockIdentifiers();
@@ -110,7 +110,6 @@ public class JumpsIntoDoRewriter {
                 }
 
                 Op03SimpleStatement afterDo = doS.getTargets().get(0);
-                IfStatement prevIf = (IfStatement)prevStm;
                 SSAIdentifiers doId = doS.getSSAIdentifiers();
                 LValue loopControl = vf.tempVariable(new InferredJavaType(RawJavaType.BOOLEAN, InferredJavaType.Source.TRANSFORM, true));
                 prev.replaceStatement(new AssignmentSimple(BytecodeLoc.TODO, loopControl, Literal.TRUE));
@@ -166,7 +165,7 @@ public class JumpsIntoDoRewriter {
                 }
                 if (!externals.isEmpty()) {
                     List<Op03SimpleStatement> extList = ListFactory.newList(externals);
-                    Collections.sort(extList, new CompareByIndex());
+                    extList.sort(new CompareByIndex());
                     if (extList.size() == 1) {
                         if (maybeRewriteImmediate(op03SimpleParseNodes, idx)) continue;
                     }

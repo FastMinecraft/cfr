@@ -70,7 +70,7 @@ import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.functors.UnaryProcedure;
 import org.benf.cfr.reader.util.getopt.Options;
@@ -161,15 +161,12 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         final long OFFSET_OF_INTERFACES = OFFSET_OF_INTERFACES_COUNT + 2;
 
         int numInterfaces = data.getU2At(OFFSET_OF_INTERFACES_COUNT);
-        ArrayList<ConstantPoolEntryClass> tmpInterfaces = new ArrayList<ConstantPoolEntryClass>();
+        ArrayList<ConstantPoolEntryClass> tmpInterfaces = new ArrayList<>();
         ContiguousEntityFactory.buildSized(data.getOffsetData(OFFSET_OF_INTERFACES), (short)numInterfaces, 2, tmpInterfaces,
-                new UnaryFunction<ByteData, ConstantPoolEntryClass>() {
-                    @Override
-                    public ConstantPoolEntryClass invoke(ByteData arg) {
-                        int offset = arg.getU2At(0);
-                        return (ConstantPoolEntryClass) constantPool.getEntry(offset);
-                    }
-                }
+            arg -> {
+                int offset = arg.getU2At(0);
+                return (ConstantPoolEntryClass) constantPool.getEntry(offset);
+            }
         );
         thisClass = (ConstantPoolEntryClass) constantPool.getEntry(data.getU2At(OFFSET_OF_THIS_CLASS));
 
@@ -182,12 +179,8 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         final int numFields = data.getU2At(OFFSET_OF_FIELDS_COUNT);
         List<Field> tmpFields = ListFactory.newList();
         final long fieldsLength = ContiguousEntityFactory.build(data.getOffsetData(OFFSET_OF_FIELDS), numFields, tmpFields,
-                new UnaryFunction<ByteData, Field>() {
-                    @Override
-                    public Field invoke(ByteData arg) {
-                        return new Field(arg, constantPool, cfv);
-                    }
-                });
+            arg -> new Field(arg, constantPool, cfv)
+        );
         this.fields = ListFactory.newList();
         LiteralRewriter rewriter = new LiteralRewriter(this.getClassType());
         for (Field tmpField : tmpFields) {
@@ -197,14 +190,10 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         final long OFFSET_OF_METHODS_COUNT = OFFSET_OF_FIELDS + fieldsLength;
         final long OFFSET_OF_METHODS = OFFSET_OF_METHODS_COUNT + 2;
         final int numMethods = data.getU2At(OFFSET_OF_METHODS_COUNT);
-        List<Method> tmpMethods = new ArrayList<Method>(numMethods);
+        List<Method> tmpMethods = new ArrayList<>(numMethods);
         final long methodsLength = ContiguousEntityFactory.build(data.getOffsetData(OFFSET_OF_METHODS), numMethods, tmpMethods,
-                new UnaryFunction<ByteData, Method>() {
-                    @Override
-                    public Method invoke(ByteData arg) {
-                        return new Method(arg, ClassFile.this, constantPool, dcCommonState, cfv);
-                    }
-                });
+            arg -> new Method(arg, ClassFile.this, constantPool, dcCommonState, cfv)
+        );
 //        tmpMethods = MethodOrdering.sort(tmpMethods);
         if (accessFlags.contains(AccessFlag.ACC_STRICT)) {
             for (Method method : tmpMethods) {
@@ -224,7 +213,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         final long OFFSET_OF_ATTRIBUTES_COUNT = OFFSET_OF_METHODS + methodsLength;
         final long OFFSET_OF_ATTRIBUTES = OFFSET_OF_ATTRIBUTES_COUNT + 2;
         final int numAttributes = data.getU2At(OFFSET_OF_ATTRIBUTES_COUNT);
-        ArrayList<Attribute> tmpAttributes = new ArrayList<Attribute>();
+        ArrayList<Attribute> tmpAttributes = new ArrayList<>();
         tmpAttributes.ensureCapacity(numAttributes);
         ContiguousEntityFactory.build(data.getOffsetData(OFFSET_OF_ATTRIBUTES), numAttributes, tmpAttributes,
                 AttributeFactory.getBuilder(constantPool, classFileVersion)
@@ -252,7 +241,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         this.methods = tmpMethods;
 
         // Need to load inner classes asap so we can infer staticness before any analysis
-        this.innerClassesByTypeInfo = new LinkedHashMap<JavaTypeInstance, Pair<InnerClassAttributeInfo, ClassFile>>();
+        this.innerClassesByTypeInfo = new LinkedHashMap<>();
 
         boolean isInterface = accessFlags.contains(AccessFlag.ACC_INTERFACE);
         boolean isAnnotation = accessFlags.contains(AccessFlag.ACC_ANNOTATION);
@@ -515,7 +504,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
     }
 
     public boolean hasFormalTypeParameters() {
-        List<FormalTypeParameter> formalTypeParameters = classSignature.getFormalTypeParameters();
+        List<FormalTypeParameter> formalTypeParameters = classSignature.formalTypeParameters();
         return formalTypeParameters != null && !formalTypeParameters.isEmpty();
     }
 
@@ -590,6 +579,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
             String fieldName = field.getFieldName();
             JavaTypeInstance fieldType = field.getField().getJavaTypeInstance();
             Map<JavaTypeInstance, ClassFileField> perNameMap = fieldsByName.get(fieldName);
+            //noinspection Java8MapApi
             if (perNameMap == null) {
                 perNameMap = MapFactory.newOrderedMap();
                 fieldsByName.put(fieldName, perNameMap);
@@ -628,19 +618,14 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
     }
 
     private List<Method> getMethodsWithMatchingName(final MethodPrototype prototype) {
-        return Functional.filter(methods, new Predicate<Method>() {
-            @Override
-            public boolean test(Method in) {
-                return in.getName().equals(prototype.getName());
-            }
-        });
+        return Functional.filter(methods, in -> in.getName().equals(prototype.getName()));
     }
 
     private void collectMethods(MethodPrototype prototype, List<Method> tgt, Set<JavaTypeInstance> seen) {
         tgt.addAll(getMethodsWithMatchingName(prototype));
         if (classSignature == null) return;
-        collectTypeMethods(prototype, tgt, seen, classSignature.getSuperClass());
-        for (JavaTypeInstance intf : classSignature.getInterfaces()) {
+        collectTypeMethods(prototype, tgt, seen, classSignature.superClass());
+        for (JavaTypeInstance intf : classSignature.interfaces()) {
             collectTypeMethods(prototype, tgt, seen, intf);
         }
     }
@@ -674,29 +659,21 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         List<Method> named = ListFactory.newList();
         collectMethods(prototype, named, SetFactory.<JavaTypeInstance>newIdentitySet());
         final boolean isVarArgs = (prototype.isVarArgs());
-        named = Functional.filter(named, new Predicate<Method>() {
-            @Override
-            public boolean test(Method in) {
-                MethodPrototype other = in.getMethodPrototype();
-                if (other.isInstanceMethod() != isInstance) return false;
-                if (!in.isVisibleTo(thiz)) return false;
-                boolean otherIsVarargs = other.isVarArgs();
-                if (isVarArgs) {
-                    if (otherIsVarargs) return true;
-                    return (other.getArgs().size() >= numArgs);
-                }
-                if (otherIsVarargs) {
-                    return (other.getArgs().size() <= numArgs);
-                }
-                return (other.getArgs().size() == numArgs);
+        named = Functional.filter(named, in -> {
+            MethodPrototype other = in.getMethodPrototype();
+            if (other.isInstanceMethod() != isInstance) return false;
+            if (!in.isVisibleTo(thiz)) return false;
+            boolean otherIsVarargs = other.isVarArgs();
+            if (isVarArgs) {
+                if (otherIsVarargs) return true;
+                return (other.getArgs().size() >= numArgs);
             }
-        });
-        List<MethodPrototype> prototypes = Functional.map(named, new UnaryFunction<Method, MethodPrototype>() {
-            @Override
-            public MethodPrototype invoke(Method arg) {
-                return arg.getMethodPrototype();
+            if (otherIsVarargs) {
+                return (other.getArgs().size() <= numArgs);
             }
+            return (other.getArgs().size() == numArgs);
         });
+        List<MethodPrototype> prototypes = Functional.map(named, Method::getMethodPrototype);
         /*
          * Remove TOTAL duplicates - those with identical toStrings.
          * TODO : Better way?
@@ -770,6 +747,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
             methodsByName = MapFactory.newMap();
             for (Method method : methods) {
                 List<Method> list = methodsByName.get(method.getName());
+                //noinspection Java8MapApi
                 if (list == null) {
                     list = ListFactory.newList();
                     methodsByName.put(method.getName(), list);
@@ -899,7 +877,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
                 // This is a fallback mechanism incase the access flags above aren't working - do we need it?
 //                markInnerClassAsStatic(options, innerClass, thisType);
 
-                innerClassesByTypeInfo.put(innerType, new Pair<InnerClassAttributeInfo, ClassFile>(innerClassAttributeInfo, innerClass));
+                innerClassesByTypeInfo.put(innerType, new Pair<>(innerClassAttributeInfo, innerClass));
             } catch (CannotLoadClassException ignore) {
             }
 
@@ -940,22 +918,12 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
 
     public void analyseTop(final DCCommonState dcCommonState, final TypeUsageCollectingDumper typeUsageCollectingDumper) {
         analyseMid(dcCommonState);
-        analysePassOuterFirst(new UnaryProcedure<ClassFile>() {
-            @Override
-            public void call(ClassFile arg) {
-                CodeAnalyserWholeClass.wholeClassAnalysisPass2(arg, dcCommonState);
-            }
-        });
+        analysePassOuterFirst(arg -> CodeAnalyserWholeClass.wholeClassAnalysisPass2(arg, dcCommonState));
         /*
          * Perform a pass to determine what imports / classes etc we used / failed.
          */
         this.dump(typeUsageCollectingDumper);
-        analysePassOuterFirst(new UnaryProcedure<ClassFile>() {
-            @Override
-            public void call(ClassFile arg) {
-                CodeAnalyserWholeClass.wholeClassAnalysisPass3(arg, dcCommonState, typeUsageCollectingDumper);
-            }
-        });
+        analysePassOuterFirst(arg -> CodeAnalyserWholeClass.wholeClassAnalysisPass3(arg, dcCommonState, typeUsageCollectingDumper));
     }
 
     private void analyseSyntheticTags(Method method, Options options) {
@@ -1039,12 +1007,9 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
          * While we're going to consider the methods in order, analyse synthetic methods first
          * so that we can tag them.
          */
-        Pair<List<Method>, List<Method>> partition = Functional.partition(methods, new Predicate<Method>() {
-            @Override
-            public boolean test(Method x) {
-                return x.getAccessFlags().contains(AccessFlagMethod.ACC_SYNTHETIC);
-            }
-        });
+        Pair<List<Method>, List<Method>> partition = Functional.partition(methods,
+            x -> x.getAccessFlags().contains(AccessFlagMethod.ACC_SYNTHETIC)
+        );
         // Analyse synthetic methods.
         for (Method method : partition.getFirst()) {
             method.analyse();
@@ -1083,7 +1048,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
     }
 
     public JavaTypeInstance getBaseClassType() {
-        return classSignature.getSuperClass();
+        return classSignature.superClass();
     }
 
     public ClassSignature getClassSignature() {
@@ -1113,9 +1078,9 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
                 ClassSignature fromAttr = ConstantPoolUtils.parseClassSignature(signatureAttribute.getSignature(), cp);
                 if (rawSuperClass != null) {
                     JavaTypeInstance rawSuperType = rawSuperClass.getTypeInstance();
-                    JavaTypeInstance fromAttrType = fromAttr.getSuperClass().getDeGenerifiedType();
+                    JavaTypeInstance fromAttrType = fromAttr.superClass().getDeGenerifiedType();
                     if (!fromAttrType.equals(rawSuperType)) {
-                        addComment("Signature claims super is " + fromAttr.getSuperClass().getRawName() + ", not " + rawSuperType.getRawName() + " - discarding signature.");
+                        addComment("Signature claims super is " + fromAttr.superClass().getRawName() + ", not " + rawSuperType.getRawName() + " - discarding signature.");
                         break sigAgree;
                     }
                 }
@@ -1185,7 +1150,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
                                                 UnaryFunction<Integer, Predicate<AnnotationTableTypeEntry>> typeAnnPredicateFact,
                                                 UnaryFunction<Integer, Predicate<AnnotationTableTypeEntry>> typeBoundAnnPredicateFact,
                                                 Dumper d) {
-        List<FormalTypeParameter> formalTypeParameters = signature.getFormalTypeParameters();
+        List<FormalTypeParameter> formalTypeParameters = signature.formalTypeParameters();
         if (formalTypeParameters == null || formalTypeParameters.isEmpty()) return;
         d.separator("<");
         boolean first = true;
@@ -1207,12 +1172,9 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
     }
 
     public void dumpReceiverClassIdentity(List<AnnotationTableTypeEntry> recieverAnnotations, Dumper d) {
-        Pair<List<AnnotationTableTypeEntry>, List<AnnotationTableTypeEntry>> split = Functional.partition(recieverAnnotations, new Predicate<AnnotationTableTypeEntry>() {
-            @Override
-            public boolean test(AnnotationTableTypeEntry in) {
-                return in.getTypePath().segments.isEmpty();
-            }
-        });
+        Pair<List<AnnotationTableTypeEntry>, List<AnnotationTableTypeEntry>> split = Functional.partition(recieverAnnotations,
+            in -> in.getTypePath().segments().isEmpty()
+        );
         List<AnnotationTableTypeEntry> pre = split.getFirst();
         List<AnnotationTableTypeEntry> type = split.getSecond();
         if (!pre.isEmpty()) {
@@ -1260,30 +1222,14 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         TypeAnnotationHelper typeAnnotations = TypeAnnotationHelper.create(attributes,
                 TypeAnnotationEntryValue.type_generic_class_interface,
                 TypeAnnotationEntryValue.type_type_parameter_class_interface);
-        UnaryFunction<Integer, Predicate<AnnotationTableTypeEntry>> typeAnnPredicateFact = new UnaryFunction<Integer, Predicate<AnnotationTableTypeEntry>>() {
-            @Override
-            public Predicate<AnnotationTableTypeEntry> invoke(final Integer arg) {
-                return new Predicate<AnnotationTableTypeEntry>() {
-                    @Override
-                    public boolean test(AnnotationTableTypeEntry in) {
-                        if (in.getValue() != TypeAnnotationEntryValue.type_generic_class_interface) return false;
-                        // TODO : Cleaner way pls!
-                        return ((TypeAnnotationTargetInfo.TypeAnnotationParameterTarget) in.getTargetInfo()).getIndex() == arg;
-                    }
-                };
-            }
+        UnaryFunction<Integer, Predicate<AnnotationTableTypeEntry>> typeAnnPredicateFact = arg -> in -> {
+            if (in.getValue() != TypeAnnotationEntryValue.type_generic_class_interface) return false;
+            // TODO : Cleaner way pls!
+            return ((TypeAnnotationTargetInfo.TypeAnnotationParameterTarget) in.getTargetInfo()).getIndex() == arg;
         };
-        UnaryFunction<Integer, Predicate<AnnotationTableTypeEntry>> typeBoundAnnPredicateFact = new UnaryFunction<Integer, Predicate<AnnotationTableTypeEntry>>() {
-            @Override
-            public Predicate<AnnotationTableTypeEntry> invoke(final Integer arg) {
-                return new Predicate<AnnotationTableTypeEntry>() {
-                    @Override
-                    public boolean test(AnnotationTableTypeEntry in) {
-                        if (in.getValue() != TypeAnnotationEntryValue.type_type_parameter_class_interface) return false;
-                        return ((TypeAnnotationTargetInfo.TypeAnnotationParameterBoundTarget) in.getTargetInfo()).getIndex() == arg;
-                    }
-                };
-            }
+        UnaryFunction<Integer, Predicate<AnnotationTableTypeEntry>> typeBoundAnnPredicateFact = arg -> in -> {
+            if (in.getValue() != TypeAnnotationEntryValue.type_type_parameter_class_interface) return false;
+            return ((TypeAnnotationTargetInfo.TypeAnnotationParameterBoundTarget) in.getTargetInfo()).getIndex() == arg;
         };
         getFormalParametersText(getClassSignature(), typeAnnotations, typeAnnPredicateFact, typeBoundAnnPredicateFact, d);
     }
@@ -1306,8 +1252,7 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         JavaTypeInstance thisType = getClassSignature().getThisGeneralTypeClass(getClassType(), getConstantPool());
 
         GenericTypeBinder genericTypeBinder;
-        if (thisType instanceof JavaGenericRefTypeInstance) {
-            JavaGenericRefTypeInstance genericThisType = (JavaGenericRefTypeInstance) thisType;
+        if (thisType instanceof JavaGenericRefTypeInstance genericThisType) {
             genericTypeBinder = GenericTypeBinder.buildIdentityBindings(genericThisType);
             boundSuperCollector.collect(genericThisType, BindingSuperContainer.Route.IDENTITY);
         } else {
@@ -1315,10 +1260,11 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
             boundSuperCollector.collect((JavaRefTypeInstance) thisType, BindingSuperContainer.Route.IDENTITY);
         }
 
-        JavaTypeInstance base = classSignature.getSuperClass();
-        if (base == null) return new BindingSuperContainer(this, new HashMap<JavaRefTypeInstance, JavaGenericRefTypeInstance>(), new HashMap<JavaRefTypeInstance, BindingSuperContainer.Route>());
+        JavaTypeInstance base = classSignature.superClass();
+        if (base == null) return new BindingSuperContainer(this, new HashMap<>(),
+            new HashMap<>());
         getBoundSuperClasses2(base, genericTypeBinder, boundSuperCollector, BindingSuperContainer.Route.EXTENSION, SetFactory.<JavaTypeInstance>newSet());
-        for (JavaTypeInstance interfaceBase : classSignature.getInterfaces()) {
+        for (JavaTypeInstance interfaceBase : classSignature.interfaces()) {
             getBoundSuperClasses2(interfaceBase, genericTypeBinder, boundSuperCollector, BindingSuperContainer.Route.INTERFACE, SetFactory.<JavaTypeInstance>newSet());
         }
 
@@ -1346,10 +1292,9 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
          */
 
         GenericTypeBinder genericTypeBinder;
-        if (!(thisType instanceof JavaGenericRefTypeInstance)) {
+        if (!(thisType instanceof JavaGenericRefTypeInstance genericThisType)) {
             genericTypeBinder = null;
         } else {
-            JavaGenericRefTypeInstance genericThisType = (JavaGenericRefTypeInstance) thisType;
 
             if (boundGeneric instanceof JavaGenericRefTypeInstance) {
                 genericTypeBinder = GenericTypeBinder.extractBindings(genericThisType, boundGeneric);
@@ -1360,20 +1305,19 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
         /*
          * Now, apply this to each of our superclass/interfaces.
          */
-        JavaTypeInstance base = classSignature.getSuperClass();
+        JavaTypeInstance base = classSignature.superClass();
         if (base == null) return;
         getBoundSuperClasses2(base, genericTypeBinder, boundSuperCollector, route, SetFactory.newSet(seen));
-        for (JavaTypeInstance interfaceBase : classSignature.getInterfaces()) {
+        for (JavaTypeInstance interfaceBase : classSignature.interfaces()) {
             getBoundSuperClasses2(interfaceBase, genericTypeBinder, boundSuperCollector, BindingSuperContainer.Route.INTERFACE, SetFactory.newSet(seen));
         }
     }
 
     public GenericTypeBinder getGenericTypeBinder(JavaGenericRefTypeInstance boundGeneric) {
         JavaTypeInstance thisType = getClassSignature().getThisGeneralTypeClass(getClassType(), getConstantPool());
-        if (!(thisType instanceof JavaGenericRefTypeInstance)) {
+        if (!(thisType instanceof JavaGenericRefTypeInstance genericThisType)) {
             return null;
         } else {
-            JavaGenericRefTypeInstance genericThisType = (JavaGenericRefTypeInstance) thisType;
             return GenericTypeBinder.extractBindings(genericThisType, boundGeneric);
         }
     }
@@ -1391,10 +1335,9 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
             return;
         }
 
-        if (!(base instanceof JavaGenericRefTypeInstance)) {
+        if (!(base instanceof JavaGenericRefTypeInstance genericBase)) {
             throw new IllegalStateException("Base class is not generic");
         }
-        JavaGenericRefTypeInstance genericBase = (JavaGenericRefTypeInstance) base;
         /*
          * Create a bound version of this, based on the bindings we have earlier.
          */
@@ -1438,10 +1381,10 @@ public class ClassFile implements Dumpable, TypeUsageCollectable {
     // More of an extension method really :)
     public static JavaTypeInstance getAnonymousTypeBase(ClassFile classFile) {
         ClassSignature signature = classFile.getClassSignature();
-        if (signature.getInterfaces().isEmpty()) {
-            return signature.getSuperClass();
+        if (signature.interfaces().isEmpty()) {
+            return signature.superClass();
         } else {
-            return signature.getInterfaces().get(0);
+            return signature.interfaces().get(0);
         }
     }
 

@@ -17,7 +17,7 @@ import org.benf.cfr.reader.bytecode.analysis.stack.StackEntry;
 import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 
 import java.util.List;
 
@@ -47,8 +47,7 @@ public class AnonymousArray {
         LValue array = arrayLValue;
         AbstractNewArray arrayDef = start.getNewArrayWildCard("def").getMatch();
         Expression dimSize0 = arrayDef.getDimSize(0);
-        if (!(dimSize0 instanceof Literal)) return false;
-        Literal lit = (Literal) dimSize0;
+        if (!(dimSize0 instanceof Literal lit)) return false;
         if (lit.getValue().getType() != TypedLiteral.LiteralType.Integer) return false;
         int bound = (Integer) lit.getValue().getValue();
         // Don't attempt to resugar invalid arrays.
@@ -116,18 +115,16 @@ public class AnonymousArray {
     public static void resugarAnonymousArrays(List<Op03SimpleStatement> statements) {
         boolean success;
         do {
-            List<Op03SimpleStatement> assignments = Functional.filter(statements, new TypeFilter<AssignmentSimple>(AssignmentSimple.class));
+            List<Op03SimpleStatement> assignments = Functional.filter(statements,
+                new TypeFilter<>(AssignmentSimple.class));
             // filter for structure now
-            assignments = Functional.filter(assignments, new Predicate<Op03SimpleStatement>() {
-                @Override
-                public boolean test(Op03SimpleStatement in) {
-                    AssignmentSimple assignmentSimple = (AssignmentSimple) in.getStatement();
-                    WildcardMatch wildcardMatch = new WildcardMatch();
-                    return (wildcardMatch.match(
-                            new AssignmentSimple(BytecodeLoc.TODO, wildcardMatch.getLValueWildCard("array"), wildcardMatch.getNewArrayWildCard("def", 1, null)),
-                            assignmentSimple
-                    ));
-                }
+            assignments = Functional.filter(assignments, in -> {
+                AssignmentSimple assignmentSimple = (AssignmentSimple) in.getStatement();
+                WildcardMatch wildcardMatch = new WildcardMatch();
+                return (wildcardMatch.match(
+                        new AssignmentSimple(BytecodeLoc.TODO, wildcardMatch.getLValueWildCard("array"), wildcardMatch.getNewArrayWildCard("def", 1, null)),
+                        assignmentSimple
+                ));
             });
             success = false;
             for (Op03SimpleStatement assignment : assignments) {

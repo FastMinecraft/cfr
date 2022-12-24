@@ -25,12 +25,10 @@ public class OperationFactoryLDC extends OperationFactoryCPEntry {
     }
 
     static StackType getStackType(ConstantPoolEntry cpe) {
-        if (cpe instanceof ConstantPoolEntryLiteral) {
-            ConstantPoolEntryLiteral constantPoolEntryLiteral = (ConstantPoolEntryLiteral) cpe;
+        if (cpe instanceof ConstantPoolEntryLiteral constantPoolEntryLiteral) {
             return constantPoolEntryLiteral.getStackType();
         }
-        if (cpe instanceof ConstantPoolEntryDynamicInfo) {
-            ConstantPoolEntryDynamicInfo di = (ConstantPoolEntryDynamicInfo) cpe;
+        if (cpe instanceof ConstantPoolEntryDynamicInfo di) {
             ConstantPoolEntryNameAndType nt = di.getNameAndTypeEntry();
             JavaTypeInstance type = nt.decodeTypeTok();
             return type.getStackType();

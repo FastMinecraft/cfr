@@ -20,8 +20,6 @@ import org.benf.cfr.reader.util.DecompilerComments;
 import org.benf.cfr.reader.util.MiscConstants;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
-import org.benf.cfr.reader.util.functors.Predicate;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.Dumper;
@@ -93,7 +91,7 @@ abstract class AbstractClassFileDumper implements ClassFileDumper {
     }
 
     protected void dumpImplements(Dumper d, ClassSignature signature) {
-        List<JavaTypeInstance> interfaces = signature.getInterfaces();
+        List<JavaTypeInstance> interfaces = signature.interfaces();
         if (!interfaces.isEmpty()) {
             d.keyword("implements ");
             int size = interfaces.size();
@@ -120,12 +118,7 @@ abstract class AbstractClassFileDumper implements ClassFileDumper {
         /*
          * Now - for all inner class types, remove them, but make sure the base class of the inner class is imported.
          */
-        List<JavaRefTypeInstance> inners = Functional.filter(types, new Predicate<JavaRefTypeInstance>() {
-            @Override
-            public boolean test(JavaRefTypeInstance in) {
-                return in.getInnerClassHereInfo().isInnerClass();
-            }
-        });
+        List<JavaRefTypeInstance> inners = Functional.filter(types, in -> in.getInnerClassHereInfo().isInnerClass());
         types.removeAll(inners);
         for (JavaRefTypeInstance inner : inners) {
             types.add(InnerClassInfoUtils.getTransitiveOuterClass(inner));
@@ -136,35 +129,22 @@ abstract class AbstractClassFileDumper implements ClassFileDumper {
          * (as with others, this could be done with an iterator pass to avoid having scan-then-remove,
          * but this feels cleaner for very little cost).
          */
-        types.removeAll(Functional.filter(types, new Predicate<JavaRefTypeInstance>() {
-            @Override
-            public boolean test(JavaRefTypeInstance in) {
-                return "".equals(in.getPackageName());
-            }
-        }));
+        types.removeAll(Functional.filter(types, in -> "".equals(in.getPackageName())));
 
         Options options = dcCommonState.getOptions();
         final IllegalIdentifierDump iid = IllegalIdentifierDump.Factory.getOrNull(options);
 
         Collection<JavaRefTypeInstance> importTypes = types;
         if (options.getOption(OptionsImpl.HIDE_LANG_IMPORTS)) {
-            importTypes = Functional.filter(importTypes, new Predicate<JavaRefTypeInstance>() {
-                @Override
-                public boolean test(JavaRefTypeInstance in) {
-                    return !"java.lang".equals(in.getPackageName());
-                }
-            });
+            importTypes = Functional.filter(importTypes, in -> !"java.lang".equals(in.getPackageName()));
         }
 
-        List<String> names = Functional.map(importTypes, new UnaryFunction<JavaRefTypeInstance, String>() {
-            @Override
-            public String invoke(JavaRefTypeInstance arg) {
-                if (arg.getInnerClassHereInfo().isInnerClass()) {
-                    String name = arg.getRawName(iid);
-                    return name.replace(MiscConstants.INNER_CLASS_SEP_CHAR, '.');
-                }
-                return arg.getRawName(iid);
+        List<String> names = Functional.map(importTypes, arg -> {
+            if (arg.getInnerClassHereInfo().isInnerClass()) {
+                String name = arg.getRawName(iid);
+                return name.replace(MiscConstants.INNER_CLASS_SEP_CHAR, '.');
             }
+            return arg.getRawName(iid);
         });
 
         boolean action = false;
@@ -178,12 +158,9 @@ abstract class AbstractClassFileDumper implements ClassFileDumper {
 
         Set<DetectedStaticImport> staticImports = d.getTypeUsageInformation().getDetectedStaticImports();
         if (!staticImports.isEmpty()) {
-            List<String> sis = Functional.map(staticImports, new UnaryFunction<DetectedStaticImport, String>() {
-                @Override
-                public String invoke(DetectedStaticImport arg) {
-                    String name = arg.getClazz().getRawName(iid);
-                    return name.replace(MiscConstants.INNER_CLASS_SEP_CHAR, '.') + '.' + arg.getName();
-                }
+            List<String> sis = Functional.map(staticImports, arg -> {
+                String name = arg.getClazz().getRawName(iid);
+                return name.replace(MiscConstants.INNER_CLASS_SEP_CHAR, '.') + '.' + arg.getName();
             });
             Collections.sort(sis);
             for (String si : sis) {

@@ -80,8 +80,7 @@ public class StructuredAssert extends AbstractStructuredStatement {
     @Override
     public boolean match(MatchIterator<StructuredStatement> matchIterator, MatchResultCollector matchResultCollector) {
         StructuredStatement o = matchIterator.getCurrent();
-        if (!(o instanceof StructuredAssert)) return false;
-        StructuredAssert other = (StructuredAssert) o;
+        if (!(o instanceof StructuredAssert other)) return false;
         if (!conditionalExpression.equals(other.conditionalExpression)) return false;
 
         matchIterator.advance();

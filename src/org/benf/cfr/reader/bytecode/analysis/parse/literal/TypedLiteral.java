@@ -27,6 +27,8 @@ import org.benf.cfr.reader.util.output.Dumpable;
 import org.benf.cfr.reader.util.output.Dumper;
 import org.benf.cfr.reader.util.output.ToStringDumper;
 
+import java.util.Objects;
+
 public class TypedLiteral implements TypeUsageCollectable, Dumpable {
 
     public enum LiteralType {
@@ -123,23 +125,31 @@ public class TypedLiteral implements TypeUsageCollectable, Dumpable {
         int i = (Integer) o;
         char c = (char) i;
         switch (c) {
-            case '\"':
+            case '\"' -> {
                 return "'\\\"'";
-            case '\r':
+            }
+            case '\r' -> {
                 return "'\\r'";
-            case '\n':
+            }
+            case '\n' -> {
                 return "'\\n'";
-            case '\t':
+            }
+            case '\t' -> {
                 return "'\\t'";
-            case '\b':
+            }
+            case '\b' -> {
                 return "'\\b'";
-            case '\f':
+            }
+            case '\f' -> {
                 return "'\\f'";
-            case '\\':
+            }
+            case '\\' -> {
                 return "'\\\\'";
-            case '\'':
+            }
+            case '\'' -> {
                 return "'\\\''";
-            default:
+            }
+            default -> {
                 if (i < 32 || i >= 254) {
                     // perversely, java will allow you to compare non-char values to chars
                     // happily..... (also pretty print for out of range.)
@@ -147,22 +157,21 @@ public class TypedLiteral implements TypeUsageCollectable, Dumpable {
                 } else {
                     return "'" + c + "'";
                 }
+            }
         }
     }
 
     private static String boolName(Object o) {
         if (!(o instanceof Integer)) throw new ConfusedCFRException("Expecting boolean-as-int");
         int i = (Integer) o;
-        switch (i) {
-            case 0:
-                return "false";
-            case 1:
-                return "true";
-            default:
+        return switch (i) {
+            case 0 -> "false";
+            case 1 -> "true";
+            default ->
                 // values that are not 0 or 1 are interpreted as "true" by the JVM and do not throw a verify error
                 // return X != 0 to retain information about the abnormal number in the output
-                return i + " != 0";
-        }
+                i + " != 0";
+        };
     }
 
     private static boolean hexTest(String hex) {
@@ -213,38 +222,26 @@ public class TypedLiteral implements TypeUsageCollectable, Dumpable {
     }
 
     public Dumper dumpWithHint(Dumper d, FormatHint hint) {
-        switch (type) {
-            case String:
-                return d.literal((String)value, value);
-            case NullObject:
-                return d.keyword("null");
-            case Integer:
-                switch (inferredJavaType.getRawType()) {
-                    case CHAR:
-                        return d.literal(charName(value), value);
-                    case BOOLEAN:
-                        return d.literal(boolName(value), value);
-                    default:
-                        // It's tempting to add "(byte)/(short)" here, but JLS 5.2 specifically states that compile time
-                        // narrowing of constants for assignment is not necessary.
-                        // (but it is for calls, eg NarrowingTestXX).
-                        return d.literal(integerName(value, hint), value);
-                }
-            case Long:
-                return d.literal(longName(value, hint), value);
-            case MethodType:
-                return d.print(methodTypeName(value));
-            case MethodHandle:
-                return d.print(methodHandleName(value));
-            case Class:
-                return d.dump((JavaTypeInstance) value).print(".class");
-            case Double:
-                return d.literal(value.toString(), value);
-            case Float:
-                return d.literal(value.toString() + "f", value);
-            default:
-                return d.print(value.toString());
-        }
+        return switch (type) {
+            case String -> d.literal((String) value, value);
+            case NullObject -> d.keyword("null");
+            case Integer -> switch (inferredJavaType.getRawType()) {
+                case CHAR -> d.literal(charName(value), value);
+                case BOOLEAN -> d.literal(boolName(value), value);
+                default ->
+                    // It's tempting to add "(byte)/(short)" here, but JLS 5.2 specifically states that compile time
+                    // narrowing of constants for assignment is not necessary.
+                    // (but it is for calls, eg NarrowingTestXX).
+                    d.literal(integerName(value, hint), value);
+            };
+            case Long -> d.literal(longName(value, hint), value);
+            case MethodType -> d.print(methodTypeName(value));
+            case MethodHandle -> d.print(methodHandleName(value));
+            case Class -> d.dump((JavaTypeInstance) value).print(".class");
+            case Double -> d.literal(value.toString(), value);
+            case Float -> d.literal(value.toString() + "f", value);
+            default -> d.print(value.toString());
+        };
     }
 
     @Override
@@ -345,13 +342,11 @@ public class TypedLiteral implements TypeUsageCollectable, Dumpable {
         if (tgt.getStackType() != StackType.INT) return original;
         Integer i = (Integer)original.value;
         if (i==null) return original;
-        switch (tgt) {
-            case BOOLEAN:
-                return getBoolean(i);
-            case CHAR:
-                return getChar(i);
-        }
-        return original;
+        return switch (tgt) {
+            case BOOLEAN -> getBoolean(i);
+            case CHAR -> getChar(i);
+            default -> original;
+        };
     }
 
     public LiteralType getType() {
@@ -375,9 +370,8 @@ public class TypedLiteral implements TypeUsageCollectable, Dumpable {
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof TypedLiteral)) return false;
-        TypedLiteral other = (TypedLiteral) o;
-        return type == other.type && (value == null ? other.value == null : value.equals(other.value));
+        if (!(o instanceof TypedLiteral other)) return false;
+        return type == other.type && (Objects.equals(value, other.value));
     }
 
 }

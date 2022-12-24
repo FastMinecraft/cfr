@@ -18,16 +18,12 @@ import org.benf.cfr.reader.util.bytestream.ByteData;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.BinaryFunction;
 import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.getopt.Options;
 
 import java.io.File;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 
 public class DCCommonState {
@@ -37,7 +33,7 @@ public class DCCommonState {
     private final Options options;
     private final Map<String, ClassFile> classFileCache;
     private Set<JavaTypeInstance> versionCollisions;
-    private transient LinkedHashSet<String> couldNotLoadClasses = new LinkedHashSet<String>();
+    private transient LinkedHashSet<String> couldNotLoadClasses = new LinkedHashSet<>();
     private final ObfuscationMapping obfuscationMapping;
     private final OverloadMethodSetCache overloadMethodSetCache;
     private final Set<JavaTypeInstance> permittedSealed;
@@ -46,28 +42,18 @@ public class DCCommonState {
         this.options = options;
         this.classFileSource = classFileSource;
         this.classCache = new ClassCache(this);
-        this.classFileCache = MapFactory.newExceptionRetainingLazyMap(new UnaryFunction<String, ClassFile>() {
-            @Override
-            public ClassFile invoke(String arg) {
-                return loadClassFileAtPath(arg);
-            }
-        });
+        this.classFileCache = MapFactory.newExceptionRetainingLazyMap(this::loadClassFileAtPath);
         this.versionCollisions = SetFactory.newSet();
         this.obfuscationMapping = NullMapping.INSTANCE;
         this.overloadMethodSetCache = new OverloadMethodSetCache();
         this.permittedSealed = SetFactory.newSet();
     }
 
-    public DCCommonState(DCCommonState dcCommonState, final BinaryFunction<String, DCCommonState, ClassFile> cacheAccess) {
+    public DCCommonState(DCCommonState dcCommonState, final BiFunction<String, DCCommonState, ClassFile> cacheAccess) {
         this.options = dcCommonState.options;
         this.classFileSource = dcCommonState.classFileSource;
         this.classCache = new ClassCache(this);
-        this.classFileCache = MapFactory.newExceptionRetainingLazyMap(new UnaryFunction<String, ClassFile>() {
-            @Override
-            public ClassFile invoke(String arg) {
-                return cacheAccess.invoke(arg, DCCommonState.this);
-            }
-        });
+        this.classFileCache = MapFactory.newExceptionRetainingLazyMap(arg -> cacheAccess.apply(arg, DCCommonState.this));
         this.versionCollisions = dcCommonState.versionCollisions;
         this.obfuscationMapping = dcCommonState.obfuscationMapping;
         this.overloadMethodSetCache = dcCommonState.overloadMethodSetCache;
@@ -79,12 +65,7 @@ public class DCCommonState {
         this.options = dcCommonState.options;
         this.classFileSource = dcCommonState.classFileSource;
         this.classCache = new ClassCache(this);
-        this.classFileCache = MapFactory.newExceptionRetainingLazyMap(new UnaryFunction<String, ClassFile>() {
-            @Override
-            public ClassFile invoke(String arg) {
-                return loadClassFileAtPath(arg);
-            }
-        });
+        this.classFileCache = MapFactory.newExceptionRetainingLazyMap(this::loadClassFileAtPath);
         this.versionCollisions = dcCommonState.versionCollisions;
         this.obfuscationMapping = mapping;
         this.overloadMethodSetCache = dcCommonState.overloadMethodSetCache;
@@ -141,12 +122,7 @@ public class DCCommonState {
         JarContent jarContent = classFileSource.addJarContent(path, type);
 
         TreeMap<Integer, List<JavaTypeInstance>> baseRes = MapFactory.newTreeMap();
-        Map<Integer, List<JavaTypeInstance>> res = MapFactory.newLazyMap(baseRes, new UnaryFunction<Integer, List<JavaTypeInstance>>() {
-            @Override
-            public List<JavaTypeInstance> invoke(Integer arg) {
-                return ListFactory.newList();
-            }
-        });
+        Map<Integer, List<JavaTypeInstance>> res = MapFactory.newLazyMap(baseRes, arg -> ListFactory.newList());
         boolean isMultiReleaseJar = isMultiReleaseJar(jarContent);
 
         for (String classPath : jarContent.getClassFiles()) {

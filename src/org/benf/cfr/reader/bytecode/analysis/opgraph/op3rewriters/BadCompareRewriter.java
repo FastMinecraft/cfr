@@ -37,8 +37,7 @@ public class BadCompareRewriter extends AbstractExpressionRewriter {
 
     @Override
     public Expression rewriteExpression(Expression expression, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
-        if (expression instanceof ArithmeticOperation) {
-            ArithmeticOperation operation = (ArithmeticOperation) expression;
+        if (expression instanceof ArithmeticOperation operation) {
             ArithOp op = operation.getOp();
             if (op.isTemporary()) {
                 expression = rewriteTemporary(operation);
@@ -64,20 +63,27 @@ public class BadCompareRewriter extends AbstractExpressionRewriter {
             lhs = new LValueExpression(tmp);
             rhs = zero;
         }
-        switch (arith.getOp()) {
-            case LCMP:
-                // CmpG will return 1 if either value is nan.
-            case DCMPG:
-            case FCMPG:
-                return new TernaryExpression(BytecodeLoc.NONE, compareEq, Literal.INT_ZERO,
-                        new TernaryExpression(arith.getLoc(), new ComparisonOperation(arith.getLoc(), lhs, rhs, CompOp.LT), Literal.MINUS_ONE, Literal.INT_ONE));
+        return switch (arith.getOp()) {
+            // CmpG will return 1 if either value is nan.
+            case LCMP, DCMPG, FCMPG -> new TernaryExpression(BytecodeLoc.NONE, compareEq, Literal.INT_ZERO,
+                new TernaryExpression(
+                    arith.getLoc(),
+                    new ComparisonOperation(arith.getLoc(), lhs, rhs, CompOp.LT),
+                    Literal.MINUS_ONE,
+                    Literal.INT_ONE
+                )
+            );
             // CmpL will return -1 if either value is nan.
-            case DCMPL:
-            case FCMPL:
-                return new TernaryExpression(BytecodeLoc.NONE, compareEq, Literal.INT_ZERO,
-                        new TernaryExpression(arith.getLoc(), new ComparisonOperation(arith.getLoc(), lhs, rhs, CompOp.GT), Literal.INT_ONE, Literal.MINUS_ONE));
-        }
-        return arith;
+            case DCMPL, FCMPL -> new TernaryExpression(BytecodeLoc.NONE, compareEq, Literal.INT_ZERO,
+                new TernaryExpression(
+                    arith.getLoc(),
+                    new ComparisonOperation(arith.getLoc(), lhs, rhs, CompOp.GT),
+                    Literal.INT_ONE,
+                    Literal.MINUS_ONE
+                )
+            );
+            default -> arith;
+        };
     }
 
     private boolean isSideEffectFree(Expression lhs) {

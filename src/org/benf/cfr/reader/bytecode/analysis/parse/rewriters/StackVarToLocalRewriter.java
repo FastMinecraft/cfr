@@ -24,9 +24,8 @@ public class StackVarToLocalRewriter implements ExpressionRewriter {
 
     @Override
     public Expression rewriteExpression(Expression expression, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
-        if (expression instanceof StackValue) {
+        if (expression instanceof StackValue stackValue) {
             // We rewrite as an LValue expression.
-            StackValue stackValue = (StackValue) expression;
             return new LValueExpression(getReplacement(stackValue.getStackValue()));
         }
         return expression.applyExpressionRewriter(this, ssaIdentifiers, statementContainer, flags);

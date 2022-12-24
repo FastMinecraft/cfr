@@ -14,14 +14,10 @@ import java.util.Map;
 
 public class AccountingRewriter implements ExpressionRewriter {
 
-    private final Map<StackSSALabel, Long> count = new LazyMap<StackSSALabel, Long>(
-            MapFactory.<StackSSALabel, Long>newOrderedMap(),
-            new UnaryFunction<StackSSALabel, Long>() {
-                @Override
-                public Long invoke(StackSSALabel arg) {
-                    return 0L;
-                }
-            });
+    private final Map<StackSSALabel, Long> count = new LazyMap<>(
+        MapFactory.<StackSSALabel, Long>newOrderedMap(),
+        arg -> 0L
+    );
 
     @Override
     public void handleStatement(StatementContainer statementContainer) {

@@ -34,8 +34,7 @@ public class FinallyCatchBody {
         if (targets.size() != 1) {
             return null;
         }
-        if (!(catchStart.getStatement() instanceof CatchStatement)) return null;
-        CatchStatement catchStatement = (CatchStatement) catchStart.getStatement();
+        if (!(catchStart.getStatement() instanceof CatchStatement catchStatement)) return null;
         final BlockIdentifier catchBlockIdentifier = catchStatement.getCatchBlockIdent();
         final LinkedList<Op03SimpleStatement> catchBody = ListFactory.newLinkedList();
         /*

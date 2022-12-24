@@ -51,7 +51,7 @@ import org.benf.cfr.reader.util.CannotLoadClassException;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.lambda.LambdaUtils;
 
@@ -131,8 +131,7 @@ public class LambdaRewriter implements Op04Rewriter, ExpressionRewriter {
                         return res;
                     }
                 }
-            } else if (res instanceof MemberFunctionInvokation) {
-                MemberFunctionInvokation invoke = (MemberFunctionInvokation) res;
+            } else if (res instanceof MemberFunctionInvokation invoke) {
                 if (invoke.getObject() instanceof LambdaExpressionCommon) {
                     res = invoke.withReplacedObject(new CastExpression(BytecodeLoc.NONE, invoke.getObject().getInferredJavaType(), invoke.getObject()));
                 }
@@ -189,8 +188,7 @@ public class LambdaRewriter implements Op04Rewriter, ExpressionRewriter {
     }
 
     private void couldBeAmbiguous(Expression fn, Expression arg, LambdaExpression res) {
-        if (!(fn instanceof AbstractFunctionInvokation) || thisClassFile == null) return;
-        AbstractFunctionInvokation afi = (AbstractFunctionInvokation)fn;
+        if (!(fn instanceof AbstractFunctionInvokation afi) || thisClassFile == null) return;
         OverloadMethodSet oms = thisClassFile.getOverloadMethodSet(afi.getMethodPrototype());
         if (oms.size() < 2) return;
         // Find the index of this argument in the original invokation.
@@ -200,12 +198,8 @@ public class LambdaRewriter implements Op04Rewriter, ExpressionRewriter {
         // We may have very limited information about what the possible argument types are.
         // err on the side of caution, unless we can prove we aren't ambiguous.
         List<JavaTypeInstance> types = Functional.filter(oms.getPossibleArgTypes(idx, arg.getInferredJavaType().getJavaTypeInstance()),
-                new Predicate<JavaTypeInstance>() {
-                    @Override
-                    public boolean test(JavaTypeInstance in) {
-                        return in instanceof JavaRefTypeInstance || in instanceof JavaGenericRefTypeInstance;
-                    }
-                });
+            in -> in instanceof JavaRefTypeInstance || in instanceof JavaGenericRefTypeInstance
+        );
         if (types.size() == 1) return;
         JavaTypeInstance functionArgType = afi.getMethodPrototype().getArgs().get(idx);
         res.setExplicitArgTypes(getExplicitLambdaTypes(functionArgType));
@@ -219,23 +213,13 @@ public class LambdaRewriter implements Op04Rewriter, ExpressionRewriter {
         }
         if (classFile == null || !classFile.isInterface()) return null;
         // Find the one method which has no body.
-        List<Method> methods = Functional.filter(classFile.getMethods(), new Predicate<Method>() {
-            @Override
-            public boolean test(Method in) {
-                return in.getCodeAttribute() == null;
-            }
-        });
+        List<Method> methods = Functional.filter(classFile.getMethods(), in -> in.getCodeAttribute() == null);
         if (methods.size() != 1) return null;
         Method method = methods.get(0);
         List<JavaTypeInstance> args = method.getMethodPrototype().getArgs();
         if (functionArgType instanceof JavaGenericRefTypeInstance) {
             final GenericTypeBinder genericTypeBinder = classFile.getGenericTypeBinder((JavaGenericRefTypeInstance) functionArgType);
-            args = Functional.map(args, new UnaryFunction<JavaTypeInstance, JavaTypeInstance>() {
-                @Override
-                public JavaTypeInstance invoke(JavaTypeInstance arg) {
-                    return genericTypeBinder.getBindingFor(arg);
-                }
-            });
+            args = Functional.map(args, genericTypeBinder::getBindingFor);
         }
         for (JavaTypeInstance arg : args) {
             if (arg == null) return null;
@@ -247,8 +231,7 @@ public class LambdaRewriter implements Op04Rewriter, ExpressionRewriter {
     }
 
     private static Expression getLambdaVariable(Expression e) {
-        if (e instanceof LValueExpression) {
-            LValueExpression lValueExpression = (LValueExpression) e;
+        if (e instanceof LValueExpression lValueExpression) {
             LValue lValue = lValueExpression.getLValue();
             return new LValueExpression(lValue);
         }
@@ -281,10 +264,9 @@ public class LambdaRewriter implements Op04Rewriter, ExpressionRewriter {
         String lambdaFnName = lambdaFn.getName();
         List<JavaTypeInstance> lambdaFnArgTypes = lambdaFn.getArgs();
 
-        if (!(lambdaTypeLocation instanceof JavaRefTypeInstance)) {
+        if (!(lambdaTypeLocation instanceof JavaRefTypeInstance lambdaTypeRefLocation)) {
             return dynamicExpression;
         }
-        JavaRefTypeInstance lambdaTypeRefLocation = (JavaRefTypeInstance) lambdaTypeLocation;
         ClassFile classFile = null;
         if (this.typeInstance.equals(lambdaTypeRefLocation)) {
             classFile = thisClassFile;
@@ -298,14 +280,10 @@ public class LambdaRewriter implements Op04Rewriter, ExpressionRewriter {
 
         // We can't ask the prototype for instance behaviour, we have to get it from the
         // handle, as it will point to a ref.
-        boolean instance = false;
-        switch (lambdaFnHandle.getReferenceKind()) {
-            case INVOKE_INTERFACE:
-            case INVOKE_SPECIAL:
-            case INVOKE_VIRTUAL:
-                instance = true;
-                break;
-        }
+        boolean instance = switch (lambdaFnHandle.getReferenceKind()) {
+            case INVOKE_INTERFACE, INVOKE_SPECIAL, INVOKE_VIRTUAL -> true;
+            default -> false;
+        };
 
         /*
          * If we don't have the classfile (let's say we're looking at java8's consumer in java6) we can still GUESS
@@ -337,8 +315,7 @@ public class LambdaRewriter implements Op04Rewriter, ExpressionRewriter {
             Expression curriedArg = curriedArgs.get(x);
             JavaTypeInstance curriedArgType = curriedArg.getInferredJavaType().getJavaTypeInstance();
             if (curriedArgType.getDeGenerifiedType().equals(TypeConstants.SUPPLIER)) {
-                if (curriedArg instanceof CastExpression) {
-                    CastExpression castExpression = (CastExpression)curriedArg;
+                if (curriedArg instanceof CastExpression castExpression) {
                     curriedArg = new CastExpression(BytecodeLoc.NONE, curriedArg.getInferredJavaType(), castExpression.getChild(), true);
                 } else if (!(curriedArg instanceof LValueExpression)) {
                     curriedArg = new CastExpression(BytecodeLoc.NONE, curriedArg.getInferredJavaType(), curriedArg, true);
@@ -408,11 +385,10 @@ public class LambdaRewriter implements Op04Rewriter, ExpressionRewriter {
 
                 lambdaMethod.hideSynthetic();
 
-                if (structuredLambdaStatements.size() == 3 && (structuredLambdaStatements.get(1) instanceof StructuredReturn)) {
+                if (structuredLambdaStatements.size() == 3 && (structuredLambdaStatements.get(1) instanceof StructuredReturn structuredReturn)) {
                     /*
                      * it's a single element lambda expression - we can just use a statement!
                      */
-                    StructuredReturn structuredReturn = (StructuredReturn) structuredLambdaStatements.get(1);
 
                     Expression expression = structuredReturn.getValue();
 
@@ -460,8 +436,7 @@ public class LambdaRewriter implements Op04Rewriter, ExpressionRewriter {
         if (!curriedArgs.isEmpty()) return false;
         if (anonymousLambdaArgs.size() != 1) return false;
 
-        if (!(e instanceof AbstractNewArray)) return false;
-        AbstractNewArray ana = (AbstractNewArray)e;
+        if (!(e instanceof AbstractNewArray ana)) return false;
         if (ana.getNumDims() != 1) return false;
         return ana.getDimSize(0).equals(new LValueExpression(anonymousLambdaArgs.get(0)));
     }

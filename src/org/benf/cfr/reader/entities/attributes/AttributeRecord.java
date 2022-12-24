@@ -17,30 +17,14 @@ public class AttributeRecord extends Attribute {
     private static final long OFFSET_OF_ATTRIBUTE_LENGTH = 2;
     private static final long OFFSET_OF_REMAINDER = 6;
 
-    public static class RecordComponentInfo {
-        private final String name;
-        private final String descriptor;
-        private final List<Attribute> attributes;
+    public record RecordComponentInfo(String name, String descriptor, List<Attribute> attributes) {
 
-        public RecordComponentInfo(String name, String descriptor, List<Attribute> attributes) {
-            this.name = name;
-            this.descriptor = descriptor;
-            this.attributes = attributes;
+        @Override
+        public List<Attribute> attributes() {
+                // Prevent accidental modification
+                return Collections.unmodifiableList(attributes);
+            }
         }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getDescriptor() {
-            return descriptor;
-        }
-
-        public List<Attribute> getAttributes() {
-            // Prevent accidental modification
-            return Collections.unmodifiableList(attributes);
-        }
-    }
 
     private final int length;
     private final List<RecordComponentInfo> componentInfos;
@@ -74,8 +58,8 @@ public class AttributeRecord extends Attribute {
 
     public List<Attribute> getRecordComponentAttributes(String componentName) {
         for (RecordComponentInfo componentInfo : componentInfos) {
-            if (componentInfo.getName().equals(componentName)) {
-                return componentInfo.getAttributes();
+            if (componentInfo.name().equals(componentName)) {
+                return componentInfo.attributes();
             }
         }
         return Collections.emptyList();

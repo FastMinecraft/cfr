@@ -23,6 +23,7 @@ import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Needs some work here to unify LambdaExpression and LambdaExpressionFallback.
@@ -50,14 +51,14 @@ public class LambdaExpressionFallback extends AbstractExpression implements Lamb
         this.instance = instance;
         boolean isMethodRef = false;
         switch (curriedArgs.size()) {
-            case 0:
+            case 0 -> {
                 isMethodRef = true;
                 if (instance) {
                     /* Don't really understand what's going on here.... */
                     this.instance = false;
                 }
-                break;
-            case 1:
+            }
+            case 1 -> {
                 // we could just check if we're an instance function.  Be a bit more paranoid.
                 if (instance && lambdaFn.isInstanceMethod()) {
                     // But use degenerified types, don't think we have to be THAT paranoid.
@@ -67,7 +68,7 @@ public class LambdaExpressionFallback extends AbstractExpression implements Lamb
                         isMethodRef = true;
                     }
                 }
-                break;
+            }
         }
         this.methodRef = isMethodRef;
     }
@@ -186,11 +187,11 @@ public class LambdaExpressionFallback extends AbstractExpression implements Lamb
 
         if (methodRef != that.methodRef) return false;
         if (instance != that.instance) return false;
-        if (callClassType != null ? !callClassType.equals(that.callClassType) : that.callClassType != null)
+        if (!Objects.equals(callClassType, that.callClassType))
             return false;
-        if (curriedArgs != null ? !curriedArgs.equals(that.curriedArgs) : that.curriedArgs != null) return false;
-        if (lambdaFn != null ? !lambdaFn.equals(that.lambdaFn) : that.lambdaFn != null) return false;
-        if (targetFnArgTypes != null ? !targetFnArgTypes.equals(that.targetFnArgTypes) : that.targetFnArgTypes != null)
+        if (!Objects.equals(curriedArgs, that.curriedArgs)) return false;
+        if (!Objects.equals(lambdaFn, that.lambdaFn)) return false;
+        if (!Objects.equals(targetFnArgTypes, that.targetFnArgTypes))
             return false;
 
         return true;

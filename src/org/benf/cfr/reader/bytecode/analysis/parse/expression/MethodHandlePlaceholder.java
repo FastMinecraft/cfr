@@ -120,12 +120,7 @@ public class MethodHandlePlaceholder extends AbstractExpression {
     }
 
     public FakeMethod addFakeMethod(ClassFile classFile) {
-        fake = classFile.addFakeMethod(handle, "ldc", new UnaryFunction<String, FakeMethod>() {
-            @Override
-            public FakeMethod invoke(String name) {
-                return generateFake(name);
-            }
-        });
+        fake = classFile.addFakeMethod(handle, "ldc", this::generateFake);
         return fake;
     }
 
@@ -224,25 +219,17 @@ public class MethodHandlePlaceholder extends AbstractExpression {
     // Almost feels like this should be part of methodhandlebehaviour enum, BUT this is specific to Lookup,
     // so no.
     private static String lookupFunction(MethodHandleBehaviour behaviour) {
-        switch (behaviour) {
-            case GET_FIELD:
-                return "findGetter";
-            case GET_STATIC:
-                return "findStaticGetter";
-            case PUT_FIELD:
-                return "findSetter";
-            case PUT_STATIC:
-                return "findStaticSetter";
-            case INVOKE_VIRTUAL:
-            case INVOKE_INTERFACE: // Probably wrong?
-                return "findVirtual";
-            case INVOKE_STATIC:
-                return "findStatic";
-            case INVOKE_SPECIAL:
-            case NEW_INVOKE_SPECIAL: // Probably wrong?
-                return "findSpecial";
-        }
-        throw new ConfusedCFRException("Unknown method handle behaviour.");
+        return switch (behaviour) {
+            case GET_FIELD -> "findGetter";
+            case GET_STATIC -> "findStaticGetter";
+            case PUT_FIELD -> "findSetter";
+            case PUT_STATIC -> "findStaticSetter";
+            case INVOKE_VIRTUAL, INVOKE_INTERFACE -> // Probably wrong?
+                "findVirtual";
+            case INVOKE_STATIC -> "findStatic";
+            case INVOKE_SPECIAL, NEW_INVOKE_SPECIAL -> // Probably wrong?
+                "findSpecial";
+        };
     }
 
     // This isn't the right place for this.  Needs moving into a 'HandleUtils' or some such.

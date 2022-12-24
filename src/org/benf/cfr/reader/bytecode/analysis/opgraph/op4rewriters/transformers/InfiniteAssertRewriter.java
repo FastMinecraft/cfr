@@ -57,17 +57,15 @@ public class InfiniteAssertRewriter implements StructuredStatementTransformer
     public StructuredStatement transform(StructuredStatement in, StructuredScope scope) {
         in.transformStructuredChildren(this, scope);
 
-        if (!(in instanceof Block)) return in;
-        Block b = (Block)in;
+        if (!(in instanceof Block b)) return in;
         List<Op04StructuredStatement> content = b.getBlockStatements();
         for (int x=0;x<content.size()-1;++x) {
             Op04StructuredStatement stm = content.get(x);
             StructuredStatement stmInner = stm.getStatement();
-            if (stmInner instanceof StructuredWhile) {
+            if (stmInner instanceof StructuredWhile sw) {
                 Op04StructuredStatement next = content.get(x + 1);
                 StructuredStatement stmInner2 = next.getStatement();
                 if (!checkThrow(stmInner2)) continue;
-                StructuredWhile sw = (StructuredWhile)stmInner;
                 wcm1.reset();
                 ConditionalExpression ce = sw.getCondition();
                 if (match1.equals(ce) || match2.equals(ce)) {
@@ -75,11 +73,10 @@ public class InfiniteAssertRewriter implements StructuredStatementTransformer
                 }
                 continue;
             }
-            if (stmInner instanceof StructuredDo) {
+            if (stmInner instanceof StructuredDo sw) {
                 Op04StructuredStatement next = content.get(x + 1);
                 StructuredStatement stmInner2 = next.getStatement();
                 if (!checkThrow(stmInner2)) continue;
-                StructuredDo sw = (StructuredDo)stmInner;
                 wcm1.reset();
                 ConditionalExpression ce = sw.getCondition();
                 if (match2.equals(ce)) {

@@ -18,6 +18,7 @@ import org.benf.cfr.reader.util.Troolean;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class ArithmeticMonOperation extends AbstractExpression {
     private Expression lhs;
@@ -100,7 +101,7 @@ public class ArithmeticMonOperation extends AbstractExpression {
 
         ArithmeticMonOperation that = (ArithmeticMonOperation) o;
 
-        if (lhs != null ? !lhs.equals(that.lhs) : that.lhs != null) return false;
+        if (!Objects.equals(lhs, that.lhs)) return false;
         if (op != that.op) return false;
 
         return true;

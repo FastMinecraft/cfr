@@ -21,7 +21,7 @@ import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.collections.SetUtil;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
@@ -35,8 +35,7 @@ public class ConditionalRewriter {
     private static class IsForwardIf implements Predicate<Op03SimpleStatement> {
         @Override
         public boolean test(Op03SimpleStatement in) {
-            if (!(in.getStatement() instanceof IfStatement)) return false;
-            IfStatement ifStatement = (IfStatement) in.getStatement();
+            if (!(in.getStatement() instanceof IfStatement ifStatement)) return false;
             if (!ifStatement.getJumpType().isUnknown()) return false;
             if (in.getTargets().get(1).getIndex().compareTo(in.getIndex()) <= 0) return false;
             return true;
@@ -378,12 +377,7 @@ lbl10: // 1 sources:
         }
 
         Op03SimpleStatement statementStart = statements.get(idxCurrent);
-        Predicate<BlockIdentifier> tryBlockFilter = new Predicate<BlockIdentifier>() {
-            @Override
-            public boolean test(BlockIdentifier in) {
-                return in.getBlockType() == BlockType.TRYBLOCK;
-            }
-        };
+        Predicate<BlockIdentifier> tryBlockFilter = in -> in.getBlockType() == BlockType.TRYBLOCK;
         Set<BlockIdentifier> startTryBlocks = Functional.filterSet(statementStart.getBlockIdentifiers(), tryBlockFilter);
 
         Op03SimpleStatement statementPrev = statementStart;
@@ -636,8 +630,7 @@ lbl10: // 1 sources:
                     )
             );
             // Reduce the ternary lValue's created location count, if we can.
-            if (ternary.lValue instanceof StackSSALabel) {
-                StackSSALabel stackSSALabel = (StackSSALabel) ternary.lValue;
+            if (ternary.lValue instanceof StackSSALabel stackSSALabel) {
                 StackEntry stackEntry = stackSSALabel.getStackEntry();
                 stackEntry.decSourceCount();
             }
@@ -710,7 +703,7 @@ lbl10: // 1 sources:
             leaveIfBranchGoto = null;
             List<Op03SimpleStatement> oldIfBranch = ifBranch;
             ifBranch = elseBranch;
-            Collections.sort(ifBranch, new CompareByIndex());
+            ifBranch.sort(new CompareByIndex());
             Op03SimpleStatement last = ifBranch.get(ifBranch.size()-1);
             InstrIndex fromHere = last.getIndex().justAfter();
             Cleaner.sortAndRenumberFromInPlace(oldIfBranch, fromHere);
@@ -756,7 +749,7 @@ lbl10: // 1 sources:
     private static DiscoveredTernary testForTernary(List<Op03SimpleStatement> ifBranch, List<Op03SimpleStatement> elseBranch, Op03SimpleStatement leaveIfBranch) {
         if (ifBranch == null || elseBranch == null) return null;
         if (leaveIfBranch == null) return null;
-        TypeFilter<Nop> notNops = new TypeFilter<Nop>(Nop.class, false);
+        TypeFilter<Nop> notNops = new TypeFilter<>(Nop.class, false);
         ifBranch = Functional.filter(ifBranch, notNops);
         switch (ifBranch.size()) {
             case 1:

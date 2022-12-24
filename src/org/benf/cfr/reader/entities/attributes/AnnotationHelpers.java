@@ -28,7 +28,10 @@ class AnnotationHelpers {
         for (int x = 0; x < numElementPairs; ++x) {
             offset = getElementValuePair(raw, offset, cp, elementValueMap);
         }
-        return new Pair<Long, AnnotationTableEntry>(offset, new AnnotationTableEntry(ConstantPoolUtils.decodeTypeTok(typeName.getValue(), cp), elementValueMap));
+        return new Pair<>(
+            offset,
+            new AnnotationTableEntry(ConstantPoolUtils.decodeTypeTok(typeName.getValue(), cp), elementValueMap)
+        );
     }
 
     private static long getElementValuePair(ByteData raw, long offset, ConstantPool cp, Map<String, ElementValue> res) {
@@ -45,45 +48,44 @@ class AnnotationHelpers {
         char c = (char) raw.getU1At(offset);
         offset++;
         switch (c) {
-            case 'B':
-            case 'C':
-            case 'D':
-            case 'F':
-            case 'I':
-            case 'J':
-            case 'S':
-            case 'Z': {
+            case 'B', 'C', 'D', 'F', 'I', 'J', 'S', 'Z' -> {
                 RawJavaType rawJavaType = ConstantPoolUtils.decodeRawJavaType(c);
                 ConstantPoolEntry constantPoolEntry = cp.getEntry(raw.getU2At(offset));
                 TypedLiteral typedLiteral = TypedLiteral.getConstantPoolEntry(cp, constantPoolEntry);
                 ElementValue value = new ElementValueConst(typedLiteral);
                 value = value.withTypeHint(rawJavaType);
-                return new Pair<Long, ElementValue>(offset + 2, value);
+                return new Pair<>(offset + 2, value);
             }
-            case 's': {
+            case 's' -> {
                 ConstantPoolEntry constantPoolEntry = cp.getEntry(raw.getU2At(offset));
                 TypedLiteral typedLiteral = TypedLiteral.getConstantPoolEntryUTF8((ConstantPoolEntryUTF8) constantPoolEntry);
-                return new Pair<Long, ElementValue>(offset + 2, new ElementValueConst(typedLiteral));
+                return new Pair<>(offset + 2, new ElementValueConst(typedLiteral));
             }
-            case 'e': {
+            case 'e' -> {
                 ConstantPoolEntryUTF8 enumClassName = cp.getUTF8Entry(raw.getU2At(offset));
                 ConstantPoolEntryUTF8 enumEntryName = cp.getUTF8Entry(raw.getU2At(offset + 2));
-                return new Pair<Long, ElementValue>(offset + 4, new ElementValueEnum(ConstantPoolUtils.decodeTypeTok(enumClassName.getValue(), cp), enumEntryName.getValue()));
+                return new Pair<>(
+                    offset + 4,
+                    new ElementValueEnum(
+                        ConstantPoolUtils.decodeTypeTok(enumClassName.getValue(), cp),
+                        enumEntryName.getValue()
+                    )
+                );
             }
-            case 'c': {
+            case 'c' -> {
                 ConstantPoolEntryUTF8 className = cp.getUTF8Entry(raw.getU2At(offset));
                 String typeName = className.getValue();
                 if (typeName.equals("V")) {
-                    return new Pair<Long, ElementValue>(offset + 2, new ElementValueClass(RawJavaType.VOID));
+                    return new Pair<>(offset + 2, new ElementValueClass(RawJavaType.VOID));
                 } else {
-                    return new Pair<Long, ElementValue>(offset + 2, new ElementValueClass(ConstantPoolUtils.decodeTypeTok(typeName, cp)));
+                    return new Pair<>(offset + 2, new ElementValueClass(ConstantPoolUtils.decodeTypeTok(typeName, cp)));
                 }
             }
-            case '@': {
+            case '@' -> {
                 Pair<Long, AnnotationTableEntry> ape = getAnnotation(raw, offset, cp);
-                return new Pair<Long, ElementValue>(ape.getFirst(), new ElementValueAnnotation(ape.getSecond()));
+                return new Pair<>(ape.getFirst(), new ElementValueAnnotation(ape.getSecond()));
             }
-            case '[': {
+            case '[' -> {
                 int numArrayEntries = raw.getU2At(offset);
                 offset += 2;
                 List<ElementValue> res = ListFactory.newList();
@@ -92,10 +94,9 @@ class AnnotationHelpers {
                     offset = ape.getFirst();
                     res.add(ape.getSecond());
                 }
-                return new Pair<Long, ElementValue>(offset, new ElementValueArray(res));
+                return new Pair<>(offset, new ElementValueArray(res));
             }
-            default:
-                throw new ConfusedCFRException("Illegal attribute tag [" + c + "]");
+            default -> throw new ConfusedCFRException("Illegal attribute tag [" + c + "]");
         }
     }
 
@@ -112,18 +113,10 @@ class AnnotationHelpers {
             short type_path_kind = raw.getU1At(offset++);
             short type_argument_index = raw.getU1At(offset++);
             switch (type_path_kind) {
-                case 0:
-                    pathData.add(TypePathPartArray.INSTANCE);
-                    break;
-                case 1:
-                    pathData.add(TypePathPartNested.INSTANCE);
-                    break;
-                case 2:
-                    pathData.add(TypePathPartBound.INSTANCE);
-                    break;
-                case 3:
-                    pathData.add(new TypePathPartParameterized(type_argument_index));
-                    break;
+                case 0 -> pathData.add(TypePathPartArray.INSTANCE);
+                case 1 -> pathData.add(TypePathPartNested.INSTANCE);
+                case 2 -> pathData.add(TypePathPartBound.INSTANCE);
+                case 3 -> pathData.add(new TypePathPartParameterized(type_argument_index));
             }
         }
         TypePath path = new TypePath(pathData);
@@ -141,37 +134,34 @@ class AnnotationHelpers {
             offset = getElementValuePair(raw, offset, cp, elementValueMap);
         }
 
-        AnnotationTableTypeEntry res = new AnnotationTableTypeEntry<TypeAnnotationTargetInfo>(typeAnnotationEntryValue, targetInfo, path, type, elementValueMap);
+        AnnotationTableTypeEntry res = new AnnotationTableTypeEntry<>(
+            typeAnnotationEntryValue,
+            targetInfo,
+            path,
+            type,
+            elementValueMap
+        );
 
-        return new Pair<Long, AnnotationTableTypeEntry>(offset, res);
+        return new Pair<>(offset, res);
     }
 
     // The spec claims that target_info is a union, however localvar_target is a variable length structure....
     private static Pair<Long, TypeAnnotationTargetInfo> readTypeAnnotationTargetInfo(TypeAnnotationEntryKind kind, ByteData raw, long offset) {
-        switch (kind) {
-            case type_parameter_target:
-                return TypeAnnotationTargetInfo.TypeAnnotationParameterTarget.Read(raw, offset);
-            case supertype_target:
-                return TypeAnnotationTargetInfo.TypeAnnotationSupertypeTarget.Read(raw, offset);
-            case type_parameter_bound_target:
-                return TypeAnnotationTargetInfo.TypeAnnotationParameterBoundTarget.Read(raw, offset);
-            case empty_target:
-                return TypeAnnotationTargetInfo.TypeAnnotationEmptyTarget.Read(raw, offset);
-            case method_formal_parameter_target:
-                return TypeAnnotationTargetInfo.TypeAnnotationFormalParameterTarget.Read(raw, offset);
-            case throws_target:
-                return TypeAnnotationTargetInfo.TypeAnnotationThrowsTarget.Read(raw, offset);
-            case localvar_target:
-                return TypeAnnotationTargetInfo.TypeAnnotationLocalVarTarget.Read(raw, offset);
-            case catch_target:
-                return TypeAnnotationTargetInfo.TypeAnnotationCatchTarget.Read(raw, offset);
-            case offset_target:
-                return TypeAnnotationTargetInfo.TypeAnnotationOffsetTarget.Read(raw, offset);
-            case type_argument_target:
-                return TypeAnnotationTargetInfo.TypeAnnotationTypeArgumentTarget.Read(raw, offset);
-            default:
-                throw new BadAttributeException();
-        }
+        return switch (kind) {
+            case type_parameter_target -> TypeAnnotationTargetInfo.TypeAnnotationParameterTarget.Read(raw, offset);
+            case supertype_target -> TypeAnnotationTargetInfo.TypeAnnotationSupertypeTarget.Read(raw, offset);
+            case type_parameter_bound_target ->
+                TypeAnnotationTargetInfo.TypeAnnotationParameterBoundTarget.Read(raw, offset);
+            case empty_target -> TypeAnnotationTargetInfo.TypeAnnotationEmptyTarget.Read(raw, offset);
+            case method_formal_parameter_target ->
+                TypeAnnotationTargetInfo.TypeAnnotationFormalParameterTarget.Read(raw, offset);
+            case throws_target -> TypeAnnotationTargetInfo.TypeAnnotationThrowsTarget.Read(raw, offset);
+            case localvar_target -> TypeAnnotationTargetInfo.TypeAnnotationLocalVarTarget.Read(raw, offset);
+            case catch_target -> TypeAnnotationTargetInfo.TypeAnnotationCatchTarget.Read(raw, offset);
+            case offset_target -> TypeAnnotationTargetInfo.TypeAnnotationOffsetTarget.Read(raw, offset);
+            case type_argument_target -> TypeAnnotationTargetInfo.TypeAnnotationTypeArgumentTarget.Read(raw, offset);
+            default -> throw new BadAttributeException();
+        };
     }
 
 }

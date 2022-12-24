@@ -247,7 +247,7 @@ public enum JVMInstr {
     private final OperationFactory handler;
     private final boolean noThrow;
 
-    private static final Map<Integer, JVMInstr> opcodeLookup = new HashMap<Integer, JVMInstr>();
+    private static final Map<Integer, JVMInstr> opcodeLookup = new HashMap<>();
 
     static {
         for (JVMInstr i : values()) {
@@ -329,15 +329,9 @@ public enum JVMInstr {
     }
 
     public static boolean isAStore(JVMInstr instr) {
-        switch (instr) {
-            case ASTORE:
-            case ASTORE_0:
-            case ASTORE_1:
-            case ASTORE_2:
-            case ASTORE_3:
-            case ASTORE_WIDE:
-                return true;
-        }
-        return false;
+        return switch (instr) {
+            case ASTORE, ASTORE_0, ASTORE_1, ASTORE_2, ASTORE_3, ASTORE_WIDE -> true;
+            default -> false;
+        };
     }
 }

@@ -98,24 +98,15 @@ public class AttributeStackMapTable extends Attribute {
             // Reserved.
             throw new IllegalStateException();
         }
-        switch (frameType) {
-            case 247:
-                return same_locals_1_stack_item_frame_extended(raw);
-            case 248:
-            case 249:
-            case 250:
-                return chop_frame(frameType, raw);
-            case 251:
-                return same_frame_extended(raw);
-            case 252:
-            case 253:
-            case 254:
-                return append_frame(frameType, raw);
-            case 255:
-                return full_frame(raw);
-            default: // can't happen.
+        return switch (frameType) {
+            case 247 -> same_locals_1_stack_item_frame_extended(raw);
+            case 248, 249, 250 -> chop_frame(frameType, raw);
+            case 251 -> same_frame_extended(raw);
+            case 252, 253, 254 -> append_frame(frameType, raw);
+            case 255 -> full_frame(raw);
+            default -> // can't happen.
                 throw new IllegalStateException();
-        }
+        };
     }
 
     private static StackMapFrame same_locals_1_stack_item_frame(short type, OffsettingByteData raw) {
@@ -176,32 +167,38 @@ public class AttributeStackMapTable extends Attribute {
         short type = raw.getU1At(0);
         raw.advance(1);
         switch (type) {
-            case VerificationInfoTop.TYPE:
+            case VerificationInfoTop.TYPE -> {
                 return VerificationInfoTop.INSTANCE;
-            case VerificationInfoInteger.TYPE:
+            }
+            case VerificationInfoInteger.TYPE -> {
                 return VerificationInfoInteger.INSTANCE;
-            case VerificationInfoFloat.TYPE:
+            }
+            case VerificationInfoFloat.TYPE -> {
                 return VerificationInfoFloat.INSTANCE;
-            case VerificationInfoDouble.TYPE:
+            }
+            case VerificationInfoDouble.TYPE -> {
                 return VerificationInfoDouble.INSTANCE;
-            case VerificationInfoLong.TYPE:
+            }
+            case VerificationInfoLong.TYPE -> {
                 return VerificationInfoLong.INSTANCE;
-            case VerificationInfoNull.TYPE:
+            }
+            case VerificationInfoNull.TYPE -> {
                 return VerificationInfoNull.INSTANCE;
-            case VerificationInfoUninitializedThis.TYPE:
+            }
+            case VerificationInfoUninitializedThis.TYPE -> {
                 return VerificationInfoUninitializedThis.INSTANCE;
-            case VerificationInfoObject.TYPE: {
+            }
+            case VerificationInfoObject.TYPE -> {
                 int u2 = raw.getU2At(0);
                 raw.advance(2);
                 return new VerificationInfoObject(u2);
             }
-            case VerificationInfoUninitialized.TYPE: {
+            case VerificationInfoUninitialized.TYPE -> {
                 int u2 = raw.getU2At(0);
                 raw.advance(2);
                 return new VerificationInfoUninitialized(u2);
             }
-            default:
-                throw new IllegalStateException();
+            default -> throw new IllegalStateException();
         }
     }
 
@@ -223,79 +220,34 @@ public class AttributeStackMapTable extends Attribute {
     private interface StackMapFrame {
     }
 
-    private static class StackMapFrameSameFrame implements StackMapFrame {
-        private final short id;
-
-        private StackMapFrameSameFrame(short id) {
-            this.id = id;
-        }
+    private record StackMapFrameSameFrame(short id) implements StackMapFrame {
 
     }
 
-    private static class StackMapFrameSameLocals1SameItemFrame implements StackMapFrame {
-        private final short id;
-        private final VerificationInfo verificationInfo;
-
-        private StackMapFrameSameLocals1SameItemFrame(short id, VerificationInfo verificationInfo) {
-            this.id = id;
-            this.verificationInfo = verificationInfo;
-        }
+    private record StackMapFrameSameLocals1SameItemFrame(short id,
+                                                         VerificationInfo verificationInfo) implements StackMapFrame {
 
     }
 
-    private static class StackMapFrameSameLocals1SameItemFrameExtended implements StackMapFrame {
-        private final int offset_delta;
-        private final VerificationInfo verificationInfo;
-
-        private StackMapFrameSameLocals1SameItemFrameExtended(int offset_delta, VerificationInfo verificationInfo) {
-            this.offset_delta = offset_delta;
-            this.verificationInfo = verificationInfo;
-        }
+    private record StackMapFrameSameLocals1SameItemFrameExtended(int offset_delta,
+                                                                 VerificationInfo verificationInfo) implements StackMapFrame {
 
     }
 
-    private static class StackMapFrameChopFrame implements StackMapFrame {
-        private final short frame_type;
-        private final int offset_delta;
-
-        private StackMapFrameChopFrame(short frame_type, int offset_delta) {
-            this.frame_type = frame_type;
-            this.offset_delta = offset_delta;
-        }
+    private record StackMapFrameChopFrame(short frame_type, int offset_delta) implements StackMapFrame {
     }
 
-    private static class StackMapFrameSameFrameExtended implements StackMapFrame {
-        private final int offset_delta;
-
-        private StackMapFrameSameFrameExtended(int offset_delta) {
-            this.offset_delta = offset_delta;
-        }
+    private record StackMapFrameSameFrameExtended(int offset_delta) implements StackMapFrame {
 
     }
 
-    private static class StackMapFrameAppendFrame implements StackMapFrame {
-        private final short frame_type;
-        private final int offset_delta;
-        private final VerificationInfo[] verificationInfos;
-
-        private StackMapFrameAppendFrame(short frame_type, int offset_delta, VerificationInfo[] verificationInfos) {
-            this.frame_type = frame_type;
-            this.offset_delta = offset_delta;
-            this.verificationInfos = verificationInfos;
-        }
+    private record StackMapFrameAppendFrame(short frame_type, int offset_delta,
+                                            VerificationInfo[] verificationInfos) implements StackMapFrame {
 
     }
 
-    private static class StackMapFrameFullFrame implements StackMapFrame {
-        private final int offset_delta;
-        private final VerificationInfo[] verificationLocals;
-        private final VerificationInfo[] verificationStackItems;
-
-        private StackMapFrameFullFrame(int offset_delta, VerificationInfo[] verificationLocals, VerificationInfo[] verificationStackItems) {
-            this.offset_delta = offset_delta;
-            this.verificationLocals = verificationLocals;
-            this.verificationStackItems = verificationStackItems;
-        }
+    private record StackMapFrameFullFrame(int offset_delta, VerificationInfo[] verificationLocals,
+                                          VerificationInfo[] verificationStackItems) implements StackMapFrame {
 
     }
     /*
@@ -342,23 +294,13 @@ public class AttributeStackMapTable extends Attribute {
         private static VerificationInfo INSTANCE = new VerificationInfoUninitializedThis();
     }
 
-    private static class VerificationInfoObject implements VerificationInfo {
-        private static final char TYPE = 7;
-        private final int cpool_index;
-
-        private VerificationInfoObject(int cpool_index) {
-            this.cpool_index = cpool_index;
-        }
+    private record VerificationInfoObject(int cpool_index) implements VerificationInfo {
+            private static final char TYPE = 7;
 
     }
 
-    private static class VerificationInfoUninitialized implements VerificationInfo {
-        private static final char TYPE = 8;
-        private final int offset;
-
-        private VerificationInfoUninitialized(int offset) {
-            this.offset = offset;
-        }
+    private record VerificationInfoUninitialized(int offset) implements VerificationInfo {
+            private static final char TYPE = 8;
 
     }
 

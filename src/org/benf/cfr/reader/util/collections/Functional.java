@@ -1,7 +1,7 @@
 package org.benf.cfr.reader.util.collections;
 
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 import org.benf.cfr.reader.util.functors.UnaryFunction;
 
 import java.util.*;
@@ -21,7 +21,7 @@ public class Functional {
             X item = input.get(x);
             if (!predicate.test(item)) {
                 if (res == null) {
-                    res = new ArrayList<X>();
+                    res = new ArrayList<>();
                     for (int y=0;y<x;++y) {
                         res.add(input.get(y));
                     }
@@ -85,7 +85,7 @@ public class Functional {
                 lFalse.add(item);
             }
         }
-        return new Pair<List<X>, List<X>>(lTrue, lFalse);
+        return new Pair<>(lTrue, lFalse);
     }
 
 
@@ -132,6 +132,7 @@ public class Functional {
         for (X x : input) {
             Y key = mapF.invoke(x);
             List<X> lx = tgt.get(key);
+            //noinspection Java8MapApi
             if (lx == null) {
                 lx = ListFactory.newList();
                 tgt.put(key, lx);
@@ -142,9 +143,10 @@ public class Functional {
     }
 
     public static <Y, X> List<Y> groupBy(List<X> input, Comparator<? super X> comparator, UnaryFunction<List<X>, Y> gf) {
-        TreeMap<X, List<X>> temp = new TreeMap<X, List<X>>(comparator);
+        TreeMap<X, List<X>> temp = new TreeMap<>(comparator);
         for (X x : input) {
             List<X> lx = temp.get(x);
+            //noinspection Java8MapApi
             if (lx == null) {
                 lx = ListFactory.newList();
                 temp.put(x, lx);

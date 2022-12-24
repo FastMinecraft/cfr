@@ -10,12 +10,7 @@ import java.util.List;
 public class NullMapping implements ObfuscationMapping {
     public static NullMapping INSTANCE = new NullMapping();
 
-    private static UnaryFunction<JavaTypeInstance, JavaTypeInstance> id = new UnaryFunction<JavaTypeInstance, JavaTypeInstance>() {
-        @Override
-        public JavaTypeInstance invoke(JavaTypeInstance arg) {
-            return arg;
-        }
-    };
+    private static UnaryFunction<JavaTypeInstance, JavaTypeInstance> id = arg -> arg;
 
     @Override
     public UnaryFunction<JavaTypeInstance, JavaTypeInstance> getter() {

@@ -120,18 +120,13 @@ public abstract class AbstractExpression implements Expression  {
                 //noinspection ConstantConditions
                 requires = false;
             } else {
-                switch (isLhs) {
-                    case TRUE:
+                requires = switch (isLhs) {
+                    case TRUE ->
                         // I.e. same precedence, we're on LHS, we only need braces if prec is R->L.
-                        requires = !innerP.isLtoR();
-                        break;
-                    case FALSE:
-                        requires = innerP.isLtoR();
-                        break;
-                    case NEITHER:
-                        requires = !innerP.isLtoR();
-                        break;
-                }
+                        !innerP.isLtoR();
+                    case FALSE -> innerP.isLtoR();
+                    case NEITHER -> !innerP.isLtoR();
+                };
             }
         }
         if (requires) {

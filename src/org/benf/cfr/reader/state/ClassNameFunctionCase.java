@@ -9,7 +9,7 @@ import java.util.TreeSet;
 public class ClassNameFunctionCase implements ClassNameFunction {
     @Override
     public Map<String, String> apply(Map<String, String> names) {
-        Set<String> caseInTest = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+        Set<String> caseInTest = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
         Map<String, String> applied = MapFactory.newOrderedMap();
         for (Map.Entry<String, String> entry : names.entrySet()) {
             String original = entry.getKey();

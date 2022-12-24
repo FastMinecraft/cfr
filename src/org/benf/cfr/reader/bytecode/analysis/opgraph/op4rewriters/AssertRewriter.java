@@ -57,7 +57,7 @@ public class AssertRewriter {
         if (!staticInit.hasCodeAttribute()) return;
         List<StructuredStatement> statements = MiscStatementTools.linearise(staticInit.getAnalysis());
         if (statements == null) return;
-        MatchIterator<StructuredStatement> mi = new MatchIterator<StructuredStatement>(statements);
+        MatchIterator<StructuredStatement> mi = new MatchIterator<>(statements);
         WildcardMatch wcm1 = new WildcardMatch();
 
         final JavaTypeInstance topClassType = classFile.getClassType();
@@ -172,7 +172,7 @@ public class AssertRewriter {
 
             if (statements == null) continue;
 
-            MatchIterator<StructuredStatement> mi = new MatchIterator<StructuredStatement>(statements);
+            MatchIterator<StructuredStatement> mi = new MatchIterator<>(statements);
 
             while (mi.hasNext()) {
                 mi.advance();
@@ -184,7 +184,7 @@ public class AssertRewriter {
             // If we're looking for switch expression assertions, things get more interesting.
             // We can't search for a simple pattern any more, but we can find possible entry points.
             if (switchExpressions) {
-                mi = new MatchIterator<StructuredStatement>(statements);
+                mi = new MatchIterator<>(statements);
 
                 while (mi.hasNext()) {
                     mi.advance();
@@ -337,8 +337,7 @@ public class AssertRewriter {
             BlockIdentifier outerBlock = block.getBreakableBlockOrNull();
 
             StructuredStatement switchS = switchAndThrow.get(0).getStatement();
-            if (!(switchS instanceof StructuredSwitch)) return;
-            StructuredSwitch struSwi = (StructuredSwitch)switchS;
+            if (!(switchS instanceof StructuredSwitch struSwi)) return;
             BlockIdentifier switchBlock = struSwi.getBlockIdentifier();
             Op04StructuredStatement swBody = struSwi.getBody();
             if (!(swBody.getStatement() instanceof Block)) {
@@ -359,19 +358,24 @@ public class AssertRewriter {
 
 
             switch (switchAndThrow.size()) {
-                case 1:
+                case 1 ->
                     // switch, with throw rolled up into last case.
                     newAssert = processSwitchEmbeddedThrow(ifStm, outerBlock, swBodyBlock, swBody, struSwi);
-                    break;
-                case 2:
+                case 2 ->
                     // switch, followed by throw.
                     // In this version, if it ends up leaving the if, it's true.
                     // if it ends up leaving the switch (so into the throw), it's false.
-                    newAssert = processSwitchAndThrow(ifStm, outerBlock, switchBlock, swBodyBlock, struSwi, switchAndThrow.get(1));
-                    break;
-                default:
-                    // switch, with logic dropping off the last case.
-                    break;
+                    newAssert = processSwitchAndThrow(
+                        ifStm,
+                        outerBlock,
+                        switchBlock,
+                        swBodyBlock,
+                        struSwi,
+                        switchAndThrow.get(1)
+                    );
+                default -> {
+                }
+                // switch, with logic dropping off the last case.
             }
             if (newAssert != null) {
                 content.getSecond().replaceStatement(newAssert);
@@ -449,8 +453,7 @@ public class AssertRewriter {
             for (Map.Entry<Op04StructuredStatement, StructuredExpressionYield> replacement : replacements.entrySet()) {
                 Op04StructuredStatement first = replacement.getKey();
                 StructuredStatement statement = first.getStatement();
-                if (statement instanceof StructuredBreak) {
-                    StructuredBreak sb = (StructuredBreak) statement;
+                if (statement instanceof StructuredBreak sb) {
                     if (!sb.isLocalBreak()) sb.getBreakBlock().releaseForeignRef();
                 }
                 first.replaceStatement(replacement.getValue());
@@ -460,16 +463,14 @@ public class AssertRewriter {
 
         private SwitchExpression.Branch getBranch(BlockIdentifier outer, BlockIdentifier swiBlockIdentifier, Map<Op04StructuredStatement, StructuredExpressionYield> replacements, Op04StructuredStatement statement, boolean addYieldTrue) {
             StructuredStatement cstm = statement.getStatement();
-            if (!(cstm instanceof StructuredCase)) return null;
-            StructuredCase caseStm = (StructuredCase)cstm;
+            if (!(cstm instanceof StructuredCase caseStm)) return null;
             ControlFlowSwitchExpressionTransformer cfset = new ControlFlowSwitchExpressionTransformer(outer, swiBlockIdentifier, replacements);
             Op04StructuredStatement body = caseStm.getBody();
             body.transform(cfset, new StructuredScope());
             if (cfset.failed) return null;
             if (addYieldTrue) {
                 StructuredStatement stm = body.getStatement();
-                if (stm instanceof Block) {
-                    Block block = (Block) stm;
+                if (stm instanceof Block block) {
                     Op04StructuredStatement last = block.getLast();
                     StructuredStatement lastStm = replacements.get(last);
                     if (lastStm == null) {
@@ -655,31 +656,48 @@ public class AssertRewriter {
                     arg = ((CastExpression) arg).getChild();
                 }
             }
-            if (name.equals("ass1") || name.equals("ass1b") || name.equals("ass1c")) {
-                StructuredIf ifStatement = (StructuredIf) statement;
-                ConditionalExpression condition = wcm.getConditionalExpressionWildcard("condition").getMatch();
-                if (name.equals("ass1") || name.equals("ass1c")) condition = new NotOperation(BytecodeLoc.TODO, condition);
-                condition = condition.simplify();
-                StructuredStatement structuredAssert = ifStatement.convertToAssertion(StructuredAssert.mkStructuredAssert(BytecodeLoc.TODO, condition,arg));
-                ifStatement.getContainer().replaceStatement(structuredAssert);
-            } else if (name.equals("ass2")) {
-                if (ass2throw == null) throw new IllegalStateException();
-                StructuredIf ifStatement = (StructuredIf) statement;
-                // If there's a condition, it's in condition 2, otherwise it's an assert literal.
-                WildcardMatch.ConditionalExpressionWildcard wcard = wcm.getConditionalExpressionWildcard("condition2");
-                ConditionalExpression conditionalExpression = wcard.getMatch();
-                if (conditionalExpression == null)
-                    conditionalExpression = new BooleanExpression(new Literal(TypedLiteral.getBoolean(0)));
-                // The if statement becomes an assert conditjon, the throw statement becomes the content of the if block.
-                StructuredStatement structuredAssert = StructuredAssert.mkStructuredAssert(BytecodeLoc.TODO, conditionalExpression,arg);
-                ifStatement.getContainer().replaceStatement(structuredAssert);
-                ass2throw.getContainer().replaceStatement(ifStatement.getIfTaken().getStatement());
-            } else if (name.equals("ass2throw")) {
-                ass2throw = statement;
-            } else if (name.equals("assonly")) {
-                StructuredIf ifStatement = (StructuredIf) statement;
-                StructuredStatement structuredAssert = ifStatement.convertToAssertion(StructuredAssert.mkStructuredAssert(BytecodeLoc.TODO, new BooleanExpression(Literal.FALSE),arg));
-                ifStatement.getContainer().replaceStatement(structuredAssert);
+            switch (name) {
+                case "ass1", "ass1b", "ass1c" -> {
+                    StructuredIf ifStatement = (StructuredIf) statement;
+                    ConditionalExpression condition = wcm.getConditionalExpressionWildcard("condition").getMatch();
+                    if (name.equals("ass1") || name.equals("ass1c"))
+                        condition = new NotOperation(BytecodeLoc.TODO, condition);
+                    condition = condition.simplify();
+                    StructuredStatement structuredAssert = ifStatement.convertToAssertion(StructuredAssert.mkStructuredAssert(
+                        BytecodeLoc.TODO,
+                        condition,
+                        arg
+                    ));
+                    ifStatement.getContainer().replaceStatement(structuredAssert);
+                }
+                case "ass2" -> {
+                    if (ass2throw == null) throw new IllegalStateException();
+                    StructuredIf ifStatement = (StructuredIf) statement;
+                    // If there's a condition, it's in condition 2, otherwise it's an assert literal.
+                    WildcardMatch.ConditionalExpressionWildcard wcard = wcm.getConditionalExpressionWildcard(
+                        "condition2");
+                    ConditionalExpression conditionalExpression = wcard.getMatch();
+                    if (conditionalExpression == null)
+                        conditionalExpression = new BooleanExpression(new Literal(TypedLiteral.getBoolean(0)));
+                    // The if statement becomes an assert conditjon, the throw statement becomes the content of the if block.
+                    StructuredStatement structuredAssert = StructuredAssert.mkStructuredAssert(
+                        BytecodeLoc.TODO,
+                        conditionalExpression,
+                        arg
+                    );
+                    ifStatement.getContainer().replaceStatement(structuredAssert);
+                    ass2throw.getContainer().replaceStatement(ifStatement.getIfTaken().getStatement());
+                }
+                case "ass2throw" -> ass2throw = statement;
+                case "assonly" -> {
+                    StructuredIf ifStatement = (StructuredIf) statement;
+                    StructuredStatement structuredAssert = ifStatement.convertToAssertion(StructuredAssert.mkStructuredAssert(
+                        BytecodeLoc.TODO,
+                        new BooleanExpression(Literal.FALSE),
+                        arg
+                    ));
+                    ifStatement.getContainer().replaceStatement(structuredAssert);
+                }
             }
         }
     }

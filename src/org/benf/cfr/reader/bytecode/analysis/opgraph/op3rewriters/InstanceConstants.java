@@ -44,18 +44,15 @@ public class InstanceConstants {
     // This could be done with wildcardmatchers to be a bit cleaner, but it's simple, and cheap.
     private void rewrite1(JavaRefTypeInstance thisType, Op03SimpleStatement stm, DCCommonState state) {
         Statement s = stm.getStatement();
-        if (!(s instanceof AssignmentSimple)) return;
-        AssignmentSimple ass = (AssignmentSimple)s;
+        if (!(s instanceof AssignmentSimple ass)) return;
         LValue a = ass.getCreatedLValue();
         Expression e = ass.getRValue();
         Expression b;
-        if (e instanceof MemberFunctionInvokation) {
-            MemberFunctionInvokation m = (MemberFunctionInvokation) e;
+        if (e instanceof MemberFunctionInvokation m) {
             b = m.getObject();
             if (!(m.getMethodPrototype().getName().equals(MiscConstants.GET_CLASS_NAME) && m.getArgs().isEmpty()))
                 return;
-        } else if (e instanceof StaticFunctionInvokation) {
-            StaticFunctionInvokation sf = (StaticFunctionInvokation)e;
+        } else if (e instanceof StaticFunctionInvokation sf) {
             if (!sf.getClazz().equals(TypeConstants.OBJECTS)) return;
             if (!(sf.getMethodPrototype().getName().equals(MiscConstants.REQUIRE_NON_NULL) && sf.getArgs().size() == 1))
                 return;
@@ -72,14 +69,11 @@ public class InstanceConstants {
         Op03SimpleStatement ldc = pop.getTargets().get(0);
         if (ldc.getSources().size() != 1) return;
         s = ldc.getStatement();
-        if (!(s instanceof AssignmentSimple)) return;
-        AssignmentSimple ldcS = (AssignmentSimple)s;
+        if (!(s instanceof AssignmentSimple ldcS)) return;
         Expression rhs = ldcS.getRValue();
-        if (!(rhs instanceof Literal)) return;
-        Literal lit = (Literal)rhs;
+        if (!(rhs instanceof Literal lit)) return;
         JavaTypeInstance searchType = b.getInferredJavaType().getJavaTypeInstance().getDeGenerifiedType();
-        if (!(searchType instanceof JavaRefTypeInstance)) return;
-        JavaRefTypeInstance refSearchType = (JavaRefTypeInstance)searchType;
+        if (!(searchType instanceof JavaRefTypeInstance refSearchType)) return;
 
         Object litValue = (lit.getValue().getValue());
         if (litValue == null) return;

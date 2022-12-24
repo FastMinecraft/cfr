@@ -24,8 +24,7 @@ class JoinBlocks {
         for (int x = 0, len = statements.size(); x < len; ++x) {
             Op03SimpleStatement stm = statements.get(x);
             Statement stmInner = stm.getStatement();
-            if (stmInner instanceof CatchStatement) {
-                CatchStatement catchStatement = (CatchStatement) stmInner;
+            if (stmInner instanceof CatchStatement catchStatement) {
                 for (ExceptionGroup.Entry entry : catchStatement.getExceptions()) {
                     blackListed.add(entry.getTryBlockIdentifier());
                 }

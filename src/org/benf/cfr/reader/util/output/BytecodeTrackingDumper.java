@@ -15,12 +15,9 @@ import java.util.TreeMap;
 
 class BytecodeTrackingDumper extends DelegatingDumper {
 
-    private final Map<Method, MethodBytecode> perMethod = MapFactory.newLazyMap(MapFactory.<Method, MethodBytecode>newIdentityMap(), new UnaryFunction<Method, MethodBytecode>() {
-        @Override
-        public MethodBytecode invoke(Method arg) {
-            return new MethodBytecode();
-        }
-    });
+    private final Map<Method, MethodBytecode> perMethod = MapFactory.newLazyMap(MapFactory.<Method, MethodBytecode>newIdentityMap(),
+        arg -> new MethodBytecode()
+    );
     private final BytecodeDumpConsumer consumer;
 
     BytecodeTrackingDumper(Dumper dumper, BytecodeDumpConsumer consumer) {

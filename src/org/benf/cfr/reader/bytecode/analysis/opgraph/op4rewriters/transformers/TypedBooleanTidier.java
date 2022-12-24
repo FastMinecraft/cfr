@@ -39,9 +39,8 @@ public class TypedBooleanTidier implements StructuredStatementTransformer, Expre
     @Override
     public ConditionalExpression rewriteExpression(ConditionalExpression expression, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
         expression = (ConditionalExpression) expression.applyExpressionRewriter(this, ssaIdentifiers, statementContainer, flags);
-        if (!(expression instanceof ComparisonOperation)) return expression;
+        if (!(expression instanceof ComparisonOperation comparisonOperation)) return expression;
 
-        ComparisonOperation comparisonOperation = (ComparisonOperation) expression;
         Expression lhs = comparisonOperation.getLhs();
         Expression rhs = comparisonOperation.getRhs();
         CompOp op = comparisonOperation.getOp();

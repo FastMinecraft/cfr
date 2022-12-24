@@ -97,8 +97,7 @@ public class InstanceOfExpressionDefining extends AbstractExpression {
     public boolean equals(Object o) {
         if (o == null) return false;
         if (o == this) return true;
-        if (!(o instanceof InstanceOfExpressionDefining)) return false;
-        InstanceOfExpressionDefining other = (InstanceOfExpressionDefining) o;
+        if (!(o instanceof InstanceOfExpressionDefining other)) return false;
         if (!lhs.equals(other.lhs)) return false;
         if (!typeInstance.equals(other.typeInstance)) return false;
         if (!defines.equals(other.defines)) return false;

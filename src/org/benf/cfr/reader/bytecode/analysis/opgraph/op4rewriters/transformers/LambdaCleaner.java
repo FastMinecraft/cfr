@@ -38,14 +38,11 @@ public class LambdaCleaner extends AbstractExpressionRewriter implements Structu
 
     @Override
     public Expression rewriteExpression(Expression expression, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
-        if (expression instanceof LambdaExpression) {
-            LambdaExpression lambda = (LambdaExpression)expression;
+        if (expression instanceof LambdaExpression lambda) {
             Expression result = lambda.getResult();
-            if (result instanceof StructuredStatementExpression) {
-                StructuredStatementExpression structuredStatementExpression = (StructuredStatementExpression)result;
+            if (result instanceof StructuredStatementExpression structuredStatementExpression) {
                 StructuredStatement content = structuredStatementExpression.getContent();
-                if (content instanceof Block) {
-                    Block block = (Block)content;
+                if (content instanceof Block block) {
                     Pair<Boolean, Op04StructuredStatement> singleStatement = block.getOneStatementIfPresent();
                     if (singleStatement.getSecond() != null) {
                         StructuredStatement statement = singleStatement.getSecond().getStatement();
@@ -56,7 +53,8 @@ public class LambdaCleaner extends AbstractExpressionRewriter implements Structu
                         }
                     } else {
                         if (singleStatement.getFirst()) {
-                            Expression empty = new StructuredStatementExpression(expression.getInferredJavaType(), new Block(new LinkedList<Op04StructuredStatement>(), true));
+                            Expression empty = new StructuredStatementExpression(expression.getInferredJavaType(), new Block(
+                                new LinkedList<>(), true));
                             expression = rebuildLambda(lambda, empty);
                         }
                     }

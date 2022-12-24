@@ -87,8 +87,7 @@ public class UnstructuredIf extends AbstractUnStructuredStatement {
      */
     private static Op04StructuredStatement unpackElseIfBlock(Op04StructuredStatement elseBlock) {
         StructuredStatement elseStmt = elseBlock.getStatement();
-        if (!(elseStmt instanceof Block)) return elseBlock;
-        Block block = (Block) elseStmt;
+        if (!(elseStmt instanceof Block block)) return elseBlock;
         Optional<Op04StructuredStatement> maybeStatement = block.getMaybeJustOneStatement();
         if (!maybeStatement.isSet()) {
 //            Dumper d = new Dumper();

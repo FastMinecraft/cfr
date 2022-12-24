@@ -80,23 +80,22 @@ public class GotoStatement extends JumpingStatement {
 
     protected BlockIdentifier getTargetStartBlock() {
         Statement statement = getJumpTarget();
-        if (statement instanceof WhileStatement) {
-            WhileStatement whileStatement = (WhileStatement) statement;
+        if (statement instanceof WhileStatement whileStatement) {
             return whileStatement.getBlockIdentifier();
-        } else if (statement instanceof ForStatement) {
-            ForStatement forStatement = (ForStatement) statement;
+        } else if (statement instanceof ForStatement forStatement) {
             return forStatement.getBlockIdentifier();
-        } else if (statement instanceof ForIterStatement) {
-            ForIterStatement forStatement = (ForIterStatement) statement;
+        } else if (statement instanceof ForIterStatement forStatement) {
             return forStatement.getBlockIdentifier();
         } else {
             BlockIdentifier blockStarted = statement.getContainer().getBlockStarted();
             if (blockStarted != null) {
                 switch (blockStarted.getBlockType()) {
-                    case UNCONDITIONALDOLOOP:
+                    case UNCONDITIONALDOLOOP -> {
                         return blockStarted;
-                    case DOLOOP:
+                    }
+                    case DOLOOP -> {
                         return blockStarted;
+                    }
                 }
             }
             throw new ConfusedCFRException("CONTINUE without a while " + statement.getClass());
@@ -106,22 +105,23 @@ public class GotoStatement extends JumpingStatement {
     @Override
     public StructuredStatement getStructuredStatement() {
         switch (jumpType) {
-            case END_BLOCK:
-            case GOTO_OUT_OF_TRY:
+            case END_BLOCK, GOTO_OUT_OF_TRY -> {
                 return StructuredComment.EMPTY_COMMENT;
-            case GOTO:
-            case GOTO_OUT_OF_IF:
+            }
+            case GOTO, GOTO_OUT_OF_IF -> {
                 return new UnstructuredGoto(getLoc());
-            case CONTINUE:
+            }
+            case CONTINUE -> {
                 return new UnstructuredContinue(getLoc(), getTargetStartBlock());
-            case BREAK:
+            }
+            case BREAK -> {
                 return new UnstructuredBreak(getLoc(), getJumpTarget().getContainer().getBlocksEnded());
-            case BREAK_ANONYMOUS: {
+            }
+            case BREAK_ANONYMOUS -> {
                 Statement target = getJumpTarget();
-                if (!(target instanceof AnonBreakTarget)) {
+                if (!(target instanceof AnonBreakTarget anonBreakTarget)) {
                     throw new IllegalStateException("Target of anonymous break unexpected.");
                 }
-                AnonBreakTarget anonBreakTarget = (AnonBreakTarget) target;
                 BlockIdentifier breakFrom = anonBreakTarget.getBlockIdentifier();
                 return new UnstructuredAnonymousBreak(getLoc(), breakFrom);
             }

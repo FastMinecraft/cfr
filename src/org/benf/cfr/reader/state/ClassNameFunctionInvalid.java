@@ -11,7 +11,7 @@ public class ClassNameFunctionInvalid implements ClassNameFunction {
 
     ClassNameFunctionInvalid(boolean caseInsensitive, Set<String> illegalNames) {
         if (caseInsensitive) {
-            Set<String> ciNames = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+            Set<String> ciNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
             ciNames.addAll(illegalNames);
             illegalNames = ciNames;
         }

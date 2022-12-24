@@ -27,8 +27,7 @@ public class IllegalGenericRewriter extends AbstractExpressionRewriter {
     }
 
     private boolean hasIllegalGenerics(JavaTypeInstance javaTypeInstance, boolean constructor) {
-        if (!(javaTypeInstance instanceof JavaGenericBaseInstance)) return false;
-        JavaGenericBaseInstance genericBaseInstance = (JavaGenericBaseInstance) javaTypeInstance;
+        if (!(javaTypeInstance instanceof JavaGenericBaseInstance genericBaseInstance)) return false;
         return genericBaseInstance.hasForeignUnbound(cp, 0, constructor, formalParams);
     }
 

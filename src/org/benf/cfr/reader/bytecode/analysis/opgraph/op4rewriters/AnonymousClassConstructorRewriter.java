@@ -29,8 +29,7 @@ public class AnonymousClassConstructorRewriter extends AbstractExpressionRewrite
                     /*
                      * nop out initial super call, if present.
                      */
-                    if (!(analysis.getStatement() instanceof Block)) continue;
-                    Block block = (Block) analysis.getStatement();
+                    if (!(analysis.getStatement() instanceof Block block)) continue;
                     List<Op04StructuredStatement> statements = block.getBlockStatements();
                     for (Op04StructuredStatement stmCont : statements) {
                         StructuredStatement stm = stmCont.getStatement();

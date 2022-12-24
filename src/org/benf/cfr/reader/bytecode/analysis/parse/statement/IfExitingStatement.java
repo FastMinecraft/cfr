@@ -14,6 +14,8 @@ import org.benf.cfr.reader.bytecode.analysis.structured.statement.*;
 import org.benf.cfr.reader.entities.exceptions.ExceptionCheck;
 import org.benf.cfr.reader.util.output.Dumper;
 
+import java.util.Objects;
+
 public class IfExitingStatement extends AbstractStatement {
 
     private ConditionalExpression condition;
@@ -83,7 +85,7 @@ public class IfExitingStatement extends AbstractStatement {
 
         IfExitingStatement that = (IfExitingStatement) o;
 
-        if (condition != null ? !condition.equals(that.condition) : that.condition != null) return false;
+        if (!Objects.equals(condition, that.condition)) return false;
         if (!statement.equals(that.statement)) return false;
 
         return true;

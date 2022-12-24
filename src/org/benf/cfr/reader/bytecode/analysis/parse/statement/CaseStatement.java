@@ -54,16 +54,21 @@ public class CaseStatement extends AbstractStatement {
 
     @Override
     public void replaceSingleUsageLValues(LValueRewriter lValueRewriter, SSAIdentifiers ssaIdentifiers) {
-        for (int x = 0; x < values.size(); ++x) {
-            values.set(x, values.get(x).replaceSingleUsageLValues(lValueRewriter, ssaIdentifiers, getContainer()));
-        }
+        values.replaceAll(expression -> expression.replaceSingleUsageLValues(
+            lValueRewriter,
+            ssaIdentifiers,
+            getContainer()
+        ));
     }
 
     @Override
     public void rewriteExpressions(ExpressionRewriter expressionRewriter, SSAIdentifiers ssaIdentifiers) {
-        for (int x = 0; x < values.size(); ++x) {
-            values.set(x, expressionRewriter.rewriteExpression(values.get(x), ssaIdentifiers, getContainer(), ExpressionRewriterFlags.RVALUE));
-        }
+        values.replaceAll(expression -> expressionRewriter.rewriteExpression(
+            expression,
+            ssaIdentifiers,
+            getContainer(),
+            ExpressionRewriterFlags.RVALUE
+        ));
     }
 
     @Override

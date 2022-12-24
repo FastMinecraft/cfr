@@ -12,27 +12,17 @@ public enum MethodHandleBehaviour {
     INVOKE_INTERFACE;
 
     public static MethodHandleBehaviour decode(byte value) {
-        switch (value) {
-            case 1:
-                return GET_FIELD;
-            case 2:
-                return GET_STATIC;
-            case 3:
-                return PUT_FIELD;
-            case 4:
-                return PUT_STATIC;
-            case 5:
-                return INVOKE_VIRTUAL;
-            case 6:
-                return INVOKE_STATIC;
-            case 7:
-                return INVOKE_SPECIAL;
-            case 8:
-                return NEW_INVOKE_SPECIAL;
-            case 9:
-                return INVOKE_INTERFACE;
-            default:
-                throw new IllegalArgumentException("Unknown method handle behaviour " + value);
-        }
+        return switch (value) {
+            case 1 -> GET_FIELD;
+            case 2 -> GET_STATIC;
+            case 3 -> PUT_FIELD;
+            case 4 -> PUT_STATIC;
+            case 5 -> INVOKE_VIRTUAL;
+            case 6 -> INVOKE_STATIC;
+            case 7 -> INVOKE_SPECIAL;
+            case 8 -> NEW_INVOKE_SPECIAL;
+            case 9 -> INVOKE_INTERFACE;
+            default -> throw new IllegalArgumentException("Unknown method handle behaviour " + value);
+        };
     }
 }

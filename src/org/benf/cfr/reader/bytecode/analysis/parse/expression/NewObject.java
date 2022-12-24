@@ -86,8 +86,7 @@ public class NewObject extends AbstractExpression {
     public boolean equals(Object o) {
         if (o == null) return false;
         if (o == this) return true;
-        if (!(o instanceof NewObject)) return false;
-        NewObject other = (NewObject) o;
+        if (!(o instanceof NewObject other)) return false;
         if (!getTypeInstance().equals(other.getTypeInstance())) return false;
         return true;
     }

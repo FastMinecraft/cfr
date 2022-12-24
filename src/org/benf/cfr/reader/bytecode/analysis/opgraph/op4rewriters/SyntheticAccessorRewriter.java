@@ -189,7 +189,7 @@ public class SyntheticAccessorRewriter extends AbstractExpressionRewriter implem
                                           List<Expression> appliedArgs, List<LocalVariable> methodArgs) {
         WildcardMatch wcm = new WildcardMatch();
 
-        List<Expression> methodExprs = new ArrayList<Expression>();
+        List<Expression> methodExprs = new ArrayList<>();
         for (int x=1;x<methodArgs.size();++x) {
             methodExprs.add(new LValueExpression(methodArgs.get(x)));
         }
@@ -260,7 +260,7 @@ public class SyntheticAccessorRewriter extends AbstractExpressionRewriter implem
                 new EndBlock(null)
         );
 
-        MatchIterator<StructuredStatement> mi = new MatchIterator<StructuredStatement>(structuredStatements);
+        MatchIterator<StructuredStatement> mi = new MatchIterator<>(structuredStatements);
 
         AccessorMatchCollector accessorMatchCollector = new AccessorMatchCollector();
 
@@ -295,33 +295,66 @@ public class SyntheticAccessorRewriter extends AbstractExpressionRewriter implem
         }
         CloneHelper cloneHelper = new CloneHelper(expressionReplacements, lValueReplacements);
 
-        if (matchType.equals(MUTATION1) || matchType.equals(MUTATION2) || matchType.equals(ASSIGNMENT1)) {
-            AssignmentExpression assignmentExpression = new AssignmentExpression(BytecodeLoc.TODO, accessorMatchCollector.lValue, accessorMatchCollector.rValue);
-            return cloneHelper.replaceOrClone(assignmentExpression);
-        } else if (matchType.equals(MUTATION3)) {
-            Expression mutation = new ArithmeticMutationOperation(BytecodeLoc.TODO, accessorMatchCollector.lValue, accessorMatchCollector.rValue, accessorMatchCollector.op);
-            return cloneHelper.replaceOrClone(mutation);
-        } else if (matchType.equals(RETURN_LVALUE)) {
-            return cloneHelper.replaceOrClone(new LValueExpression(accessorMatchCollector.lValue));
-        } else if (matchType.equals(PRE_DEC)) {
-            Expression res = new ArithmeticPreMutationOperation(BytecodeLoc.TODO, accessorMatchCollector.lValue, ArithOp.MINUS);
-            return cloneHelper.replaceOrClone(res);
-        } else if (matchType.equals(PRE_INC)) {
-            Expression res = new ArithmeticPreMutationOperation(BytecodeLoc.TODO, accessorMatchCollector.lValue, ArithOp.PLUS);
-            return cloneHelper.replaceOrClone(res);
-        } else if (matchType.equals(POST_DEC)) {
-            Expression res = new ArithmeticPostMutationOperation(BytecodeLoc.TODO, accessorMatchCollector.lValue, ArithOp.MINUS);
-            return cloneHelper.replaceOrClone(res);
-        } else if (matchType.equals(POST_INC)) {
-            Expression res = new ArithmeticPostMutationOperation(BytecodeLoc.TODO, accessorMatchCollector.lValue, ArithOp.PLUS);
-            return cloneHelper.replaceOrClone(res);
-        } else if (matchType.equals(SUPER_INVOKE) || matchType.equals(SUPER_RETINVOKE)) {
-            SuperFunctionInvokation invoke = (SuperFunctionInvokation) accessorMatchCollector.rValue;
-            SuperFunctionInvokation newInvoke = (SuperFunctionInvokation) cloneHelper.replaceOrClone(invoke);
-            newInvoke = newInvoke.withCustomName(otherType);
-            return newInvoke;
-        } else {
-            throw new IllegalStateException();
+        switch (matchType) {
+            case MUTATION1, MUTATION2, ASSIGNMENT1 -> {
+                AssignmentExpression assignmentExpression = new AssignmentExpression(
+                    BytecodeLoc.TODO,
+                    accessorMatchCollector.lValue,
+                    accessorMatchCollector.rValue
+                );
+                return cloneHelper.replaceOrClone(assignmentExpression);
+            }
+            case MUTATION3 -> {
+                Expression mutation = new ArithmeticMutationOperation(
+                    BytecodeLoc.TODO,
+                    accessorMatchCollector.lValue,
+                    accessorMatchCollector.rValue,
+                    accessorMatchCollector.op
+                );
+                return cloneHelper.replaceOrClone(mutation);
+            }
+            case RETURN_LVALUE -> {
+                return cloneHelper.replaceOrClone(new LValueExpression(accessorMatchCollector.lValue));
+            }
+            case PRE_DEC -> {
+                Expression res = new ArithmeticPreMutationOperation(
+                    BytecodeLoc.TODO,
+                    accessorMatchCollector.lValue,
+                    ArithOp.MINUS
+                );
+                return cloneHelper.replaceOrClone(res);
+            }
+            case PRE_INC -> {
+                Expression res = new ArithmeticPreMutationOperation(
+                    BytecodeLoc.TODO,
+                    accessorMatchCollector.lValue,
+                    ArithOp.PLUS
+                );
+                return cloneHelper.replaceOrClone(res);
+            }
+            case POST_DEC -> {
+                Expression res = new ArithmeticPostMutationOperation(
+                    BytecodeLoc.TODO,
+                    accessorMatchCollector.lValue,
+                    ArithOp.MINUS
+                );
+                return cloneHelper.replaceOrClone(res);
+            }
+            case POST_INC -> {
+                Expression res = new ArithmeticPostMutationOperation(
+                    BytecodeLoc.TODO,
+                    accessorMatchCollector.lValue,
+                    ArithOp.PLUS
+                );
+                return cloneHelper.replaceOrClone(res);
+            }
+            case SUPER_INVOKE, SUPER_RETINVOKE -> {
+                SuperFunctionInvokation invoke = (SuperFunctionInvokation) accessorMatchCollector.rValue;
+                SuperFunctionInvokation newInvoke = (SuperFunctionInvokation) cloneHelper.replaceOrClone(invoke);
+                newInvoke = newInvoke.withCustomName(otherType);
+                return newInvoke;
+            }
+            default -> throw new IllegalStateException();
         }
     }
 
@@ -377,7 +410,7 @@ public class SyntheticAccessorRewriter extends AbstractExpressionRewriter implem
                 new EndBlock(null)
         );
 
-        MatchIterator<StructuredStatement> mi = new MatchIterator<StructuredStatement>(structuredStatements);
+        MatchIterator<StructuredStatement> mi = new MatchIterator<>(structuredStatements);
 
         FuncMatchCollector funcMatchCollector = new FuncMatchCollector();
 
@@ -435,8 +468,7 @@ public class SyntheticAccessorRewriter extends AbstractExpressionRewriter implem
     private class VisibiliyDecreasingRewriter extends AbstractExpressionRewriter {
         @Override
         public LValue rewriteExpression(LValue lValue, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
-            if (lValue instanceof StaticVariable) {
-                StaticVariable sv = (StaticVariable)lValue;
+            if (lValue instanceof StaticVariable sv) {
                 JavaTypeInstance owning = sv.getOwningClassType();
                 if (!thisClassType.getInnerClassHereInfo().isTransitiveInnerClassOf(owning)) {
                     return sv.getNonSimpleCopy();

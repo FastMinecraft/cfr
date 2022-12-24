@@ -87,9 +87,8 @@ public class ReturnValueStatement extends ReturnStatement {
     public boolean equals(Object o) {
         if (o == null) return false;
         if (o == this) return true;
-        if (!(o instanceof ReturnValueStatement)) return false;
+        if (!(o instanceof ReturnValueStatement other)) return false;
 
-        ReturnValueStatement other = (ReturnValueStatement) o;
         return rvalue.equals(other.rvalue);
     }
 

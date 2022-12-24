@@ -60,8 +60,7 @@ public class ThrowStatement extends ReturnStatement {
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof ThrowStatement)) return false;
-        ThrowStatement other = (ThrowStatement) o;
+        if (!(o instanceof ThrowStatement other)) return false;
         return rvalue.equals(other.rvalue);
     }
 

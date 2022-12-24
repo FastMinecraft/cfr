@@ -91,9 +91,7 @@ public class ArithmeticPreMutationOperation extends AbstractMutatingAssignmentEx
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof ArithmeticPreMutationOperation)) return false;
-
-        ArithmeticPreMutationOperation other = (ArithmeticPreMutationOperation) o;
+        if (!(o instanceof ArithmeticPreMutationOperation other)) return false;
 
         return mutated.equals(other.mutated) &&
                 op.equals(other.op);

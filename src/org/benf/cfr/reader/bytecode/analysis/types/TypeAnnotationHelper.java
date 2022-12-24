@@ -49,7 +49,7 @@ public class TypeAnnotationHelper {
     
     private static void apply(JavaAnnotatedTypeInstance annotatedTypeInstance, AnnotationTableTypeEntry typeEntry, DecompilerComments comments) {
         JavaAnnotatedTypeIterator iterator = annotatedTypeInstance.pathIterator();
-        List<TypePathPart> segments = typeEntry.getTypePath().segments;
+        List<TypePathPart> segments = typeEntry.getTypePath().segments();
         for (TypePathPart part : segments) {
             iterator = part.apply(iterator, comments);
         }

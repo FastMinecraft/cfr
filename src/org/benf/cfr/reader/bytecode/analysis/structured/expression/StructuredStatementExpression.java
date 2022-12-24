@@ -69,9 +69,8 @@ public class StructuredStatementExpression extends AbstractExpression {
     @Override
     public void collectUsedLValues(LValueUsageCollector lValueUsageCollector) {
         // Fugly.  TODO: Fix interface.
-        if (lValueUsageCollector instanceof LValueScopeDiscoverer) {
-            LValueScopeDiscoverer scopeDiscoverer = (LValueScopeDiscoverer) lValueUsageCollector;
-//            scopeDiscoverer.enterBlock(content);
+        if (lValueUsageCollector instanceof LValueScopeDiscoverer scopeDiscoverer) {
+            //            scopeDiscoverer.enterBlock(content);
             content.traceLocalVariableScope(scopeDiscoverer);
 //            scopeDiscoverer.leaveBlock(content);
         }

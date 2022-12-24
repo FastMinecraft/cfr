@@ -7,28 +7,8 @@ import org.benf.cfr.reader.util.TypeUsageCollectable;
 
 import java.util.List;
 
-public class ClassSignature implements TypeUsageCollectable {
-    private final List<FormalTypeParameter> formalTypeParameters;
-    private final JavaTypeInstance superClass;
-    private final List<JavaTypeInstance> interfaces;
-
-    public ClassSignature(List<FormalTypeParameter> formalTypeParameters, JavaTypeInstance superClass, List<JavaTypeInstance> interfaces) {
-        this.formalTypeParameters = formalTypeParameters;
-        this.superClass = superClass;
-        this.interfaces = interfaces;
-    }
-
-    public List<FormalTypeParameter> getFormalTypeParameters() {
-        return formalTypeParameters;
-    }
-
-    public JavaTypeInstance getSuperClass() {
-        return superClass;
-    }
-
-    public List<JavaTypeInstance> getInterfaces() {
-        return interfaces;
-    }
+public record ClassSignature(List<FormalTypeParameter> formalTypeParameters, JavaTypeInstance superClass,
+                             List<JavaTypeInstance> interfaces) implements TypeUsageCollectable {
 
     @Override
     public void collectTypeUsages(TypeUsageCollector collector) {

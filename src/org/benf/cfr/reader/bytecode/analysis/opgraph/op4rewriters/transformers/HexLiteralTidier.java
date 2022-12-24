@@ -31,14 +31,10 @@ public class HexLiteralTidier extends AbstractExpressionRewriter implements Stru
     }
 
     private static boolean bitOp(ArithOp op) {
-        switch (op) {
-            case AND:
-            case OR:
-            case XOR:
-                return true;
-            default:
-                return false;
-        }
+        return switch (op) {
+            case AND, OR, XOR -> true;
+            default -> false;
+        };
     }
 
     private static Expression applyTransforms(ArithmeticOperation t) {
@@ -64,22 +60,22 @@ public class HexLiteralTidier extends AbstractExpressionRewriter implements Stru
     }
 
     private static Expression convertLiteral(Expression e) {
-        if (e instanceof Literal) {
-            Literal l = (Literal)e;
+        if (e instanceof Literal l) {
             TypedLiteral tl = l.getValue();
             // there's no way this should be anything other than integral, but... ;)
             // No point using hex if < 10, it just makes it messy.
             switch (tl.getType()) {
-                case Long:
+                case Long -> {
                     long lv = tl.getLongValue();
                     if (lv >= 0 && lv < 10) return null;
-                    break;
-                case Integer:
+                }
+                case Integer -> {
                     int iv = tl.getIntValue();
-                    if (iv >= 0 && iv< 10) return null;
-                    break;
-                default:
+                    if (iv >= 0 && iv < 10) return null;
+                }
+                default -> {
                     return null;
+                }
             }
             return new LiteralHex(tl);
         }

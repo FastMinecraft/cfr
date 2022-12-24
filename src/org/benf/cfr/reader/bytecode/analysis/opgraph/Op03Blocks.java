@@ -18,7 +18,7 @@ import org.benf.cfr.reader.util.DecompilerComments;
 import org.benf.cfr.reader.util.MiscUtils;
 import org.benf.cfr.reader.util.Troolean;
 import org.benf.cfr.reader.util.collections.*;
-import org.benf.cfr.reader.util.functors.BinaryProcedure;
+import java.util.function.BiConsumer;
 import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
@@ -37,7 +37,7 @@ public class Op03Blocks {
          *
          * We can't do a naive 'emit with 0 parents because of loops.
          */
-        LinkedHashSet<Block3> allBlocks = new LinkedHashSet<Block3>(in);
+        LinkedHashSet<Block3> allBlocks = new LinkedHashSet<>(in);
 
         /* in a simple top sort, you take a node with 0 parents, emit it, remove it as parent from all
          * its children, rinse and repeat.  We can't do that immediately, because we have cycles.
@@ -45,7 +45,7 @@ public class Op03Blocks {
          * v1 - try simple top sort, but when we have no candidates, emit next candidate with only existing
          * later parents.
          */
-        Set<Block3> ready = new TreeSet<Block3>();
+        Set<Block3> ready = new TreeSet<>();
         ready.add(in.get(0));
 
         List<Block3> output = ListFactory.newList(in.size());
@@ -77,7 +77,7 @@ public class Op03Blocks {
                     }
                 } else {
                     if (child.getStart().getBlockIdentifiers().equals(fromSet)) {
-                        if (notReadyInThis == null) notReadyInThis = new TreeSet<Block3>();
+                        if (notReadyInThis == null) notReadyInThis = new TreeSet<>();
                         notReadyInThis.add(child);
                     }
                 }
@@ -176,7 +176,7 @@ public class Op03Blocks {
 
     private static Map<BlockIdentifier, BlockIdentifier> getTryBlockAliases(List<Op03SimpleStatement> statements) {
         Map<BlockIdentifier, BlockIdentifier> tryBlockAliases = MapFactory.newMap();
-        List<Op03SimpleStatement> catchStatements = Functional.filter(statements, new TypeFilter<CatchStatement>(CatchStatement.class));
+        List<Op03SimpleStatement> catchStatements = Functional.filter(statements, new TypeFilter<>(CatchStatement.class));
         catchlist:
         for (Op03SimpleStatement catchStatementCtr : catchStatements) {
             CatchStatement catchStatement = (CatchStatement) catchStatementCtr.getStatement();
@@ -270,8 +270,7 @@ public class Op03Blocks {
                 if (statement instanceof FinallyStatement) {
                     for (Block3 source : ListFactory.newList(block.sources)) {
                         Statement last = source.getEnd().getStatement();
-                        if (last instanceof TryStatement) {
-                            TryStatement tryStatement = (TryStatement) last;
+                        if (last instanceof TryStatement tryStatement) {
                             Block3 lastDep = lastByBlock.get(tryStatement.getBlockIdentifier());
                             if (lastDep != null) {
                                 block.addSource(lastDep);
@@ -290,9 +289,9 @@ public class Op03Blocks {
         final Map<Op03SimpleStatement, Block3> starts = MapFactory.newMap();
         final Map<Op03SimpleStatement, Block3> ends = MapFactory.newMap();
 
-        GraphVisitor<Op03SimpleStatement> gv = new GraphVisitorDFS<Op03SimpleStatement>(statements.get(0), new BinaryProcedure<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>>() {
-            @Override
-            public void call(Op03SimpleStatement arg1, GraphVisitor<Op03SimpleStatement> arg2) {
+        GraphVisitor<Op03SimpleStatement> gv = new GraphVisitorDFS<>(
+            statements.get(0),
+            (arg1, arg2) -> {
                 Block3 block = new Block3(arg1);
                 starts.put(arg1, block);
                 while (arg1.getTargets().size() == 1) {
@@ -308,7 +307,7 @@ public class Op03Blocks {
                 ends.put(arg1, block);
                 arg2.enqueue(arg1.getTargets());
             }
-        });
+        );
         gv.process();
         Collections.sort(blocks);
 
@@ -679,7 +678,7 @@ public class Op03Blocks {
             }
         }
         if (effect) {
-            blocks = Functional.filter(blocks, new Functional.NotNull<Block3>());
+            blocks = Functional.filter(blocks, new Functional.NotNull<>());
         }
         return blocks;
     }
@@ -699,7 +698,7 @@ public class Op03Blocks {
      * OTHER source.  This won't get very many exemplars.
      */
     private static List<Block3> combineSingleCaseBackBlock(List<Block3> blocks) {
-        IdentityHashMap<Block3, Integer> idx = new IdentityHashMap<Block3, Integer>();
+        IdentityHashMap<Block3, Integer> idx = new IdentityHashMap<>();
 
         boolean effect = false;
         for (int x = 0, len = blocks.size(); x<len;++x) {
@@ -734,7 +733,7 @@ public class Op03Blocks {
             }
         }
         if (effect) {
-            blocks = Functional.filter(blocks, new Functional.NotNull<Block3>());
+            blocks = Functional.filter(blocks, new Functional.NotNull<>());
         }
         return blocks;
     }
@@ -752,7 +751,7 @@ public class Op03Blocks {
      * b (from a, to c).
      */
     private static boolean moveSingleOutOrderBlocks(final List<Block3> blocks) {
-        IdentityHashMap<Block3, Integer> idx = new IdentityHashMap<Block3, Integer>();
+        IdentityHashMap<Block3, Integer> idx = new IdentityHashMap<>();
         for (int x = 0, len = blocks.size(); x<len;++x) {
             idx.put(blocks.get(x), x);
         }
@@ -873,7 +872,7 @@ public class Op03Blocks {
         for (Block3 block : blocks) {
             if (block != null) block.resetSources();
         }
-        return Functional.filter(blocks, new Functional.NotNull<Block3>());
+        return Functional.filter(blocks, new Functional.NotNull<>());
     }
 
     public static List<Op03SimpleStatement> topologicalSort(final List<Op03SimpleStatement> statements, final DecompilerComments comments, final Options options) {
@@ -1000,6 +999,7 @@ public class Op03Blocks {
         for (int x = size-1; x >= 0; --x) {
             Block3 block = blocks.get(x);
             Set<BlockIdentifier> inBlocks = block.getStart().getBlockIdentifiers();
+            //noinspection ForeachStatement
             for (BlockIdentifier inBlock : inBlocks) {
                 if (!lastIn.containsKey(inBlock)) {
                     lastIn.put(inBlock, x);
@@ -1008,6 +1008,7 @@ public class Op03Blocks {
         }
 
         List<Set<BlockIdentifier>> identifiersByBlock = ListFactory.newList();
+        //noinspection ForLoopReplaceableByForEach
         for (int x = 0; x < size; ++x) {
             Block3 block = blocks.get(x);
             Op03SimpleStatement ostm = block.getStart();
@@ -1021,8 +1022,7 @@ public class Op03Blocks {
 
         outer : for (int x = 0; x < size; ++x) {
             Block3 block = blocks.get(x);
-            if (block.getEnd().getStatement() instanceof TryStatement) {
-                TryStatement tryStm = (TryStatement)block.getEnd().getStatement();
+            if (block.getEnd().getStatement() instanceof TryStatement tryStm) {
                 BlockIdentifier tryBlockIdent = tryStm.getBlockIdentifier();
                 Set<BlockIdentifier> catchBlockIdents = SetFactory.newSet();
                 for (Op03SimpleStatement target : block.getEnd().getTargets()) {
@@ -1061,12 +1061,7 @@ public class Op03Blocks {
      * try block before the catch.
      */
     private static List<Block3> addTryEndDependencies(List<Block3> blocks) {
-        Map<BlockIdentifier, List<Block3>> tryContent = MapFactory.newLazyMap(new UnaryFunction<BlockIdentifier, List<Block3>>() {
-            @Override
-            public List<Block3> invoke(BlockIdentifier arg) {
-                return ListFactory.newList();
-            }
-        });
+        Map<BlockIdentifier, List<Block3>> tryContent = MapFactory.newLazyMap(arg -> ListFactory.newList());
         for (Block3 block : blocks) {
             for (BlockIdentifier blockIdentifier : block.getStart().getBlockIdentifiers()) {
                 if (blockIdentifier.getBlockType() == BlockType.TRYBLOCK) {
@@ -1076,8 +1071,7 @@ public class Op03Blocks {
         }
         for (Block3 block : blocks) {
             Statement blockStatement = block.getStart().getStatement();
-            if (blockStatement instanceof CatchStatement) {
-                CatchStatement catchStatement = (CatchStatement) blockStatement;
+            if (blockStatement instanceof CatchStatement catchStatement) {
                 for (Map.Entry<BlockIdentifier, List<Block3>> entry : tryContent.entrySet()) {
                     if (catchStatement.hasCatchBlockFor(entry.getKey())) {
                         for (Block3 b2 : entry.getValue()) {
@@ -1093,7 +1087,8 @@ public class Op03Blocks {
 
     private static boolean stripBackExceptions(List<Op03SimpleStatement> statements) {
         boolean res = false;
-        List<Op03SimpleStatement> tryStatements = Functional.filter(statements, new ExactTypeFilter<TryStatement>(TryStatement.class));
+        List<Op03SimpleStatement> tryStatements = Functional.filter(statements,
+            new ExactTypeFilter<>(TryStatement.class));
         for (Op03SimpleStatement statement : tryStatements) {
             TryStatement tryStatement = (TryStatement) statement.getStatement();
 

@@ -30,8 +30,7 @@ public class StructuredScope {
         if (skipN >= scope.size()) return null;
         AtLevel level = scope.get(skipN);
         StructuredStatement stm = level.statement;
-        if (stm instanceof Block) {
-            Block block = (Block)stm;
+        if (stm instanceof Block block) {
             int end = level.next - 1;
             int start = Math.max(end - back, 0);
             return block.getBlockStatements().subList(start, end);

@@ -76,8 +76,7 @@ public class StaticInstanceCondenser {
         @Override
         public Expression rewriteExpression(Expression expression, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
             if (done) return expression;
-            if (expression instanceof StaticFunctionInvokation) {
-                StaticFunctionInvokation sfe = (StaticFunctionInvokation)expression;
+            if (expression instanceof StaticFunctionInvokation sfe) {
                 JavaTypeInstance staticType = sfe.getClazz();
                 if (staticType.equals(typ)) {
                     sfe.forceObject(object);

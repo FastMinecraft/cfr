@@ -37,7 +37,7 @@ public class Block extends AbstractStructuredStatement {
 
     public Block(Op04StructuredStatement statement) {
         super(BytecodeLoc.NONE);
-        LinkedList<Op04StructuredStatement> stm = new LinkedList<Op04StructuredStatement>();
+        LinkedList<Op04StructuredStatement> stm = new LinkedList<>();
         stm.add(statement);
         this.containedStatements = stm;
         this.indenting = false;
@@ -65,8 +65,7 @@ public class Block extends AbstractStructuredStatement {
         while (iter.hasNext()) {
             Op04StructuredStatement item = iter.next();
             StructuredStatement contained = item.getStatement();
-            if (contained instanceof Block) {
-                Block containedBlock = (Block)contained;
+            if (contained instanceof Block containedBlock) {
                 if (containedBlock.canFoldUp()) {
                     iter.remove();
                     LinkedList<Op04StructuredStatement> children = containedBlock.containedStatements;
@@ -84,7 +83,7 @@ public class Block extends AbstractStructuredStatement {
     }
 
     static Block getEmptyBlock(boolean indenting) {
-        return new Block(new LinkedList<Op04StructuredStatement>(), indenting);
+        return new Block(new LinkedList<>(), indenting);
     }
 
     public static Block getBlockFor(boolean indenting, StructuredStatement... statements) {
@@ -105,8 +104,7 @@ public class Block extends AbstractStructuredStatement {
 
     public boolean removeLastContinue(BlockIdentifier block) {
         StructuredStatement structuredStatement = containedStatements.getLast().getStatement();
-        if (structuredStatement instanceof AbstractStructuredContinue) {
-            AbstractStructuredContinue structuredContinue = (AbstractStructuredContinue) structuredStatement;
+        if (structuredStatement instanceof AbstractStructuredContinue structuredContinue) {
             if (structuredContinue.getContinueTgt() == block) {
                 Op04StructuredStatement continueStmt = containedStatements.getLast();
                 continueStmt.replaceStatementWithNOP("");
@@ -121,9 +119,8 @@ public class Block extends AbstractStructuredStatement {
 
     public void removeLastNVReturn() {
         StructuredStatement structuredStatement = containedStatements.getLast().getStatement();
-        if (structuredStatement instanceof StructuredReturn) {
+        if (structuredStatement instanceof StructuredReturn structuredReturn) {
             Op04StructuredStatement oldReturn = containedStatements.getLast();
-            StructuredReturn structuredReturn = (StructuredReturn) structuredStatement;
             if (structuredReturn.getValue() == null) {
                 oldReturn.replaceStatementWithNOP("");
             }
@@ -324,8 +321,7 @@ public class Block extends AbstractStructuredStatement {
             // If we've got a try statement which has no body (!), we will be left with
             // an unstructured try.  As such, if the NEXT statement is a catch or finally
             // for THIS unstructured try, structure it here.
-            if (innerStatement instanceof UnstructuredTry) {
-                UnstructuredTry unstructuredTry = (UnstructuredTry) innerStatement;
+            if (innerStatement instanceof UnstructuredTry unstructuredTry) {
                 if (x < (size - 1)) {
                     StructuredStatement nextStatement = containedStatements.get(x + 1).getStatement();
                     if (nextStatement instanceof StructuredCatch ||
@@ -339,8 +335,7 @@ public class Block extends AbstractStructuredStatement {
                     }
                 }
             }
-            if (innerStatement instanceof StructuredTry) {
-                StructuredTry structuredTry = (StructuredTry) innerStatement;
+            if (innerStatement instanceof StructuredTry structuredTry) {
                 BlockIdentifier tryBlockIdent = structuredTry.getTryBlockIdentifier();
                 ++x;
                 Op04StructuredStatement next = x < size ? containedStatements.get(x) : null;

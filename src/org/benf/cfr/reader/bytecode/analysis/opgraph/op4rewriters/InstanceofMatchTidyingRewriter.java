@@ -70,6 +70,7 @@ public class InstanceofMatchTidyingRewriter {
 
     private void addDefinition(StructuredStatement in, LValue lvalue) {
         List<StructuredStatement> defl = definitions.get(lvalue);
+        //noinspection Java8MapApi
         if (defl == null) {
             defl = ListFactory.newList();
             definitions.put(lvalue, defl);
@@ -80,19 +81,16 @@ public class InstanceofMatchTidyingRewriter {
     private class SearchPassRewriter extends AbstractExpressionRewriter {
         @Override
         public Expression rewriteExpression(Expression expression, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
-            if (expression instanceof InstanceOfExpressionDefining) {
-                InstanceOfExpressionDefining expressionDefining = (InstanceOfExpressionDefining) expression;
+            if (expression instanceof InstanceOfExpressionDefining expressionDefining) {
                 Expression lhs = expressionDefining.getLhs();
                 if (lhs instanceof AssignmentExpression && ((AssignmentExpression) lhs).getlValue() instanceof LocalVariable) {
                     ((AssignmentExpression) lhs).getrValue().applyExpressionRewriter(this, ssaIdentifiers, statementContainer, flags);
                     removeCandidates.add((LocalVariable) ((AssignmentExpression) lhs).getlValue());
                     return expression;
-                } else if (last != null && lhs instanceof LValueExpression && ((LValueExpression) lhs).getLValue() instanceof LocalVariable) {
-                    LocalVariable lValue = (LocalVariable)((LValueExpression) lhs).getLValue();
-                    if (last instanceof StructuredAssignment) {
+                } else if (last != null && lhs instanceof LValueExpression && ((LValueExpression) lhs).getLValue() instanceof LocalVariable lValue) {
+                    if (last instanceof StructuredAssignment assigment) {
                         // We can only remove at ths point if Locals (lValue) == 1, in which case we substitute
                         // rValue for lValue in the instanceof, and decrement the usage to 0.
-                        StructuredAssignment assigment = (StructuredAssignment)last;
                         Expression rhs = assigment.getRvalue();
                         if (rhs instanceof LValueExpression &&
                             ((LValueExpression) rhs).getLValue() instanceof LocalVariable &&
@@ -124,8 +122,7 @@ public class InstanceofMatchTidyingRewriter {
     private class AssignRemover extends AbstractExpressionRewriter {
         @Override
         public Expression rewriteExpression(Expression expression, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
-            if (expression instanceof InstanceOfExpressionDefining) {
-                InstanceOfExpressionDefining defining = (InstanceOfExpressionDefining) expression;
+            if (expression instanceof InstanceOfExpressionDefining defining) {
                 Expression lhs = defining.getLhs();
                 //noinspection SuspiciousMethodCalls
                 if (lhs instanceof AssignmentExpression && removeCandidates.contains(((AssignmentExpression) lhs).getlValue())) {

@@ -13,7 +13,7 @@ import java.util.List;
 
 public class RedundantTries {
     public static List<Op03SimpleStatement> removeRedundantTries(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> tryStarts = Functional.filter(statements, new TypeFilter<TryStatement>(TryStatement.class));
+        List<Op03SimpleStatement> tryStarts = Functional.filter(statements, new TypeFilter<>(TryStatement.class));
         /*
          * If the try doesn't point at a member of the try, it's been made redundant.
          * Verify that no other references to its' block exist, and remove it.
@@ -26,8 +26,7 @@ public class RedundantTries {
         while (!starts.isEmpty()) {
             Op03SimpleStatement trys = starts.removeFirst();
             Statement stm = trys.getStatement();
-            if (!(stm instanceof TryStatement)) continue;
-            TryStatement tryStatement = (TryStatement) stm;
+            if (!(stm instanceof TryStatement tryStatement)) continue;
             BlockIdentifier tryBlock = tryStatement.getBlockIdentifier();
             if (trys.getTargets().isEmpty() || !trys.getTargets().get(0).getBlockIdentifiers().contains(tryBlock)) {
                 // Remove this try.

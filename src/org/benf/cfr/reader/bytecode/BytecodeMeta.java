@@ -41,17 +41,9 @@ public class BytecodeMeta {
         if (!code.getExceptionTableEntries().isEmpty()) flags.add(CodeInfoFlag.USES_EXCEPTIONS);
         for (Op01WithProcessedDataAndByteJumps op : op1s) {
             switch (op.getJVMInstr()) {
-                case MONITOREXIT:
-                case MONITORENTER:
-                    flags.add(CodeInfoFlag.USES_MONITORS);
-                    break;
-                case INVOKEDYNAMIC:
-                    flags.add(CodeInfoFlag.USES_INVOKEDYNAMIC);
-                    break;
-                case TABLESWITCH:
-                case LOOKUPSWITCH:
-                    flags.add(CodeInfoFlag.SWITCHES);
-                    break;
+                case MONITOREXIT, MONITORENTER -> flags.add(CodeInfoFlag.USES_MONITORS);
+                case INVOKEDYNAMIC -> flags.add(CodeInfoFlag.USES_INVOKEDYNAMIC);
+                case TABLESWITCH, LOOKUPSWITCH -> flags.add(CodeInfoFlag.SWITCHES);
             }
             // Don't bother processing any longer if we've found all the flags!
             if (flags.size() == flagCount) return;
@@ -93,32 +85,22 @@ public class BytecodeMeta {
         return livenessClashes;
     }
 
-    private static class FlagTest implements UnaryFunction<BytecodeMeta, Boolean> {
-        private final CodeInfoFlag[] flags;
-
-        private FlagTest(CodeInfoFlag[] flags) {
-            this.flags = flags;
-        }
+    private record FlagTest(CodeInfoFlag[] flags) implements UnaryFunction<BytecodeMeta, Boolean> {
 
         @Override
-        public Boolean invoke(BytecodeMeta arg) {
-            for (CodeInfoFlag flag : flags) {
-                if (arg.has(flag)) return true;
+            public Boolean invoke(BytecodeMeta arg) {
+                for (CodeInfoFlag flag : flags) {
+                    if (arg.has(flag)) return true;
+                }
+                return false;
             }
-            return false;
         }
-    }
 
     public static UnaryFunction<BytecodeMeta, Boolean> hasAnyFlag(CodeInfoFlag... flag) {
         return new FlagTest(flag);
     }
 
     public static UnaryFunction<BytecodeMeta, Boolean> checkParam(final PermittedOptionProvider.Argument<Boolean> param) {
-        return new UnaryFunction<BytecodeMeta, Boolean>() {
-            @Override
-            public Boolean invoke(BytecodeMeta arg) {
-                return arg.options.getOption(param);
-            }
-        };
+        return arg -> arg.options.getOption(param);
     }
 }

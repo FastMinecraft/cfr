@@ -34,11 +34,8 @@ public class InstanceOfTreeTransformer implements StructuredStatementTransformer
     private class InstanceTreeRewriter extends AbstractExpressionRewriter {
         @Override
         public ConditionalExpression rewriteExpression(ConditionalExpression expression, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
-            if (expression instanceof BooleanOperation) {
-                BooleanOperation bo = (BooleanOperation)expression;
-                if (bo.getOp() == BoolOp.AND && bo.getLhs() instanceof BooleanExpression && bo.getRhs() instanceof BooleanOperation) {
-                    BooleanExpression bol = (BooleanExpression)bo.getLhs();
-                    BooleanOperation bor = (BooleanOperation)bo.getRhs();
+            if (expression instanceof BooleanOperation bo) {
+                if (bo.getOp() == BoolOp.AND && bo.getLhs() instanceof BooleanExpression bol && bo.getRhs() instanceof BooleanOperation bor) {
                     if (bor.getOp() == BoolOp.AND && bol.getInner() instanceof InstanceOfExpression) {
                         expression = new BooleanOperation(expression.getLoc(),
                                 new BooleanOperation(expression.getLoc(), bo.getLhs(), bor.getLhs(), BoolOp.AND),

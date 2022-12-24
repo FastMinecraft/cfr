@@ -5,7 +5,6 @@ import org.benf.cfr.reader.entities.attributes.LocalVariableEntry;
 import org.benf.cfr.reader.util.MiscConstants;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.output.IllegalIdentifierReplacement;
 
 import java.util.*;
@@ -18,12 +17,7 @@ public class VariableNamerHinted implements VariableNamer {
 
     private final OrderLocalVariables orderLocalVariable = new OrderLocalVariables();
     private final Map<Integer, TreeSet<LocalVariableEntry>> localVariableEntryTreeSet =
-            MapFactory.newLazyMap(new UnaryFunction<Integer, TreeSet<LocalVariableEntry>>() {
-                @Override
-                public TreeSet<LocalVariableEntry> invoke(Integer arg) {
-                    return new TreeSet<LocalVariableEntry>(orderLocalVariable);
-                }
-            });
+            MapFactory.newLazyMap(arg -> new TreeSet<>(orderLocalVariable));
     //    private final Map<Pair<LocalVariableEntry, Ident>, NamedVariable> cache = MapFactory.newMap();
     private final Map<LocalVariableEntry, NamedVariable> cache = MapFactory.newMap();
 
@@ -31,7 +25,7 @@ public class VariableNamerHinted implements VariableNamer {
 
     VariableNamerHinted(List<LocalVariableEntry> entryList, ConstantPool cp) {
         for (LocalVariableEntry e : entryList) {
-            localVariableEntryTreeSet.get(e.getIndex()).add(e);
+            localVariableEntryTreeSet.get(e.index()).add(e);
         }
         this.cp = cp;
     }
@@ -57,7 +51,7 @@ public class VariableNamerHinted implements VariableNamer {
 
         NamedVariable namedVariable = cache.get(lve);
         if (namedVariable == null) {
-            String name = cp.getUTF8Entry(lve.getNameIndex()).getValue();
+            String name = cp.getUTF8Entry(lve.nameIndex()).getValue();
             if (IllegalIdentifierReplacement.isIllegal(name)) {
                 namedVariable = new NamedVariableDefault(name);
                 // This is a bit of a hack - we bless the 'this' constant
@@ -68,7 +62,7 @@ public class VariableNamerHinted implements VariableNamer {
                 }
             } else {
                 int genIdx = 0;
-                namedVariable = new NamedVariableFromHint(name, lve.getIndex(), genIdx);
+                namedVariable = new NamedVariableFromHint(name, lve.index(), genIdx);
             }
             cache.put(lve, namedVariable);
         }
@@ -78,9 +72,9 @@ public class VariableNamerHinted implements VariableNamer {
     private static class OrderLocalVariables implements Comparator<LocalVariableEntry> {
         @Override
         public int compare(LocalVariableEntry a, LocalVariableEntry b) {
-            int x = a.getIndex() - b.getIndex();
+            int x = a.index() - b.index();
             if (x != 0) return x;
-            return a.getStartPc() - b.getStartPc();
+            return a.startPc() - b.startPc();
         }
     }
 

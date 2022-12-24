@@ -20,7 +20,7 @@ import org.benf.cfr.reader.util.DecompilerComments;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.BinaryProcedure;
+import java.util.function.BiConsumer;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.graph.GraphVisitor;
@@ -111,8 +111,7 @@ public class JumpsIntoLoopCloneRewriter {
         Op03SimpleStatement firstContained = stm.getTargets().get(0);
         Op03SimpleStatement possLast = getPossLast(firstContained, ident);
         if (possLast == null) return;
-        if (!(possLast.getStatement() instanceof WhileStatement)) return;
-        WhileStatement whileStatement = (WhileStatement) possLast.getStatement();
+        if (!(possLast.getStatement() instanceof WhileStatement whileStatement)) return;
         if (whileStatement.getBlockIdentifier() != ident) return;
         Op03SimpleStatement afterWhile = possLast.getTargets().get(0);
         final Map<Op03SimpleStatement, Op03SimpleStatement> candidates = MapFactory.newOrderedMap();
@@ -127,7 +126,7 @@ public class JumpsIntoLoopCloneRewriter {
              * loop, we need to finish with a test of the condition, and a jump to the start,
              * or a jump after. (yeuch).
              */
-            Map<Op03SimpleStatement, Op03SimpleStatement> copies = new IdentityHashMap<Op03SimpleStatement, Op03SimpleStatement>();
+            Map<Op03SimpleStatement, Op03SimpleStatement> copies = new IdentityHashMap<>();
             copies.put(caller, caller);
             /*
              * Ok, we need to clone (if legal), the set of entries between target and posslast.
@@ -235,7 +234,7 @@ public class JumpsIntoLoopCloneRewriter {
              * loop, we need to finish with a test of the condition, and a jump to the start,
              * or a jump after. (yeuch).
              */
-            Map<Op03SimpleStatement, Op03SimpleStatement> copies = new IdentityHashMap<Op03SimpleStatement, Op03SimpleStatement>();
+            Map<Op03SimpleStatement, Op03SimpleStatement> copies = new IdentityHashMap<>();
             copies.put(caller, caller);
             copies.put(stm, stm);
             /*
@@ -299,7 +298,7 @@ public class JumpsIntoLoopCloneRewriter {
 
     private Op03SimpleStatement getPossLast(Op03SimpleStatement stm, BlockIdentifier ident) {
         List<Op03SimpleStatement> lasts = stm.getSources();
-        Collections.sort(lasts, new CompareByIndex(false));
+        lasts.sort(new CompareByIndex(false));
         Op03SimpleStatement possLast = lasts.get(0);
         if (!possLast.getBlockIdentifiers().contains(ident)) {
             return null;
@@ -323,18 +322,15 @@ public class JumpsIntoLoopCloneRewriter {
     private GraphVisitor<Op03SimpleStatement> visitCandidates(final BlockIdentifier blockIdent, Op03SimpleStatement possLast, final Map<Op03SimpleStatement, Op03SimpleStatement> candidates) {
         final Map<Op03SimpleStatement, Integer> depthMap = MapFactory.newIdentityMap();
         depthMap.put(possLast, 0);
-        GraphVisitor<Op03SimpleStatement> gv = new GraphVisitorDFS<Op03SimpleStatement>(possLast, new BinaryProcedure<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>>() {
-            @Override
-            public void call(Op03SimpleStatement arg1, GraphVisitor<Op03SimpleStatement> arg2) {
-                int depth = depthMap.get(arg1);
-                if (depth > maxDepth) return;
-                for (Op03SimpleStatement source : arg1.getSources()) {
-                    if (source.getBlockIdentifiers().contains(blockIdent)) {
-                        depthMap.put(source, depth + 1);
-                        arg2.enqueue(source);
-                    } else {
-                        candidates.put(source, arg1);
-                    }
+        GraphVisitor<Op03SimpleStatement> gv = new GraphVisitorDFS<>(possLast, (arg1, arg2) -> {
+            int depth = depthMap.get(arg1);
+            if (depth > maxDepth) return;
+            for (Op03SimpleStatement source : arg1.getSources()) {
+                if (source.getBlockIdentifiers().contains(blockIdent)) {
+                    depthMap.put(source, depth + 1);
+                    arg2.enqueue(source);
+                } else {
+                    candidates.put(source, arg1);
                 }
             }
         });
@@ -349,25 +345,22 @@ public class JumpsIntoLoopCloneRewriter {
     ) {
         final List<Op03SimpleStatement> copyThese = ListFactory.newList();
         final boolean[] failed = { false };
-        GraphVisitor<Op03SimpleStatement> gv = new GraphVisitorDFS<Op03SimpleStatement>(start, new BinaryProcedure<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>>() {
-            @Override
-            public void call(Op03SimpleStatement arg1, GraphVisitor<Op03SimpleStatement> arg2) {
-                if (orig2copy.containsKey(arg1)) return;
-                if (valid.contains(arg1)) {
-                    copyThese.add(arg1);
-                    arg2.enqueue(arg1.getTargets());
-                    return;
-                }
-                if (arg1.getBlockIdentifiers().contains(containedIn)) {
-                    failed[0] = true;
-                }
+        GraphVisitor<Op03SimpleStatement> gv = new GraphVisitorDFS<>(start, (arg1, arg2) -> {
+            if (orig2copy.containsKey(arg1)) return;
+            if (valid.contains(arg1)) {
+                copyThese.add(arg1);
+                arg2.enqueue(arg1.getTargets());
+                return;
+            }
+            if (arg1.getBlockIdentifiers().contains(containedIn)) {
+                failed[0] = true;
             }
         });
         gv.process();
         if (failed[0]) {
             return null;
         }
-        Collections.sort(copyThese, new CompareByIndex());
+        copyThese.sort(new CompareByIndex());
         List<Op03SimpleStatement> copies = ListFactory.newList();
         // Note - the expected blocks means that we do NOT currently allow jumping into nested structures.
         Set<BlockIdentifier> expectedBlocks = end.getBlockIdentifiers();

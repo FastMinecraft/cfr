@@ -89,10 +89,9 @@ public class VarArgsRewriter implements Op04Rewriter, ExpressionRewriter {
         }
         int last = args.size() - 1;
         Expression lastArg = args.get(args.size() - 1);
-        if (!(lastArg instanceof NewAnonymousArray)) return;
+        if (!(lastArg instanceof NewAnonymousArray newAnonymousArray)) return;
         List<Expression> args2 = ListFactory.newList(args);
         args2.remove(last);
-        NewAnonymousArray newAnonymousArray = (NewAnonymousArray) lastArg;
 
         /*
          * If newAnonymousArray is a single element 'null', we cannot split it out.

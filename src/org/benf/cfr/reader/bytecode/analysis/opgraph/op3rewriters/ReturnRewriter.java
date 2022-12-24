@@ -8,7 +8,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
-import org.benf.cfr.reader.util.functors.BinaryProcedure;
+import java.util.function.BiConsumer;
 import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
@@ -45,7 +45,7 @@ class ReturnRewriter {
     }
 
     static void replaceReturningIfs(List<Op03SimpleStatement> statements, boolean aggressive) {
-        List<Op03SimpleStatement> ifStatements = Functional.filter(statements, new TypeFilter<IfStatement>(IfStatement.class));
+        List<Op03SimpleStatement> ifStatements = Functional.filter(statements, new TypeFilter<>(IfStatement.class));
         for (Op03SimpleStatement ifStatement : ifStatements) {
             replaceReturningIf(ifStatement, aggressive);
         }
@@ -77,25 +77,22 @@ class ReturnRewriter {
         ReturnStatement returnStatement = (ReturnStatement) returnStm.getStatement();
         final List<Op03SimpleStatement> replaceWithReturn = ListFactory.newList();
 
-        new GraphVisitorDFS<Op03SimpleStatement>(returnStm.getSources(), new BinaryProcedure<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>>() {
-            @Override
-            public void call(Op03SimpleStatement arg1, GraphVisitor<Op03SimpleStatement> arg2) {
-                Class<?> clazz = arg1.getStatement().getClass();
-                if (clazz == CommentStatement.class ||
-                        clazz == Nop.class ||
-                        clazz == DoStatement.class) {
-                    arg2.enqueue(arg1.getSources());
-                } else if (clazz == WhileStatement.class) {
-                    // only if it's 'while true'.
-                    WhileStatement whileStatement = (WhileStatement)arg1.getStatement();
-                    if (whileStatement.getCondition() == null) {
-                        arg2.enqueue(arg1.getSources());
-                        replaceWithReturn.add(arg1);
-                    }
-                } else if (clazz == GotoStatement.class) {
+        new GraphVisitorDFS<Op03SimpleStatement>(returnStm.getSources(), (arg1, arg2) -> {
+            Class<?> clazz = arg1.getStatement().getClass();
+            if (clazz == CommentStatement.class ||
+                clazz == Nop.class ||
+                clazz == DoStatement.class) {
+                arg2.enqueue(arg1.getSources());
+            } else if (clazz == WhileStatement.class) {
+                // only if it's 'while true'.
+                WhileStatement whileStatement = (WhileStatement) arg1.getStatement();
+                if (whileStatement.getCondition() == null) {
                     arg2.enqueue(arg1.getSources());
                     replaceWithReturn.add(arg1);
                 }
+            } else if (clazz == GotoStatement.class) {
+                arg2.enqueue(arg1.getSources());
+                replaceWithReturn.add(arg1);
             }
         }).process();
 

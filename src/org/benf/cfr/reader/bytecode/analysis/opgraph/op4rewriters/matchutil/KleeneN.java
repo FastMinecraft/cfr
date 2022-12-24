@@ -11,6 +11,7 @@ public class KleeneN implements Matcher<StructuredStatement> {
         this.nRequired = nRequired;
     }
 
+    @SafeVarargs
     public KleeneN(int nRequired, Matcher<StructuredStatement>... matchers) {
         this.inner = new MatchSequence(matchers);
         this.nRequired = nRequired;

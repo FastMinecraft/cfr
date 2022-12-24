@@ -93,18 +93,12 @@ public class AttributeFactory {
         return new AttributeBuilder(cp, classFileVersion);
     }
 
-    private static class AttributeBuilder implements UnaryFunction<ByteData, Attribute> {
-        private final ConstantPool cp;
-        private final ClassFileVersion classFileVersion;
-
-        AttributeBuilder(ConstantPool cp, ClassFileVersion classFileVersion) {
-            this.cp = cp;
-            this.classFileVersion = classFileVersion;
-        }
+    private record AttributeBuilder(ConstantPool cp,
+                                    ClassFileVersion classFileVersion) implements UnaryFunction<ByteData, Attribute> {
 
         @Override
-        public Attribute invoke(ByteData arg) {
-            return AttributeFactory.build(arg, cp, classFileVersion);
+            public Attribute invoke(ByteData arg) {
+                return AttributeFactory.build(arg, cp, classFileVersion);
+            }
         }
-    }
 }

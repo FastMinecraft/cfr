@@ -63,8 +63,7 @@ public class ExpressionStatement extends AbstractStatement {
     public boolean equals(Object o) {
         if (o == null) return false;
         if (o == this) return true;
-        if (!(o instanceof ExpressionStatement)) return false;
-        ExpressionStatement other = (ExpressionStatement) o;
+        if (!(o instanceof ExpressionStatement other)) return false;
         return expression.equals(other.expression);
     }
 
@@ -77,8 +76,7 @@ public class ExpressionStatement extends AbstractStatement {
     public boolean equivalentUnder(Object o, EquivalenceConstraint constraint) {
         if (o == null) return false;
         if (o == this) return true;
-        if (!(o instanceof ExpressionStatement)) return false;
-        ExpressionStatement other = (ExpressionStatement) o;
+        if (!(o instanceof ExpressionStatement other)) return false;
         return constraint.equivalent(expression, other.expression);
     }
 }

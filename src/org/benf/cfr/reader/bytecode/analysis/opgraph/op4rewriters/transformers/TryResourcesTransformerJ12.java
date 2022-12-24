@@ -15,7 +15,7 @@ import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.TypeConstants;
 import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 
 import java.util.Collections;
 import java.util.List;
@@ -87,7 +87,7 @@ public class TryResourcesTransformerJ12 extends TryResourcesTransformerBase {
                         )
                 );
 
-        MatchIterator<StructuredStatement> mi = new MatchIterator<StructuredStatement>(structuredStatements);
+        MatchIterator<StructuredStatement> mi = new MatchIterator<>(structuredStatements);
         TryResourcesMatchResultCollector collector = new TryResourcesMatchResultCollector();
         mi.advance();
         mi.advance(); // skip structuredCatch
@@ -100,8 +100,7 @@ public class TryResourcesTransformerJ12 extends TryResourcesTransformerBase {
         if (structuredTry.getCatchBlocks().size() != 1) return null;
         Op04StructuredStatement catchBlock = structuredTry.getCatchBlocks().get(0);
         StructuredStatement catchStm = catchBlock.getStatement();
-        if (!(catchStm instanceof StructuredCatch)) return null;
-        StructuredCatch catchStatement = (StructuredCatch)catchStm;
+        if (!(catchStm instanceof StructuredCatch catchStatement)) return null;
 
         if (catchStatement.getCatchTypes().size() != 1) return null;
         JavaTypeInstance caughtType = catchStatement.getCatchTypes().get(0);
@@ -123,7 +122,7 @@ public class TryResourcesTransformerJ12 extends TryResourcesTransformerBase {
                         )
                 );
 
-        MatchIterator<StructuredStatement> mi = new MatchIterator<StructuredStatement>(structuredStatements);
+        MatchIterator<StructuredStatement> mi = new MatchIterator<>(structuredStatements);
 
         TryResourcesMatchResultCollector collector = new TryResourcesMatchResultCollector();
         mi.advance();
@@ -148,8 +147,7 @@ public class TryResourcesTransformerJ12 extends TryResourcesTransformerBase {
     private List<Op04StructuredStatement> getCloseStatementEndTry(StructuredTry structuredTry, StructuredScope scope, WildcardMatch wcm, TryResourcesMatchResultCollector collector) {
         Op04StructuredStatement tryb = structuredTry.getTryBlock();
         StructuredStatement tryStm = tryb.getStatement();
-        if (!(tryStm instanceof Block)) return null;
-        Block block = (Block)tryStm;
+        if (!(tryStm instanceof Block block)) return null;
         Op04StructuredStatement lastInBlock = block.getLast();
         if (getMatchingCloseStatement(wcm, collector, lastInBlock.getStatement())) {
             return Collections.singletonList(lastInBlock);
@@ -160,12 +158,9 @@ public class TryResourcesTransformerJ12 extends TryResourcesTransformerBase {
     private List<Op04StructuredStatement> getCloseStatementAfter(StructuredTry structuredTry, StructuredScope scope, WildcardMatch wcm, TryResourcesMatchResultCollector collector) {
         Set<Op04StructuredStatement> next = scope.getNextFallThrough(structuredTry);
 
-        List<Op04StructuredStatement> toRemove = Functional.filter(next, new Predicate<Op04StructuredStatement>() {
-            @Override
-            public boolean test(Op04StructuredStatement in) {
-                return !(in.getStatement() instanceof StructuredComment);
-            }
-        });
+        List<Op04StructuredStatement> toRemove = Functional.filter(next,
+            in -> !(in.getStatement() instanceof StructuredComment)
+        );
         if (toRemove.size() != 1) return null;
 
         StructuredStatement statement = toRemove.get(0).getStatement();
@@ -178,7 +173,7 @@ public class TryResourcesTransformerJ12 extends TryResourcesTransformerBase {
 
     private boolean getMatchingCloseStatement(WildcardMatch wcm, TryResourcesMatchResultCollector collector, StructuredStatement statement) {
         Matcher<StructuredStatement> checkClose = ResourceReleaseDetector.getCloseExpressionMatch(wcm, new LValueExpression(collector.resource));
-        MatchIterator<StructuredStatement> closeStm = new MatchIterator<StructuredStatement>(Collections.singletonList(statement));
+        MatchIterator<StructuredStatement> closeStm = new MatchIterator<>(Collections.singletonList(statement));
 
         closeStm.advance();
         return checkClose.match(closeStm, new EmptyMatchResultCollector());

@@ -81,37 +81,29 @@ public class InternalDumperFactoryImpl implements DumperFactory {
         return res;
     }
 
-    private static class BytecodeDumpConsumerImpl implements BytecodeDumpConsumer {
-        private final Dumper dumper;
-
-        BytecodeDumpConsumerImpl(Dumper dumper) {
-            this.dumper = dumper;
-        }
+    private record BytecodeDumpConsumerImpl(Dumper dumper) implements BytecodeDumpConsumer {
 
         @Override
-        public void accept(Collection<Item> items) {
-            try {
-                BufferedOutputStream stream = dumper.getAdditionalOutputStream("lineNumberTable");
-                OutputStreamWriter sw = new OutputStreamWriter(stream);
+            public void accept(Collection<Item> items) {
                 try {
-                    sw.write("------------------\n");
-                    sw.write("Line number table:\n\n");
-                    for (Item item : items) {
-                        sw.write(item.getMethod().getMethodPrototype().toString());
-                        sw.write("\n----------\n");
-                        for (Map.Entry<Integer, Integer> entry : item.getBytecodeLocs().entrySet()) {
-                            sw.write("Line " + entry.getValue() + "\t: " + entry.getKey() + "\n");
+                    BufferedOutputStream stream = dumper.getAdditionalOutputStream("lineNumberTable");
+                    try (OutputStreamWriter sw = new OutputStreamWriter(stream)) {
+                        sw.write("------------------\n");
+                        sw.write("Line number table:\n\n");
+                        for (Item item : items) {
+                            sw.write(item.getMethod().getMethodPrototype().toString());
+                            sw.write("\n----------\n");
+                            for (Map.Entry<Integer, Integer> entry : item.getBytecodeLocs().entrySet()) {
+                                sw.write("Line " + entry.getValue() + "\t: " + entry.getKey() + "\n");
+                            }
+                            sw.write("\n");
                         }
-                        sw.write("\n");
                     }
-                } finally {
-                    sw.close();
+                } catch (IOException e) {
+                    throw new ConfusedCFRException(e);
                 }
-            } catch (IOException e) {
-                throw new ConfusedCFRException(e);
             }
         }
-    }
 
     @Override
     public Dumper wrapLineNoDumper(Dumper dumper) {

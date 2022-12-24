@@ -10,7 +10,7 @@ import org.benf.cfr.reader.util.*;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
@@ -44,7 +44,7 @@ public class ExceptionAggregator {
         }
 
         Collection<ExceptionTableEntry> getAggregated(DecompilerComments comments) {
-            Collections.sort(this.entries, new CompareExceptionTablesByRange());
+            this.entries.sort(new CompareExceptionTablesByRange());
             /* If two entries are contiguous, they can be merged 
              * If they're 'almost' contiguous, but point to the same range? ........ don't know.
              */
@@ -154,25 +154,13 @@ public class ExceptionAggregator {
         Op01WithProcessedDataAndByteJumps op = statements.get(idx);
         JVMInstr instr = op.getJVMInstr();
         switch (instr) {
-            case GOTO:
-            case GOTO_W:
-            case RETURN:
-            case ARETURN:
-            case IRETURN:
-            case LRETURN:
-            case DRETURN:
-            case FRETURN: {
+            case GOTO, GOTO_W, RETURN, ARETURN, IRETURN, LRETURN, DRETURN, FRETURN -> {
                 return op.getInstructionLength();
             }
-            case ALOAD:
-            case ALOAD_0:
-            case ALOAD_1:
-            case ALOAD_2:
-            case ALOAD_3: {
+            case ALOAD, ALOAD_0, ALOAD_1, ALOAD_2, ALOAD_3 -> {
                 Op01WithProcessedDataAndByteJumps op2 = statements.get(idx + 1);
                 if (op2.getJVMInstr() == JVMInstr.MONITOREXIT)
                     return op.getInstructionLength() + op2.getInstructionLength();
-                break;
             }
         }
         return 0;
@@ -254,12 +242,9 @@ public class ExceptionAggregator {
          */
 
         // Need to build up an interval tree for EACH exception handler type
-        Map<Integer, List<ExceptionTableEntry>> grouped = Functional.groupToMapBy(rawExceptions, new UnaryFunction<ExceptionTableEntry, Integer>() {
-            @Override
-            public Integer invoke(ExceptionTableEntry arg) {
-                return arg.getCatchType();
-            }
-        });
+        Map<Integer, List<ExceptionTableEntry>> grouped = Functional.groupToMapBy(rawExceptions,
+            ExceptionTableEntry::getCatchType
+        );
 
         List<ExceptionTableEntry> processedExceptions = ListFactory.newList(rawExceptions.size());
         for (List<ExceptionTableEntry> list : grouped.values()) {
@@ -276,19 +261,9 @@ public class ExceptionAggregator {
         /* 
          * Try and aggregate exceptions for the same object which jump to the same target.
          */
-        Collection<ByTarget> byTargetList = Functional.groupBy(processedExceptions, new Comparator<ExceptionTableEntry>() {
-                    @Override
-                    public int compare(ExceptionTableEntry exceptionTableEntry, ExceptionTableEntry exceptionTableEntry1) {
-                        int hd = exceptionTableEntry.getBytecodeIndexHandler() - exceptionTableEntry1.getBytecodeIndexHandler();
-                        if (hd != 0) return hd;
-                        return exceptionTableEntry.getCatchType() - exceptionTableEntry1.getCatchType();
-                    }
-                }, new UnaryFunction<List<ExceptionTableEntry>, ByTarget>() {
-                    @Override
-                    public ByTarget invoke(List<ExceptionTableEntry> arg) {
-                        return new ByTarget(arg);
-                    }
-                }
+        Collection<ByTarget> byTargetList = Functional.groupBy(processedExceptions,
+            Comparator.comparingInt(ExceptionTableEntry::getBytecodeIndexHandler).thenComparingInt(ExceptionTableEntry::getCatchType),
+            ByTarget::new
         );
 
         rawExceptions = ListFactory.newList();

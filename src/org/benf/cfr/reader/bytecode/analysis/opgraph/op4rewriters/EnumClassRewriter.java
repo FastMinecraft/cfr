@@ -29,8 +29,6 @@ import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.Predicate;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.IllegalIdentifierReplacement;
@@ -129,10 +127,10 @@ public class EnumClassRewriter {
         // Note that nopping out this code means that we're no longer referencing the code other than
         // in the dumper! :(
         for (MatchedEnumEntry entry : entryMap.values()) {
-            entry.getContainer().nopOut();
+            entry.container().nopOut();
         }
-        matchedArray.getContainer().nopOut();
-        Method matchedArrayMethod = matchedArray.getMethodContainer();
+        matchedArray.container().nopOut();
+        Method matchedArrayMethod = matchedArray.methodContainer();
         if (matchedArrayMethod != null) {
             matchedArrayMethod.hideSynthetic();
         }
@@ -148,7 +146,7 @@ public class EnumClassRewriter {
 
         List<Pair<StaticVariable, AbstractConstructorInvokation>> entries = ListFactory.newList();
         for (Map.Entry<StaticVariable, MatchedEnumEntry> entry : entryMap.entrySet()) {
-            entries.add(Pair.<StaticVariable, AbstractConstructorInvokation>make(entry.getKey(), entry.getValue().getData()));
+            entries.add(Pair.<StaticVariable, AbstractConstructorInvokation>make(entry.getKey(), entry.getValue().data()));
         }
         classFile.setDumpHelper(new ClassFileDumperEnum(state, entries));
 
@@ -160,12 +158,9 @@ public class EnumClassRewriter {
 
         if (rename_members) {
 
-            Set<String> fieldNames = SetFactory.newSet(Functional.map(classFile.getFields(), new UnaryFunction<ClassFileField, String>() {
-                @Override
-                public String invoke(ClassFileField arg) {
-                    return arg.getFieldName();
-                }
-            }));
+            Set<String> fieldNames = SetFactory.newSet(Functional.map(classFile.getFields(),
+                ClassFileField::getFieldName
+            ));
 
             List<Pair<StaticVariable, String>> renames = ListFactory.newList();
 
@@ -220,12 +215,7 @@ public class EnumClassRewriter {
         statement.linearizeStatementsInto(statements);
 
         // Filter out the comments.
-        statements = Functional.filter(statements, new Predicate<StructuredStatement>() {
-            @Override
-            public boolean test(StructuredStatement in) {
-                return !(in instanceof StructuredComment);
-            }
-        });
+        statements = Functional.filter(statements, in -> !(in instanceof StructuredComment));
 
         WildcardMatch wcm = new WildcardMatch();
 
@@ -247,7 +237,7 @@ public class EnumClassRewriter {
                 )
         );
 
-        MatchIterator<StructuredStatement> mi = new MatchIterator<StructuredStatement>(statements);
+        MatchIterator<StructuredStatement> mi = new MatchIterator<>(statements);
         EnumInitMatchCollector matchCollector = new EnumInitMatchCollector(wcm);
 
         mi.advance();
@@ -259,46 +249,11 @@ public class EnumClassRewriter {
         return matchCollector;
     }
 
-    private static class MatchedEnumEntry {
-        private final Op04StructuredStatement container;
-        private final AbstractConstructorInvokation data;
-
-        private MatchedEnumEntry(Op04StructuredStatement container, AbstractConstructorInvokation data) {
-            this.container = container;
-            this.data = data;
-        }
-
-        private Op04StructuredStatement getContainer() {
-            return container;
-        }
-
-        private AbstractConstructorInvokation getData() {
-            return data;
-        }
+    private record MatchedEnumEntry(Op04StructuredStatement container, AbstractConstructorInvokation data) {
     }
 
-    private static class MatchedArrayData {
-        private final Op04StructuredStatement container;
-        private final Method methodContainer;
-        private final List<Expression> elementExpressions;
-        
-        private MatchedArrayData(Op04StructuredStatement container, Method methodContainer, List<Expression> elementExpressions) {
-            this.elementExpressions = elementExpressions;
-            this.container = container;
-            this.methodContainer = methodContainer;
-        }
-
-        private Op04StructuredStatement getContainer() {
-            return container;
-        }
-
-        private Method getMethodContainer() {
-            return methodContainer;
-        }
-
-        private List<Expression> getElementExpressions() {
-            return elementExpressions;
-        }
+    private record MatchedArrayData(Op04StructuredStatement container, Method methodContainer,
+                                    List<Expression> elementExpressions) {
     }
 
     private class EnumInitMatchCollector extends AbstractMatchResultIterator {
@@ -328,17 +283,26 @@ public class EnumClassRewriter {
                 return;
             }
 
-            if (name.equals("values")) {
-                AbstractNewArray abstractNewArray = wcm.getNewArrayWildCard("v").getMatch();
-                // We need this to have been successfully desugared...
-                if (abstractNewArray instanceof NewAnonymousArray) {
-                    matchedArray = new MatchedArrayData(statement.getContainer(), null, ((NewAnonymousArray) abstractNewArray).getValues());
+            switch (name) {
+                case "values" -> {
+                    AbstractNewArray abstractNewArray = wcm.getNewArrayWildCard("v").getMatch();
+                    // We need this to have been successfully desugared...
+                    if (abstractNewArray instanceof NewAnonymousArray) {
+                        matchedArray = new MatchedArrayData(
+                            statement.getContainer(),
+                            null,
+                            ((NewAnonymousArray) abstractNewArray).getValues()
+                        );
+                    }
                 }
-            } else if (name.equals("noValues")) {
-                matchedArray = new MatchedArrayData(statement.getContainer(), null, Collections.<Expression>emptyList());
-            } else if (name.equals("values15")) {
-                StaticFunctionInvokation sf = wcm.getStaticFunction("v").getMatch();
-                matchedArray = getJava15Values(statement.getContainer(), sf.getMethodPrototype());
+                case "noValues" -> matchedArray = new MatchedArrayData(statement.getContainer(),
+                    null,
+                    Collections.<Expression>emptyList()
+                );
+                case "values15" -> {
+                    StaticFunctionInvokation sf = wcm.getStaticFunction("v").getMatch();
+                    matchedArray = getJava15Values(statement.getContainer(), sf.getMethodPrototype());
+                }
             }
 
         }
@@ -365,29 +329,26 @@ public class EnumClassRewriter {
                 }
             }
             if (matchedArray == null) return false;
-            List<Expression> values = matchedArray.getElementExpressions();
+            List<Expression> values = matchedArray.elementExpressions();
             if (values.size() != entryMap.size()) {
                 return false;
             }
             for (Expression value : values) {
-                if (!(value instanceof LValueExpression)) {
+                if (!(value instanceof LValueExpression lValueExpression)) {
                     return false;
                 }
-                LValueExpression lValueExpression = (LValueExpression) value;
                 LValue lvalue = lValueExpression.getLValue();
-                if (!(lvalue instanceof StaticVariable)) {
+                if (!(lvalue instanceof StaticVariable staticVariable)) {
                     return false;
                 }
-                StaticVariable staticVariable = (StaticVariable) lvalue;
                 if (!entryMap.containsKey(staticVariable)) {
                     return false;
                 }
             }
-            LValue valuesArray = ((StructuredAssignment) (matchedArray.getContainer().getStatement())).getLvalue();
-            if (!(valuesArray instanceof StaticVariable)) {
+            LValue valuesArray = ((StructuredAssignment) (matchedArray.container().getStatement())).getLvalue();
+            if (!(valuesArray instanceof StaticVariable valuesArrayStatic)) {
                 return false;
             }
-            StaticVariable valuesArrayStatic = (StaticVariable) valuesArray;
             try {
                 ClassFileField valuesField = classFile.getFieldByName(valuesArrayStatic.getFieldName(), valuesArrayStatic.getInferredJavaType().getJavaTypeInstance());
                 if (!valuesField.getField().testAccessFlag(AccessFlag.ACC_STATIC)) {
@@ -426,8 +387,7 @@ public class EnumClassRewriter {
         }
         Op04StructuredStatement stm = method.getAnalysis();
         // We require this to be a single return of an anonymous array.
-        if (!(stm.getStatement() instanceof Block)) return null;
-        Block blk = (Block)stm.getStatement();
+        if (!(stm.getStatement() instanceof Block blk)) return null;
         Optional<Op04StructuredStatement> inner = blk.getMaybeJustOneStatement();
         if (!inner.isSet()) return null;
         StructuredStatement testArr = inner.getValue().getStatement();
@@ -437,9 +397,8 @@ public class EnumClassRewriter {
 
         if (rv instanceof NewAnonymousArray) {
             return new MatchedArrayData(container, method, ((NewAnonymousArray)rv).getValues());
-        } else if (rv instanceof NewObjectArray) {
+        } else if (rv instanceof NewObjectArray newArrayExpr) {
             // Expecting `new EnumType[0]`
-            NewObjectArray newArrayExpr = (NewObjectArray) rv;
             if (newArrayExpr.getNumDims() != 1) return null;
             if (!newArrayExpr.getDimSize(0).equals(Literal.INT_ZERO)) return null;
             return new MatchedArrayData(container, method, Collections.<Expression>emptyList());

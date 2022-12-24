@@ -65,7 +65,7 @@ public class AttributeCode extends Attribute {
         final long OFFSET_OF_EXCEPTION_TABLE_LENGTH = OFFSET_OF_CODE + codeLength;
         final long OFFSET_OF_EXCEPTION_TABLE = OFFSET_OF_EXCEPTION_TABLE_LENGTH + 2;
 
-        ArrayList<ExceptionTableEntry> etis = new ArrayList<ExceptionTableEntry>();
+        ArrayList<ExceptionTableEntry> etis = new ArrayList<>();
         final int numExceptions = raw.getU2At(OFFSET_OF_EXCEPTION_TABLE_LENGTH);
         etis.ensureCapacity(numExceptions);
         final long numBytesExceptionInfo =
@@ -76,7 +76,7 @@ public class AttributeCode extends Attribute {
         final long OFFSET_OF_ATTRIBUTES_COUNT = OFFSET_OF_EXCEPTION_TABLE + numBytesExceptionInfo;
         final long OFFSET_OF_ATTRIBUTES = OFFSET_OF_ATTRIBUTES_COUNT + 2;
         final int numAttributes = raw.getU2At(OFFSET_OF_ATTRIBUTES_COUNT);
-        ArrayList<Attribute> tmpAttributes = new ArrayList<Attribute>();
+        ArrayList<Attribute> tmpAttributes = new ArrayList<>();
         tmpAttributes.ensureCapacity(numAttributes);
         ContiguousEntityFactory.build(raw.getOffsetData(OFFSET_OF_ATTRIBUTES), numAttributes, tmpAttributes,
                 AttributeFactory.getBuilder(cp, classFileVersion));

@@ -48,7 +48,7 @@ public class TryResourcesTransformerJ7 extends TryResourceTransformerFinally {
                 ),
                 new ResetAfterTest(wcm, subMatch));
 
-        MatchIterator<StructuredStatement> mi = new MatchIterator<StructuredStatement>(structuredStatements);
+        MatchIterator<StructuredStatement> mi = new MatchIterator<>(structuredStatements);
 
         TryResourcesMatchResultCollector collector = new TryResourcesMatchResultCollector();
         mi.advance();

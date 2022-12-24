@@ -24,7 +24,7 @@ import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -46,17 +46,14 @@ public class NonStaticLifter {
     public void liftNonStatics() {
 
         // All uninitialised non-static fields, in definition order.
-        Pair<List<ClassFileField>, List<ClassFileField>> fields =  Functional.partition(classFile.getFields(), new Predicate<ClassFileField>() {
-            @Override
-            public boolean test(ClassFileField in) {
-                if (in.getField().testAccessFlag(AccessFlag.ACC_STATIC)) return false;
-                if (in.getField().testAccessFlag(AccessFlag.ACC_SYNTHETIC)) return false;
-                // Members may well have an initial value. If they do, we need to make sure that it is
-                // exactly the same as the one we're lifting, or we abort.
-                return true;
-            }
+        Pair<List<ClassFileField>, List<ClassFileField>> fields =  Functional.partition(classFile.getFields(), in -> {
+            if (in.getField().testAccessFlag(AccessFlag.ACC_STATIC)) return false;
+            if (in.getField().testAccessFlag(AccessFlag.ACC_SYNTHETIC)) return false;
+            // Members may well have an initial value. If they do, we need to make sure that it is
+            // exactly the same as the one we're lifting, or we abort.
+            return true;
         });
-        LinkedList<ClassFileField> classFileFields = new LinkedList<ClassFileField>(fields.getFirst());
+        LinkedList<ClassFileField> classFileFields = new LinkedList<>(fields.getFirst());
         Map<String, ClassFileField> other = MapFactory.newMap();
         for (ClassFileField otherField : fields.getSecond()) {
             other.put(otherField.getFieldName(), otherField);
@@ -68,12 +65,9 @@ public class NonStaticLifter {
             fieldMap.put(classFileField.getField().getFieldName(), Pair.make(x, classFileField));
         }
 
-        List<Method> constructors = Functional.filter(classFile.getConstructors(), new Predicate<Method>() {
-            @Override
-            public boolean test(Method in) {
-                return !ConstructorUtils.isDelegating(in);
-            }
-        });
+        List<Method> constructors = Functional.filter(classFile.getConstructors(),
+            in -> !ConstructorUtils.isDelegating(in)
+        );
 
         /* These constructors are ones which do not delegate, i.e. we would expect them to share common initialisation
          * code.  (If they don't it's not the end of the world, we're tidying up).
@@ -84,16 +78,13 @@ public class NonStaticLifter {
         for (Method constructor : constructors) {
             List<Op04StructuredStatement> blockStatements = MiscStatementTools.getBlockStatements(constructor.getAnalysis());
             if (blockStatements == null) return;
-            blockStatements = Functional.filter(blockStatements, new Predicate<Op04StructuredStatement>() {
-                @Override
-                public boolean test(Op04StructuredStatement in) {
-                    StructuredStatement stm = in.getStatement();
-                    // We can skip comments and definitions - they won't have any effect on meaning of assignment to
-                    // members.
-                    if (stm instanceof StructuredComment) return false;
-                    if (stm instanceof StructuredDefinition) return false;
-                    return true;
-                }
+            blockStatements = Functional.filter(blockStatements, in -> {
+                StructuredStatement stm = in.getStatement();
+                // We can skip comments and definitions - they won't have any effect on meaning of assignment to
+                // members.
+                if (stm instanceof StructuredComment) return false;
+                if (stm instanceof StructuredDefinition) return false;
+                return true;
             });
             if (blockStatements.isEmpty()) return;
 
@@ -132,11 +123,9 @@ public class NonStaticLifter {
              * Ok, they're all the same.  Now, is this an assignment to a member, AND does it use only other fields,
              * which have already been initialised? (and are not forward references) Sheeeesh....
              */
-            if (!(s1 instanceof StructuredAssignment)) return;
-            StructuredAssignment structuredAssignment = (StructuredAssignment) s1;
+            if (!(s1 instanceof StructuredAssignment structuredAssignment)) return;
             LValue lValue = structuredAssignment.getLvalue();
-            if (!(lValue instanceof FieldVariable)) return;
-            FieldVariable fieldVariable = (FieldVariable) lValue;
+            if (!(lValue instanceof FieldVariable fieldVariable)) return;
             if (!fromThisClass(fieldVariable)) return;
 
             /*
@@ -223,10 +212,9 @@ public class NonStaticLifter {
                 if (!usedFvs.contains(((FieldVariable) usedLValue).getObject())) return false;
                 continue;
             }
-            if (usedLValue instanceof LocalVariable) {
+            if (usedLValue instanceof LocalVariable variable) {
                 // The only localVariable we can get away with here is 'this'.
 
-                LocalVariable variable = (LocalVariable)usedLValue;
                 if (variable.getInferredJavaType().getJavaTypeInstance() == this.classFile.getClassType() &&
                     variable.getName().getStringName().equals(MiscConstants.THIS)) {
                     continue;

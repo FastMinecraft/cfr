@@ -8,11 +8,13 @@ public class MatchSequence implements Matcher<StructuredStatement> {
     @SuppressWarnings("unused")
     private final String name;  // useful for breakpointing.
 
+    @SafeVarargs
     public MatchSequence(Matcher<StructuredStatement>... inner) {
         this.inner = inner;
         this.name = "";
     }
 
+    @SafeVarargs
     public MatchSequence(String name, Matcher<StructuredStatement>... inner) {
         this.inner = inner;
         this.name = name;

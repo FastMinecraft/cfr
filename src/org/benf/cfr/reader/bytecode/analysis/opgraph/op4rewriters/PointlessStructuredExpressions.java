@@ -9,8 +9,7 @@ import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredAssi
 public class PointlessStructuredExpressions {
     // Same as the op03 version, but we need to unpick the temporary we introduced.
     public static void removePointlessExpression(StructuredStatement stm) {
-        if (stm instanceof StructuredAssignment) {
-            StructuredAssignment ass = (StructuredAssignment)stm;
+        if (stm instanceof StructuredAssignment ass) {
             LValue lv = ass.getLvalue();
             if (lv.isFakeIgnored()) {
                 Expression e = ass.getRvalue();

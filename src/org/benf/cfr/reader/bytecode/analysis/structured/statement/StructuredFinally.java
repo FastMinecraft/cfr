@@ -78,8 +78,7 @@ public class StructuredFinally extends AbstractStructuredStatement {
     @Override
     public boolean match(MatchIterator<StructuredStatement> matchIterator, MatchResultCollector matchResultCollector) {
         StructuredStatement o = matchIterator.getCurrent();
-        if (!(o instanceof StructuredFinally)) return false;
-        StructuredFinally other = (StructuredFinally) o;
+        if (!(o instanceof StructuredFinally other)) return false;
         // we don't actually check any equality for a match.
         matchIterator.advance();
         return true;

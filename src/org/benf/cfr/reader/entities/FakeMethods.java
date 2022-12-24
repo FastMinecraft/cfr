@@ -11,12 +11,7 @@ import java.util.Map;
 
 public class FakeMethods implements TypeUsageCollectable {
     private final Map<Object, FakeMethod> fakes = MapFactory.newOrderedMap();
-    private final Map<String, Integer> nameCounts = MapFactory.newLazyMap(new UnaryFunction<String, Integer>() {
-        @Override
-        public Integer invoke(String arg) {
-            return 0;
-        }
-    });
+    private final Map<String, Integer> nameCounts = MapFactory.newLazyMap(arg -> 0);
 
     public FakeMethod add(Object key, String nameHint, UnaryFunction<String, FakeMethod> methodFactory) {
         FakeMethod method = fakes.get(key);

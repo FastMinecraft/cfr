@@ -53,8 +53,7 @@ public class StructuredExpressionStatement extends AbstractStructuredStatement {
     @Override
     public boolean match(MatchIterator<StructuredStatement> matchIterator, MatchResultCollector matchResultCollector) {
         StructuredStatement o = matchIterator.getCurrent();
-        if (!(o instanceof StructuredExpressionStatement)) return false;
-        StructuredExpressionStatement other = (StructuredExpressionStatement) o;
+        if (!(o instanceof StructuredExpressionStatement other)) return false;
         if (!expression.equals(other.expression)) return false;
         matchIterator.advance();
         return true;
@@ -79,9 +78,8 @@ public class StructuredExpressionStatement extends AbstractStructuredStatement {
         if (o == this) return true;
         if (o == null) return false;
 
-        if (!(o instanceof StructuredExpressionStatement)) return false;
+        if (!(o instanceof StructuredExpressionStatement other)) return false;
 
-        StructuredExpressionStatement other = (StructuredExpressionStatement) o;
         return expression.equals(other.expression);
     }
 

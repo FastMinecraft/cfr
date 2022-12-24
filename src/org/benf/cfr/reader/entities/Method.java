@@ -29,7 +29,7 @@ import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
@@ -114,7 +114,7 @@ public class Method implements KnowsRawSize, TypeUsageCollectable {
         String initialName = cp.getUTF8Entry(nameIndex).getValue();
 
         int numAttributes = raw.getU2At(OFFSET_OF_ATTRIBUTES_COUNT);
-        ArrayList<Attribute> tmpAttributes = new ArrayList<Attribute>();
+        ArrayList<Attribute> tmpAttributes = new ArrayList<>();
         tmpAttributes.ensureCapacity(numAttributes);
         long attributesLength = ContiguousEntityFactory.build(raw.getOffsetData(OFFSET_OF_ATTRIBUTES), numAttributes, tmpAttributes,
                 AttributeFactory.getBuilder(cp, classFileVersion));
@@ -427,12 +427,7 @@ public class Method implements KnowsRawSize, TypeUsageCollectable {
     private List<JavaTypeInstance> getAttributeDeclaredThrownTypes() {
         AttributeExceptions exceptionsAttribute = attributes.getByName(AttributeExceptions.ATTRIBUTE_NAME);
         if (exceptionsAttribute != null) {
-            return Functional.map(exceptionsAttribute.getExceptionClassList(), new UnaryFunction<ConstantPoolEntryClass, JavaTypeInstance>() {
-                @Override
-                public JavaTypeInstance invoke(ConstantPoolEntryClass arg) {
-                    return arg.getTypeInstance();
-                }
-            });
+            return Functional.map(exceptionsAttribute.getExceptionClassList(), ConstantPoolEntryClass::getTypeInstance);
         }
         else {
             return Collections.emptyList();
@@ -441,7 +436,7 @@ public class Method implements KnowsRawSize, TypeUsageCollectable {
 
     public Set<JavaTypeInstance> getThrownTypes() {
         if (thrownTypes == null) {
-            thrownTypes = new LinkedHashSet<JavaTypeInstance>(getDeclaredThrownTypes());
+            thrownTypes = new LinkedHashSet<>(getDeclaredThrownTypes());
         }
         return thrownTypes;
     }
@@ -505,12 +500,9 @@ public class Method implements KnowsRawSize, TypeUsageCollectable {
                 if (att != null) {
                     JavaAnnotatedTypeInstance jat = typeInstance.getAnnotatedInstance();
                     final int sidx = idx;
-                    List<AnnotationTableTypeEntry> exceptionAnnotations = Functional.filter(att, new Predicate<AnnotationTableTypeEntry>() {
-                        @Override
-                        public boolean test(AnnotationTableTypeEntry in) {
-                            return sidx == ((TypeAnnotationTargetInfo.TypeAnnotationThrowsTarget)in.getTargetInfo()).getIndex();
-                        }
-                    });
+                    List<AnnotationTableTypeEntry> exceptionAnnotations = Functional.filter(att,
+                        in -> sidx == ((TypeAnnotationTargetInfo.TypeAnnotationThrowsTarget)in.getTargetInfo()).getIndex()
+                    );
                     DecompilerComments comments = new DecompilerComments();
                     TypeAnnotationHelper.apply(jat, exceptionAnnotations, comments);
                     d.dump(comments);
@@ -541,12 +533,7 @@ public class Method implements KnowsRawSize, TypeUsageCollectable {
                 /*
                  * No code attribute - we still need to assign variable names.
                  */
-                Map<Integer, Ident> identMap = MapFactory.newLazyMap(new UnaryFunction<Integer, Ident>() {
-                    @Override
-                    public Ident invoke(Integer arg) {
-                        return new Ident(arg, 0);
-                    }
-                });
+                Map<Integer, Ident> identMap = MapFactory.newLazyMap(arg -> new Ident(arg, 0));
                 methodPrototype.computeParameters(getConstructorFlag(), identMap);
             }
         } catch (RuntimeException e) {

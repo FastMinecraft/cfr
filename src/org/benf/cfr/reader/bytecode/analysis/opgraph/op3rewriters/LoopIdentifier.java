@@ -16,22 +16,13 @@ import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.entities.exceptions.ExceptionGroup;
 import org.benf.cfr.reader.util.*;
 import org.benf.cfr.reader.util.collections.*;
-import org.benf.cfr.reader.util.functors.Predicate;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 
 import java.util.*;
 
 public class LoopIdentifier {
 
 
-    private static class LoopResult {
-        final BlockIdentifier blockIdentifier;
-        final Op03SimpleStatement blockStart;
-
-        private LoopResult(BlockIdentifier blockIdentifier, Op03SimpleStatement blockStart) {
-            this.blockIdentifier = blockIdentifier;
-            this.blockStart = blockStart;
-        }
+    private record LoopResult(BlockIdentifier blockIdentifier, Op03SimpleStatement blockStart) {
     }
 
     // Find simple loops.
@@ -43,7 +34,7 @@ public class LoopIdentifier {
         // Verify that they belong to jump instructions (otherwise something has gone wrong)
         // (if, goto).
 
-        List<Op03SimpleStatement> pathtests = Functional.filter(statements, new TypeFilter<GotoStatement>(GotoStatement.class));
+        List<Op03SimpleStatement> pathtests = Functional.filter(statements, new TypeFilter<>(GotoStatement.class));
         for (Op03SimpleStatement start : pathtests) {
             considerAsPathologicalLoop(start, statements);
         }
@@ -55,7 +46,7 @@ public class LoopIdentifier {
          * that it contains a forward jump to something which is not a parent except through p.
          */
         Map<BlockIdentifier, Op03SimpleStatement> blockEndsCache = MapFactory.newMap();
-        Collections.sort(starts, new CompareByIndex());
+        starts.sort(new CompareByIndex());
 
         List<LoopResult> loopResults = ListFactory.newList();
         Set<BlockIdentifier> relevantBlocks = SetFactory.newSet();
@@ -88,12 +79,7 @@ public class LoopIdentifier {
      */
     private static void fixLoopOverlaps(List<Op03SimpleStatement> statements, List<LoopResult> loopResults, Set<BlockIdentifier> relevantBlocks) {
 
-        Map<BlockIdentifier, List<BlockIdentifier>> requiredExtents = MapFactory.newLazyMap(new UnaryFunction<BlockIdentifier, List<BlockIdentifier>>() {
-            @Override
-            public List<BlockIdentifier> invoke(BlockIdentifier arg) {
-                return ListFactory.newList();
-            }
-        });
+        Map<BlockIdentifier, List<BlockIdentifier>> requiredExtents = MapFactory.newLazyMap(arg -> ListFactory.newList());
 
         Map<BlockIdentifier, Op03SimpleStatement> lastForBlock = MapFactory.newMap();
 
@@ -102,16 +88,11 @@ public class LoopIdentifier {
             final BlockIdentifier testBlockIdentifier = loopResult.blockIdentifier;
 
             Set<BlockIdentifier> startIn = SetUtil.intersectionOrNull(start.getBlockIdentifiers(), relevantBlocks);
-            List<Op03SimpleStatement> backSources = Functional.filter(start.getSources(), new Predicate<Op03SimpleStatement>() {
-                @Override
-                public boolean test(Op03SimpleStatement in) {
-                    return in.getBlockIdentifiers().contains(testBlockIdentifier) &&
-                            in.getIndex().isBackJumpTo(start);
-                }
-            });
+            List<Op03SimpleStatement> backSources = Functional.filter(start.getSources(), in -> in.getBlockIdentifiers().contains(testBlockIdentifier) &&
+                    in.getIndex().isBackJumpTo(start));
 
             if (backSources.isEmpty()) continue;
-            Collections.sort(backSources, new CompareByIndex());
+            backSources.sort(new CompareByIndex());
             Op03SimpleStatement lastBackSource = backSources.get(backSources.size() - 1);
             /*
              * If start is in a relevantBlock that an end isn't, then THAT BLOCK needs to be extended to at least the end
@@ -136,12 +117,7 @@ public class LoopIdentifier {
 
         // RequiredExtents[key] should be extended to the last of VALUE.
         List<BlockIdentifier> extendBlocks = ListFactory.newList(requiredExtents.keySet());
-        Collections.sort(extendBlocks, new Comparator<BlockIdentifier>() {
-            @Override
-            public int compare(BlockIdentifier blockIdentifier, BlockIdentifier blockIdentifier2) {
-                return blockIdentifier.getIndex() - blockIdentifier2.getIndex();  // reverse order.
-            }
-        });
+        extendBlocks.sort(Comparator.comparingInt(BlockIdentifier::getIndex));
 
         Comparator<Op03SimpleStatement> comparator = new CompareByIndex();
 
@@ -155,7 +131,7 @@ public class LoopIdentifier {
             for (BlockIdentifier end : possibleEnds) {
                 possibleEndOps.add(lastForBlock.get(end));
             }
-            Collections.sort(possibleEndOps, comparator);
+            possibleEndOps.sort(comparator);
 
             Op03SimpleStatement extendTo = possibleEndOps.get(possibleEndOps.size() - 1);
             /*
@@ -228,13 +204,8 @@ public class LoopIdentifier {
         if (backJumpSources.isEmpty()) {
             throw new ConfusedCFRException("Node doesn't have ANY sources! " + start);
         }
-        backJumpSources = Functional.filter(backJumpSources, new Predicate<Op03SimpleStatement>() {
-            @Override
-            public boolean test(Op03SimpleStatement in) {
-                return in.getIndex().compareTo(startIndex) >= 0;
-            }
-        });
-        Collections.sort(backJumpSources, new CompareByIndex());
+        backJumpSources = Functional.filter(backJumpSources, in -> in.getIndex().compareTo(startIndex) >= 0);
+        backJumpSources.sort(new CompareByIndex());
         if (backJumpSources.isEmpty()) {
             throw new ConfusedCFRException("Node should have back jump sources.");
         }
@@ -242,10 +213,9 @@ public class LoopIdentifier {
         Op03SimpleStatement lastJump = backJumpSources.get(lastJumpIdx);
         boolean conditional = false;
         boolean wasConditional = false;
-        if (lastJump.getStatement() instanceof IfStatement) {
+        if (lastJump.getStatement() instanceof IfStatement ifStatement) {
             conditional = true;
             wasConditional = true;
-            IfStatement ifStatement = (IfStatement) lastJump.getStatement();
             if (ifStatement.getJumpTarget().getContainer() != start) {
                 return null;
             }
@@ -260,8 +230,7 @@ public class LoopIdentifier {
                     conditional = false;
                     break;
                 }
-                if (prevJumpStatement instanceof IfStatement) {
-                    IfStatement backJumpIf = (IfStatement)prevJumpStatement;
+                if (prevJumpStatement instanceof IfStatement backJumpIf) {
                     Expression prevCond = ifStatement.getCondition();
                     Expression thisCond = backJumpIf.getCondition();
                     if (!prevCond.equals(thisCond)) {
@@ -400,12 +369,9 @@ public class LoopIdentifier {
         if (!conditional) {
             Set<BlockIdentifier> lastContent = SetFactory.newSet(lastJump.getBlockIdentifiers());
             lastContent.removeAll(start.getBlockIdentifiers());
-            Set<BlockIdentifier> internalTryBlocks = SetFactory.newOrderedSet(Functional.filterSet(lastContent, new Predicate<BlockIdentifier>() {
-                @Override
-                public boolean test(BlockIdentifier in) {
-                    return in.getBlockType() == BlockType.TRYBLOCK;
-                }
-            }));
+            Set<BlockIdentifier> internalTryBlocks = SetFactory.newOrderedSet(Functional.filterSet(lastContent,
+                in -> in.getBlockType() == BlockType.TRYBLOCK
+            ));
             // internalTryBlocks represents try blocks which started AFTER the loop did.
             if (internalTryBlocks.isEmpty()) break shuntLoop;
 
@@ -416,16 +382,12 @@ public class LoopIdentifier {
 
                 int currentIdx = lastPostBlock + 1;
                 Op03SimpleStatement stm = statements.get(lastPostBlock);
-                if (!(stm.getStatement() instanceof CatchStatement)) break;
+                if (!(stm.getStatement() instanceof CatchStatement catchStatement)) break;
 
-                CatchStatement catchStatement = (CatchStatement) stm.getStatement();
                 BlockIdentifier catchBlockIdent = catchStatement.getCatchBlockIdent();
-                List<BlockIdentifier> tryBlocks = Functional.map(catchStatement.getExceptions(), new UnaryFunction<ExceptionGroup.Entry, BlockIdentifier>() {
-                    @Override
-                    public BlockIdentifier invoke(ExceptionGroup.Entry arg) {
-                        return arg.getTryBlockIdentifier();
-                    }
-                });
+                List<BlockIdentifier> tryBlocks = Functional.map(catchStatement.getExceptions(),
+                    ExceptionGroup.Entry::getTryBlockIdentifier
+                );
                 if (!internalTryBlocks.containsAll(tryBlocks)) break;
                 while (currentIdx < statements.size() && statements.get(currentIdx).getBlockIdentifiers().contains(catchBlockIdent)) {
                     currentIdx++;
@@ -537,13 +499,8 @@ public class LoopIdentifier {
                                                             Map<BlockIdentifier, Op03SimpleStatement> postBlockCache) {
         final InstrIndex startIndex = start.getIndex();
         List<Op03SimpleStatement> backJumpSources = start.getSources();
-        backJumpSources = Functional.filter(backJumpSources, new Predicate<Op03SimpleStatement>() {
-            @Override
-            public boolean test(Op03SimpleStatement in) {
-                return in.getIndex().compareTo(startIndex) >= 0;
-            }
-        });
-        Collections.sort(backJumpSources, new CompareByIndex());
+        backJumpSources = Functional.filter(backJumpSources, in -> in.getIndex().compareTo(startIndex) >= 0);
+        backJumpSources.sort(new CompareByIndex());
         Op03SimpleStatement conditional = findFirstConditional(start);
         if (conditional == null) {
             // No conditional before we have a branch?  Probably a do { } while.
@@ -581,8 +538,7 @@ public class LoopIdentifier {
         if (loopBreak == conditional && start == conditional) {
 
             Statement stm = conditional.getStatement();
-            if (!(stm instanceof IfStatement)) return null;
-            IfStatement ifStatement = (IfStatement)stm;
+            if (!(stm instanceof IfStatement ifStatement)) return null;
             ifStatement.negateCondition();
 
             Op03SimpleStatement backJump = new Op03SimpleStatement(conditional.getBlockIdentifiers(), new GotoStatement(BytecodeLoc.TODO), conditional.getIndex().justAfter());
@@ -736,13 +692,10 @@ public class LoopIdentifier {
         Op03SimpleStatement discoveredLast = statements.get(last);
         Set<BlockIdentifier> lastBlocks = SetFactory.newSet(discoveredLast.getBlockIdentifiers());
         lastBlocks.removeAll(start.getBlockIdentifiers());
-        Set<BlockIdentifier> catches = SetFactory.newSet(Functional.filterSet(lastBlocks, new Predicate<BlockIdentifier>() {
-            @Override
-            public boolean test(BlockIdentifier in) {
-                BlockType type = in.getBlockType();
-                return type == BlockType.CATCHBLOCK ||
-                       type == BlockType.SWITCH;
-            }
+        Set<BlockIdentifier> catches = SetFactory.newSet(Functional.filterSet(lastBlocks, in -> {
+            BlockType type = in.getBlockType();
+            return type == BlockType.CATCHBLOCK ||
+                   type == BlockType.SWITCH;
         }));
         Set<BlockIdentifier> originalCatches = SetFactory.newSet(catches);
         int newlast = last;

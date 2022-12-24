@@ -12,7 +12,7 @@ import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.entities.ClassFileField;
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -28,15 +28,15 @@ public class StaticLifter {
     public void liftStatics(Method staticInit) {
 
         // All uninitialised static fields, in definition order.
-        LinkedList<ClassFileField> classFileFields = new LinkedList<ClassFileField>(Functional.filter(classFile.getFields(), new Predicate<ClassFileField>() {
-            @Override
-            public boolean test(ClassFileField in) {
+        LinkedList<ClassFileField> classFileFields = new LinkedList<>(Functional.filter(
+            classFile.getFields(),
+            in -> {
                 if (!in.getField().testAccessFlag(AccessFlag.ACC_STATIC)) return false;
                 if (in.getField().testAccessFlag(AccessFlag.ACC_SYNTHETIC)) return false;
                 if (in.getInitialValue() != null) return false;
                 return true;
             }
-        }));
+        ));
         if (classFileFields.isEmpty()) return;
 
         /* We use a LUDICROUSLY simple plan - while the first line is a valid static initialiser, we move it into
@@ -54,17 +54,15 @@ public class StaticLifter {
         for (Op04StructuredStatement statement : statements) {
             StructuredStatement structuredStatement = statement.getStatement();
             if (structuredStatement instanceof StructuredComment) continue;
-            if (!(structuredStatement instanceof StructuredAssignment)) break;
+            if (!(structuredStatement instanceof StructuredAssignment assignment)) break;
 
-            StructuredAssignment assignment = (StructuredAssignment) structuredStatement;
             if (!liftStatic(assignment, classFileFields)) return;
         }
     }
 
     private boolean liftStatic(StructuredAssignment assignment, LinkedList<ClassFileField> classFileFields) {
         LValue lValue = assignment.getLvalue();
-        if (!(lValue instanceof StaticVariable)) return false;
-        StaticVariable fieldVariable = (StaticVariable) lValue;
+        if (!(lValue instanceof StaticVariable fieldVariable)) return false;
         ClassFileField field;
         try {
             field = classFile.getFieldByName(fieldVariable.getFieldName(), fieldVariable.getInferredJavaType().getJavaTypeInstance());

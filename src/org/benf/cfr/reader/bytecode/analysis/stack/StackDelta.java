@@ -5,9 +5,9 @@ import org.benf.cfr.reader.bytecode.analysis.types.StackTypes;
 public interface StackDelta {
     boolean isNoOp();
 
-    StackTypes getConsumed();
+    StackTypes consumed();
 
-    StackTypes getProduced();
+    StackTypes produced();
 
     long getChange();
 }

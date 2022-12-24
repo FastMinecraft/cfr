@@ -20,10 +20,9 @@ class ConditionalSimplifier {
     static void simplifyConditionals(List<Op03SimpleStatement> statements, boolean aggressive, Method method) {
         boolean boolReturn = (method.getMethodPrototype().getReturnType() == RawJavaType.BOOLEAN);
         for (Op03SimpleStatement statement : statements) {
-            if (!(statement.getStatement() instanceof IfStatement)) continue;
+            if (!(statement.getStatement() instanceof IfStatement ifStatement)) continue;
 
             // just simplify the condition.
-            IfStatement ifStatement = (IfStatement) statement.getStatement();
             ifStatement.simplifyCondition();
 
             if (boolReturn) {

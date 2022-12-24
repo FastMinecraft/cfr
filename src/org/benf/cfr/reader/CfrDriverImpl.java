@@ -28,7 +28,7 @@ public class CfrDriverImpl implements CfrDriver {
 
     public CfrDriverImpl(ClassFileSource source, OutputSinkFactory outputSinkFactory, Options options, boolean fallbackToDefaultSource) {
         if (options == null) {
-            options = new OptionsImpl(new HashMap<String, String>());
+            options = new OptionsImpl(new HashMap<>());
         }
         ClassFileSource2 tmpSource;
         if (source == null) {

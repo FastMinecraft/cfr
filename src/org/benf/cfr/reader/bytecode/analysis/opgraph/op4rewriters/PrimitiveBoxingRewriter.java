@@ -39,8 +39,7 @@ public class PrimitiveBoxingRewriter implements ExpressionRewriter {
      */
     @Override
     public Expression rewriteExpression(Expression expression, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
-        if (expression instanceof BoxingProcessor) {
-            BoxingProcessor boxingProcessor = (BoxingProcessor) expression;
+        if (expression instanceof BoxingProcessor boxingProcessor) {
             if (boxingProcessor.rewriteBoxing(this)) {
                 boxingProcessor.applyNonArgExpressionRewriter(this, ssaIdentifiers, statementContainer, flags);
                 return expression;
@@ -52,8 +51,7 @@ public class PrimitiveBoxingRewriter implements ExpressionRewriter {
 
     @Override
     public ConditionalExpression rewriteExpression(ConditionalExpression expression, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
-        if (expression instanceof BoxingProcessor) {
-            BoxingProcessor boxingProcessor = (BoxingProcessor) expression;
+        if (expression instanceof BoxingProcessor boxingProcessor) {
             if (boxingProcessor.rewriteBoxing(this)) {
                 boxingProcessor.applyNonArgExpressionRewriter(this, ssaIdentifiers, statementContainer, flags);
                 return expression;
@@ -212,9 +210,8 @@ public class PrimitiveBoxingRewriter implements ExpressionRewriter {
     // Cheat, but...
     public boolean isUnboxedType(Expression in) {
         JavaTypeInstance type = in.getInferredJavaType().getJavaTypeInstance();
-        if (!(type instanceof RawJavaType)) return false;
+        if (!(type instanceof RawJavaType rawJavaType)) return false;
         if (in instanceof AbstractMemberFunctionInvokation) return false;
-        RawJavaType rawJavaType = (RawJavaType) type;
         return rawJavaType.isUsableType();
     }
 }

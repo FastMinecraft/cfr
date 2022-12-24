@@ -95,8 +95,7 @@ public class PreconditionAssertRewriter implements StructuredStatementTransforme
     }
 
     private void getFlattenedCNF(ConditionalExpression ce, List<ConditionalExpression> accum) {
-        if (ce instanceof BooleanOperation) {
-            BooleanOperation bo = (BooleanOperation)ce;
+        if (ce instanceof BooleanOperation bo) {
             if (bo.getOp() == BoolOp.AND) {
                 getFlattenedCNF(bo.getLhs(), accum);
                 getFlattenedCNF(bo.getRhs(), accum);

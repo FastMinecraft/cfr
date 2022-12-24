@@ -89,8 +89,7 @@ public class StructuredAssignment extends AbstractStructuredStatement implements
     @Override
     public void markCreator(LValue scopedEntity, StatementContainer<StructuredStatement> hint) {
 
-        if (scopedEntity instanceof LocalVariable) {
-            LocalVariable localVariable = (LocalVariable) scopedEntity;
+        if (scopedEntity instanceof LocalVariable localVariable) {
             if (!localVariable.equals(lvalue)) {
                 throw new IllegalArgumentException("Being asked to mark creator for wrong variable");
             }
@@ -131,8 +130,7 @@ public class StructuredAssignment extends AbstractStructuredStatement implements
     public boolean equals(Object o) {
         if (o == this) return true;
         if (o == null) return false;
-        if (!(o instanceof StructuredAssignment)) return false;
-        StructuredAssignment other = (StructuredAssignment) o;
+        if (!(o instanceof StructuredAssignment other)) return false;
         if (!lvalue.equals(other.lvalue)) return false;
         if (!rvalue.equals(other.rvalue)) return false;
 //        if (isCreator != other.isCreator) return false;

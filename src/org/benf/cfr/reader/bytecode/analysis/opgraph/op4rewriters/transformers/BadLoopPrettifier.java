@@ -19,8 +19,7 @@ public class BadLoopPrettifier implements StructuredStatementTransformer {
 
     private List<Op04StructuredStatement> getIfBlock(Op04StructuredStatement maybeBlock) {
         StructuredStatement bodyStatement = maybeBlock.getStatement();
-        if (!(bodyStatement instanceof Block)) return null;
-        Block block = (Block) bodyStatement;
+        if (!(bodyStatement instanceof Block block)) return null;
 
         return block.getBlockStatements();
     }
@@ -30,10 +29,9 @@ public class BadLoopPrettifier implements StructuredStatementTransformer {
         in.transformStructuredChildren(this, scope);
 
         // Either a do or a while with no condition is acceptable.
-        if (!(in instanceof AbstractStructuredConditionalLoopStatement)) {
+        if (!(in instanceof AbstractStructuredConditionalLoopStatement asl)) {
             return in;
         }
-        AbstractStructuredConditionalLoopStatement asl = (AbstractStructuredConditionalLoopStatement)in;
         if (!asl.isInfinite()) return in;
 
         Op04StructuredStatement body = asl.getBody();
@@ -47,9 +45,7 @@ public class BadLoopPrettifier implements StructuredStatementTransformer {
         if (statements == null || statements.isEmpty()) return in;
 
         Op04StructuredStatement statement1 = statements.get(0);
-        if (!(statement1.getStatement() instanceof StructuredIf)) return in;
-
-        StructuredIf ifStatement = (StructuredIf) statement1.getStatement();
+        if (!(statement1.getStatement() instanceof StructuredIf ifStatement)) return in;
 
         if (ifStatement.hasElseBlock()) return in;
 
@@ -61,8 +57,7 @@ public class BadLoopPrettifier implements StructuredStatementTransformer {
 
         boolean liftTestBody = false;
 
-        if (structuredExit instanceof StructuredBreak) {
-            StructuredBreak breakStatement = (StructuredBreak) structuredExit;
+        if (structuredExit instanceof StructuredBreak breakStatement) {
             // As long as it's breaking out of the right block!
             if (!breakStatement.getBreakBlock().equals(blockIdent)) return in;
         } else if (structuredExit instanceof StructuredReturn) {

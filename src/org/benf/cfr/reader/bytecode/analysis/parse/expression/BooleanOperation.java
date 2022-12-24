@@ -131,8 +131,7 @@ public class BooleanOperation extends AbstractExpression implements ConditionalE
     public ConditionalExpression getRightDeep() {
         // transform (a x1 b) x2 c (where this is x2) to a x2 (b x1 c)
         // todo - no allocations here but this feels like there might be a n^2 case.
-        while (lhs instanceof BooleanOperation) {
-            BooleanOperation lbool = (BooleanOperation)lhs;
+        while (lhs instanceof BooleanOperation lbool) {
             if (lbool.op == op) {
                 ConditionalExpression a = lbool.lhs;
                 ConditionalExpression b = lbool.rhs;
@@ -187,9 +186,7 @@ public class BooleanOperation extends AbstractExpression implements ConditionalE
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof BooleanOperation)) return false;
-
-        BooleanOperation that = (BooleanOperation) o;
+        if (!(o instanceof BooleanOperation that)) return false;
 
         if (!lhs.equals(that.lhs)) return false;
         if (op != that.op) return false;
@@ -224,19 +221,20 @@ public class BooleanOperation extends AbstractExpression implements ConditionalE
         Boolean lb = getComputed(lhs, display);
         if (lb == null) return null;
         switch (op) {
-            case AND: {
+            case AND -> {
                 Boolean rb = getComputed(rhs, display);
                 if (rb == null) return null;
                 return (lb && rb) ? Literal.TRUE : Literal.FALSE;
             }
-            case OR: {
+            case OR -> {
                 if (lb) return Literal.TRUE;
                 Boolean rb = getComputed(rhs, display);
                 if (rb == null) return null;
                 return (rb) ? Literal.TRUE : Literal.FALSE;
             }
-            default:
+            default -> {
                 return null;
+            }
         }
     }
 }

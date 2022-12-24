@@ -44,7 +44,7 @@ import org.benf.cfr.reader.util.Optional;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 
 import java.util.Collections;
 import java.util.List;
@@ -67,19 +67,13 @@ public class RecordRewriter {
     }
 
     private static boolean rewriteIfRecord(ClassFile classFile, DCCommonState state) {
-        List<ClassFileField> instances = Functional.filter(classFile.getFields(), new Predicate<ClassFileField>() {
-            @Override
-            public boolean test(ClassFileField in) {
-                return !in.getField().testAccessFlag(AccessFlag.ACC_STATIC);
-            }
-        });
+        List<ClassFileField> instances = Functional.filter(classFile.getFields(),
+            in -> !in.getField().testAccessFlag(AccessFlag.ACC_STATIC)
+        );
 
-        if (!Functional.filter(instances, new Predicate<ClassFileField>() {
-            @Override
-            public boolean test(ClassFileField in) {
-                // Fabric: Allow public fields to also be used as record components.
-                return !in.getField().testAccessFlag(AccessFlag.ACC_FINAL);
-            }
+        if (!Functional.filter(instances, in -> {
+            // Fabric: Allow public fields to also be used as record components.
+            return !in.getField().testAccessFlag(AccessFlag.ACC_FINAL);
         }).isEmpty()) {
             // we have some fields that don't look right.
             return false;
@@ -95,12 +89,7 @@ public class RecordRewriter {
             // use the method as the source of truth.  However, there's a problem here, as
             // we can add additional methods which are not related.
             if (methods == null) return false;
-            methods = Functional.filter(methods, new Predicate<Method>() {
-                @Override
-                public boolean test(Method in) {
-                    return in.getMethodPrototype().getArgs().isEmpty();
-                }
-            });
+            methods = Functional.filter(methods, in -> in.getMethodPrototype().getArgs().isEmpty());
             if (methods.size() != 1) return false;
             Method method = methods.get(0);
             if (!recordGetterFlags.equals(method.getAccessFlags())) {
@@ -273,12 +262,9 @@ public class RecordRewriter {
     private static Method getMethod(ClassFile classFile, final List<JavaTypeInstance> args, String name) {
         List<Method> methods = classFile.getMethodsByNameOrNull(name);
         if (methods == null) return null;
-        methods = Functional.filter(methods, new Predicate<Method>() {
-            @Override
-            public boolean test(Method in) {
-                if (!in.testAccessFlag(AccessFlagMethod.ACC_PUBLIC)) return false;
-                return in.getMethodPrototype().getArgs().equals(args);
-            }
+        methods = Functional.filter(methods, in -> {
+            if (!in.testAccessFlag(AccessFlagMethod.ACC_PUBLIC)) return false;
+            return in.getMethodPrototype().getArgs().equals(args);
         });
         return methods.size() == 1 ? methods.get(0) : null;
     }
@@ -288,8 +274,7 @@ public class RecordRewriter {
         if (method.getCodeAttribute() == null) return null;
         Op04StructuredStatement code = method.getAnalysis();
         StructuredStatement topCode = code.getStatement();
-        if (!(topCode instanceof Block)) return null;
-        Block block = (Block)topCode;
+        if (!(topCode instanceof Block block)) return null;
         Optional<Op04StructuredStatement> content = block.getMaybeJustOneStatement();
         if (!content.isSet()) return null;
         return content.getValue().getStatement();
@@ -336,8 +321,7 @@ public class RecordRewriter {
         List<LocalVariable> args = canonicalCons.getMethodPrototype().getComputedParameters();
         // We expect a block.  The last N statements should be assignments
         StructuredStatement topCode = code.getStatement();
-        if (!(topCode instanceof Block)) return false;
-        Block block = (Block)topCode;
+        if (!(topCode instanceof Block block)) return false;
 
         List<Op04StructuredStatement> statements = block.getBlockStatements();
         List<Op04StructuredStatement> toNop = ListFactory.newList();

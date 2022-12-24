@@ -33,8 +33,8 @@ import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.collections.UniqueSeenQueue;
-import org.benf.cfr.reader.util.functors.BinaryProcedure;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 import org.benf.cfr.reader.util.output.Dumpable;
@@ -76,7 +76,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
         this.containedStatement = statement;
         this.isNop = false;
         this.index = original.getIndex();
-        this.ssaIdentifiers = new SSAIdentifiers<LValue>();
+        this.ssaIdentifiers = new SSAIdentifiers<>();
         this.containedInBlocks.addAll(original.getContainedInTheseBlocks());
         statement.setContainer(this);
     }
@@ -85,7 +85,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
         this.containedStatement = statement;
         this.isNop = false;
         this.index = index;
-        this.ssaIdentifiers = new SSAIdentifiers<LValue>();
+        this.ssaIdentifiers = new SSAIdentifiers<>();
         this.containedInBlocks.addAll(containedIn);
         statement.setContainer(this);
     }
@@ -94,7 +94,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
         this.containedStatement = statement;
         this.isNop = false;
         this.index = index;
-        this.ssaIdentifiers = new SSAIdentifiers<LValue>(ssaIdentifiers);
+        this.ssaIdentifiers = new SSAIdentifiers<>(ssaIdentifiers);
         this.containedInBlocks.addAll(containedIn);
         statement.setContainer(this);
     }
@@ -269,11 +269,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
         if (linearlyPrevious == null) return SetFactory.newSet();
         Set<BlockIdentifier> in = SetFactory.newSet(linearlyPrevious.getBlockIdentifiers());
         in.removeAll(getBlockIdentifiers());
-        Iterator<BlockIdentifier> iterator = in.iterator();
-        while (iterator.hasNext()) {
-            BlockIdentifier blockIdentifier = iterator.next();
-            if (!blockIdentifier.getBlockType().isBreakable()) iterator.remove();
-        }
+        in.removeIf(blockIdentifier -> !blockIdentifier.getBlockType().isBreakable());
         return in;
     }
 
@@ -401,7 +397,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
         }
         this.thisComparisonBlock = blockIdentifier;
         switch (blockIdentifier.getBlockType()) {
-            case WHILELOOP: {
+            case WHILELOOP -> {
                 IfStatement ifStatement = (IfStatement) containedStatement;
                 ifStatement.replaceWithWhileLoopStart(blockIdentifier);
                 Op03SimpleStatement whileEndTarget = targets.get(1);
@@ -421,7 +417,11 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
                 if (pullOutJump) {
                     Set<BlockIdentifier> backJumpContainedIn = SetFactory.newSet(containedInBlocks);
                     backJumpContainedIn.remove(blockIdentifier);
-                    Op03SimpleStatement backJump = new Op03SimpleStatement(backJumpContainedIn, new GotoStatement(BytecodeLoc.NONE), blockEnd.index.justBefore());
+                    Op03SimpleStatement backJump = new Op03SimpleStatement(
+                        backJumpContainedIn,
+                        new GotoStatement(BytecodeLoc.NONE),
+                        blockEnd.index.justBefore()
+                    );
                     whileEndTarget.replaceSource(this, backJump);
                     replaceTarget(whileEndTarget, backJump);
                     backJump.addSource(this);
@@ -436,22 +436,21 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
                     backJump.index = statements.get(insertAfter).index.justAfter();
                     statements.add(insertAfter + 1, backJump);
                 }
-                break;
             }
-            case UNCONDITIONALDOLOOP: {
-                containedStatement.getContainer().replaceStatement(new WhileStatement(BytecodeLoc.TODO,null, blockIdentifier));
-                break;
+            case UNCONDITIONALDOLOOP -> {
+                containedStatement.getContainer().replaceStatement(new WhileStatement(
+                    BytecodeLoc.TODO,
+                    null,
+                    blockIdentifier
+                ));
             }
-            case DOLOOP: {
+            case DOLOOP -> {
                 IfStatement ifStatement = (IfStatement) containedStatement;
                 ifStatement.replaceWithWhileLoopEnd(blockIdentifier);
-                break;
             }
-            case SIMPLE_IF_ELSE:
-            case SIMPLE_IF_TAKEN:
+            case SIMPLE_IF_ELSE, SIMPLE_IF_TAKEN ->
                 throw new ConfusedCFRException("Shouldn't be marking the comparison of an IF");
-            default:
-                throw new ConfusedCFRException("Don't know how to start a block like this");
+            default -> throw new ConfusedCFRException("Don't know how to start a block like this");
         }
     }
 
@@ -487,7 +486,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
         targets.clear();
     }
 
-    public class GraphVisitorCallee implements BinaryProcedure<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>> {
+    public class GraphVisitorCallee implements BiConsumer<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>> {
         private final List<Op03SimpleStatement> reachableNodes;
 
         GraphVisitorCallee(List<Op03SimpleStatement> reachableNodes) {
@@ -495,7 +494,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
         }
 
         @Override
-        public void call(Op03SimpleStatement node, GraphVisitor<Op03SimpleStatement> graphVisitor) {
+        public void accept(Op03SimpleStatement node, GraphVisitor<Op03SimpleStatement> graphVisitor) {
             reachableNodes.add(node);
             for (Op03SimpleStatement target : node.targets) {
                 graphVisitor.enqueue(target);
@@ -528,11 +527,11 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
         dumper.print("**********").newln();
         List<Op03SimpleStatement> reachableNodes = ListFactory.newList();
         GraphVisitorCallee graphVisitorCallee = new GraphVisitorCallee(reachableNodes);
-        GraphVisitor<Op03SimpleStatement> visitor = new GraphVisitorDFS<Op03SimpleStatement>(this, graphVisitorCallee);
+        GraphVisitor<Op03SimpleStatement> visitor = new GraphVisitorDFS<>(this, graphVisitorCallee);
         visitor.process();
 
         try {
-            Collections.sort(reachableNodes, new CompareByIndex());
+            reachableNodes.sort(new CompareByIndex());
         } catch (ConfusedCFRException e) {
             dumper.print("CONFUSED!" + e);
         }
@@ -638,13 +637,8 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
             state.put(stm, r);
         }
 
-        List<Op03SimpleStatement> endpoints = Functional.filter(statements, new Predicate<Op03SimpleStatement>() {
-            @Override
-            public boolean test(Op03SimpleStatement in) {
-                return in.getTargets().isEmpty();
-            }
-        });
-        UniqueSeenQueue<Op03SimpleStatement> toProcess = new UniqueSeenQueue<Op03SimpleStatement>(endpoints);
+        List<Op03SimpleStatement> endpoints = Functional.filter(statements, in -> in.getTargets().isEmpty());
+        UniqueSeenQueue<Op03SimpleStatement> toProcess = new UniqueSeenQueue<>(endpoints);
 
         while (!toProcess.isEmpty()) {
             Op03SimpleStatement node = toProcess.removeFirst();
@@ -687,14 +681,14 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
      */
     public static void assignSSAIdentifiers(Method method, List<Op03SimpleStatement> statements) {
 
-        SSAIdentifierFactory<LValue,Void> ssaIdentifierFactory = new SSAIdentifierFactory<LValue,Void>(null);
+        SSAIdentifierFactory<LValue,Void> ssaIdentifierFactory = new SSAIdentifierFactory<>(null);
 
         List<LocalVariable> params = method.getMethodPrototype().getComputedParameters();
         Map<LValue, SSAIdent> initialSSAValues = MapFactory.newMap();
         for (LocalVariable param : params) {
             initialSSAValues.put(param, ssaIdentifierFactory.getIdent(param));
         }
-        SSAIdentifiers<LValue> initialIdents = new SSAIdentifiers<LValue>(initialSSAValues);
+        SSAIdentifiers<LValue> initialIdents = new SSAIdentifiers<>(initialSSAValues);
 
         for (Op03SimpleStatement statement : statements) {
             statement.collectLocallyMutatedVariables(ssaIdentifierFactory);
@@ -702,7 +696,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
 
         Op03SimpleStatement entry = statements.get(0);
 
-        UniqueSeenQueue<Op03SimpleStatement> toProcess = new UniqueSeenQueue<Op03SimpleStatement>(statements);
+        UniqueSeenQueue<Op03SimpleStatement> toProcess = new UniqueSeenQueue<>(statements);
         while (!toProcess.isEmpty()) {
             Op03SimpleStatement statement = toProcess.removeFirst();
             SSAIdentifiers<LValue> ssaIdentifiers = statement.ssaIdentifiers;
@@ -721,7 +715,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
     }
 
     public static Op04StructuredStatement createInitialStructuredBlock(List<Op03SimpleStatement> statements) {
-        final GraphConversionHelper<Op03SimpleStatement, Op04StructuredStatement> conversionHelper = new GraphConversionHelper<Op03SimpleStatement, Op04StructuredStatement>();
+        final GraphConversionHelper<Op03SimpleStatement, Op04StructuredStatement> conversionHelper = new GraphConversionHelper<>();
         List<Op04StructuredStatement> containers = ListFactory.newList();
         for (Op03SimpleStatement statement : statements) {
             Op04StructuredStatement unstructuredStatement = statement.getStructuredStatementPlaceHolder();
@@ -763,8 +757,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
         if (swtch.getTargets().size() <= 1) return;
         for (Op03SimpleStatement tgt : swtch.getTargets()) {
             Statement statement = tgt.getStatement();
-            if (statement instanceof CaseStatement) {
-                CaseStatement caseStatement = (CaseStatement) statement;
+            if (statement instanceof CaseStatement caseStatement) {
                 if (caseStatement.getSwitchBlock() == switchBlock) {
                     if (caseStatement.isDefault()) {
                         if (tgt.targets.size() != 1) return;
@@ -802,7 +795,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
     }
 
     public static void removePointlessSwitchDefaults(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> switches = Functional.filter(statements, new TypeFilter<SwitchStatement>(SwitchStatement.class));
+        List<Op03SimpleStatement> switches = Functional.filter(statements, new TypeFilter<>(SwitchStatement.class));
         if (switches.isEmpty()) return;
         Cleaner.reLinkInPlace(statements);
 

@@ -43,8 +43,7 @@ public class ElementValueArray implements ElementValue {
         if (obj == this) {
             return true;
         }
-        else if (obj instanceof ElementValueArray) {
-            ElementValueArray other = (ElementValueArray) obj;
+        else if (obj instanceof ElementValueArray other) {
             return content.equals(other.content);
         }
         else {

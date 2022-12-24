@@ -20,6 +20,7 @@ public class IllegalReturnChecker implements Op04Checker {
         if (in instanceof Block) {
             List<Op04StructuredStatement> stms = ((Block) in).getBlockStatements();
             StructuredStatement last = null;
+            //noinspection ForLoopReplaceableByForEach
             for (int x=0, len=stms.size();x<len;++x) {
                 Op04StructuredStatement statement = stms.get(x);
                 StructuredStatement stm = statement.getStatement();

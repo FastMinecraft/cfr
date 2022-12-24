@@ -167,9 +167,8 @@ public class AssignmentPreMutation extends AbstractAssignment {
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof AssignmentPreMutation)) return false;
+        if (!(o instanceof AssignmentPreMutation other)) return false;
 
-        AssignmentPreMutation other = (AssignmentPreMutation) o;
         return lvalue.equals(other.lvalue) && rvalue.equals(other.rvalue);
     }
 

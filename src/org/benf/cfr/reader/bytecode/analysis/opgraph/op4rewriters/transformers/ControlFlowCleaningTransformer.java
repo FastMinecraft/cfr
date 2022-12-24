@@ -37,8 +37,7 @@ public class ControlFlowCleaningTransformer implements StructuredStatementTransf
     public StructuredStatement transform(StructuredStatement in, StructuredScope scope) {
 
         if (scope.get(0) instanceof Block) {
-            if (in instanceof StructuredBreak) {
-                StructuredBreak inb = (StructuredBreak) in;
+            if (in instanceof StructuredBreak inb) {
                 Set<Op04StructuredStatement> falls = scope.getNextFallThrough(in);
                 /*
                  * If one of these is also a break, AND all of these have the same target as this, this is redundant.
@@ -46,8 +45,7 @@ public class ControlFlowCleaningTransformer implements StructuredStatementTransf
                  */
                 for (Op04StructuredStatement fall : falls) {
                     StructuredStatement stm = fall.getStatement();
-                    if (stm instanceof StructuredBreak) {
-                        StructuredBreak stmb = (StructuredBreak) stm;
+                    if (stm instanceof StructuredBreak stmb) {
                         if (stmb.getBreakBlock() == inb.getBreakBlock()) {
                             return StructuredComment.EMPTY_COMMENT;
                         }
@@ -55,14 +53,12 @@ public class ControlFlowCleaningTransformer implements StructuredStatementTransf
                 }
                 return in;
             }
-            if (in instanceof StructuredContinue) {
-                StructuredContinue cont = (StructuredContinue) in;
+            if (in instanceof StructuredContinue cont) {
 
                 Set<Op04StructuredStatement> falls = scope.getNextFallThrough(in);
                 for (Op04StructuredStatement fall : falls) {
                     StructuredStatement stm = fall.getStatement();
-                    if (stm instanceof StructuredContinue) {
-                        StructuredContinue stmb = (StructuredContinue) stm;
+                    if (stm instanceof StructuredContinue stmb) {
                         if (stmb.getContinueTgt() == cont.getContinueTgt()) {
                             return StructuredComment.EMPTY_COMMENT;
                         }

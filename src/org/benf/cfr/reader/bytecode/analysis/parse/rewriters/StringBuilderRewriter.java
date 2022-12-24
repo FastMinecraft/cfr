@@ -36,14 +36,12 @@ public class StringBuilderRewriter implements ExpressionRewriter {
         expression = expression.applyExpressionRewriter(this, ssaIdentifiers, statementContainer, flags);
 
         Expression result = null;
-        if ((stringBufferEnabled || stringBuilderEnabled) && expression instanceof MemberFunctionInvokation) {
-            MemberFunctionInvokation memberFunctionInvokation = (MemberFunctionInvokation) expression;
+        if ((stringBufferEnabled || stringBuilderEnabled) && expression instanceof MemberFunctionInvokation memberFunctionInvokation) {
             if ("toString".equals(memberFunctionInvokation.getName())) {
                 Expression lhs = memberFunctionInvokation.getObject();
                 result = testAppendChain(lhs);
             }
-        } else if (stringConcatFactoryEnabled && expression instanceof StaticFunctionInvokation) {
-            StaticFunctionInvokation invokation = (StaticFunctionInvokation)expression;
+        } else if (stringConcatFactoryEnabled && expression instanceof StaticFunctionInvokation invokation) {
             if ("makeConcatWithConstants".equals(invokation.getName())
                     && invokation.getClazz().getRawName().equals(TypeConstants.stringConcatFactoryName)) {
                 result = extractStringConcat(invokation);
@@ -65,9 +63,7 @@ public class StringBuilderRewriter implements ExpressionRewriter {
         if (args.size() < 1) return null;
         List<Expression> tmp = ListFactory.newList(args);
         Collections.reverse(tmp);
-        for (int x=0;x<tmp.size();++x) {
-            tmp.set(x, CastExpression.tryRemoveCast(tmp.get(x)));
-        }
+        tmp.replaceAll(CastExpression::tryRemoveCast);
         Expression res = genStringConcat(tmp);
         if (res == null) return staticFunctionInvokation;
         staticFunctionInvokation.getInferredJavaType().forceDelegate(res.getInferredJavaType());
@@ -80,8 +76,7 @@ public class StringBuilderRewriter implements ExpressionRewriter {
         Expression arg0 = args.get(1);
         int argIdx = 2;
         int maxArgs = args.size();
-        if (!(arg0 instanceof NewAnonymousArray)) return null;
-        NewAnonymousArray naArg0 = (NewAnonymousArray)arg0;
+        if (!(arg0 instanceof NewAnonymousArray naArg0)) return null;
         if (naArg0.getNumDims() != 1) return null;
         List<Expression> specs = naArg0.getValues();
         if (specs.size() != 1) return null;
@@ -96,7 +91,7 @@ public class StringBuilderRewriter implements ExpressionRewriter {
         if (strSpec.length() == strSpecQuoted.length()) return null;
         // split doesn't have returnDelims behaviour.
         StringTokenizer st = new StringTokenizer(strSpec, "\u0001", true);
-        List<Expression> toks = new ArrayList<Expression>();
+        List<Expression> toks = new ArrayList<>();
         while (st.hasMoreTokens()) {
             String tok = st.nextToken();
             if (tok.equals("\u0001")) {
@@ -143,8 +138,7 @@ public class StringBuilderRewriter implements ExpressionRewriter {
     private Expression testAppendChain(Expression lhs) {
         List<Expression> reverseAppendChain = ListFactory.newList();
         do {
-            if (lhs instanceof MemberFunctionInvokation) {
-                MemberFunctionInvokation memberFunctionInvokation = (MemberFunctionInvokation) lhs;
+            if (lhs instanceof MemberFunctionInvokation memberFunctionInvokation) {
                 if (memberFunctionInvokation.getName().equals("append") &&
                         memberFunctionInvokation.getArgs().size() == 1) {
                     lhs = memberFunctionInvokation.getObject();
@@ -154,8 +148,7 @@ public class StringBuilderRewriter implements ExpressionRewriter {
                 } else {
                     return null;
                 }
-            } else if (lhs instanceof ConstructorInvokationSimple) {
-                ConstructorInvokationSimple newObject = (ConstructorInvokationSimple) lhs;
+            } else if (lhs instanceof ConstructorInvokationSimple newObject) {
                 String rawName = newObject.getTypeInstance().getRawName();
                 if ((stringBuilderEnabled && rawName.equals(TypeConstants.stringBuilderName)) ||
                         (stringBufferEnabled && rawName.equals(TypeConstants.stringBufferName))) {

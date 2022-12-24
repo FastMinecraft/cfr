@@ -104,7 +104,7 @@ public class StackSSALabel extends AbstractLValue {
 
     @Override
     public SSAIdentifiers<LValue> collectVariableMutation(SSAIdentifierFactory<LValue, ?> ssaIdentifierFactory) {
-        return new SSAIdentifiers<LValue>();
+        return new SSAIdentifiers<>();
     }
 
     @Override

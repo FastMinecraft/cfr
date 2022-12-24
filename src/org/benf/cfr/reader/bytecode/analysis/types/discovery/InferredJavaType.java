@@ -211,9 +211,7 @@ public class InferredJavaType {
                 clashTypes.add(clashType);
             }
             if (arraySize == 1) {
-                for (int x=0;x<clashTypes.size();++x) {
-                    clashTypes.set(x, clashTypes.get(x).removeAnArrayIndirection());
-                }
+                clashTypes.replaceAll(JavaTypeInstance::removeAnArrayIndirection);
             }
             Pair<Boolean, JavaTypeInstance> newlyResolved = collapseTypeClash2(clashTypes);
             //noinspection ConstantConditions
@@ -261,18 +259,16 @@ public class InferredJavaType {
                 // See PairTest3.
                 JavaTypeInstance bindingFor = GenericTypeBinder.extractBindings(rhs, oneClash).getBindingFor(rhs);
                 if (bindingFor != null) {
-                    if (bindingFor instanceof JavaGenericRefTypeInstance) {
-                        JavaGenericRefTypeInstance genericBindingFor = (JavaGenericRefTypeInstance) bindingFor;
+                    if (bindingFor instanceof JavaGenericRefTypeInstance genericBindingFor) {
                         List<List<JavaTypeInstance>> clashSubs = ListFactory.newList();
                         for (JavaTypeInstance typ : genericBindingFor.getGenericTypes()) {
                             clashSubs.add(ListFactory.newList(typ));
                         }
                         for (int i = 1; i < clashes.size(); ++i) {
                             JavaTypeInstance bindingFor2 = GenericTypeBinder.extractBindings(rhs, clashes.get(i)).getBindingFor(rhs);
-                            if (!(bindingFor2 instanceof JavaGenericRefTypeInstance)) {
+                            if (!(bindingFor2 instanceof JavaGenericRefTypeInstance gr2)) {
                                 break betterGen;
                             }
-                            JavaGenericRefTypeInstance gr2 = (JavaGenericRefTypeInstance)bindingFor2;
                             List<JavaTypeInstance> thisClashSubs = gr2.getGenericTypes();
                             if (thisClashSubs.size() != clashSubs.size()) {
                                 break betterGen;
@@ -925,17 +921,17 @@ public class InferredJavaType {
             betterType = a;
         } else {
             switch (whichLit) {
-                case FIRST:
+                case FIRST -> {
                     litType = a;
                     betterType = b;
-                    break;
-                case SECOND:
+                }
+                case SECOND -> {
                     litType = b;
                     betterType = a;
-                    break;
-                case NEITHER:
-                case BOTH:
+                }
+                case NEITHER, BOTH -> {
                     return;
+                }
             }
         }
         // If betterType is wider than litType, just use it.  If it's NARROWER than litType,
@@ -992,14 +988,11 @@ public class InferredJavaType {
             }
         }
         lhs.useInArithOp(rhs, rhs.getRawType(), forbidBool);
-        RawJavaType lhsRawType = lhs.getRawType();
-        switch (op) {
-            case SHL:
-            case SHR:
-            case SHRU:
-                lhsRawType = RawJavaType.INT;
-                break;
-        }
+        lhs.getRawType();
+        RawJavaType lhsRawType = switch (op) {
+            case SHL, SHR, SHRU -> RawJavaType.INT;
+            default -> lhs.getRawType();
+        };
         rhs.useInArithOp(lhs, lhsRawType, forbidBool);
     }
 
@@ -1050,10 +1043,8 @@ public class InferredJavaType {
                     }
                 }
             }
-        } else if (thisTypeInstance instanceof JavaArrayTypeInstance &&
-                otherTypeInstance instanceof JavaArrayTypeInstance) {
-            JavaArrayTypeInstance thisArrayTypeInstance = (JavaArrayTypeInstance) thisTypeInstance;
-            JavaArrayTypeInstance otherArrayTypeInstance = (JavaArrayTypeInstance) otherTypeInstance;
+        } else if (thisTypeInstance instanceof JavaArrayTypeInstance thisArrayTypeInstance &&
+            otherTypeInstance instanceof JavaArrayTypeInstance otherArrayTypeInstance) {
             if (thisArrayTypeInstance.getNumArrayDimensions() != otherArrayTypeInstance.getNumArrayDimensions()) return;
 
             JavaTypeInstance thisStripped = thisArrayTypeInstance.getArrayStrippedType().getDeGenerifiedType();
@@ -1063,10 +1054,8 @@ public class InferredJavaType {
             JavaTypeInstance otherStripped = otherArrayStripped.getDeGenerifiedType();
             if (otherArrayStripped instanceof JavaGenericBaseInstance) return;
 
-            if (thisStripped instanceof JavaRefTypeInstance &&
-                    otherStripped instanceof JavaRefTypeInstance) {
-                JavaRefTypeInstance thisRef = (JavaRefTypeInstance) thisStripped;
-                JavaRefTypeInstance otherRef = (JavaRefTypeInstance) otherStripped;
+            if (thisStripped instanceof JavaRefTypeInstance thisRef &&
+                otherStripped instanceof JavaRefTypeInstance otherRef) {
                 BindingSuperContainer bindingSuperContainer = thisRef.getBindingSupers();
                 if (bindingSuperContainer == null) { // HACK.  It's a hardcoded type.
                     if (otherRef == TypeConstants.OBJECT) {
@@ -1086,8 +1075,7 @@ public class InferredJavaType {
 
     private void improveGenericType(JavaGenericRefTypeInstance otherGeneric) {
         JavaTypeInstance thisTypeInstance = getJavaTypeInstance();
-        if (!(thisTypeInstance instanceof JavaGenericRefTypeInstance)) throw new IllegalStateException();
-        JavaGenericRefTypeInstance thisGeneric = (JavaGenericRefTypeInstance)thisTypeInstance;
+        if (!(thisTypeInstance instanceof JavaGenericRefTypeInstance thisGeneric)) throw new IllegalStateException();
         JavaRefTypeInstance other = otherGeneric.getDeGenerifiedType();
         // Both generics - can we use the hint of the other type to
         // improve this type?

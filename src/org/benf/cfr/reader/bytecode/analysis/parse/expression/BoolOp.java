@@ -24,13 +24,10 @@ public enum BoolOp {
     }
 
     public BoolOp getDemorgan() {
-        switch (this) {
-            case OR:
-                return AND;
-            case AND:
-                return OR;
-            default:
-                throw new ConfusedCFRException("Unknown op.");
-        }
+        return switch (this) {
+            case OR -> AND;
+            case AND -> OR;
+            default -> throw new ConfusedCFRException("Unknown op.");
+        };
     }
 }

@@ -20,7 +20,7 @@ public class PointlessExpressions {
 
     // Expression statements which can't have any effect can be removed.
     static void removePointlessExpressionStatements(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> exrps = Functional.filter(statements, new TypeFilter<ExpressionStatement>(ExpressionStatement.class));
+        List<Op03SimpleStatement> exrps = Functional.filter(statements, new TypeFilter<>(ExpressionStatement.class));
         for (Op03SimpleStatement esc : exrps) {
             ExpressionStatement es = (ExpressionStatement) esc.getStatement();
             Expression expression = es.getExpression();
@@ -28,7 +28,7 @@ public class PointlessExpressions {
                 esc.nopOut();
             }
         }
-        List<Op03SimpleStatement> sas = Functional.filter(statements, new TypeFilter<AssignmentSimple>(AssignmentSimple.class));
+        List<Op03SimpleStatement> sas = Functional.filter(statements, new TypeFilter<>(AssignmentSimple.class));
         for (Op03SimpleStatement ass : sas) {
             AssignmentSimple assignmentSimple = (AssignmentSimple) ass.getStatement();
             LValue lValue = assignmentSimple.getCreatedLValue();

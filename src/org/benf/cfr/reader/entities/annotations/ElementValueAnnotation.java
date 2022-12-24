@@ -31,8 +31,7 @@ public class ElementValueAnnotation implements ElementValue {
         if (obj == this) {
             return true;
         }
-        else if (obj instanceof ElementValueAnnotation) {
-            ElementValueAnnotation other = (ElementValueAnnotation) obj;
+        else if (obj instanceof ElementValueAnnotation other) {
             return annotationTableEntry.equals(other.annotationTableEntry);
         }
         else {

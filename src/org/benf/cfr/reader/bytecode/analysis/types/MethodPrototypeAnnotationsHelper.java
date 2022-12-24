@@ -12,7 +12,7 @@ import org.benf.cfr.reader.entities.attributes.TypeAnnotationTargetInfo;
 import org.benf.cfr.reader.util.DecompilerComments;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.List;
@@ -45,12 +45,9 @@ public class MethodPrototypeAnnotationsHelper {
     // TODO: Linear scans here, could be replaced with index.
     public List<AnnotationTableTypeEntry> getTypeTargetAnnotations(final TypeAnnotationEntryValue target) {
         if (typeAnnotationHelper == null) return null;
-        List<AnnotationTableTypeEntry> res = Functional.filter(typeAnnotationHelper.getEntries(), new Predicate<AnnotationTableTypeEntry>() {
-            @Override
-            public boolean test(AnnotationTableTypeEntry in) {
-                return in.getValue() == target;
-            }
-        });
+        List<AnnotationTableTypeEntry> res = Functional.filter(typeAnnotationHelper.getEntries(),
+            in -> in.getValue() == target
+        );
         if (res.isEmpty()) return null;
         return res;
     }
@@ -70,12 +67,9 @@ public class MethodPrototypeAnnotationsHelper {
     private List<AnnotationTableTypeEntry> getTypeParameterAnnotations(final int paramIdx) {
         List<AnnotationTableTypeEntry> typeEntries = getTypeTargetAnnotations(TypeAnnotationEntryValue.type_formal);
         if (typeEntries == null) return null;
-        typeEntries = Functional.filter(typeEntries, new Predicate<AnnotationTableTypeEntry>() {
-            @Override
-            public boolean test(AnnotationTableTypeEntry in) {
-                return ((TypeAnnotationTargetInfo.TypeAnnotationFormalParameterTarget)in.getTargetInfo()).getIndex() == paramIdx;
-            }
-        });
+        typeEntries = Functional.filter(typeEntries,
+            in -> ((TypeAnnotationTargetInfo.TypeAnnotationFormalParameterTarget)in.getTargetInfo()).getIndex() == paramIdx
+        );
         if (typeEntries.isEmpty()) return null;
         return typeEntries;
     }

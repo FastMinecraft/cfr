@@ -50,8 +50,7 @@ public class StructuredExpressionYield extends AbstractStructuredStatement {
     @Override
     public boolean match(MatchIterator<StructuredStatement> matchIterator, MatchResultCollector matchResultCollector) {
         StructuredStatement o = matchIterator.getCurrent();
-        if (!(o instanceof StructuredExpressionYield)) return false;
-        StructuredExpressionYield other = (StructuredExpressionYield) o;
+        if (!(o instanceof StructuredExpressionYield other)) return false;
         if (!value.equals(other.value)) return false;
         // Don't check locality.
         matchIterator.advance();

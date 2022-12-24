@@ -64,8 +64,7 @@ public class SwitchExpression extends AbstractExpression {
     public boolean equals(Object o) {
         if (o == this) return true;
         if (o == null) return false;
-        if (!(o instanceof SwitchExpression)) return false;
-        SwitchExpression other = (SwitchExpression)o;
+        if (!(o instanceof SwitchExpression other)) return false;
         return cases.equals(other.cases) && value.equals(other.value);
     }
 
@@ -149,8 +148,7 @@ public class SwitchExpression extends AbstractExpression {
     public boolean equivalentUnder(Object o, EquivalenceConstraint constraint) {
         if (o == null) return false;
         if (o == this) return true;
-        if (!(o instanceof SwitchExpression)) return false;
-        SwitchExpression other = (SwitchExpression)o;
+        if (!(o instanceof SwitchExpression other)) return false;
         if (other.cases.size() != cases.size()) return false;
         for (int i=0;i<cases.size();++i) {
             Branch p1 = cases.get(i);

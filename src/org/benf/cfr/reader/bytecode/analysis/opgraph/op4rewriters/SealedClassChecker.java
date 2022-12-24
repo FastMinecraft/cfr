@@ -27,8 +27,8 @@ public class SealedClassChecker {
     }
 
     private static boolean anySealed(ClassSignature sig, DCCommonState state) {
-        if (isSealed(sig.getSuperClass(), state)) return true;
-        for (JavaTypeInstance t : sig.getInterfaces()) {
+        if (isSealed(sig.superClass(), state)) return true;
+        for (JavaTypeInstance t : sig.interfaces()) {
             if (isSealed(t, state)) return true;
         }
         return false;

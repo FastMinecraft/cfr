@@ -24,15 +24,13 @@ public class Triplet<X, Y, Z> {
     }
 
     public static <A, B, C> Triplet<A, B, C> make(A a, B b, C c) {
-        return new Triplet<A, B, C>(a, b, c);
+        return new Triplet<>(a, b, c);
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof Triplet)) return false;
-
-        Triplet other = (Triplet) o;
+        if (!(o instanceof Triplet other)) return false;
 
         if (x == null) {
             if (other.x != null) return false;

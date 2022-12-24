@@ -2,14 +2,7 @@ package org.benf.cfr.reader.bytecode.analysis.variables;
 
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 
-public class Slot {
-    private final JavaTypeInstance javaTypeInstance;
-    private final int idx;
-
-    public Slot(JavaTypeInstance javaTypeInstance, int idx) {
-        this.javaTypeInstance = javaTypeInstance;
-        this.idx = idx;
-    }
+public record Slot(JavaTypeInstance javaTypeInstance, int idx) {
 
     @Override
     public boolean equals(Object o) {
@@ -23,19 +16,11 @@ public class Slot {
         return true;
     }
 
-    public int getIdx() {
-        return idx;
-    }
-
-    public JavaTypeInstance getJavaTypeInstance() {
-        return javaTypeInstance;
-    }
-
     @Override
     public String toString() {
         return "S{" +
-                idx +
-                '}';
+            idx +
+            '}';
     }
 
     @Override

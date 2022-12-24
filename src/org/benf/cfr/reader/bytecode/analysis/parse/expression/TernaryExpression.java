@@ -18,6 +18,8 @@ import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.Troolean;
 import org.benf.cfr.reader.util.output.Dumper;
 
+import java.util.Objects;
+
 public class TernaryExpression extends AbstractExpression implements BoxingProcessor {
     private ConditionalExpression condition;
     private Expression lhs;
@@ -157,9 +159,9 @@ public class TernaryExpression extends AbstractExpression implements BoxingProce
 
         TernaryExpression that = (TernaryExpression) o;
 
-        if (condition != null ? !condition.equals(that.condition) : that.condition != null) return false;
-        if (lhs != null ? !lhs.equals(that.lhs) : that.lhs != null) return false;
-        if (rhs != null ? !rhs.equals(that.rhs) : that.rhs != null) return false;
+        if (!Objects.equals(condition, that.condition)) return false;
+        if (!Objects.equals(lhs, that.lhs)) return false;
+        if (!Objects.equals(rhs, that.rhs)) return false;
 
         return true;
     }

@@ -125,8 +125,7 @@ public class StructuredCase extends AbstractStructuredBlockStatement {
     @Override
     public boolean match(MatchIterator<StructuredStatement> matchIterator, MatchResultCollector matchResultCollector) {
         StructuredStatement o = matchIterator.getCurrent();
-        if (!(o instanceof StructuredCase)) return false;
-        StructuredCase other = (StructuredCase) o;
+        if (!(o instanceof StructuredCase other)) return false;
         if (!values.equals(other.values)) return false;
         if (!blockIdentifier.equals(other.blockIdentifier)) return false;
         matchIterator.advance();

@@ -184,11 +184,11 @@ public class DeclarationAnnotationHelper {
          * Therefore at least find annotation types which are actually used on
          * both declaration and type.
          */
-        Set<JavaTypeInstance> declTypeAnnotations = new HashSet<JavaTypeInstance>();
+        Set<JavaTypeInstance> declTypeAnnotations = new HashSet<>();
         for (AnnotationTableEntry declAnn : declAnnotations) {
             declTypeAnnotations.add(declAnn.getClazz());
         }
-        List<JavaTypeInstance> typeAnnotationClasses = new ArrayList<JavaTypeInstance>();
+        List<JavaTypeInstance> typeAnnotationClasses = new ArrayList<>();
         for (AnnotationTableTypeEntry typeAnn : typeAnnotations) {
             typeAnnotationClasses.add(typeAnn.getClazz());
         }
@@ -217,7 +217,7 @@ public class DeclarationAnnotationHelper {
         for (AnnotationTableTypeEntry annotation : typeAnnotations) {
             NestedCountingIterator annotationIterator = new NestedCountingIterator();
 
-            for (TypePathPart typePathPart : annotation.getTypePath().segments) {
+            for (TypePathPart typePathPart : annotation.getTypePath().segments()) {
                 typePathPart.apply(annotationIterator, EMPTY_DECOMPILER_COMMENTS);
 
                 if (annotationIterator.wasOtherTypeUsed) {
@@ -274,7 +274,7 @@ public class DeclarationAnnotationHelper {
     // This assumes that JDK-8223936 is fixed and would only apply the annotation to the
     // declaration, but not the type
     private static boolean canTypeAnnotationBeMovedToDecl(JavaTypeInstance annotatedType, AnnotationTableTypeEntry typeAnnotation, Integer commonInnerAnnotationIndex) {
-        List<TypePathPart> typePathParts = typeAnnotation.getTypePath().segments;
+        List<TypePathPart> typePathParts = typeAnnotation.getTypePath().segments();
 
         if (annotatedType.getInnerClassHereInfo().isInnerClass()) {
             NestedCountingIterator annotationIterator = new NestedCountingIterator();
@@ -356,7 +356,7 @@ public class DeclarationAnnotationHelper {
         }
 
         Integer commonInnerAnnotationIndex = getCommonInnerClassAnnotationIndex(typeAnnotations);
-        List<AnnotationTableTypeEntry> typeDeclTypeAnnotations = new ArrayList<AnnotationTableTypeEntry>();
+        List<AnnotationTableTypeEntry> typeDeclTypeAnnotations = new ArrayList<>();
         boolean requiresMoveToTypeAnn = false;
         // Index of the first decl + TYPE_USE annotation which must be placed on the
         // type due to ordering constraints; only relevant if requiresMoveToTypeAnn == true
@@ -383,7 +383,7 @@ public class DeclarationAnnotationHelper {
         // Index of last decl + TYPE_USE annotation which must be placed on the
         // declaration due to ordering constraints
         int lastNonMovableDeclAnnIndex = -1;
-        List<AnnotationTableEntry> declDeclTypeAnnotations = new ArrayList<AnnotationTableEntry>();
+        List<AnnotationTableEntry> declDeclTypeAnnotations = new ArrayList<>();
         for (AnnotationTableEntry declAnn : declarationAnnotations) {
             if (declTypeAnnotations.contains(declAnn.getClazz())) {
                 declDeclTypeAnnotations.add(declAnn);
@@ -428,11 +428,11 @@ public class DeclarationAnnotationHelper {
              * Here TypeAndDecl2 must be moved to the type because it is placed after TYPE_USE
              * only annotation Type.
              */
-            List<AnnotationTableEntry> declAnnotationsAdmissible = new ArrayList<AnnotationTableEntry>(declarationAnnotations);
+            List<AnnotationTableEntry> declAnnotationsAdmissible = new ArrayList<>(declarationAnnotations);
             declAnnotationsAdmissible.removeAll(declDeclTypeAnnotations.subList(firstMovedTypeAnnIndex, declDeclTypeAnnotations.size()));
             // For annotations to place on type need to remove all other decl + TYPE_USE
             // annotations which remain on declaration
-            List<AnnotationTableTypeEntry> typeAnnotationsAdmissible = new ArrayList<AnnotationTableTypeEntry>(typeAnnotations);
+            List<AnnotationTableTypeEntry> typeAnnotationsAdmissible = new ArrayList<>(typeAnnotations);
             typeAnnotationsAdmissible.removeAll(typeDeclTypeAnnotations.subList(0, firstMovedTypeAnnIndex));
 
             return DeclarationAnnotationsInfo.possibleAdmissible(declAnnotationsAdmissible, declarationAnnotations, typeAnnotationsAdmissible, typeAnnotations);
@@ -440,7 +440,7 @@ public class DeclarationAnnotationHelper {
         else {
             // Move all annotations applicable to declaration and type to the
             // declaration
-            List<AnnotationTableTypeEntry> typeAnnotationsAdmissible = new ArrayList<AnnotationTableTypeEntry>(typeAnnotations);
+            List<AnnotationTableTypeEntry> typeAnnotationsAdmissible = new ArrayList<>(typeAnnotations);
             typeAnnotationsAdmissible.removeAll(typeDeclTypeAnnotations);
 
             return DeclarationAnnotationsInfo.possibleAdmissible(declarationAnnotations, declarationAnnotations, typeAnnotationsAdmissible, typeAnnotations);

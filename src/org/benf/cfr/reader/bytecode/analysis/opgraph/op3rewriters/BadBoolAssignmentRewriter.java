@@ -23,8 +23,7 @@ import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 public class BadBoolAssignmentRewriter extends AbstractExpressionRewriter {
     @Override
     public Expression rewriteExpression(Expression expression, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
-        if (expression instanceof ArithmeticOperation) {
-            ArithmeticOperation op = (ArithmeticOperation)expression;
+        if (expression instanceof ArithmeticOperation op) {
             JavaTypeInstance resType = op.getInferredJavaType().getJavaTypeInstance();
             RawJavaType rawRes = resType.getRawTypeOfSimpleType();
             if (resType.getStackType() == StackType.INT && resType != RawJavaType.BOOLEAN) {

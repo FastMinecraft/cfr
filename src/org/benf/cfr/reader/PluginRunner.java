@@ -42,7 +42,7 @@ public class PluginRunner {
     }
 
     public List<List<String>> addJarPaths(String[] jarPaths) {
-        List<List<String>> res = new ArrayList<List<String>>();
+        List<List<String>> res = new ArrayList<>();
         for (String jarPath : jarPaths) {
             res.add(addJarPath(jarPath));
         }
@@ -52,14 +52,9 @@ public class PluginRunner {
     public List<String> addJarPath(String jarPath) {
         try {
             List<JavaTypeInstance> types = dcCommonState.explicitlyLoadJar(jarPath, AnalysisType.JAR).get(0);
-            return Functional.map(types, new UnaryFunction<JavaTypeInstance, String>() {
-                @Override
-                public String invoke(JavaTypeInstance arg) {
-                    return arg.getRawName();
-                }
-            });
+            return Functional.map(types, JavaTypeInstance::getRawName);
         } catch (Exception e) {
-            return new ArrayList<String>();
+            return new ArrayList<>();
         }
     }
 

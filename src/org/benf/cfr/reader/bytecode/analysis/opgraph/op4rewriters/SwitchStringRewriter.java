@@ -92,7 +92,7 @@ public class SwitchStringRewriter implements Op04Rewriter {
      * Note that this doesn't pull anything into the switch (so switch expressions will need further work).
      */
     private void rewriteEmpty(List<StructuredStatement> structuredStatements) {
-        MatchIterator<StructuredStatement> mi = new MatchIterator<StructuredStatement>(structuredStatements);
+        MatchIterator<StructuredStatement> mi = new MatchIterator<>(structuredStatements);
 
         WildcardMatch wcm = new WildcardMatch();
 
@@ -137,7 +137,7 @@ public class SwitchStringRewriter implements Op04Rewriter {
     private void rewriteComplex(List<StructuredStatement> structuredStatements) {
         // Rather than have a non-greedy kleene star at the start, we cheat and scan for valid start points.
         // switch OB (case OB (if-testalternativevalid OB assign break CB)* if-notvalid break assign break CB)+ CB
-        MatchIterator<StructuredStatement> mi = new MatchIterator<StructuredStatement>(structuredStatements);
+        MatchIterator<StructuredStatement> mi = new MatchIterator<>(structuredStatements);
 
         WildcardMatch wcm1 = new WildcardMatch();
         WildcardMatch wcm2 = new WildcardMatch();
@@ -219,11 +219,9 @@ public class SwitchStringRewriter implements Op04Rewriter {
         BlockIdentifier blockIdentifier = original.getBlockIdentifier();
 
         StructuredStatement inner = body.getStatement();
-        if (!(inner instanceof Block)) {
+        if (!(inner instanceof Block block)) {
             throw new FailedRewriteException("Switch body is not a block, is a " + inner.getClass());
         }
-
-        Block block = (Block) inner;
 
         Map<Integer, List<String>> replacements = matchResultCollector.getValidatedHashes();
         List<Op04StructuredStatement> caseStatements = block.getBlockStatements();
@@ -232,10 +230,9 @@ public class SwitchStringRewriter implements Op04Rewriter {
         InferredJavaType typeOfSwitch = matchResultCollector.getStringExpression().getInferredJavaType();
         for (Op04StructuredStatement op04StructuredStatement : caseStatements) {
             inner = op04StructuredStatement.getStatement();
-            if (!(inner instanceof StructuredCase)) {
+            if (!(inner instanceof StructuredCase structuredCase)) {
                 throw new FailedRewriteException("Block member is not a case, it's a " + inner.getClass());
             }
-            StructuredCase structuredCase = (StructuredCase) inner;
             List<Expression> values = structuredCase.getValues();
             List<Expression> transformedValues = ListFactory.newList();
 
@@ -324,12 +321,7 @@ public class SwitchStringRewriter implements Op04Rewriter {
 
         private Expression stringExpression = null;
         private final List<Pair<String, Integer>> pendingHashCode = ListFactory.newList();
-        private final Map<Integer, List<String>> validatedHashes = MapFactory.newLazyMap(new UnaryFunction<Integer, List<String>>() {
-            @Override
-            public List<String> invoke(Integer arg) {
-                return ListFactory.newList();
-            }
-        });
+        private final Map<Integer, List<String>> validatedHashes = MapFactory.newLazyMap(arg -> ListFactory.newList());
         private final Map<String, StructuredStatement> collectedStatements = MapFactory.newMap();
         private Expression verify;
         private LValue lvalue;
@@ -400,10 +392,9 @@ public class SwitchStringRewriter implements Op04Rewriter {
     }
 
     private static String getString(Expression e) {
-        if (!(e instanceof Literal)) {
+        if (!(e instanceof Literal l)) {
             throw new TooOptimisticMatchException();
         }
-        Literal l = (Literal) e;
         TypedLiteral typedLiteral = l.getValue();
         if (typedLiteral.getType() != TypedLiteral.LiteralType.String) {
             throw new TooOptimisticMatchException();
@@ -413,10 +404,9 @@ public class SwitchStringRewriter implements Op04Rewriter {
 
     // TODO : Verify type
     private static Integer getInt(Expression e) {
-        if (!(e instanceof Literal)) {
+        if (!(e instanceof Literal l)) {
             throw new TooOptimisticMatchException();
         }
-        Literal l = (Literal) e;
         TypedLiteral typedLiteral = l.getValue();
         if (typedLiteral.getType() != TypedLiteral.LiteralType.Integer) {
             throw new TooOptimisticMatchException();

@@ -62,12 +62,12 @@ public class StackSim {
         }
         try {
             StackSim thisSim = this;
-            StackTypes consumedStack = delta.getConsumed();
+            StackTypes consumedStack = delta.consumed();
             for (StackType stackType : consumedStack) {
                 consumed.add(thisSim.stackEntryHolder);
                 thisSim = thisSim.getParent();
             }
-            StackTypes producedStack = delta.getProduced();
+            StackTypes producedStack = delta.produced();
             for (int x = producedStack.size() - 1; x >= 0; --x) {
                 thisSim = new StackSim(thisSim, producedStack.get(x));
             }

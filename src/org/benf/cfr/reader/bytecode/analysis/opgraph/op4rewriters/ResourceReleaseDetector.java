@@ -40,7 +40,7 @@ public class ResourceReleaseDetector {
         WildcardMatch wcm = new WildcardMatch();
         Matcher<StructuredStatement> m = getStructuredStatementMatcher(wcm, throwable, autoclose);
 
-        MatchIterator<StructuredStatement> mi = new MatchIterator<StructuredStatement>(structuredStatements);
+        MatchIterator<StructuredStatement> mi = new MatchIterator<>(structuredStatements);
 
         MatchResultCollector collector = new EmptyMatchResultCollector();
         mi.advance();

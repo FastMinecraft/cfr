@@ -16,6 +16,7 @@ import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.List;
+import java.util.Objects;
 
 public class NewObjectArray extends AbstractNewArray {
     private List<Expression> dimSizes;
@@ -118,10 +119,10 @@ public class NewObjectArray extends AbstractNewArray {
         NewObjectArray that = (NewObjectArray) o;
 
         if (numDims != that.numDims) return false;
-        if (allocatedType != null ? !allocatedType.equals(that.allocatedType) : that.allocatedType != null)
+        if (!Objects.equals(allocatedType, that.allocatedType))
             return false;
-        if (dimSizes != null ? !dimSizes.equals(that.dimSizes) : that.dimSizes != null) return false;
-        if (resultType != null ? !resultType.equals(that.resultType) : that.resultType != null) return false;
+        if (!Objects.equals(dimSizes, that.dimSizes)) return false;
+        if (!Objects.equals(resultType, that.resultType)) return false;
 
         return true;
     }

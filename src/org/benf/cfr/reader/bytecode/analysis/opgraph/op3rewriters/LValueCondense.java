@@ -89,8 +89,7 @@ public class LValueCondense {
 
 
         Expression newRhs = null;
-        if (r1 instanceof ArithmeticOperation && ((ArithmeticOperation) r1).isMutationOf(l1)) {
-            ArithmeticOperation ar1 = (ArithmeticOperation) r1;
+        if (r1 instanceof ArithmeticOperation ar1 && ((ArithmeticOperation) r1).isMutationOf(l1)) {
             AbstractMutatingAssignmentExpression me = ar1.getMutationOf(l1);
             newRhs = me;
         }

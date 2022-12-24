@@ -24,7 +24,7 @@ import org.benf.cfr.reader.bytecode.analysis.types.RawJavaType;
 import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.StringUtils;
 import org.benf.cfr.reader.util.collections.ListFactory;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.List;
@@ -120,8 +120,7 @@ public class StructuredFor extends AbstractStructuredBlockStatement {
             LValue lv2 = lValue;
             do {
                 scopeDiscoverer.collect(lv2, ReadWrite.READ);
-                if (rhs instanceof AssignmentExpression) {
-                    AssignmentExpression assignmentExpression = (AssignmentExpression) rhs;
+                if (rhs instanceof AssignmentExpression assignmentExpression) {
                     lv2 = assignmentExpression.getlValue();
                     rhs = assignmentExpression.getrValue();
                 } else {
@@ -169,8 +168,7 @@ public class StructuredFor extends AbstractStructuredBlockStatement {
 
         if (!(assignments.get(0) instanceof AbstractMutatingAssignmentExpression)) return null;
 
-        if (!(loopType instanceof RawJavaType)) return null;
-        RawJavaType rawJavaType = (RawJavaType) loopType;
+        if (!(loopType instanceof RawJavaType rawJavaType)) return null;
         switch (rawJavaType) {
             case INT:
             case SHORT:
@@ -192,9 +190,12 @@ public class StructuredFor extends AbstractStructuredBlockStatement {
     public void rewriteExpressions(ExpressionRewriter expressionRewriter) {
         condition = expressionRewriter.rewriteExpression(condition, null, this.getContainer(), null);
         initial.rewriteExpressions(expressionRewriter, null);
-        for (int x = 0; x < assignments.size(); ++x) {
-            assignments.set(x, (AbstractAssignmentExpression)expressionRewriter.rewriteExpression(assignments.get(x), null, this.getContainer(), null));
-        }
+        assignments.replaceAll(expression -> (AbstractAssignmentExpression) expressionRewriter.rewriteExpression(
+            expression,
+            null,
+            this.getContainer(),
+            null
+        ));
     }
 
     public BlockIdentifier getBlock() {
@@ -204,8 +205,7 @@ public class StructuredFor extends AbstractStructuredBlockStatement {
     @Override
     public boolean match(MatchIterator<StructuredStatement> matchIterator, MatchResultCollector matchResultCollector) {
         StructuredStatement o = matchIterator.getCurrent();
-        if (!(o instanceof StructuredFor)) return false;
-        StructuredFor other = (StructuredFor) o;
+        if (!(o instanceof StructuredFor other)) return false;
         if (!initial.equals(other.initial)) return false;
         if (condition == null) {
             if (other.condition != null) return false;

@@ -36,13 +36,9 @@ public class DecodedTableSwitch implements DecodedSwitch {
 
         // Treemap so that targets are in bytecode order.
         Map<Integer, List<Integer>> uniqueTargets = MapFactory.newLazyMap(
-                new TreeMap<Integer, List<Integer>>(),
-                new UnaryFunction<Integer, List<Integer>>() {
-                    @Override
-                    public List<Integer> invoke(Integer arg) {
-                        return ListFactory.newList();
-                    }
-                });
+            new TreeMap<>(),
+            arg -> ListFactory.newList()
+        );
         uniqueTargets.get(defaultTarget).add(null);
         for (int x = 0; x < numoffsets; ++x) {
             int target = bd.getS4At(offset + OFFSET_OF_OFFSETS + (x * 4));

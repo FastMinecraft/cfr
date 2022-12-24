@@ -43,15 +43,10 @@ public class ConstantPoolEntryMethodHandle extends AbstractConstantPoolEntry {
     }
 
     public boolean isFieldRef() {
-        switch (referenceKind) {
-            case GET_FIELD:
-            case GET_STATIC:
-            case PUT_FIELD:
-            case PUT_STATIC:
-                return true;
-            default:
-                return false;
-        }
+        return switch (referenceKind) {
+            case GET_FIELD, GET_STATIC, PUT_FIELD, PUT_STATIC -> true;
+            default -> false;
+        };
     }
 
     public String getLiteralName() {

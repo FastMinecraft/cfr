@@ -14,7 +14,7 @@ import org.benf.cfr.reader.util.Troolean;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
@@ -75,8 +75,7 @@ class WhileRewriter {
             if (endIdx < statements.size() - 2) {
                 Op03SimpleStatement shuffled = statements.get(endIdx + 1);
                 for (Op03SimpleStatement shuffledSource : shuffled.getSources()) {
-                    if (shuffledSource.getStatement() instanceof JumpingStatement) {
-                        JumpingStatement jumpingStatement = (JumpingStatement) shuffledSource.getStatement();
+                    if (shuffledSource.getStatement() instanceof JumpingStatement jumpingStatement) {
                         if (jumpingStatement.getJumpType() == JumpType.BREAK) {
                             jumpingStatement.setJumpType(JumpType.GOTO);
                         }
@@ -110,12 +109,9 @@ class WhileRewriter {
     }
 
     static void rewriteDoWhileTruePredAsWhile(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> doWhileEnds = Functional.filter(statements, new Predicate<Op03SimpleStatement>() {
-            @Override
-            public boolean test(Op03SimpleStatement in) {
-                return (in.getStatement() instanceof WhileStatement) && ((WhileStatement) in.getStatement()).getBlockIdentifier().getBlockType() == BlockType.UNCONDITIONALDOLOOP;
-            }
-        });
+        List<Op03SimpleStatement> doWhileEnds = Functional.filter(statements,
+            in -> (in.getStatement() instanceof WhileStatement) && ((WhileStatement) in.getStatement()).getBlockIdentifier().getBlockType() == BlockType.UNCONDITIONALDOLOOP
+        );
 
         if (doWhileEnds.isEmpty()) return;
 
@@ -135,8 +131,7 @@ class WhileRewriter {
              * As such, we want to make sure that we haven't transformed assignments into ExprStatements of
              * postAdjustExpressions yet.
              */
-            if (current.getStatement() instanceof AbstractAssignment) {
-                AbstractAssignment assignment = (AbstractAssignment) current.getStatement();
+            if (current.getStatement() instanceof AbstractAssignment assignment) {
                 if (assignment.isSelfMutatingOperation()) {
                     LValue lValue = assignment.getCreatedLValue();
                     SSAIdent after = current.getSSAIdentifiers().getSSAIdentOnExit(lValue);
@@ -263,8 +258,7 @@ class WhileRewriter {
                 for (Op03SimpleStatement ssource : ssources) {
                     if (ssource.getBlockIdentifiers().contains(whileBlockIdentifier)) {
                         Statement sstatement = ssource.getStatement();
-                        if (sstatement instanceof JumpingStatement) {
-                            JumpingStatement jumpingStatement = (JumpingStatement) sstatement;
+                        if (sstatement instanceof JumpingStatement jumpingStatement) {
                             if (jumpingStatement.getJumpTarget().getContainer() == source) {
                                 ((JumpingStatement) sstatement).setJumpType(JumpType.CONTINUE);
                                 ssource.replaceTarget(source, statement);
@@ -284,8 +278,7 @@ class WhileRewriter {
             return null;
         }
         do {
-            if (current.getStatement() instanceof AssignmentSimple) {
-                AssignmentSimple assignmentSimple = (AssignmentSimple) current.getStatement();
+            if (current.getStatement() instanceof AssignmentSimple assignmentSimple) {
                 if (assignmentSimple.getCreatedLValue().equals(lValue)) {
                     /* Verify that everything on the RHS is at the correct version */
                     Expression rhs = assignmentSimple.getRValue();
@@ -312,8 +305,7 @@ class WhileRewriter {
     private static Op03SimpleStatement getForInvariant(Op03SimpleStatement start, LValue invariant, BlockIdentifier whileLoop) {
         Op03SimpleStatement current = start;
         while (current.getBlockIdentifiers().contains(whileLoop)) {
-            if (current.getStatement() instanceof AbstractAssignment) {
-                AbstractAssignment assignment = (AbstractAssignment) current.getStatement();
+            if (current.getStatement() instanceof AbstractAssignment assignment) {
                 LValue assigned = assignment.getCreatedLValue();
                 if (invariant.equals(assigned)) {
                     if (assignment.isSelfMutatingOperation()) return current;
@@ -351,12 +343,9 @@ class WhileRewriter {
 
     static void rewriteWhilesAsFors(Options options, List<Op03SimpleStatement> statements) {
         // Find all the while loops beginnings.
-        List<Op03SimpleStatement> whileStarts = Functional.filter(statements, new Predicate<Op03SimpleStatement>() {
-            @Override
-            public boolean test(Op03SimpleStatement in) {
-                return (in.getStatement() instanceof WhileStatement) && ((WhileStatement) in.getStatement()).getBlockIdentifier().getBlockType() == BlockType.WHILELOOP;
-            }
-        });
+        List<Op03SimpleStatement> whileStarts = Functional.filter(statements,
+            in -> (in.getStatement() instanceof WhileStatement) && ((WhileStatement) in.getStatement()).getBlockIdentifier().getBlockType() == BlockType.WHILELOOP
+        );
         boolean aggcapture = options.getOption(OptionsImpl.FOR_LOOP_CAPTURE) == Troolean.TRUE;
         for (Op03SimpleStatement whileStart : whileStarts) {
             rewriteWhileAsFor(whileStart, aggcapture);

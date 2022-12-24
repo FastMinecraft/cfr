@@ -47,44 +47,26 @@ public interface ConstantPoolEntry {
         private static final byte VAL_PackageInfo = 20;
 
         public static Type get(byte val) {
-            switch (val) {
-                case VAL_UTF8:
-                    return CPT_UTF8;
-                case VAL_Integer:
-                    return CPT_Integer;
-                case VAL_Float:
-                    return CPT_Float;
-                case VAL_Long:
-                    return CPT_Long;
-                case VAL_Double:
-                    return CPT_Double;
-                case VAL_Class:
-                    return CPT_Class;
-                case VAL_String:
-                    return CPT_String;
-                case VAL_FieldRef:
-                    return CPT_FieldRef;
-                case VAL_MethodRef:
-                    return CPT_MethodRef;
-                case VAL_InterfaceMethodRef:
-                    return CPT_InterfaceMethodRef;
-                case VAL_NameAndType:
-                    return CPT_NameAndType;
-                case VAL_MethodHandle:
-                    return CPT_MethodHandle;
-                case VAL_MethodType:
-                    return CPT_MethodType;
-                case VAL_DynamicInfo:
-                    return CPT_DynamicInfo;
-                case VAL_InvokeDynamic:
-                    return CPT_InvokeDynamic;
-                case VAL_ModuleInfo:
-                    return CPT_ModuleInfo;
-                case VAL_PackageInfo:
-                    return CPT_PackageInfo;
-                default:
-                    throw new ConfusedCFRException("Invalid constant pool entry type : " + val);
-            }
+            return switch (val) {
+                case VAL_UTF8 -> CPT_UTF8;
+                case VAL_Integer -> CPT_Integer;
+                case VAL_Float -> CPT_Float;
+                case VAL_Long -> CPT_Long;
+                case VAL_Double -> CPT_Double;
+                case VAL_Class -> CPT_Class;
+                case VAL_String -> CPT_String;
+                case VAL_FieldRef -> CPT_FieldRef;
+                case VAL_MethodRef -> CPT_MethodRef;
+                case VAL_InterfaceMethodRef -> CPT_InterfaceMethodRef;
+                case VAL_NameAndType -> CPT_NameAndType;
+                case VAL_MethodHandle -> CPT_MethodHandle;
+                case VAL_MethodType -> CPT_MethodType;
+                case VAL_DynamicInfo -> CPT_DynamicInfo;
+                case VAL_InvokeDynamic -> CPT_InvokeDynamic;
+                case VAL_ModuleInfo -> CPT_ModuleInfo;
+                case VAL_PackageInfo -> CPT_PackageInfo;
+                default -> throw new ConfusedCFRException("Invalid constant pool entry type : " + val);
+            };
         }
     }
 }

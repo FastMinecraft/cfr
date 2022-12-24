@@ -13,6 +13,7 @@ import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.List;
+import java.util.Objects;
 
 public class StructuredThrow extends AbstractStructuredStatement {
     private Expression value;
@@ -63,8 +64,7 @@ public class StructuredThrow extends AbstractStructuredStatement {
     @Override
     public boolean match(MatchIterator<StructuredStatement> matchIterator, MatchResultCollector matchResultCollector) {
         StructuredStatement o = matchIterator.getCurrent();
-        if (!(o instanceof StructuredThrow)) return false;
-        StructuredThrow other = (StructuredThrow) o;
+        if (!(o instanceof StructuredThrow other)) return false;
         if (!value.equals(other.value)) return false;
 
         matchIterator.advance();
@@ -83,7 +83,7 @@ public class StructuredThrow extends AbstractStructuredStatement {
 
         StructuredThrow that = (StructuredThrow) o;
 
-        if (value != null ? !value.equals(that.value) : that.value != null) return false;
+        if (!Objects.equals(value, that.value)) return false;
 
         return true;
     }

@@ -82,8 +82,7 @@ public class MemberFunctionInvokation extends AbstractMemberFunctionInvokation {
     public boolean equivalentUnder(Object o, EquivalenceConstraint constraint) {
         if (!super.equivalentUnder(o, constraint)) return false;
         if (o == this) return true;
-        if (!(o instanceof MemberFunctionInvokation)) return false;
-        MemberFunctionInvokation other = (MemberFunctionInvokation) o;
+        if (!(o instanceof MemberFunctionInvokation other)) return false;
         return constraint.equivalent(getName(), other.getName());
     }
 }

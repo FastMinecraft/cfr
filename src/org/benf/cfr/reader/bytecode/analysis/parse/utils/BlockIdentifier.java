@@ -2,7 +2,7 @@ package org.benf.cfr.reader.bytecode.analysis.parse.utils;
 
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 
 import java.util.Collections;
 import java.util.List;
@@ -57,12 +57,9 @@ public class BlockIdentifier implements Comparable<BlockIdentifier> {
     }
 
     public static BlockIdentifier getOutermostContainedIn(Set<BlockIdentifier> endingBlocks, final Set<BlockIdentifier> blocksInAtThisPoint) {
-        List<BlockIdentifier> containedIn = Functional.filter(ListFactory.newList(endingBlocks), new Predicate<BlockIdentifier>() {
-            @Override
-            public boolean test(BlockIdentifier in) {
-                return blocksInAtThisPoint.contains(in);
-            }
-        });
+        List<BlockIdentifier> containedIn = Functional.filter(ListFactory.newList(endingBlocks),
+            blocksInAtThisPoint::contains
+        );
         if (containedIn.isEmpty()) return null;
         Collections.sort(containedIn);
         return containedIn.get(0);

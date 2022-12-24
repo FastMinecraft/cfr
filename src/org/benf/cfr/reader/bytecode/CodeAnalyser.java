@@ -255,7 +255,7 @@ public class CodeAnalyser {
     private List<Op01WithProcessedDataAndByteJumps> getInstrs() {
         ByteData rawCode = originalCodeAttribute.getRawData();
         long codeLength = originalCodeAttribute.getCodeLength();
-        ArrayList<Op01WithProcessedDataAndByteJumps> instrs = new ArrayList<Op01WithProcessedDataAndByteJumps>();
+        ArrayList<Op01WithProcessedDataAndByteJumps> instrs = new ArrayList<>();
         OffsettingByteData bdCode = rawCode.getOffsettingOffsetData(0);
         int offset = 0;
 
@@ -302,8 +302,8 @@ public class CodeAnalyser {
             comments.addComment("Opcode count of " + instrs.size() + " triggered aggressive code reduction.  Override with --" + OptionsImpl.AGGRESSIVE_SIZE_REDUCTION_THRESHOLD.getName() + ".");
         }
 
-        SortedMap<Integer, Integer> lutByOffset = new TreeMap<Integer, Integer>();
-        Map<Integer, Integer> lutByIdx = new HashMap<Integer, Integer>();
+        SortedMap<Integer, Integer> lutByOffset = new TreeMap<>();
+        Map<Integer, Integer> lutByIdx = new HashMap<>();
         int idx2 = 0;
         int offset2 = -1;
         for (Op01WithProcessedDataAndByteJumps op : instrs) {

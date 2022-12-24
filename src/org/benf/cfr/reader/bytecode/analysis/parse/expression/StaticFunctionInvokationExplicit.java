@@ -36,8 +36,7 @@ public class StaticFunctionInvokationExplicit extends AbstractFunctionInvokation
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null) return false;
-        if (!(o instanceof StaticFunctionInvokationExplicit)) return false;
-        StaticFunctionInvokationExplicit other = (StaticFunctionInvokationExplicit)o;
+        if (!(o instanceof StaticFunctionInvokationExplicit other)) return false;
         return getClazz().equals(other.getClazz()) && getMethod().equals(other.getMethod()) && getArgs().equals(other.getArgs());
     }
 
@@ -62,8 +61,7 @@ public class StaticFunctionInvokationExplicit extends AbstractFunctionInvokation
     public boolean equivalentUnder(Object o, EquivalenceConstraint constraint) {
         if (o == this) return true;
         if (o == null) return false;
-        if (!(o instanceof StaticFunctionInvokationExplicit)) return false;
-        StaticFunctionInvokationExplicit other = (StaticFunctionInvokationExplicit)o;
+        if (!(o instanceof StaticFunctionInvokationExplicit other)) return false;
         if (!constraint.equivalent(getMethod(), other.getMethod())) return false;
         if (!constraint.equivalent(getClazz(), other.getClazz())) return false;
         if (!constraint.equivalent(getArgs(), other.getArgs())) return false;

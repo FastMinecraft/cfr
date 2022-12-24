@@ -94,9 +94,7 @@ public class ArithmeticPostMutationOperation extends AbstractMutatingAssignmentE
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof ArithmeticPostMutationOperation)) return false;
-
-        ArithmeticPostMutationOperation other = (ArithmeticPostMutationOperation) o;
+        if (!(o instanceof ArithmeticPostMutationOperation other)) return false;
 
         return mutated.equals(other.mutated) &&
                 op.equals(other.op);
@@ -105,9 +103,8 @@ public class ArithmeticPostMutationOperation extends AbstractMutatingAssignmentE
     @Override
     public boolean equivalentUnder(Object o, EquivalenceConstraint constraint) {
         if (o == this) return true;
-        if (!(o instanceof ArithmeticPostMutationOperation)) return false;
+        if (!(o instanceof ArithmeticPostMutationOperation other)) return false;
 
-        ArithmeticPostMutationOperation other = (ArithmeticPostMutationOperation) o;
         if (!constraint.equivalent(mutated, other.mutated)) return false;
         if (!constraint.equivalent(op, other.op)) return false;
         return true;

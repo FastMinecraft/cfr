@@ -29,8 +29,7 @@ public class RedundantIntersectionCastTransformer extends AbstractExpressionRewr
     @Override
     public Expression rewriteExpression(Expression expression, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
         expression = expression.applyExpressionRewriter(this, ssaIdentifiers, statementContainer, flags);
-        if (expression instanceof CastExpression) {
-            CastExpression res = (CastExpression)expression;
+        if (expression instanceof CastExpression res) {
             Expression child = res.getChild();
             JavaTypeInstance childType = child.getInferredJavaType().getJavaTypeInstance();
             if (child instanceof CastExpression &&

@@ -54,8 +54,7 @@ public class ConstantPoolEntryUTF8 extends AbstractConstantPoolEntry {
                 }
             }
             tmpValue = new String(outchars, 0, out);
-        } catch (IllegalArgumentException ignore) {
-        } catch (IndexOutOfBoundsException ignore) {
+        } catch (IllegalArgumentException | IndexOutOfBoundsException ignore) {
         }
         if (tmpValue == null) {
             // Constpool actually uses modified UTF8....

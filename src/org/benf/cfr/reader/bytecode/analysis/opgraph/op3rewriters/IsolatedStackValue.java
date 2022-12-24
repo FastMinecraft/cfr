@@ -29,16 +29,14 @@ class IsolatedStackValue {
             Statement stm = statement.getStatement();
             if (stm instanceof ExpressionStatement) {
                 Expression expression = ((ExpressionStatement) stm).getExpression();
-                if (expression instanceof StackValue) {
-                    StackValue sv = (StackValue)expression;
+                if (expression instanceof StackValue sv) {
                     StackSSALabel stackValue = sv.getStackValue();
                     if (consumptions.put(stackValue, statement) != null|| stackValue.getStackEntry().getUsageCount() > 1) {
                         blackList.add(stackValue);
                     }
                 }
             } else if (stm instanceof AssignmentSimple) {
-                if (stm.getCreatedLValue() instanceof StackSSALabel) {
-                    StackSSALabel stackValue = (StackSSALabel)stm.getCreatedLValue();
+                if (stm.getCreatedLValue() instanceof StackSSALabel stackValue) {
                     if (assignments.put(stackValue, statement) != null) {
                         blackList.add(stackValue);
                     }

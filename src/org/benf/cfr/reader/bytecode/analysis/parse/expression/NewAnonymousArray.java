@@ -19,6 +19,7 @@ import org.benf.cfr.reader.util.StringUtils;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 1d array only.
@@ -43,8 +44,7 @@ public class NewAnonymousArray extends AbstractNewArray implements BoxingProcess
         // See ArrayTest18.
         for (Expression value : values) {
             if (numDims > 1) {
-                if (value instanceof NewAnonymousArray) {
-                    NewAnonymousArray newAnonymousArrayInner = (NewAnonymousArray) value;
+                if (value instanceof NewAnonymousArray newAnonymousArrayInner) {
                     newAnonymousArrayInner.isCompletelyAnonymous = true;
                 }
             }
@@ -66,9 +66,7 @@ public class NewAnonymousArray extends AbstractNewArray implements BoxingProcess
 
     @Override
     public boolean rewriteBoxing(PrimitiveBoxingRewriter boxingRewriter) {
-        for (int i = 0; i < values.size(); ++i) {
-            values.set(i, boxingRewriter.sugarNonParameterBoxing(values.get(i), allocatedType));
-        }
+        values.replaceAll(in -> boxingRewriter.sugarNonParameterBoxing(in, allocatedType));
         return false;
     }
 
@@ -151,9 +149,9 @@ public class NewAnonymousArray extends AbstractNewArray implements BoxingProcess
 
         if (isCompletelyAnonymous != that.isCompletelyAnonymous) return false;
         if (numDims != that.numDims) return false;
-        if (allocatedType != null ? !allocatedType.equals(that.allocatedType) : that.allocatedType != null)
+        if (!Objects.equals(allocatedType, that.allocatedType))
             return false;
-        if (values != null ? !values.equals(that.values) : that.values != null) return false;
+        if (!Objects.equals(values, that.values)) return false;
 
         return true;
     }

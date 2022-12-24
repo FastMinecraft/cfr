@@ -4,13 +4,15 @@ import java.util.*;
 
 public class ListFactory {
     public static <X> List<X> newList() {
-        return new ArrayList<X>();
+        return new ArrayList<>();
     }
 
+    @SafeVarargs
     public static <X> List<X> newImmutableList(X... original) {
         return Arrays.asList(original);
     }
 
+    @SafeVarargs
     public static <X> List<X> newList(X... original) {
         List<X> res = ListFactory.newList();
         Collections.addAll(res, original);
@@ -18,15 +20,15 @@ public class ListFactory {
     }
 
     public static <X> List<X> newList(Collection<X> original) {
-        return new ArrayList<X>(original);
+        return new ArrayList<>(original);
     }
 
     public static <X> List<X> newList(int size) {
-        return new ArrayList<X>(size);
+        return new ArrayList<>(size);
     }
 
     public static <X> LinkedList<X> newLinkedList() {
-        return new LinkedList<X>();
+        return new LinkedList<>();
     }
 
     public static <X> List<X> uniqueList(Collection<X> list) {

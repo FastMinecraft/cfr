@@ -88,8 +88,7 @@ public abstract class AbstractConstructorInvokation extends AbstractExpression i
         if (o == this) return true;
         if (o == null) return false;
 
-        if (!(o instanceof AbstractConstructorInvokation)) return false;
-        AbstractConstructorInvokation other = (AbstractConstructorInvokation) o;
+        if (!(o instanceof AbstractConstructorInvokation other)) return false;
 
         if (!getTypeInstance().equals(other.getTypeInstance())) return false;
         if (!args.equals(other.args)) return false;
@@ -101,8 +100,7 @@ public abstract class AbstractConstructorInvokation extends AbstractExpression i
         if (o == this) return true;
         if (o == null) return false;
 
-        if (!(o instanceof AbstractConstructorInvokation)) return false;
-        AbstractConstructorInvokation other = (AbstractConstructorInvokation) o;
+        if (!(o instanceof AbstractConstructorInvokation other)) return false;
 
         if (!constraint.equivalent(getTypeInstance(), other.getTypeInstance())) return false;
         if (!constraint.equivalent(args, other.args)) return false;
@@ -116,8 +114,7 @@ public abstract class AbstractConstructorInvokation extends AbstractExpression i
         OverloadMethodSet overloadMethodSet = methodPrototype.getOverloadMethodSet();
         if (overloadMethodSet == null) return null;
         JavaTypeInstance objectType = getInferredJavaType().getJavaTypeInstance();
-        if (objectType instanceof JavaGenericRefTypeInstance) {
-            JavaGenericRefTypeInstance genericType = (JavaGenericRefTypeInstance) objectType;
+        if (objectType instanceof JavaGenericRefTypeInstance genericType) {
             return overloadMethodSet.specialiseTo(genericType);
         }
         return overloadMethodSet;

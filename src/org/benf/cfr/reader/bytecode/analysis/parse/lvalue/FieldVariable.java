@@ -111,8 +111,7 @@ public class FieldVariable extends AbstractFieldVariable {
     private boolean objectIsIllegalThis() {
         if (object instanceof LValueExpression) {
             LValue lValue = ((LValueExpression) object).getLValue();
-            if (lValue instanceof FieldVariable) {
-                FieldVariable fv = (FieldVariable)lValue;
+            if (lValue instanceof FieldVariable fv) {
                 return fv.getFieldName().equals(MiscConstants.THIS);
             }
         }
@@ -157,8 +156,7 @@ public class FieldVariable extends AbstractFieldVariable {
         if (isOuterRef()) {
             while (object instanceof LValueExpression) {
                 LValue lValueLhs = ((LValueExpression) object).getLValue();
-                if (lValueLhs instanceof FieldVariable) {
-                    FieldVariable lhs = (FieldVariable) lValueLhs;
+                if (lValueLhs instanceof FieldVariable lhs) {
                     if (lhs.isOuterRef()) {
                         object = lhs.object;
                         continue;
@@ -173,8 +171,7 @@ public class FieldVariable extends AbstractFieldVariable {
     public boolean equals(Object o) {
         if (o == this) return true;
 
-        if (!(o instanceof FieldVariable)) return false;
-        FieldVariable other = (FieldVariable) o;
+        if (!(o instanceof FieldVariable other)) return false;
 
         if (!super.equals(o)) return false;
         if (!object.equals(other.object)) return false;

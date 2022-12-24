@@ -70,8 +70,7 @@ public class StructuredBreak extends AbstractStructuredStatement {
     @Override
     public boolean match(MatchIterator<StructuredStatement> matchIterator, MatchResultCollector matchResultCollector) {
         StructuredStatement o = matchIterator.getCurrent();
-        if (!(o instanceof StructuredBreak)) return false;
-        StructuredBreak other = (StructuredBreak) o;
+        if (!(o instanceof StructuredBreak other)) return false;
         if (!breakBlock.equals(other.breakBlock)) return false;
         // Don't check locality.
         matchIterator.advance();

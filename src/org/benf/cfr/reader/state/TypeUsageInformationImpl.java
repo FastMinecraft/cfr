@@ -10,7 +10,7 @@ import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
@@ -27,12 +27,7 @@ public class TypeUsageInformationImpl implements TypeUsageInformation {
     private final Set<JavaRefTypeInstance> shortenedRefTypes = SetFactory.newOrderedSet();
     private final Set<JavaRefTypeInstance> usedLocalInnerTypes = SetFactory.newOrderedSet();
     private final Map<JavaRefTypeInstance, String> displayName = MapFactory.newMap();
-    private final Map<String, LinkedList<JavaRefTypeInstance>> shortNames = MapFactory.newLazyMap(new UnaryFunction<String, LinkedList<JavaRefTypeInstance>>() {
-        @Override
-        public LinkedList<JavaRefTypeInstance> invoke(String arg) {
-            return ListFactory.newLinkedList();
-        }
-    });
+    private final Map<String, LinkedList<JavaRefTypeInstance>> shortNames = MapFactory.newLazyMap(arg -> ListFactory.newLinkedList());
     private final Predicate<String> allowShorten;
     private final Map<String, Boolean> clashNames = MapFactory.newLazyMap(new FieldClash());
 
@@ -69,20 +64,12 @@ public class TypeUsageInformationImpl implements TypeUsageInformation {
 
     private void initialiseFrom(Set<JavaRefTypeInstance> usedRefTypes) {
         List<JavaRefTypeInstance> usedRefs = ListFactory.newList(usedRefTypes);
-        Collections.sort(usedRefs, new Comparator<JavaRefTypeInstance>() {
-            @Override
-            public int compare(JavaRefTypeInstance a, JavaRefTypeInstance b) {
-                return a.getRawName(iid).compareTo(b.getRawName(iid));
-            }
-        });
+        usedRefs.sort((a, b) -> a.getRawName(iid).compareTo(b.getRawName(iid)));
         this.usedRefTypes.addAll(usedRefs);
 
-        Pair<List<JavaRefTypeInstance>, List<JavaRefTypeInstance>> types = Functional.partition(usedRefs, new Predicate<JavaRefTypeInstance>() {
-            @Override
-            public boolean test(JavaRefTypeInstance in) {
-                return in.getInnerClassHereInfo().isTransitiveInnerClassOf(analysisType);
-            }
-        });
+        Pair<List<JavaRefTypeInstance>, List<JavaRefTypeInstance>> types = Functional.partition(usedRefs,
+            in -> in.getInnerClassHereInfo().isTransitiveInnerClassOf(analysisType)
+        );
         this.usedLocalInnerTypes.addAll(types.getFirst());
         addDisplayNames(usedRefTypes);
     }
@@ -162,12 +149,7 @@ public class TypeUsageInformationImpl implements TypeUsageInformation {
                 }
             }
 
-            List<PriClass> priClasses = Functional.map(typeList, new UnaryFunction<JavaRefTypeInstance, PriClass>() {
-                @Override
-                public PriClass invoke(JavaRefTypeInstance arg) {
-                    return new PriClass(arg);
-                }
-            });
+            List<PriClass> priClasses = Functional.map(typeList, PriClass::new);
             Collections.sort(priClasses);
 
             displayName.put(priClasses.get(0).type, name);

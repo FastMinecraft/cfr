@@ -151,8 +151,7 @@ public abstract class AbstractMemberFunctionInvokation extends AbstractFunctionI
             overloadMethodSet = getMethodPrototype().getOverloadMethodSet();
         }
         if (overloadMethodSet == null) return null;
-        if (objectType instanceof JavaGenericRefTypeInstance) {
-            JavaGenericRefTypeInstance genericType = (JavaGenericRefTypeInstance) objectType;
+        if (objectType instanceof JavaGenericRefTypeInstance genericType) {
             return overloadMethodSet.specialiseTo(genericType);
         }
         return overloadMethodSet;
@@ -290,8 +289,7 @@ public abstract class AbstractMemberFunctionInvokation extends AbstractFunctionI
     public boolean equals(Object o) {
         if (o == null) return false;
         if (o == this) return true;
-        if (!(o instanceof AbstractMemberFunctionInvokation)) return false;
-        AbstractMemberFunctionInvokation other = (AbstractMemberFunctionInvokation) o;
+        if (!(o instanceof AbstractMemberFunctionInvokation other)) return false;
         if (!object.equals(other.object)) return false;
         if (!args.equals(other.args)) return false;
         return true;
@@ -301,8 +299,7 @@ public abstract class AbstractMemberFunctionInvokation extends AbstractFunctionI
     public boolean equivalentUnder(Object o, EquivalenceConstraint constraint) {
         if (o == null) return false;
         if (o == this) return true;
-        if (!(o instanceof AbstractMemberFunctionInvokation)) return false;
-        AbstractMemberFunctionInvokation other = (AbstractMemberFunctionInvokation) o;
+        if (!(o instanceof AbstractMemberFunctionInvokation other)) return false;
         if (!constraint.equivalent(object, other.object)) return false;
         if (!constraint.equivalent(args, other.args)) return false;
         return true;

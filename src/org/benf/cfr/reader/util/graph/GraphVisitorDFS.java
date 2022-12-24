@@ -2,7 +2,7 @@ package org.benf.cfr.reader.util.graph;
 
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.BinaryProcedure;
+import java.util.function.BiConsumer;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -12,17 +12,17 @@ import java.util.Set;
 public class GraphVisitorDFS<T> implements GraphVisitor<T> {
     private final Collection<? extends T> start;
     private final Set<T> visited = SetFactory.newSet();
-    private final BinaryProcedure<T, GraphVisitor<T>> callee;
+    private final BiConsumer<T, GraphVisitor<T>> callee;
     private final LinkedList<T> pending = ListFactory.newLinkedList();
     private final LinkedList<T> enqueued = ListFactory.newLinkedList();
     private boolean aborted = false;
 
-    public GraphVisitorDFS(T first, BinaryProcedure<T, GraphVisitor<T>> callee) {
+    public GraphVisitorDFS(T first, BiConsumer<T, GraphVisitor<T>> callee) {
         this.start = Collections.singletonList(first);
         this.callee = callee;
     }
 
-    public GraphVisitorDFS(Collection<? extends T> first, BinaryProcedure<T, GraphVisitor<T>> callee) {
+    public GraphVisitorDFS(Collection<? extends T> first, BiConsumer<T, GraphVisitor<T>> callee) {
         this.start = ListFactory.newList(first);
         this.callee = callee;
     }
@@ -65,7 +65,7 @@ public class GraphVisitorDFS<T> implements GraphVisitor<T> {
             T current = pending.removeFirst();
             if (!visited.contains(current)) {
                 visited.add(current);
-                callee.call(current, this);
+                callee.accept(current, this);
                 // Prefix pending with enqueued.
                 while (!enqueued.isEmpty()) pending.addFirst(enqueued.removeLast());
             }

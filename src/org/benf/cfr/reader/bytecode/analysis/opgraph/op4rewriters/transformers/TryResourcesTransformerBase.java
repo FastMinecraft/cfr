@@ -46,8 +46,7 @@ public abstract class TryResourcesTransformerBase implements StructuredStatement
 
     @Override
     public StructuredStatement transform(StructuredStatement in, StructuredScope scope) {
-        if (in instanceof StructuredTry) {
-            StructuredTry structuredTry = (StructuredTry)in;
+        if (in instanceof StructuredTry structuredTry) {
             ResourceMatch match = getResourceMatch(structuredTry, scope);
             if (match != null) {
                 // Ok, now we have to find the initialisation of the closable.
@@ -103,8 +102,7 @@ public abstract class TryResourcesTransformerBase implements StructuredStatement
             Op04StructuredStatement stm = preceeding.get(x);
             StructuredStatement structuredStatement = stm.getStatement();
             if (structuredStatement.isScopeBlock()) return false;
-            if (structuredStatement instanceof StructuredAssignment) {
-                StructuredAssignment ass = (StructuredAssignment)structuredStatement;
+            if (structuredStatement instanceof StructuredAssignment ass) {
                 LValue lvalue = ass.getLvalue();
                 if (!ass.isCreator(lvalue)) return false;
                 if (!ass.getRvalue().equals(Literal.NULL)) return false;
@@ -130,7 +128,7 @@ public abstract class TryResourcesTransformerBase implements StructuredStatement
                 new EndBlock(null)
         );
 
-        MatchIterator<StructuredStatement> mi = new MatchIterator<StructuredStatement>(catchContent);
+        MatchIterator<StructuredStatement> mi = new MatchIterator<>(catchContent);
 
         MatchResultCollector collector = new EmptyMatchResultCollector();
         mi.advance();
@@ -149,8 +147,7 @@ public abstract class TryResourcesTransformerBase implements StructuredStatement
             Op04StructuredStatement stm = preceeding.get(x);
             StructuredStatement structuredStatement = stm.getStatement();
             if (structuredStatement.isScopeBlock()) return null;
-            if (structuredStatement instanceof StructuredAssignment) {
-                StructuredAssignment structuredAssignment = (StructuredAssignment)structuredStatement;
+            if (structuredStatement instanceof StructuredAssignment structuredAssignment) {
 
                 if (structuredAssignment.isCreator(resource)) {
                     // get all values used in this, check they were not subsequently used.

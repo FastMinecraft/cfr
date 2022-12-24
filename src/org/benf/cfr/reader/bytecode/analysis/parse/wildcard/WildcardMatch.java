@@ -25,7 +25,7 @@ import org.benf.cfr.reader.util.*;
 import org.benf.cfr.reader.util.Optional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 import org.benf.cfr.reader.util.output.Dumpable;
 import org.benf.cfr.reader.util.output.Dumper;
 
@@ -708,7 +708,7 @@ public class WildcardMatch {
 
         @Override
         public boolean equals(Object o) {
-            if (!(o instanceof MemberFunctionInvokation)) return false;
+            if (!(o instanceof MemberFunctionInvokation other)) return false;
             if (matchedValue != null) return matchedValue.equals(o);
 
             /*
@@ -716,7 +716,6 @@ public class WildcardMatch {
              *
              * TODO : since it might fail, we need to rewind any captures!
              */
-            MemberFunctionInvokation other = (MemberFunctionInvokation) o;
             if (isInitMethod != other.isInitMethod()) return false;
             // always match null name.
             if (name != null && !name.equals(other.getName())) {
@@ -758,7 +757,7 @@ public class WildcardMatch {
 
         @Override
         public boolean equals(Object o) {
-            if (!(o instanceof SuperFunctionInvokation)) return false;
+            if (!(o instanceof SuperFunctionInvokation other)) return false;
             if (matchedValue != null) return matchedValue.equals(o);
 
             /*
@@ -766,7 +765,6 @@ public class WildcardMatch {
              *
              * TODO : since it might fail, we need to rewind any captures!
              */
-            SuperFunctionInvokation other = (SuperFunctionInvokation) o;
             if (args != null) {
                 List<Expression> otherArgs = other.getArgs();
                 if (args.size() != otherArgs.size()) return false;
@@ -809,10 +807,9 @@ public class WildcardMatch {
 
         @Override
         public boolean equals(Object o) {
-            if (!(o instanceof StaticFunctionInvokation)) return false;
+            if (!(o instanceof StaticFunctionInvokation other)) return false;
             if (matchedValue != null) return matchedValue.equals(o);
 
-            StaticFunctionInvokation other = (StaticFunctionInvokation) o;
             if (name != null) {
                 if (!name.equals(other.getName())) return false;
             }
@@ -897,9 +894,8 @@ public class WildcardMatch {
 
             if (matchedValue != null) return matchedValue.equals(o);
 
-            if (!(o instanceof List)) return false;
+            if (!(o instanceof List other)) return false;
 
-            List other = (List) o;
             matchedValue = other;
             return true;
         }
@@ -942,8 +938,7 @@ public class WildcardMatch {
 
             if (matchedValue != null) return matchedValue.equals(o);
 
-            if (!(o instanceof StaticVariable)) return false;
-            StaticVariable other = (StaticVariable) o;
+            if (!(o instanceof StaticVariable other)) return false;
 
             if (!this.getOwningClassType().equals(other.getOwningClassType())) return false;
             JavaTypeInstance thisType = this.getInferredJavaType().getJavaTypeInstance();
@@ -981,13 +976,12 @@ public class WildcardMatch {
         public boolean equals(Object o) {
             if (o == this) return true;
             if (o == null) return false;
-            if (!(o instanceof ConstructorInvokationSimple)) return false;
+            if (!(o instanceof ConstructorInvokationSimple other)) return false;
 
             if (matchedValue != null) {
                 return matchedValue.equals(o);
             }
 
-            ConstructorInvokationSimple other = (ConstructorInvokationSimple) o;
             if (!clazz.equals(other.getTypeInstance())) return false;
             if (args != null && args.equals(other.getArgs())) return false;
 
@@ -1021,13 +1015,12 @@ public class WildcardMatch {
         public boolean equals(Object o) {
             if (o == this) return true;
             if (o == null) return false;
-            if (!(o instanceof ConstructorInvokationAnonymousInner)) return false;
+            if (!(o instanceof ConstructorInvokationAnonymousInner other)) return false;
 
             if (matchedValue != null) {
                 return matchedValue.equals(o);
             }
 
-            ConstructorInvokationAnonymousInner other = (ConstructorInvokationAnonymousInner) o;
             JavaTypeInstance otherType = other.getTypeInstance();
             if (clazz != null && !clazz.equals(otherType)) return false;
             if (args != null && args.equals(other.getArgs())) return false;
@@ -1043,9 +1036,9 @@ public class WildcardMatch {
         private final OptionalMatch<ArithOp> op;
 
         ArithmeticMutationWildcard(Optional<LValue> lhs, Optional<Expression> rhs, Optional<ArithOp> op) {
-            this.lhs = new OptionalMatch<LValue>(lhs);
-            this.rhs = new OptionalMatch<Expression>(rhs);
-            this.op = new OptionalMatch<ArithOp>(op);
+            this.lhs = new OptionalMatch<>(lhs);
+            this.rhs = new OptionalMatch<>(rhs);
+            this.op = new OptionalMatch<>(op);
         }
 
         @Override
@@ -1067,8 +1060,7 @@ public class WildcardMatch {
         public boolean equals(Object o) {
             if (o == this) return true;
             if (o == null) return false;
-            if (!(o instanceof ArithmeticMutationOperation)) return false;
-            ArithmeticMutationOperation other = (ArithmeticMutationOperation)o;
+            if (!(o instanceof ArithmeticMutationOperation other)) return false;
 
             if (!lhs.match(other.getUpdatedLValue())) return false;
             if (!rhs.match(other.getMutation())) return false;
@@ -1104,13 +1096,12 @@ public class WildcardMatch {
         public boolean equals(Object o) {
             if (o == this) return true;
             if (o == null) return false;
-            if (!(o instanceof CastExpression)) return false;
+            if (!(o instanceof CastExpression other)) return false;
 
             if (matchedValue != null) {
                 return matchedValue.equals(o);
             }
 
-            CastExpression other = (CastExpression) o;
             if (clazz != null && !clazz.equals(other.getInferredJavaType().getJavaTypeInstance())) return false;
             if (!expression.equals(other.getChild())) return false;
 

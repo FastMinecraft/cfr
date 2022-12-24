@@ -68,7 +68,7 @@ public class IntervalOverlapper {
         List<ExceptionTableEntry> output = ListFactory.newList();
         // by definition, startsbefore and endsafter won't overlap.
         if (!overlapStartsBefore.isEmpty()) {
-            Set<Integer> blockEnds = new TreeSet<Integer>();
+            Set<Integer> blockEnds = new TreeSet<>();
             for (ExceptionTableEntry e2 : overlapStartsBefore) {
                 blockEnds.add(e2.getBytecodeIndexTo());
                 starts.get(e2.getBytecodeIndexFrom()).remove(e2);
@@ -98,7 +98,7 @@ public class IntervalOverlapper {
         }
 
         if (!overlapEndsAfter.isEmpty()) {
-            Set<Integer> blockStarts = new TreeSet<Integer>();
+            Set<Integer> blockStarts = new TreeSet<>();
             for (ExceptionTableEntry e2 : overlapStartsBefore) {
                 blockStarts.add(e2.getBytecodeIndexFrom());
                 starts.get(e2.getBytecodeIndexFrom()).remove(e2);
@@ -140,6 +140,7 @@ public class IntervalOverlapper {
 
     private <A, B> void add(NavigableMap<A, Set<B>> m, A k, B v) {
         Set<B> b = m.get(k);
+        //noinspection Java8MapApi
         if (b == null) {
             b = SetFactory.newOrderedSet();
             m.put(k, b);

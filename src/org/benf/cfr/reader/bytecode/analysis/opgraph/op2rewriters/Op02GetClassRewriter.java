@@ -55,8 +55,7 @@ public class Op02GetClassRewriter {
         ConstantPoolEntry[] cpEntries = item.getCpEntries();
         if(cpEntries == null || cpEntries.length == 0) return false;
         ConstantPoolEntry entry = cpEntries[0];
-        if (!(entry instanceof ConstantPoolEntryMethodRef)) return false;
-        ConstantPoolEntryMethodRef function = (ConstantPoolEntryMethodRef)entry;
+        if (!(entry instanceof ConstantPoolEntryMethodRef function)) return false;
 
         MethodPrototype methodPrototype = function.getMethodPrototype();
         if (!methodPrototype.getName().equals(MiscConstants.GET_CLASS_NAME)) return false;
@@ -70,8 +69,7 @@ public class Op02GetClassRewriter {
         ConstantPoolEntry[] cpEntries = item.getCpEntries();
         if(cpEntries == null || cpEntries.length == 0) return false;
         ConstantPoolEntry entry = cpEntries[0];
-        if (!(entry instanceof ConstantPoolEntryMethodRef)) return false;
-        ConstantPoolEntryMethodRef function = (ConstantPoolEntryMethodRef)entry;
+        if (!(entry instanceof ConstantPoolEntryMethodRef function)) return false;
         ConstantPoolEntryClass classEntry = function.getClassEntry();
         String className = classEntry.getTypeInstance().getRawName();
         if (!className.equals(TypeConstants.objectsName)) return false;

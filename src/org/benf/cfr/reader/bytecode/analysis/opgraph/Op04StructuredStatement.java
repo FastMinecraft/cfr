@@ -518,8 +518,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
     private static class LabelledBlockExtractor implements StructuredStatementTransformer {
         @Override
         public StructuredStatement transform(StructuredStatement in, StructuredScope scope) {
-            if (in instanceof Block) {
-                Block block = (Block) in;
+            if (in instanceof Block block) {
                 block.extractLabelledBlocks();
             }
             in.transformStructuredChildren(this, scope);
@@ -541,9 +540,8 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
     private static class TryCatchTidier implements StructuredStatementTransformer {
         @Override
         public StructuredStatement transform(StructuredStatement in, StructuredScope scope) {
-            if (in instanceof Block) {
+            if (in instanceof Block block) {
                 // Search for try statements, see if we can combine following catch statements with them.
-                Block block = (Block) in;
                 block.combineTryCatch();
             }
             in.transformStructuredChildren(this, scope);
@@ -555,8 +553,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
         @Override
         public StructuredStatement transform(StructuredStatement in, StructuredScope scope) {
             in.transformStructuredChildren(this, scope);
-            if (in instanceof Block) {
-                Block block = (Block) in;
+            if (in instanceof Block block) {
                 block.combineInlineable();
             }
             return in;
@@ -608,7 +605,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
 
     private static abstract class ScopeDescendingTransformer implements StructuredStatementTransformer {
 
-        private final Stack<Triplet<StructuredStatement, BlockIdentifier, Set<Op04StructuredStatement>>> targets = new Stack<Triplet<StructuredStatement, BlockIdentifier, Set<Op04StructuredStatement>>>();
+        private final Stack<Triplet<StructuredStatement, BlockIdentifier, Set<Op04StructuredStatement>>> targets = new Stack<>();
 
         protected abstract StructuredStatement doTransform(StructuredStatement statement, Stack<Triplet<StructuredStatement, BlockIdentifier, Set<Op04StructuredStatement>>> targets, StructuredScope scope);
 
@@ -735,8 +732,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
 
     public static void removePointlessReturn(Op04StructuredStatement root) {
         StructuredStatement statement = root.getStatement();
-        if (statement instanceof Block) {
-            Block block = (Block) statement;
+        if (statement instanceof Block block) {
             block.removeLastNVReturn();
         }
     }
@@ -934,10 +930,10 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
                 this.idx = idx;
             }
 
-            private Set<Expression> captures = new HashSet<Expression>();
+            private Set<Expression> captures = new HashSet<>();
         }
 
-        Map<MethodPrototype, MethodPrototype> protos = new IdentityHashMap<MethodPrototype, MethodPrototype>();
+        Map<MethodPrototype, MethodPrototype> protos = new IdentityHashMap<>();
         Map<MethodPrototype.ParameterLValue, CaptureExpression> captured = MapFactory.newIdentityMap();
 
         /*
@@ -964,12 +960,11 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
         // We need to correctly link to the /relevant/ one. :(
         MethodPrototype callProto = null;
         switch (protos.size()) {
-            case 0:
+            case 0 -> {
                 return;
-            case 1:
-                callProto = SetUtil.getSingle(protos.keySet());
-                break;
-            default:
+            }
+            case 1 -> callProto = SetUtil.getSingle(protos.keySet());
+            default -> {
                 for (MethodPrototype proto : protos.keySet()) {
                     if (proto.equalsMatch(prototype)) {
                         if (callProto == null) {
@@ -979,6 +974,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
                         }
                     }
                 }
+            }
         }
         if (callProto == null) return;
 
@@ -1062,11 +1058,9 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
 
     private static String getInnerClassOuterArgName(Method method, LValue lValueArg) {
         String overrideName = null;
-        if (lValueArg instanceof LocalVariable) {
-            LocalVariable localVariable = (LocalVariable) lValueArg;
+        if (lValueArg instanceof LocalVariable localVariable) {
             overrideName = localVariable.getName().getStringName();
-        } else if (lValueArg instanceof FieldVariable) {
-            FieldVariable fv = (FieldVariable) lValueArg;
+        } else if (lValueArg instanceof FieldVariable fv) {
             JavaTypeInstance thisClass = method.getClassFile().getClassType();
             JavaTypeInstance fieldClass = fv.getOwningClassType();
             boolean isInner = thisClass.getInnerClassHereInfo().isTransitiveInnerClassOf(fieldClass);

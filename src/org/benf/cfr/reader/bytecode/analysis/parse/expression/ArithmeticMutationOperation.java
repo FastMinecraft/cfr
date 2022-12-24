@@ -117,9 +117,7 @@ public class ArithmeticMutationOperation extends AbstractMutatingAssignmentExpre
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof ArithmeticMutationOperation)) return false;
-
-        ArithmeticMutationOperation other = (ArithmeticMutationOperation) o;
+        if (!(o instanceof ArithmeticMutationOperation other)) return false;
 
         return mutated.equals(other.mutated) &&
                 op.equals(other.op) &&

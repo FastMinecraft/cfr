@@ -189,8 +189,7 @@ public class JavaWildcardTypeInstance implements JavaGenericBaseInstance {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof JavaWildcardTypeInstance)) return false;
-        JavaWildcardTypeInstance other = (JavaWildcardTypeInstance) o;
+        if (!(o instanceof JavaWildcardTypeInstance other)) return false;
         return (other.wildcardType == wildcardType && other.underlyingType.equals(underlyingType));
     }
 

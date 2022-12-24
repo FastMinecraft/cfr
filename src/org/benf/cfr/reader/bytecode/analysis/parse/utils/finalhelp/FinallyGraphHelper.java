@@ -19,32 +19,22 @@ import org.benf.cfr.reader.util.collections.SetFactory;
 
 import java.util.*;
 
-public class FinallyGraphHelper {
-    private final FinallyCatchBody finallyCatchBody;
+public record FinallyGraphHelper(FinallyCatchBody finallyCatchBody) {
 
-
-    public FinallyGraphHelper(FinallyCatchBody finallyCatchBody) {
-        this.finallyCatchBody = finallyCatchBody;
-    }
-
-    public FinallyCatchBody getFinallyCatchBody() {
-        return finallyCatchBody;
-    }
-
-    private List<Op03SimpleStatement> filterFalseNegatives(List<Op03SimpleStatement> in, Set<Op03SimpleStatement> toRemove) {
+    private List<Op03SimpleStatement> filterFalseNegatives(
+        List<Op03SimpleStatement> in,
+        Set<Op03SimpleStatement> toRemove
+    ) {
         List<Op03SimpleStatement> res = ListFactory.newList();
         for (Op03SimpleStatement i : in) {
             while (i != null && i.getStatement() instanceof Nop) {
                 switch (i.getTargets().size()) {
-                    case 0:
-                        i = null;
-                        break;
-                    case 1:
+                    case 0 -> i = null;
+                    case 1 -> {
                         if (toRemove != null) toRemove.add(i);
                         i = i.getTargets().get(0);
-                        break;
-                    default:
-                        throw new IllegalStateException();
+                    }
+                    default -> throw new IllegalStateException();
                 }
             }
             if (i != null) res.add(i);
@@ -56,7 +46,7 @@ public class FinallyGraphHelper {
         Set<BlockIdentifier> minBlockSet = SetFactory.newOrderedSet(test.getBlockIdentifiers());
         Op03SimpleStatement finalThrowProxy = null;
         Op03SimpleStatement finalThrow = finallyCatchBody.getThrowOp();
-        Map<Op03SimpleStatement, Op03SimpleStatement> matched = new IdentityHashMap<Op03SimpleStatement, Op03SimpleStatement>();
+        Map<Op03SimpleStatement, Op03SimpleStatement> matched = new IdentityHashMap<>();
         Set<Op03SimpleStatement> toRemove = SetFactory.newOrderedSet();
         LinkedList<Pair<Op03SimpleStatement, Op03SimpleStatement>> pending = ListFactory.newLinkedList();
         if (finallyCatchBody.isEmpty()) {
@@ -142,7 +132,7 @@ public class FinallyGraphHelper {
                 if (newBlockIdentifiers.containsAll(minBlockSet)) {
                     if (tgthayx2 == finalThrow) {
                         if (finalThrowProxy != null &&
-                                !(finalThrowProxy == tgttestx2 || finalyThrowProxy2 == tgttestx2)) {
+                            !(finalThrowProxy == tgttestx2 || finalyThrowProxy2 == tgttestx2)) {
                             /*
                              * What if it's identical to finalThrowProxy?
                              */
@@ -182,16 +172,15 @@ public class FinallyGraphHelper {
         Statement addSupp = catchTargets.get(0).getStatement();
         if (!(addSupp instanceof ExpressionStatement)) return false;
         Expression eAddSup = ((ExpressionStatement) addSupp).getExpression();
-        if (!(eAddSup instanceof MemberFunctionInvokation)) return false;
-        MemberFunctionInvokation mfi = (MemberFunctionInvokation)eAddSup;
+        if (!(eAddSup instanceof MemberFunctionInvokation mfi)) return false;
         if (!mfi.getMethodPrototype().getName().equals("addSuppressed")) return false;
         return true;
     }
 
     private class FinallyEquivalenceConstraint extends DefaultEquivalenceConstraint implements LValueAssignmentCollector<Statement> {
         /*
-        * We allow ssa lvalues to mismatch, but they must continue to....
-        */
+         * We allow ssa lvalues to mismatch, but they must continue to....
+         */
         private final Map<StackSSALabel, StackSSALabel> rhsToLhsMap = MapFactory.newMap();
         private final Map<LocalVariable, LocalVariable> rhsToLhsLVMap = MapFactory.newMap();
         private final Set<StackSSALabel> validSSA = SetFactory.newSet();
@@ -244,17 +233,29 @@ public class FinallyGraphHelper {
         }
 
         @Override
-        public void collectMultiUse(StackSSALabel lValue, StatementContainer<Statement> statementContainer, Expression value) {
+        public void collectMultiUse(
+            StackSSALabel lValue,
+            StatementContainer<Statement> statementContainer,
+            Expression value
+        ) {
             validSSA.add(lValue);
         }
 
         @Override
-        public void collectMutatedLValue(LValue lValue, StatementContainer<Statement> statementContainer, Expression value) {
+        public void collectMutatedLValue(
+            LValue lValue,
+            StatementContainer<Statement> statementContainer,
+            Expression value
+        ) {
             int x = 1;
         }
 
         @Override
-        public void collectLocalVariableAssignment(LocalVariable localVariable, StatementContainer<Statement> statementContainer, Expression value) {
+        public void collectLocalVariableAssignment(
+            LocalVariable localVariable,
+            StatementContainer<Statement> statementContainer,
+            Expression value
+        ) {
             validLocal.add(localVariable);
         }
     }

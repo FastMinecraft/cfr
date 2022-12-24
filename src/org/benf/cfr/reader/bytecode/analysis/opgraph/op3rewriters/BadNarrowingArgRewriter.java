@@ -17,8 +17,7 @@ public class BadNarrowingArgRewriter extends AbstractExpressionRewriter {
         @Override
         public Expression rewriteExpression(Expression expression, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
             Expression rwExpression = expression;
-            if (expression instanceof CastExpression) {
-                CastExpression castExpression = (CastExpression)expression;
+            if (expression instanceof CastExpression castExpression) {
                 if (!castExpression.isForced()) {
                     rwExpression = rewriteLiteral(expression, castExpression.getChild(), castExpression.getInferredJavaType());
                 }
@@ -29,14 +28,13 @@ public class BadNarrowingArgRewriter extends AbstractExpressionRewriter {
         }
 
         private Expression rewriteLiteral(Expression original, Expression possibleLiteral, InferredJavaType tgtType) {
-            if (possibleLiteral instanceof Literal) {
-                Literal literal = (Literal)possibleLiteral;
+            if (possibleLiteral instanceof Literal literal) {
                 TypedLiteral tl = literal.getValue();
                 if (tl.getType() == TypedLiteral.LiteralType.Integer) {
                     switch (tgtType.getRawType()) {
-                        case BYTE:
-                        case SHORT:
+                        case BYTE, SHORT -> {
                             return new CastExpression(BytecodeLoc.NONE, tgtType, possibleLiteral, true);
+                        }
                     }
                 }
             }
@@ -49,8 +47,7 @@ public class BadNarrowingArgRewriter extends AbstractExpressionRewriter {
     @Override
     public Expression rewriteExpression(Expression expression, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
         // If we're rewriting a method call
-        if (expression instanceof AbstractFunctionInvokation) {
-            AbstractFunctionInvokation functionInvokation = (AbstractFunctionInvokation)expression;
+        if (expression instanceof AbstractFunctionInvokation functionInvokation) {
             functionInvokation.applyExpressionRewriterToArgs(internalBadNarrowingRewriter, ssaIdentifiers, statementContainer, flags);
         }
         return super.rewriteExpression(expression, ssaIdentifiers, statementContainer, flags);

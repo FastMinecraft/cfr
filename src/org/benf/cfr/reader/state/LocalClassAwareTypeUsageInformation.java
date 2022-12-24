@@ -19,12 +19,7 @@ public class LocalClassAwareTypeUsageInformation implements TypeUsageInformation
 
     public LocalClassAwareTypeUsageInformation(Map<JavaRefTypeInstance, String> localClassTypes, TypeUsageInformation delegate) {
         this.delegate = delegate;
-        Map<String, Integer> lastClassByName = MapFactory.newLazyMap(new UnaryFunction<String, Integer>() {
-            @Override
-            public Integer invoke(String arg) {
-                return 0;
-            }
-        });
+        Map<String, Integer> lastClassByName = MapFactory.newLazyMap(arg -> 0);
         localTypeNames = MapFactory.newMap();
         usedLocalTypeNames = SetFactory.newSet();
         for (Map.Entry<JavaRefTypeInstance, String> entry : localClassTypes.entrySet()) {

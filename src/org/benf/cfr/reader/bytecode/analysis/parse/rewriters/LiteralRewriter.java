@@ -21,7 +21,7 @@ import org.benf.cfr.reader.util.functors.NonaryFunction;
 
 import java.util.Map;
 
-public strictfp class LiteralRewriter extends AbstractExpressionRewriter {
+public class LiteralRewriter extends AbstractExpressionRewriter {
     public static final LiteralRewriter INSTANCE = new LiteralRewriter(TypeConstants.OBJECT);
 
     // Keep track of what type we're transforming.  Note that we don't want to end up with
@@ -35,15 +35,22 @@ public strictfp class LiteralRewriter extends AbstractExpressionRewriter {
     @Override
     public Expression rewriteExpression(Expression expression, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
         expression = expression.applyExpressionRewriter(this, ssaIdentifiers, statementContainer, flags);
-        if (expression instanceof Literal) {
-            Literal literal = (Literal) expression;
+        if (expression instanceof Literal literal) {
             TypedLiteral typed = literal.getValue();
             TypedLiteral.LiteralType type = typed.getType();
             switch (type) {
-                case Integer: return rewriteInteger(literal, typed.getIntValue());
-                case Long: return rewriteLong(literal, typed.getLongValue());
-                case Double: return rewriteDouble(literal, typed.getDoubleValue());
-                case Float: return rewriteFloat(literal, typed.getFloatValue());
+                case Integer -> {
+                    return rewriteInteger(literal, typed.getIntValue());
+                }
+                case Long -> {
+                    return rewriteLong(literal, typed.getLongValue());
+                }
+                case Double -> {
+                    return rewriteDouble(literal, typed.getDoubleValue());
+                }
+                case Float -> {
+                    return rewriteFloat(literal, typed.getFloatValue());
+                }
             }
         }
         return expression;
@@ -172,86 +179,53 @@ public strictfp class LiteralRewriter extends AbstractExpressionRewriter {
             if (i == 0) continue;
 
             final int ii = i;
-            NonaryFunction<Expression> pifn = new NonaryFunction<Expression>() {
-                @Override
-                public Expression invoke() {
-                    switch (ii) {
-                        case 1:
-                            return pi;
-                        case -1:
-                            return npi;
-                        default:
-                            return new ArithmeticOperation(BytecodeLoc.NONE, pi, new Literal(TypedLiteral.getInt(ii)), ArithOp.MULTIPLY);
-                    }
-                }
+            NonaryFunction<Expression> pifn = () -> switch (ii) {
+                case 1 -> pi;
+                case -1 -> npi;
+                default -> new ArithmeticOperation(BytecodeLoc.NONE,
+                    pi,
+                    new Literal(TypedLiteral.getInt(ii)),
+                    ArithOp.MULTIPLY
+                );
             };
             PI_DOUBLES.put(Math.PI * i, pifn);
 
-            pifn = new NonaryFunction<Expression>() {
-                @Override
-                public Expression invoke() {
-                    switch (ii) {
-                        case 1:
-                            return new CastExpression(BytecodeLoc.NONE, INFERRED_FLOAT, pi);
-                        case -1:
-                            return new CastExpression(BytecodeLoc.NONE, INFERRED_FLOAT, npi);
-                        default:
-                            return new CastExpression(BytecodeLoc.NONE, INFERRED_FLOAT, new ArithmeticOperation(BytecodeLoc.NONE, pi, new Literal(TypedLiteral.getInt(ii)), ArithOp.MULTIPLY));
-                    }
-                }
+            pifn = () -> switch (ii) {
+                case 1 -> new CastExpression(BytecodeLoc.NONE, INFERRED_FLOAT, pi);
+                case -1 -> new CastExpression(BytecodeLoc.NONE, INFERRED_FLOAT, npi);
+                default -> new CastExpression(BytecodeLoc.NONE,
+                    INFERRED_FLOAT,
+                    new ArithmeticOperation(BytecodeLoc.NONE,
+                        pi,
+                        new Literal(TypedLiteral.getInt(ii)),
+                        ArithOp.MULTIPLY
+                    )
+                );
             };
             PI_FLOATS.put((float)(Math.PI * i), pifn);
 
             if (Math.abs(i) < 2) continue;
 
-            pifn = new NonaryFunction<Expression>() {
-                @Override
-                public Expression invoke() {
-                    return new ArithmeticOperation(BytecodeLoc.NONE, new CastExpression(BytecodeLoc.NONE, INFERRED_FLOAT, pi), new Literal(TypedLiteral.getInt(ii)), ArithOp.MULTIPLY);
-                }
-            };
+            pifn = () -> new ArithmeticOperation(BytecodeLoc.NONE, new CastExpression(BytecodeLoc.NONE, INFERRED_FLOAT, pi), new Literal(TypedLiteral.getInt(ii)), ArithOp.MULTIPLY);
             PI_FLOATS.put((float)(Math.PI) * i, pifn);
         }
         for (int i = -4; i <= 4; i++) {
             if (i == 0) continue;
             final int ii = i;
             final Expression p = i < 0 ? npi : pi;
-            NonaryFunction<Expression> pifn = new NonaryFunction<Expression>() {
-                @Override
-                public Expression invoke() {
-                    return new ArithmeticOperation(BytecodeLoc.NONE, p, new Literal(TypedLiteral.getInt(90 * Math.abs(ii))), ArithOp.DIVIDE);
-                }
-            };
+            NonaryFunction<Expression> pifn = () -> new ArithmeticOperation(BytecodeLoc.NONE, p, new Literal(TypedLiteral.getInt(90 * Math.abs(ii))), ArithOp.DIVIDE);
             PI_DOUBLES.put(Math.PI / (90 * i), pifn);
 
-            pifn = new NonaryFunction<Expression>() {
-                @Override
-                public Expression invoke() {
-                    return new CastExpression(BytecodeLoc.NONE, INFERRED_FLOAT, new ArithmeticOperation(BytecodeLoc.NONE, p, new Literal(TypedLiteral.getInt(90 * Math.abs(ii))), ArithOp.DIVIDE));
-                }
-            };
+            pifn = () -> new CastExpression(BytecodeLoc.NONE, INFERRED_FLOAT, new ArithmeticOperation(BytecodeLoc.NONE, p, new Literal(TypedLiteral.getInt(90 * Math.abs(ii))), ArithOp.DIVIDE));
             PI_FLOATS.put((float)(Math.PI / (90 * i)), pifn);
 
-            pifn = new NonaryFunction<Expression>() {
-                @Override
-                public Expression invoke() {
-                    return new ArithmeticOperation(BytecodeLoc.NONE, new CastExpression(BytecodeLoc.NONE, INFERRED_FLOAT, p), new Literal(TypedLiteral.getInt(90 * Math.abs(ii))), ArithOp.DIVIDE);
-                }
-            };
+            pifn = () -> new ArithmeticOperation(BytecodeLoc.NONE, new CastExpression(BytecodeLoc.NONE, INFERRED_FLOAT, p), new Literal(TypedLiteral.getInt(90 * Math.abs(ii))), ArithOp.DIVIDE);
             PI_FLOATS.put((float)(Math.PI) / (90 * i), pifn);
         }
-        PI_DOUBLES.put(Math.PI * Math.PI, new NonaryFunction<Expression>() {
-          @Override
-          public Expression invoke() {
-              return new ArithmeticOperation(BytecodeLoc.NONE, pi, pi, ArithOp.MULTIPLY);
-          }
-        });
-        PI_FLOATS.put((float)(Math.PI * Math.PI), new NonaryFunction<Expression>() {
-          @Override
-          public Expression invoke() {
-              return new CastExpression(BytecodeLoc.NONE, INFERRED_FLOAT,new ArithmeticOperation(BytecodeLoc.NONE, pi, pi, ArithOp.MULTIPLY));
-          }
-        });
+        PI_DOUBLES.put(Math.PI * Math.PI, () -> new ArithmeticOperation(BytecodeLoc.NONE, pi, pi, ArithOp.MULTIPLY));
+        PI_FLOATS.put((float)(Math.PI * Math.PI),
+            () -> new CastExpression(BytecodeLoc.NONE, INFERRED_FLOAT,new ArithmeticOperation(BytecodeLoc.NONE, pi, pi, ArithOp.MULTIPLY))
+        );
     }
 
     private static Expression maybeGetPiExpression(float value) {

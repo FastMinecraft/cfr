@@ -18,25 +18,14 @@ import org.benf.cfr.reader.state.TypeUsageCollectingDumper;
 import org.benf.cfr.reader.state.TypeUsageInformation;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.Predicate;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class UnreachableStaticRewriter {
 
-    private static class Inaccessible {
-        final JavaRefTypeInstance external;
-        final JavaRefTypeInstance localInner;
-        final JavaRefTypeInstance fakeFqnInner;
-
-        Inaccessible(JavaRefTypeInstance external, JavaRefTypeInstance localInner, JavaRefTypeInstance fakeFqnInner) {
-            this.external = external;
-            this.localInner = localInner;
-            this.fakeFqnInner = fakeFqnInner;
-        }
+    private record Inaccessible(JavaRefTypeInstance external, JavaRefTypeInstance localInner,
+                                JavaRefTypeInstance fakeFqnInner) {
     }
 
     public static void rewrite(ClassFile classFile, TypeUsageCollectingDumper typeUsage) {
@@ -47,12 +36,9 @@ public class UnreachableStaticRewriter {
         final JavaRefTypeInstance thisType = classFile.getRefClassType();
         if (thisType == null) return;
 
-        Pair<List<JavaRefTypeInstance>, List<JavaRefTypeInstance>> split = Functional.partition(info.getUsedClassTypes(), new Predicate<JavaRefTypeInstance>() {
-            @Override
-            public boolean test(JavaRefTypeInstance in) {
-                return in.getInnerClassHereInfo().isTransitiveInnerClassOf(thisType);
-            }
-        });
+        Pair<List<JavaRefTypeInstance>, List<JavaRefTypeInstance>> split = Functional.partition(info.getUsedClassTypes(),
+            in -> in.getInnerClassHereInfo().isTransitiveInnerClassOf(thisType)
+        );
         List<JavaRefTypeInstance> inners = split.getFirst();
         /*
          * We are interested in inner classes where we clash with the fqn.
@@ -109,8 +95,7 @@ public class UnreachableStaticRewriter {
 
         @Override
         public Expression rewriteExpression(Expression expression, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
-            if (expression instanceof StaticFunctionInvokation) {
-                StaticFunctionInvokation sfe = (StaticFunctionInvokation)expression;
+            if (expression instanceof StaticFunctionInvokation sfe) {
                 Inaccessible inaccessible = inaccessibles.get(sfe.getClazz().getDeGenerifiedType());
                 if (inaccessible != null) {
                     if (!available(sfe, inaccessible)) {

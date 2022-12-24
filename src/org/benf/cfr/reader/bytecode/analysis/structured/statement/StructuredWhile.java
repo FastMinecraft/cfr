@@ -41,8 +41,7 @@ public class StructuredWhile extends AbstractStructuredConditionalLoopStatement 
     @Override
     public boolean match(MatchIterator<StructuredStatement> matchIterator, MatchResultCollector matchResultCollector) {
         StructuredStatement o = matchIterator.getCurrent();
-        if (!(o instanceof StructuredWhile)) return false;
-        StructuredWhile other = (StructuredWhile) o;
+        if (!(o instanceof StructuredWhile other)) return false;
         if (condition == null) {
             if (other.condition != null) return false;
         } else {

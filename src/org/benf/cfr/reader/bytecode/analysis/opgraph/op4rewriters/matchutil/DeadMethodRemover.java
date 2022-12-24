@@ -12,9 +12,8 @@ public class DeadMethodRemover {
     public static void removeDeadMethod(ClassFile classFile, Method method) {
         Op04StructuredStatement code = method.getAnalysis();
         StructuredStatement statement = code.getStatement();
-        if (!(statement instanceof Block)) return;
+        if (!(statement instanceof Block block)) return;
 
-        Block block = (Block) statement;
         for (Op04StructuredStatement inner : block.getBlockStatements()) {
             StructuredStatement innerStatement = inner.getStatement();
             if (!(innerStatement instanceof StructuredComment)) {

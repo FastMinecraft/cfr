@@ -44,7 +44,7 @@ import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
 import org.benf.cfr.reader.util.collections.SetUtil;
-import org.benf.cfr.reader.util.functors.BinaryProcedure;
+import java.util.function.BiConsumer;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.graph.GraphVisitor;
@@ -59,7 +59,7 @@ import java.util.Set;
 
 public class SwitchReplacer {
     public static void replaceRawSwitches(Method method, List<Op03SimpleStatement> in, BlockIdentifierFactory blockIdentifierFactory, Options options, DecompilerComments comments, BytecodeMeta bytecodeMeta) {
-        List<Op03SimpleStatement> switchStatements = Functional.filter(in, new TypeFilter<RawSwitchStatement>(RawSwitchStatement.class));
+        List<Op03SimpleStatement> switchStatements = Functional.filter(in, new TypeFilter<>(RawSwitchStatement.class));
         // Replace raw switch statements with switches and case statements inline.
         List<Op03SimpleStatement> switches = ListFactory.newList();
         for (Op03SimpleStatement switchStatement : switchStatements) {
@@ -67,7 +67,7 @@ public class SwitchReplacer {
             if (switchToProcess != null) switches.add(switchToProcess);
         }
         // We've injected 'case' statements, sort to get them into the proper place.
-        Collections.sort(in, new CompareByIndex());
+        in.sort(new CompareByIndex());
 
         // For each of the switch statements, can we find a contiguous range which represents it?
         // (i.e. where the break statement vectors to).
@@ -105,7 +105,8 @@ public class SwitchReplacer {
      * (though that may still be necessary if this doesn't succeed).
      */
     public static List<Op03SimpleStatement> rewriteDuff(List<Op03SimpleStatement> statements, VariableFactory vf, DecompilerComments decompilerComments, Options options) {
-        List<Op03SimpleStatement> switchStatements = Functional.filter(statements, new TypeFilter<SwitchStatement>(SwitchStatement.class));
+        List<Op03SimpleStatement> switchStatements = Functional.filter(statements,
+            new TypeFilter<>(SwitchStatement.class));
         boolean effect = false;
         for (Op03SimpleStatement switchStatement : switchStatements) {
             if (rewriteDuff(switchStatement, statements, vf, decompilerComments)) effect = true;
@@ -261,14 +262,14 @@ public class SwitchReplacer {
         /*
          * And (as it doesn't matter) reorder swatch's targets, for minimal confusion
          */
-        Collections.sort(swatch.getTargets(), new CompareByIndex());
+        swatch.getTargets().sort(new CompareByIndex());
 
         return swatch;
     }
 
     private static void buildSwitchCases(final Op03SimpleStatement swatch, List<Op03SimpleStatement> targets, BlockIdentifier switchBlockIdentifier, List<Op03SimpleStatement> in, boolean forcedOrder) {
         targets = ListFactory.newList(targets);
-        Collections.sort(targets, new CompareByIndex());
+        targets.sort(new CompareByIndex());
         Set<BlockIdentifier> caseIdentifiers = SetFactory.newSet();
         /*
          * For each of the case statements - find which is reachable from the others WITHOUT going through
@@ -293,7 +294,7 @@ public class SwitchReplacer {
             }
 
             NodeReachable nodeReachable = new NodeReachable(caseTargets, target, swatch, forcedOrder);
-            GraphVisitor<Op03SimpleStatement> gv = new GraphVisitorDFS<Op03SimpleStatement>(target, nodeReachable);
+            GraphVisitor<Op03SimpleStatement> gv = new GraphVisitorDFS<>(target, nodeReachable);
             gv.process();
 
             List<Op03SimpleStatement> backReachable = Functional.filter(nodeReachable.reaches, new Misc.IsForwardJumpTo(target.getIndex()));
@@ -354,7 +355,8 @@ public class SwitchReplacer {
 
     public static void rebuildSwitches(List<Op03SimpleStatement> statements, Options options, DecompilerComments comments, BytecodeMeta bytecodeMeta) {
 
-        List<Op03SimpleStatement> switchStatements = Functional.filter(statements, new TypeFilter<SwitchStatement>(SwitchStatement.class));
+        List<Op03SimpleStatement> switchStatements = Functional.filter(statements,
+            new TypeFilter<>(SwitchStatement.class));
         /*
          * Get the block identifiers for all switch statements and their cases.
          */
@@ -429,7 +431,7 @@ public class SwitchReplacer {
 
         // Create a copy of the targets.  We're going to have to copy because we want to sort.
         List<Op03SimpleStatement> targets = ListFactory.newList(switchStatement.getTargets());
-        Collections.sort(targets, new CompareByIndex());
+        targets.sort(new CompareByIndex());
 
         Op03SimpleStatement firstCase = targets.get(0);
         int idxFirstCase = statements.indexOf(firstCase);
@@ -455,8 +457,7 @@ public class SwitchReplacer {
             InstrIndex nextCaseIndex = nextCase.getIndex();
 
             Statement maybeCaseStatement = thisCase.getStatement();
-            if (!(maybeCaseStatement instanceof CaseStatement)) continue;
-            CaseStatement caseStatement = (CaseStatement) maybeCaseStatement;
+            if (!(maybeCaseStatement instanceof CaseStatement caseStatement)) continue;
             BlockIdentifier caseBlock = caseStatement.getCaseBlock();
 
             int indexLastInThis = Misc.getFarthestReachableInRange(statements, indexThisCase, indexNextCase);
@@ -537,7 +538,7 @@ public class SwitchReplacer {
         boolean retieEnd = false;
         if (!forwardTargets.isEmpty()) {
             List<Op03SimpleStatement> lstFwdTargets = ListFactory.newList(forwardTargets);
-            Collections.sort(lstFwdTargets, new CompareByIndex());
+            lstFwdTargets.sort(new CompareByIndex());
             Op03SimpleStatement afterCaseGuess = lstFwdTargets.get(0);
             int indexAfterCase = statements.indexOf(afterCaseGuess);
 
@@ -783,8 +784,7 @@ public class SwitchReplacer {
 
         for (Op03SimpleStatement caseStatement : switchStatement.getTargets()) {
             // Test shouldn't be necessary.
-            if (!(caseStatement.getStatement() instanceof CaseStatement)) continue;
-            CaseStatement caseStmt = (CaseStatement)caseStatement.getStatement();
+            if (!(caseStatement.getStatement() instanceof CaseStatement caseStmt)) continue;
             if (switchBlock != caseStmt.getSwitchBlock()) continue;
             BlockIdentifier caseBlock = caseStmt.getCaseBlock();
 
@@ -898,8 +898,7 @@ public class SwitchReplacer {
              * If the forward jumpsource was a goto, we now know it's actually a break!
              */
             Statement forwardJump = forwardJumpSource.getStatement();
-            if (forwardJump instanceof JumpingStatement) {
-                JumpingStatement jumpingStatement = (JumpingStatement) forwardJump;
+            if (forwardJump instanceof JumpingStatement jumpingStatement) {
                 JumpType jumpType = jumpingStatement.getJumpType();
                 if (jumpType.isUnknown()) {
                     jumpingStatement.setJumpType(JumpType.BREAK);
@@ -911,7 +910,7 @@ public class SwitchReplacer {
 
     /* This WILL go too far, as we have no way of knowing when the common code ends....
      */
-    private static class NodeReachable implements BinaryProcedure<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>> {
+    private static class NodeReachable implements BiConsumer<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>> {
 
         private final Set<Op03SimpleStatement> otherCases;
         private final Op03SimpleStatement switchStatement;
@@ -929,7 +928,7 @@ public class SwitchReplacer {
         }
 
         @Override
-        public void call(Op03SimpleStatement arg1, GraphVisitor<Op03SimpleStatement> arg2) {
+        public void accept(Op03SimpleStatement arg1, GraphVisitor<Op03SimpleStatement> arg2) {
             if (arg1 == switchStatement) {
                 return;
             }
@@ -946,7 +945,7 @@ public class SwitchReplacer {
         }
     }
 
-    private static class NodesReachedUntil implements BinaryProcedure<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>> {
+    private static class NodesReachedUntil implements BiConsumer<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>> {
         private final Op03SimpleStatement start;
         private final Op03SimpleStatement target;
         private final Set<Op03SimpleStatement> banned;
@@ -962,7 +961,7 @@ public class SwitchReplacer {
         }
 
         @Override
-        public void call(Op03SimpleStatement arg1, GraphVisitor<Op03SimpleStatement> arg2) {
+        public void accept(Op03SimpleStatement arg1, GraphVisitor<Op03SimpleStatement> arg2) {
             if (arg1 == target) {
                 found = true;
                 return;
@@ -1019,7 +1018,7 @@ public class SwitchReplacer {
         for (Op03SimpleStatement target : switchStatement.getTargets()) {
             NodesReachedUntil nodesReachedUntil = new NodesReachedUntil(target, ultTarget, seen);
             reachedUntils.add(nodesReachedUntil);
-            GraphVisitor<Op03SimpleStatement> gv = new GraphVisitorDFS<Op03SimpleStatement>(target, nodesReachedUntil);
+            GraphVisitor<Op03SimpleStatement> gv = new GraphVisitorDFS<>(target, nodesReachedUntil);
             gv.process();
             if (!nodesReachedUntil.found) {
                 return;
@@ -1098,7 +1097,7 @@ public class SwitchReplacer {
         // Process all but the last target.  (handle that below, as we may treat it as outside the case block
         // depending on forward targets.
         List<Op03SimpleStatement> targets = ListFactory.newList(switchStatement.getTargets());
-        Collections.sort(targets, new CompareByIndex());
+        targets.sort(new CompareByIndex());
         BlockIdentifier prevBlock = null;
         BlockIdentifier nextBlock = null;
         Map<Op03SimpleStatement, List<Op03SimpleStatement>> badSrcMap = MapFactory.newOrderedMap();
@@ -1107,10 +1106,9 @@ public class SwitchReplacer {
             // the switch statements itself, or (in theory) another statement in the same block.
             // anything else is duffesque.
             Statement casStm = cas.getStatement();
-            if (!(casStm instanceof CaseStatement)) {
+            if (!(casStm instanceof CaseStatement caseStm)) {
                 continue;
             }
-            CaseStatement caseStm = (CaseStatement)casStm;
             BlockIdentifier caseBlock = caseStm.getCaseBlock();
             prevBlock = nextBlock;
             nextBlock = caseBlock;
@@ -1144,10 +1142,9 @@ public class SwitchReplacer {
             // the switch statements itself, or (in theory) another statement in the same block.
             // anything else is duffesque.
             Statement casStm = cas.getStatement();
-            if (!(casStm instanceof CaseStatement)) {
+            if (!(casStm instanceof CaseStatement caseStm)) {
                 continue;
             }
-            CaseStatement caseStm = (CaseStatement) casStm;
             List<Expression> values = caseStm.getValues();
             for (Expression e : values) {
                 Literal l = e.getComputedLiteral(MapFactory.<LValue, Literal>newMap());

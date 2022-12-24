@@ -64,8 +64,7 @@ public class LValuePropSimple {
 
         @Override
         public void collect(LValue lValue, ReadWrite rw) {
-            if (!(lValue instanceof StackSSALabel)) return;
-            StackSSALabel stackSSALabel = (StackSSALabel)lValue;
+            if (!(lValue instanceof StackSSALabel stackSSALabel)) return;
             if (singleUsages.containsKey(stackSSALabel)) {
                 singleUsages.put(stackSSALabel, null);
             } else {
@@ -121,9 +120,13 @@ public class LValuePropSimple {
                 if (oneUsagecollector.getSingleUsages().contains(prevCreated)) {
                     final Expression rhs = assignmentCollector.values.get(prevCreated);
 
-                    LValueRewriter<Statement> rewriter = new LValueRewriter<Statement>() {
+                    LValueRewriter<Statement> rewriter = new LValueRewriter<>() {
                         @Override
-                        public Expression getLValueReplacement(LValue lValue, SSAIdentifiers<LValue> ssaIdentifiers, StatementContainer<Statement> statementContainer) {
+                        public Expression getLValueReplacement(
+                            LValue lValue,
+                            SSAIdentifiers<LValue> ssaIdentifiers,
+                            StatementContainer<Statement> statementContainer
+                        ) {
                             if (lValue.equals(prevCreated)) return rhs;
                             return null;
                         }

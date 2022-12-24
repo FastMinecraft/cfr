@@ -39,7 +39,7 @@ public class InnerClassConstructorRewriter implements Op04Rewriter {
 
 
         /* The first usage of this variable needs to be an assignment to a final synthetic member */
-        MatchIterator<StructuredStatement> mi = new MatchIterator<StructuredStatement>(structuredStatements);
+        MatchIterator<StructuredStatement> mi = new MatchIterator<>(structuredStatements);
         ConstructResultCollector collector = new ConstructResultCollector();
         while (mi.hasNext()) {
             mi.advance();

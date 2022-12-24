@@ -102,9 +102,7 @@ public class ExceptionCheckImpl implements ExceptionCheck {
             ClassFile classFile = dcCommonState.getClassFile(type);
             Method method = classFile.getMethodByPrototype(functionInvokation.getMethodPrototype());
             return checkAgainstInternal(method.getThrownTypes());
-        } catch (NoSuchMethodException e) {
-            return true;
-        } catch (CannotLoadClassException e) {
+        } catch (NoSuchMethodException | CannotLoadClassException e) {
             return true;
         }
     }
@@ -116,8 +114,7 @@ public class ExceptionCheckImpl implements ExceptionCheck {
          * If this exception is a new checked, then see if we're catching it.  If it's not a checked
          * or we can't tell what it is, default to not being able to handle it.
          */
-        if (!(expression instanceof ConstructorInvokationSimple)) return true;
-        ConstructorInvokationSimple constructorInvokation = (ConstructorInvokationSimple) expression;
+        if (!(expression instanceof ConstructorInvokationSimple constructorInvokation)) return true;
         JavaTypeInstance type = constructorInvokation.getTypeInstance();
         Map<JavaRefTypeInstance, ?> boundSuperClasses;
         try {

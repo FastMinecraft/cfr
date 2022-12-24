@@ -51,9 +51,8 @@ public class InvalidBooleanCastCleaner extends AbstractExpressionRewriter implem
                 // This *could* be done in an extra pass......
                 return new ComparisonOperation(BytecodeLoc.NONE, child, Literal.INT_ZERO, CompOp.NE);
             }
-        } else if (childType == RawJavaType.BOOLEAN && castType instanceof RawJavaType) {
+        } else if (childType == RawJavaType.BOOLEAN && castType instanceof RawJavaType rawCastType) {
             // This is only liable to happen with hand crafted bytecode (iload, i2f etc), but it's still annoying!
-            RawJavaType rawCastType = (RawJavaType)castType;
             if (child instanceof Literal) {
                 TypedLiteral childValue = ((Literal) child).getValue();
 

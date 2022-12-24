@@ -9,6 +9,7 @@ import org.benf.cfr.reader.bytecode.analysis.structured.StructuredStatement;
 public class MatchOneOf implements Matcher<StructuredStatement> {
     private final Matcher<StructuredStatement>[] matchers;
 
+    @SafeVarargs
     public MatchOneOf(Matcher<StructuredStatement>... matchers) {
         this.matchers = matchers;
     }

@@ -31,8 +31,7 @@ public class ConstructorInvokationExplicit extends AbstractFunctionInvokationExp
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null) return false;
-        if (!(o instanceof ConstructorInvokationExplicit)) return false;
-        ConstructorInvokationExplicit other = (ConstructorInvokationExplicit)o;
+        if (!(o instanceof ConstructorInvokationExplicit other)) return false;
         return getClazz().equals(other.getClazz()) && getArgs().equals(other.getArgs());
     }
 
@@ -62,8 +61,7 @@ public class ConstructorInvokationExplicit extends AbstractFunctionInvokationExp
     public boolean equivalentUnder(Object o, EquivalenceConstraint constraint) {
         if (o == this) return true;
         if (o == null) return false;
-        if (!(o instanceof ConstructorInvokationExplicit)) return false;
-        ConstructorInvokationExplicit other = (ConstructorInvokationExplicit)o;
+        if (!(o instanceof ConstructorInvokationExplicit other)) return false;
         if (!constraint.equivalent(getClazz(), other.getClazz())) return false;
         if (!constraint.equivalent(getArgs(), other.getArgs())) return false;
         return true;

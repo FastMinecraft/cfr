@@ -16,6 +16,7 @@ import org.benf.cfr.reader.util.Troolean;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class AssignmentExpression extends AbstractAssignmentExpression {
     private LValue lValue;
@@ -126,8 +127,8 @@ public class AssignmentExpression extends AbstractAssignmentExpression {
 
         AssignmentExpression that = (AssignmentExpression) o;
 
-        if (lValue != null ? !lValue.equals(that.lValue) : that.lValue != null) return false;
-        if (rValue != null ? !rValue.equals(that.rValue) : that.rValue != null) return false;
+        if (!Objects.equals(lValue, that.lValue)) return false;
+        if (!Objects.equals(rValue, that.rValue)) return false;
 
         return true;
     }

@@ -82,8 +82,7 @@ public class NarrowingTypeRewriter {
 
         @Override
         public Expression rewriteExpression(Expression expression, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
-            if (expression instanceof AbstractAssignmentExpression) {
-                AbstractAssignmentExpression aae = (AbstractAssignmentExpression)expression;
+            if (expression instanceof AbstractAssignmentExpression aae) {
                 LValue lValue = aae.getUpdatedLValue();
                 collect(lValue, BAD_SENTINEL);
             }
@@ -91,8 +90,7 @@ public class NarrowingTypeRewriter {
         }
 
         public void collect(LValue lValue, JavaTypeInstance type) {
-            if (!(lValue instanceof LocalVariable)) return;
-            LocalVariable lv = (LocalVariable)lValue;
+            if (!(lValue instanceof LocalVariable lv)) return;
             JavaTypeInstance b = usable.get(lv);
             if (type == null) type = BAD_SENTINEL;
             if (b == null) {

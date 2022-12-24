@@ -119,19 +119,16 @@ public class J14ClassObjectRewriter {
                 staticExpression);
 
         final Set<Pair<String, JavaTypeInstance>> hideThese = SetFactory.newSet();
-        ExpressionRewriter expressionRewriter = new ExpressionWildcardReplacingRewriter(wcm, test, new NonaryFunction<Expression>() {
-            @Override
-            public Expression invoke() {
-                Expression string = wcm.getExpressionWildCard("classString").getMatch();
-                if (!(string instanceof Literal)) return null;
-                TypedLiteral literal = ((Literal) string).getValue();
-                if (literal.getType() != TypedLiteral.LiteralType.String) return null;
-                Expression res = new Literal(TypedLiteral.getClass(state.getClassCache().getRefClassFor(QuotingUtils.unquoteString((String) literal.getValue()))));
+        ExpressionRewriter expressionRewriter = new ExpressionWildcardReplacingRewriter(wcm, test, () -> {
+            Expression string = wcm.getExpressionWildCard("classString").getMatch();
+            if (!(string instanceof Literal)) return null;
+            TypedLiteral literal = ((Literal) string).getValue();
+            if (literal.getType() != TypedLiteral.LiteralType.String) return null;
+            Expression res = new Literal(TypedLiteral.getClass(state.getClassCache().getRefClassFor(QuotingUtils.unquoteString((String) literal.getValue()))));
 
-                StaticVariable found = staticVariable.getMatch();
-                hideThese.add(Pair.make(found.getFieldName(), found.getInferredJavaType().getJavaTypeInstance()));
-                return res;
-            }
+            StaticVariable found = staticVariable.getMatch();
+            hideThese.add(Pair.make(found.getFieldName(), found.getInferredJavaType().getJavaTypeInstance()));
+            return res;
         });
 
         StructuredStatementTransformer transformer = new ExpressionRewriterTransformer(expressionRewriter);
@@ -168,7 +165,7 @@ public class J14ClassObjectRewriter {
         if (!method.hasCodeAttribute()) return false;
         List<StructuredStatement> statements = MiscStatementTools.linearise(method.getAnalysis());
         if (statements == null) return false;
-        MatchIterator<StructuredStatement> mi = new MatchIterator<StructuredStatement>(statements);
+        MatchIterator<StructuredStatement> mi = new MatchIterator<>(statements);
         WildcardMatch wcm1 = new WildcardMatch();
 
         List<LocalVariable> args = method.getMethodPrototype().getComputedParameters();

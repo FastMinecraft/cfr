@@ -10,7 +10,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockType;
 import org.benf.cfr.reader.bytecode.analysis.parse.wildcard.WildcardMatch;
 import org.benf.cfr.reader.entities.exceptions.ExceptionGroup;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
@@ -199,20 +199,17 @@ class SynchronizedRewriter {
         return true;
     }
 
-    private final static class FindBlockStarts implements Predicate<Op03SimpleStatement> {
-        private final BlockType blockType;
-
+    private record FindBlockStarts(BlockType blockType) implements Predicate<Op03SimpleStatement> {
         @SuppressWarnings("SameParameterValue")
-        FindBlockStarts(BlockType blockType) {
-            this.blockType = blockType;
+        private FindBlockStarts {
         }
 
-        @Override
-        public boolean test(Op03SimpleStatement in) {
-            BlockIdentifier blockIdentifier = in.getFirstStatementInThisBlock();
-            if (blockIdentifier == null) return false;
-            return (blockIdentifier.getBlockType() == blockType);
+            @Override
+            public boolean test(Op03SimpleStatement in) {
+                BlockIdentifier blockIdentifier = in.getFirstStatementInThisBlock();
+                if (blockIdentifier == null) return false;
+                return (blockIdentifier.getBlockType() == blockType);
+            }
         }
-    }
 
 }

@@ -16,8 +16,7 @@ public class BreakRewriter {
         test:
         for (Op03SimpleStatement statement : statements) {
             Statement innerStatement = statement.getStatement();
-            if (innerStatement instanceof JumpingStatement) {
-                JumpingStatement jumpingStatement = (JumpingStatement) innerStatement;
+            if (innerStatement instanceof JumpingStatement jumpingStatement) {
                 //
                 // If there's a goto, see if it goes OUT of a known while loop, OR
                 // if it goes back to the comparison statement for a known while loop.
@@ -29,13 +28,17 @@ public class BreakRewriter {
                     if (targetStatement.getThisComparisonBlock() != null) {
                         BlockType blockType = targetStatement.getThisComparisonBlock().getBlockType();
                         switch (blockType) {
-                            default: // hack, figuring out.
+                            default -> { // hack, figuring out.
                                 // Jumps to the comparison test of a WHILE
                                 // Continue loopBlock, IF this statement is INSIDE that block.
-                                if (BlockIdentifier.blockIsOneOf(targetStatement.getThisComparisonBlock(), statement.getBlockIdentifiers())) {
+                                if (BlockIdentifier.blockIsOneOf(
+                                    targetStatement.getThisComparisonBlock(),
+                                    statement.getBlockIdentifiers()
+                                )) {
                                     jumpingStatement.setJumpType(JumpType.CONTINUE);
                                     continue test;
                                 }
+                            }
                         }
                     }
                     if (targetStatement.getBlockStarted() != null &&

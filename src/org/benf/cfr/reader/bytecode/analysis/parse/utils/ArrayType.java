@@ -26,26 +26,17 @@ public enum ArrayType {
     }
 
     public static ArrayType getArrayType(int id) {
-        switch (id) {
-            case 4:
-                return T_BOOLEAN;
-            case 5:
-                return T_CHAR;
-            case 6:
-                return T_FLOAT;
-            case 7:
-                return T_DOUBLE;
-            case 8:
-                return T_BYTE;
-            case 9:
-                return T_SHORT;
-            case 10:
-                return T_INT;
-            case 11:
-                return T_LONG;
-            default:
-                throw new ConfusedCFRException("No such primitive array type " + id);
-        }
+        return switch (id) {
+            case 4 -> T_BOOLEAN;
+            case 5 -> T_CHAR;
+            case 6 -> T_FLOAT;
+            case 7 -> T_DOUBLE;
+            case 8 -> T_BYTE;
+            case 9 -> T_SHORT;
+            case 10 -> T_INT;
+            case 11 -> T_LONG;
+            default -> throw new ConfusedCFRException("No such primitive array type " + id);
+        };
     }
 
     @Override

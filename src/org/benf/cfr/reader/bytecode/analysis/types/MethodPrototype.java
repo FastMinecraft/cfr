@@ -24,7 +24,6 @@ import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.Dumper;
 
@@ -295,12 +294,7 @@ public class MethodPrototype implements TypeUsageCollectable {
     }
 
     public List<LocalVariable> getComputedParameters() {
-        return Functional.map(getParameterLValues(), new UnaryFunction<ParameterLValue, LocalVariable>() {
-            @Override
-            public LocalVariable invoke(ParameterLValue arg) {
-                return arg.localVariable;
-            }
-        });
+        return Functional.map(getParameterLValues(), arg -> arg.localVariable);
     }
 
     public void setNonMethodScopedSyntheticConstructorParameters(Method.MethodConstructor constructorFlag, DecompilerComments comments, Map<Integer, JavaTypeInstance> synthetics) {
@@ -309,15 +303,13 @@ public class MethodPrototype implements TypeUsageCollectable {
 
         int offset = 0;
         switch (constructorFlag) {
-            case ENUM_CONSTRUCTOR: {
+            case ENUM_CONSTRUCTOR -> {
                 offset = 3;
-                break;
             }
-            case ECLIPSE_ENUM_CONSTRUCTOR: {
+            case ECLIPSE_ENUM_CONSTRUCTOR -> {
                 offset = 1;
-                break;
             }
-            default: {
+            default -> {
                 if (isInstanceMethod()) offset = 1;
             }
         }
@@ -329,7 +321,7 @@ public class MethodPrototype implements TypeUsageCollectable {
 
         if (!tmp.isEmpty()) {
             Slot test = tmp.get(0);
-            if (offset != test.getIdx()) {
+            if (offset != test.idx()) {
                 /*
                  * Synthetics have come through out of location - we have to realign.
                  *
@@ -338,7 +330,7 @@ public class MethodPrototype implements TypeUsageCollectable {
                  */
                 List<Slot> replacements = ListFactory.newList();
                 for (Slot synthetic : tmp) {
-                    JavaTypeInstance type = synthetic.getJavaTypeInstance();
+                    JavaTypeInstance type = synthetic.javaTypeInstance();
                     Slot replacement = new Slot(type, offset);
                     offset += type.getStackType().getComputationCategory();
                     replacements.add(replacement);
@@ -363,7 +355,7 @@ public class MethodPrototype implements TypeUsageCollectable {
         if (!syntheticArgs.isEmpty()) {
             for (Slot synthetic : syntheticArgs) {
                 res.put(synthetic, ssaIdentifierFactory.getIdent(synthetic));
-                offset += synthetic.getJavaTypeInstance().getStackType().getComputationCategory();
+                offset += synthetic.javaTypeInstance().getStackType().getComputationCategory();
             }
         }
         for (JavaTypeInstance arg : args) {
@@ -374,7 +366,7 @@ public class MethodPrototype implements TypeUsageCollectable {
         if (!syntheticCaptureArgs.isEmpty()) {
             for (Slot synthetic : syntheticCaptureArgs) {
                 res.put(synthetic, ssaIdentifierFactory.getIdent(synthetic));
-                offset += synthetic.getJavaTypeInstance().getStackType().getComputationCategory();
+                offset += synthetic.javaTypeInstance().getStackType().getComputationCategory();
             }
         }
         return res;
@@ -403,8 +395,8 @@ public class MethodPrototype implements TypeUsageCollectable {
         } else {
             // TODO : It's not a valid assumption that synthetic args are at the front!
             for (Slot synthetic : syntheticArgs) {
-                JavaTypeInstance typeInstance = synthetic.getJavaTypeInstance();
-                parameterLValues.add(new ParameterLValue(new LocalVariable(offset, slotToIdentMap.get(synthetic.getIdx()), variableNamer, 0, false, new InferredJavaType(typeInstance, InferredJavaType.Source.FIELD, true)), HiddenReason.HiddenOuterReference));
+                JavaTypeInstance typeInstance = synthetic.javaTypeInstance();
+                parameterLValues.add(new ParameterLValue(new LocalVariable(offset, slotToIdentMap.get(synthetic.idx()), variableNamer, 0, false, new InferredJavaType(typeInstance, InferredJavaType.Source.FIELD, true)), HiddenReason.HiddenOuterReference));
                 offset += typeInstance.getStackType().getComputationCategory();
             }
         }
@@ -416,8 +408,8 @@ public class MethodPrototype implements TypeUsageCollectable {
         }
 
         for (Slot synthetic : syntheticCaptureArgs) {
-            JavaTypeInstance typeInstance = synthetic.getJavaTypeInstance();
-            parameterLValues.add(new ParameterLValue(new LocalVariable(offset, slotToIdentMap.get(synthetic.getIdx()), variableNamer, 0, false, new InferredJavaType(typeInstance, InferredJavaType.Source.FIELD, true)), HiddenReason.HiddenCapture));
+            JavaTypeInstance typeInstance = synthetic.javaTypeInstance();
+            parameterLValues.add(new ParameterLValue(new LocalVariable(offset, slotToIdentMap.get(synthetic.idx()), variableNamer, 0, false, new InferredJavaType(typeInstance, InferredJavaType.Source.FIELD, true)), HiddenReason.HiddenCapture));
             offset += typeInstance.getStackType().getComputationCategory();
         }
 
@@ -524,21 +516,18 @@ public class MethodPrototype implements TypeUsageCollectable {
             return types;
         }
         ClassSignature sig = classFile.getClassSignature();
-        List<FormalTypeParameter> ftp = sig.getFormalTypeParameters();
+        List<FormalTypeParameter> ftp = sig.formalTypeParameters();
         if (ftp == null && formalTypeParameters == null) {
             return types;
         }
         final GenericTypeBinder gtb = GenericTypeBinder.create(ftp, formalTypeParameters);
-        return Functional.map(types, new UnaryFunction<JavaTypeInstance, JavaTypeInstance>() {
-            @Override
-            public JavaTypeInstance invoke(JavaTypeInstance arg) {
-                JavaTypeInstance res = arg;
-                do {
-                    arg = res;
-                    res = gtb.getBindingFor(arg);
-                } while (res instanceof JavaGenericPlaceholderTypeInstance && res != arg);
-                return res;
-            }
+        return Functional.map(types, arg -> {
+            JavaTypeInstance res = arg;
+            do {
+                arg = res;
+                res = gtb.getBindingFor(arg);
+            } while (res instanceof JavaGenericPlaceholderTypeInstance && res != arg);
+            return res;
         });
     }
 
@@ -747,8 +736,7 @@ public class MethodPrototype implements TypeUsageCollectable {
     }
 
     private JavaTypeInstance getResultBoundAccordingly(JavaTypeInstance result, JavaGenericRefTypeInstance boundInstance, List<Expression> invokingArgs) {
-        if (result instanceof JavaArrayTypeInstance) {
-            JavaArrayTypeInstance arrayTypeInstance = (JavaArrayTypeInstance) result;
+        if (result instanceof JavaArrayTypeInstance arrayTypeInstance) {
             JavaTypeInstance stripped = result.getArrayStrippedType();
             JavaTypeInstance tmp = getResultBoundAccordinglyInner(stripped, boundInstance, invokingArgs);
             if (tmp == stripped) return result;
@@ -759,7 +747,7 @@ public class MethodPrototype implements TypeUsageCollectable {
     }
 
     private JavaTypeInstance getResultBoundAccordinglyInner(JavaTypeInstance result, JavaGenericRefTypeInstance boundInstance, List<Expression> invokingArgs) {
-        if (!(result instanceof JavaGenericBaseInstance)) {
+        if (!(result instanceof JavaGenericBaseInstance genericResult)) {
             // Don't care - (i.e. iterator<E> hasNext)
             return result;
         }
@@ -778,7 +766,6 @@ public class MethodPrototype implements TypeUsageCollectable {
             return result;
         }
 
-        JavaGenericBaseInstance genericResult = (JavaGenericBaseInstance) result;
         JavaTypeInstance boundResultInstance = genericResult.getBoundInstance(genericTypeBinder);
         /*
          * This is a result type - if it contains an unbound wildcard, we have to strip it.
@@ -864,7 +851,7 @@ public class MethodPrototype implements TypeUsageCollectable {
         }
 
         // The first element MUST be a reference, which is the implicit 'this'.
-        if (missingList.get(0).getJavaTypeInstance() != RawJavaType.REF) return;
+        if (missingList.get(0).javaTypeInstance() != RawJavaType.REF) return;
         //noinspection unused
         Slot removed = missingList.remove(0);
         // Can we satisfy all of args at 0, or at 1?
@@ -899,28 +886,29 @@ public class MethodPrototype implements TypeUsageCollectable {
         for (int x=0;x<args.size();++x) {
             Slot here = haystack.get(x+start);
             JavaTypeInstance expected = args.get(x);
-            StackType st1 = here.getJavaTypeInstance().getStackType();
+            StackType st1 = here.javaTypeInstance().getStackType();
             StackType st2 = expected.getStackType();
             if (st1 == st2) continue;
-            if (here.getJavaTypeInstance() == RawJavaType.NULL) {
+            if (here.javaTypeInstance() == RawJavaType.NULL) {
                 switch (st2.getComputationCategory()) {
-                    case 1:
+                    case 1 -> {
                         haystack = ListFactory.newList(haystack);
-                        haystack.set(x + start, new Slot(expected, here.getIdx()));
-                        break;
-                    case 2:
+                        haystack.set(x + start, new Slot(expected, here.idx()));
+                    }
+                    case 2 -> {
                         // We didn't know what to insert when we were converting the avaiable
                         // slots, so we stuck in two nulls - now we realise this is a category
                         // 2 argument.
-                        if (haystack.size() > x+start+1) {
-                            Slot here2 = haystack.get(x+start+1);
-                            if (here2.getJavaTypeInstance() == RawJavaType.NULL) {
+                        if (haystack.size() > x + start + 1) {
+                            Slot here2 = haystack.get(x + start + 1);
+                            if (here2.javaTypeInstance() == RawJavaType.NULL) {
                                 haystack = ListFactory.newList(haystack);
-                                haystack.remove(x+start+1);
+                                haystack.remove(x + start + 1);
                                 break;
                             }
                         }
                         return false;
+                    }
                 }
                 continue;
             }

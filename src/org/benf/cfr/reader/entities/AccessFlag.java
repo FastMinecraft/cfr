@@ -37,7 +37,7 @@ public enum AccessFlag {
     }
 
     public static Set<AccessFlag> build(int raw) {
-        Set<AccessFlag> res = new TreeSet<AccessFlag>();
+        Set<AccessFlag> res = new TreeSet<>();
 
         // Because we're decoding a C++ style enum.
         if (0 != (raw & 0x1)) res.add(ACC_PUBLIC);

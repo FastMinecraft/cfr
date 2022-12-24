@@ -35,8 +35,7 @@ public class NakedNullCaster implements StructuredStatementTransformer, Expressi
 
     @Override
     public Expression rewriteExpression(Expression expression, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
-        if (expression instanceof MemberFunctionInvokation) {
-            MemberFunctionInvokation invokation = (MemberFunctionInvokation)expression;
+        if (expression instanceof MemberFunctionInvokation invokation) {
             Expression object = invokation.getObject();
             if (Literal.NULL.equals(object)) {
                 // Needs a cast.

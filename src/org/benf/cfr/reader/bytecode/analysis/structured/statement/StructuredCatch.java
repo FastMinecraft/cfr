@@ -22,6 +22,7 @@ import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class StructuredCatch extends AbstractStructuredStatement {
@@ -97,8 +98,7 @@ public class StructuredCatch extends AbstractStructuredStatement {
     @Override
     public boolean match(MatchIterator<StructuredStatement> matchIterator, MatchResultCollector matchResultCollector) {
         StructuredStatement o = matchIterator.getCurrent();
-        if (!(o instanceof StructuredCatch)) return false;
-        StructuredCatch other = (StructuredCatch) o;
+        if (!(o instanceof StructuredCatch other)) return false;
         // we don't actually check any equality for a match.
         matchIterator.advance();
         return true;
@@ -106,8 +106,7 @@ public class StructuredCatch extends AbstractStructuredStatement {
 
     public boolean isRethrow() {
         StructuredStatement statement = catchBlock.getStatement();
-        if (!(statement instanceof Block)) return false;
-        Block block = (Block) statement;
+        if (!(statement instanceof Block block)) return false;
         Optional<Op04StructuredStatement> maybeStatement = block.getMaybeJustOneStatement();
         if (!maybeStatement.isSet()) return false;
         StructuredStatement inBlock = maybeStatement.getValue().getStatement();
@@ -153,7 +152,7 @@ public class StructuredCatch extends AbstractStructuredStatement {
 
         StructuredCatch that = (StructuredCatch) o;
 
-        if (catching != null ? !catching.equals(that.catching) : that.catching != null) return false;
+        if (!Objects.equals(catching, that.catching)) return false;
 
         return true;
     }

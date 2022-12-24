@@ -8,7 +8,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockType;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 
 import java.util.List;
 import java.util.Set;
@@ -36,7 +36,7 @@ public class PushThroughGoto {
      * (at op4 stage).
      */
     public static List<Op03SimpleStatement> pushThroughGoto(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> pathtests = Functional.filter(statements, new ExactTypeFilter<GotoStatement>(GotoStatement.class));
+        List<Op03SimpleStatement> pathtests = Functional.filter(statements, new ExactTypeFilter<>(GotoStatement.class));
         boolean success = false;
         for (Op03SimpleStatement gotostm : pathtests) {
             if (gotostm.getTargets().get(0).getIndex().isBackJumpTo(gotostm)) {
@@ -78,12 +78,10 @@ public class PushThroughGoto {
             @Override
             public boolean test(BlockIdentifier in) {
                 BlockType blockType = in.getBlockType();
-                switch (blockType) {
-                    case WHILELOOP:
-                    case DOLOOP:
-                        return true;
-                }
-                return false;
+                return switch (blockType) {
+                    case WHILELOOP, DOLOOP -> true;
+                    default -> false;
+                };
             }
         }
         IsLoopBlock isLoopBlock = new IsLoopBlock();
@@ -95,14 +93,10 @@ public class PushThroughGoto {
             @Override
             public boolean test(BlockIdentifier in) {
                 BlockType blockType = in.getBlockType();
-                switch (blockType) {
-                    case TRYBLOCK:
-                    case SWITCH:
-                    case CATCHBLOCK:
-                    case CASE:
-                        return true;
-                }
-                return false;
+                return switch (blockType) {
+                    case TRYBLOCK, SWITCH, CATCHBLOCK, CASE -> true;
+                    default -> false;
+                };
             }
         }
         Predicate<BlockIdentifier> exceptionFilter = new IsExceptionBlock();

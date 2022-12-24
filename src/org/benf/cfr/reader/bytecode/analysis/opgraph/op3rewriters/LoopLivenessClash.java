@@ -17,7 +17,7 @@ import java.util.Set;
 public class LoopLivenessClash {
 
     public static boolean detect(List<Op03SimpleStatement> statements, BytecodeMeta bytecodeMeta) {
-        List<Op03SimpleStatement> iters = Functional.filter(statements, new TypeFilter<ForIterStatement>(ForIterStatement.class));
+        List<Op03SimpleStatement> iters = Functional.filter(statements, new TypeFilter<>(ForIterStatement.class));
         if (iters.isEmpty()) return false;
 
         boolean found = false;
@@ -28,8 +28,7 @@ public class LoopLivenessClash {
     }
 
     private static JavaTypeInstance getIterableIterType(JavaTypeInstance type) {
-        if (!(type instanceof JavaGenericRefTypeInstance)) return null;
-        JavaGenericRefTypeInstance generic = (JavaGenericRefTypeInstance)type;
+        if (!(type instanceof JavaGenericRefTypeInstance generic)) return null;
         BindingSuperContainer bindingSuperContainer = type.getBindingSupers();
 
         JavaGenericRefTypeInstance iterType = bindingSuperContainer.getBoundSuperForBase(TypeConstants.ITERABLE);
@@ -46,7 +45,7 @@ public class LoopLivenessClash {
         ForIterStatement forIterStatement = (ForIterStatement)statement.getStatement();
         LValue iterator = forIterStatement.getCreatedLValue();
         // Shouldn't happen, but if it has, don't check further.
-        if (!(iterator instanceof LocalVariable)) return res;
+        if (!(iterator instanceof LocalVariable lvIter)) return res;
 
         JavaTypeInstance iterType = iterator.getInferredJavaType().getJavaTypeInstance();
         InferredJavaType inferredListType = forIterStatement.getList().getInferredJavaType();
@@ -89,7 +88,6 @@ public class LoopLivenessClash {
         /*
          * We're not iterating over the right thing.
          */
-        LocalVariable lvIter = (LocalVariable)iterator;
         Set<Integer> clashes = SetFactory.newSet();
         clashes.add(lvIter.getIdx());
         bytecodeMeta.informLivenessClashes(clashes);

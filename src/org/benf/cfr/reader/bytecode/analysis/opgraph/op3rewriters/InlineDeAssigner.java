@@ -82,16 +82,14 @@ public class InlineDeAssigner {
             /* We can pull this out if none of the RHS has yet been modified.
              * the LHS has not yet been read.
              */
-            if (expression instanceof AssignmentExpression) {
-                AssignmentExpression assignmentExpression = (AssignmentExpression)expression;
+            if (expression instanceof AssignmentExpression assignmentExpression) {
                 assignmentExpression.applyRValueOnlyExpressionRewriter(this, ssaIdentifiers, statementContainer, flags);
                 return tryExtractAssignment((AssignmentExpression)expression);
             }
             /*
              * Again - never descend an optional term.
              */
-            if (expression instanceof TernaryExpression) {
-                TernaryExpression ternaryExpression = (TernaryExpression)expression;
+            if (expression instanceof TernaryExpression ternaryExpression) {
                 expression = ternaryExpression.applyConditionOnlyExpressionRewriter(this, ssaIdentifiers, statementContainer, flags);
                 noFurther = true;
                 return expression;
@@ -110,8 +108,7 @@ public class InlineDeAssigner {
             if (noFurther) return expression;
             // We can only go down the LHS of a boolean -
             // TODO : ApplyLHSOnly?
-            if (expression instanceof BooleanOperation) {
-                BooleanOperation booleanOperation = (BooleanOperation)expression;
+            if (expression instanceof BooleanOperation booleanOperation) {
                 ConditionalExpression lhs = booleanOperation.getLhs();
                 ConditionalExpression lhs2 = rewriteExpression(lhs, ssaIdentifiers, statementContainer, flags);
                 if (lhs2 != lhs) {
@@ -127,16 +124,12 @@ public class InlineDeAssigner {
         @Override
         public LValue rewriteExpression(LValue lValue, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
             switch (flags) {
-                case LVALUE:
-                    write.add(lValue);
-                    break;
-                case RVALUE:
-                    read.add(lValue);
-                    break;
-                case LANDRVALUE:
+                case LVALUE -> write.add(lValue);
+                case RVALUE -> read.add(lValue);
+                case LANDRVALUE -> {
                     write.add(lValue);
                     read.add(lValue);
-                    break;
+                }
             }
             return lValue;
         }
@@ -181,8 +174,7 @@ public class InlineDeAssigner {
         if (rhs instanceof LValueExpression || rhs instanceof Literal) return;
         Deassigner deassigner = new Deassigner();
         LinkedList<LValue> lValues = ListFactory.newLinkedList();
-        while (rhs instanceof AssignmentExpression) {
-            AssignmentExpression assignmentExpression = (AssignmentExpression)rhs;
+        while (rhs instanceof AssignmentExpression assignmentExpression) {
             lValues.addFirst(assignmentExpression.getlValue());
             rhs = assignmentExpression.getrValue();
         }

@@ -64,7 +64,7 @@ public class Field implements KnowsRawSize, TypeUsageCollectable {
         this.cp = cp;
         this.accessFlags = AccessFlag.build(raw.getU2At(OFFSET_OF_ACCESS_FLAGS));
         int attributes_count = raw.getU2At(OFFSET_OF_ATTRIBUTES_COUNT);
-        ArrayList<Attribute> tmpAttributes = new ArrayList<Attribute>();
+        ArrayList<Attribute> tmpAttributes = new ArrayList<>();
         tmpAttributes.ensureCapacity(attributes_count);
         long attributesLength = ContiguousEntityFactory.build(raw.getOffsetData(OFFSET_OF_ATTRIBUTES), attributes_count, tmpAttributes,
                 AttributeFactory.getBuilder(cp, classFileVersion));
@@ -213,12 +213,9 @@ public class Field implements KnowsRawSize, TypeUsageCollectable {
             componentAnnotations = ListFactory.newList(componentAnnotations);
 
             // First collect the type of all annotations with target RECORD_COMPONENT
-            Set<JavaTypeInstance> componentAnnotationTypes = Functional.mapToSet(componentAnnotations, new UnaryFunction<AnnotationTableEntry, JavaTypeInstance>() {
-                @Override
-                public JavaTypeInstance invoke(AnnotationTableEntry arg) {
-                    return arg.getClazz();
-                }
-            });
+            Set<JavaTypeInstance> componentAnnotationTypes = Functional.mapToSet(componentAnnotations,
+                AnnotationTableEntry::getClazz
+            );
 
             // Then consider all annotations without RECORD_COMPONENT target, but with FIELD
             // target which are implicitly propagated from component to field

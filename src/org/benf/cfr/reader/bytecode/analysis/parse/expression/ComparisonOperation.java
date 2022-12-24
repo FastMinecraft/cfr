@@ -217,8 +217,7 @@ public class ComparisonOperation extends AbstractExpression implements Condition
         }
         if (a.getInferredJavaType().getJavaTypeInstance().getRawTypeOfSimpleType() != RawJavaType.BOOLEAN)
             return BooleanComparisonType.NOT;
-        if (!(b instanceof Literal)) return BooleanComparisonType.NOT;
-        Literal literal = (Literal) b;
+        if (!(b instanceof Literal literal)) return BooleanComparisonType.NOT;
         TypedLiteral lit = literal.getValue();
         if (lit.getType() != TypedLiteral.LiteralType.Integer) return BooleanComparisonType.NOT;
         int i = (Integer) lit.getValue();
@@ -270,8 +269,7 @@ public class ComparisonOperation extends AbstractExpression implements Condition
     @Override
     public boolean rewriteBoxing(PrimitiveBoxingRewriter boxingRewriter) {
         switch (op) {
-            case EQ:
-            case NE:
+            case EQ, NE -> {
                 if (boxingRewriter.isUnboxedType(lhs)) {
                     rhs = boxingRewriter.sugarUnboxing(rhs);
                     return false;
@@ -280,11 +278,11 @@ public class ComparisonOperation extends AbstractExpression implements Condition
                     lhs = boxingRewriter.sugarUnboxing(lhs);
                     return false;
                 }
-                break;
-            default:
+            }
+            default -> {
                 lhs = boxingRewriter.sugarUnboxing(lhs);
                 rhs = boxingRewriter.sugarUnboxing(rhs);
-                break;
+            }
         }
         return false;
     }
@@ -296,8 +294,7 @@ public class ComparisonOperation extends AbstractExpression implements Condition
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof ComparisonOperation)) return false;
-        ComparisonOperation other = (ComparisonOperation) o;
+        if (!(o instanceof ComparisonOperation other)) return false;
         return op == other.op &&
                 lhs.equals(other.lhs) &&
                 rhs.equals(other.rhs);
@@ -328,11 +325,13 @@ public class ComparisonOperation extends AbstractExpression implements Condition
         TypedLiteral l = lV.getValue();
         TypedLiteral r = rV.getValue();
         switch (op) {
-            case EQ:
+            case EQ -> {
                 return l.equals(r) ? Literal.TRUE : Literal.FALSE;
-            case NE:
+            }
+            case NE -> {
                 return l.equals(r) ? Literal.FALSE : Literal.TRUE;
-            default:
+            }
+            default -> {
                 JavaTypeInstance type = l.getInferredJavaType().getJavaTypeInstance();
                 if (!type.equals(r.getInferredJavaType().getJavaTypeInstance())) {
                     return null;
@@ -343,18 +342,23 @@ public class ComparisonOperation extends AbstractExpression implements Condition
                     int lv = l.getIntValue();
                     int rv = r.getIntValue();
                     switch (op) {
-                        case LT:
+                        case LT -> {
                             return lv < rv ? Literal.TRUE : Literal.FALSE;
-                        case LTE:
+                        }
+                        case LTE -> {
                             return lv <= rv ? Literal.TRUE : Literal.FALSE;
-                        case GT:
+                        }
+                        case GT -> {
                             return lv > rv ? Literal.TRUE : Literal.FALSE;
-                        case GTE:
+                        }
+                        case GTE -> {
                             return lv >= rv ? Literal.TRUE : Literal.FALSE;
+                        }
                     }
                 }
                 // Can't handle yet.
                 return null;
+            }
         }
     }
 }

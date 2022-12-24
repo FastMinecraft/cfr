@@ -84,8 +84,7 @@ public class PointlessJumps {
                     statement.getTargets().size() == 1) {
                 Op03SimpleStatement prior = statement.getSources().get(0);
                 Statement innerPrior = prior.getStatement();
-                if (innerPrior instanceof JumpingStatement) {
-                    JumpingStatement jumpInnerPrior = (JumpingStatement) innerPrior;
+                if (innerPrior instanceof JumpingStatement jumpInnerPrior) {
                     Statement jumpingInnerPriorTarget = jumpInnerPrior.getJumpTarget();
                     if (jumpingInnerPriorTarget == innerStatement &&
                             movableJump(jumpInnerPrior.getJumpType())) {
@@ -149,14 +148,10 @@ public class PointlessJumps {
 
 
     private static boolean movableJump(JumpType jumpType) {
-        switch (jumpType) {
-            case BREAK:
-            case GOTO_OUT_OF_IF:
-            case CONTINUE:
-                return false;
-            default:
-                return true;
-        }
+        return switch (jumpType) {
+            case BREAK, GOTO_OUT_OF_IF, CONTINUE -> false;
+            default -> true;
+        };
     }
 
 }

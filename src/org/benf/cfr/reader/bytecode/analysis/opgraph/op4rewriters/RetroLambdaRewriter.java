@@ -41,7 +41,7 @@ import org.benf.cfr.reader.util.CannotLoadClassException;
 import org.benf.cfr.reader.util.MiscUtils;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 
 import java.util.List;
 
@@ -128,7 +128,7 @@ public class RetroLambdaRewriter extends AbstractExpressionRewriter {
 
         List<StructuredStatement> stm = ListFactory.newList();
         candidate.linearizeStatementsInto(stm);
-        MatchIterator<StructuredStatement> mi = new MatchIterator<StructuredStatement>(stm);
+        MatchIterator<StructuredStatement> mi = new MatchIterator<>(stm);
         mi.advance();
         if (!matcher.match(mi, new EmptyMatchResultCollector())) return null;
 
@@ -158,12 +158,9 @@ public class RetroLambdaRewriter extends AbstractExpressionRewriter {
         }
         // 2b satisfied.
 
-        List<Method> methods = Functional.filter(cf.getMethods(), new Predicate<Method>() {
-            @Override
-            public boolean test(Method in) {
-                return !(in.testAccessFlag(AccessFlagMethod.ACC_STATIC) || in.isConstructor());
-            }
-        });
+        List<Method> methods = Functional.filter(cf.getMethods(),
+            in -> !(in.testAccessFlag(AccessFlagMethod.ACC_STATIC) || in.isConstructor())
+        );
         if (methods.size() != 1) return null;
         // 2c satisfied.
 
@@ -224,7 +221,7 @@ public class RetroLambdaRewriter extends AbstractExpressionRewriter {
 
         List<StructuredStatement> stm2 = ListFactory.newList();
         m2code.linearizeStatementsInto(stm2);
-        MatchIterator<StructuredStatement> mi2 = new MatchIterator<StructuredStatement>(stm2);
+        MatchIterator<StructuredStatement> mi2 = new MatchIterator<>(stm2);
         mi2.advance();
         if (!m2matcher.match(mi2, new EmptyMatchResultCollector())) return null;
         return wcm.getStaticFunction("m2call").getMatch();
@@ -255,7 +252,7 @@ public class RetroLambdaRewriter extends AbstractExpressionRewriter {
                 ),
                 new EndBlock(null)
         );
-        MatchIterator<StructuredStatement> mi2 = new MatchIterator<StructuredStatement>(stmStaticLocal);
+        MatchIterator<StructuredStatement> mi2 = new MatchIterator<>(stmStaticLocal);
         mi2.advance();
         if (!m2matcher.match(mi2, new EmptyMatchResultCollector())) return null;
 

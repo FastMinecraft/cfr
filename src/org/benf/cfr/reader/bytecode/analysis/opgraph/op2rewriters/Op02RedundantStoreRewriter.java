@@ -58,7 +58,7 @@ public class Op02RedundantStoreRewriter {
         int loadsSinceStore[] = new int[maxLocals];
         int lastCutOff = 0;
         int nopCount = 0;
-        Set<BlockIdentifier> currentBlocks = new HashSet<BlockIdentifier>();
+        Set<BlockIdentifier> currentBlocks = new HashSet<>();
 
         for (int x=0, maxm1=instrs.size()-1;x<maxm1;++x) {
             Op02WithProcessedDataAndRefs instr = instrs.get(x);
@@ -70,7 +70,7 @@ public class Op02RedundantStoreRewriter {
             }
             if (!SetUtil.equals(currentBlocks, instr.getContainedInTheseBlocks())) {
                 lastCutOff = x;
-                currentBlocks = new HashSet<BlockIdentifier>(instr.getContainedInTheseBlocks());
+                currentBlocks = new HashSet<>(instr.getContainedInTheseBlocks());
             }
             JVMInstr jvmInstr = instr.getInstr();
             Pair<JavaTypeInstance, Integer> stored = instr.getStorageType();

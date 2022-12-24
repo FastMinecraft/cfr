@@ -16,9 +16,9 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.analysis.parse.wildcard.WildcardMatch;
 import org.benf.cfr.reader.bytecode.analysis.types.*;
 import org.benf.cfr.reader.util.collections.Functional;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.BinaryProcedure;
+import java.util.function.BiConsumer;
 import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
@@ -29,8 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class IterLoopRewriter {
 
     private static Pair<ConditionalExpression, ConditionalExpression> getSplitAnd(ConditionalExpression cnd) {
-        if (!(cnd instanceof BooleanOperation)) return Pair.make(cnd, null);
-        BooleanOperation op = (BooleanOperation)cnd;
+        if (!(cnd instanceof BooleanOperation op)) return Pair.make(cnd, null);
         if (op.getOp() != BoolOp.AND) return Pair.make(cnd, null);
         return Pair.make(op.getLhs(), op.getRhs());
     }
@@ -154,12 +153,9 @@ public class IterLoopRewriter {
         // It's probably valid.  We just have to make sure that array and index aren't assigned to anywhere in the loop
         // body.
         final BlockIdentifier forBlock = forStatement.getBlockIdentifier();
-        List<Op03SimpleStatement> statementsInBlock = Functional.filter(statements, new Predicate<Op03SimpleStatement>() {
-            @Override
-            public boolean test(Op03SimpleStatement in) {
-                return in.getBlockIdentifiers().contains(forBlock);
-            }
-        });
+        List<Op03SimpleStatement> statementsInBlock = Functional.filter(statements,
+            in -> in.getBlockIdentifiers().contains(forBlock)
+        );
 
         /*
          * It's not simple enough to check if they're assigned to - we also have to verify that i$ (for example ;) isn't
@@ -192,32 +188,30 @@ public class IterLoopRewriter {
          * (or are the initial assignment statements).
          */
         final AtomicBoolean res = new AtomicBoolean();
-        GraphVisitor<Op03SimpleStatement> graphVisitor = new GraphVisitorDFS<Op03SimpleStatement>(loop,
-                new BinaryProcedure<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>>() {
-                    @Override
-                    public void call(Op03SimpleStatement arg1, GraphVisitor<Op03SimpleStatement> arg2) {
-                        if (!(loop == arg1 || arg1.getBlockIdentifiers().contains(forBlock))) {
-                            // need to check it.
-                            Statement inStatement = arg1.getStatement();
+        GraphVisitor<Op03SimpleStatement> graphVisitor = new GraphVisitorDFS<>(
+            loop,
+            (arg1, arg2) -> {
+                if (!(loop == arg1 || arg1.getBlockIdentifiers().contains(forBlock))) {
+                    // need to check it.
+                    Statement inStatement = arg1.getStatement();
 
-                            if (inStatement instanceof AssignmentSimple) {
-                                AssignmentSimple assignmentSimple = (AssignmentSimple) inStatement;
-                                if (cantUpdate.contains(assignmentSimple.getCreatedLValue())) return;
-                            }
-                            LValueUsageCollectorSimple usageCollector = new LValueUsageCollectorSimple();
-                            inStatement.collectLValueUsage(usageCollector);
-                            for (LValue cantUse : cantUpdate) {
-                                if (usageCollector.isUsed(cantUse)) {
-                                    res.set(true);
-                                    return;
-                                }
-                            }
-                        }
-                        for (Op03SimpleStatement target : arg1.getTargets()) {
-                            arg2.enqueue(target);
+                    if (inStatement instanceof AssignmentSimple assignmentSimple) {
+                        if (cantUpdate.contains(assignmentSimple.getCreatedLValue())) return;
+                    }
+                    LValueUsageCollectorSimple usageCollector1 = new LValueUsageCollectorSimple();
+                    inStatement.collectLValueUsage(usageCollector1);
+                    for (LValue cantUse : cantUpdate) {
+                        if (usageCollector1.isUsed(cantUse)) {
+                            res.set(true);
+                            return;
                         }
                     }
-                });
+                }
+                for (Op03SimpleStatement target : arg1.getTargets()) {
+                    arg2.enqueue(target);
+                }
+            }
+        );
         graphVisitor.process();
         if (res.get()) {
             return;
@@ -261,7 +255,7 @@ public class IterLoopRewriter {
 
 
     public static void rewriteArrayForLoops(List<Op03SimpleStatement> statements) {
-        for (Op03SimpleStatement loop : Functional.filter(statements, new TypeFilter<ForStatement>(ForStatement.class))) {
+        for (Op03SimpleStatement loop : Functional.filter(statements, new TypeFilter<>(ForStatement.class))) {
             rewriteArrayForLoop(loop, statements);
         }
     }
@@ -359,12 +353,9 @@ public class IterLoopRewriter {
         // It's probably valid.  We just have to make sure that array and index aren't assigned to anywhere in the loop
         // body.
         final BlockIdentifier blockIdentifier = whileStatement.getBlockIdentifier();
-        List<Op03SimpleStatement> statementsInBlock = Functional.filter(statements, new Predicate<Op03SimpleStatement>() {
-            @Override
-            public boolean test(Op03SimpleStatement in) {
-                return in.getBlockIdentifiers().contains(blockIdentifier);
-            }
-        });
+        List<Op03SimpleStatement> statementsInBlock = Functional.filter(statements,
+            in -> in.getBlockIdentifiers().contains(blockIdentifier)
+        );
 
         /*
          * It's not simple enough to check if they're assigned to - we also have to verify that i$ (for example ;) isn't
@@ -404,30 +395,28 @@ public class IterLoopRewriter {
          * (or are the initial assignment statements).
          */
         final AtomicBoolean res = new AtomicBoolean();
-        GraphVisitor<Op03SimpleStatement> graphVisitor = new GraphVisitorDFS<Op03SimpleStatement>(loop,
-                new BinaryProcedure<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>>() {
-                    @Override
-                    public void call(Op03SimpleStatement arg1, GraphVisitor<Op03SimpleStatement> arg2) {
-                        if (!(loop == arg1 || arg1.getBlockIdentifiers().contains(blockIdentifier))) {
-                            // need to check it.
-                            Statement inStatement = arg1.getStatement();
+        GraphVisitor<Op03SimpleStatement> graphVisitor = new GraphVisitorDFS<>(
+            loop,
+            (arg1, arg2) -> {
+                if (!(loop == arg1 || arg1.getBlockIdentifiers().contains(blockIdentifier))) {
+                    // need to check it.
+                    Statement inStatement = arg1.getStatement();
 
-                            if (inStatement instanceof AssignmentSimple) {
-                                AssignmentSimple assignmentSimple = (AssignmentSimple) inStatement;
-                                if (iterable.equals(assignmentSimple.getCreatedLValue())) return;
-                            }
-                            LValueUsageCollectorSimple usageCollector = new LValueUsageCollectorSimple();
-                            inStatement.collectLValueUsage(usageCollector);
-                            if (usageCollector.isUsed(iterable)) {
-                                res.set(true);
-                                return;
-                            }
-                        }
-                        for (Op03SimpleStatement target : arg1.getTargets()) {
-                            arg2.enqueue(target);
-                        }
+                    if (inStatement instanceof AssignmentSimple assignmentSimple) {
+                        if (iterable.equals(assignmentSimple.getCreatedLValue())) return;
                     }
-                });
+                    LValueUsageCollectorSimple usageCollector1 = new LValueUsageCollectorSimple();
+                    inStatement.collectLValueUsage(usageCollector1);
+                    if (usageCollector1.isUsed(iterable)) {
+                        res.set(true);
+                        return;
+                    }
+                }
+                for (Op03SimpleStatement target : arg1.getTargets()) {
+                    arg2.enqueue(target);
+                }
+            }
+        );
         graphVisitor.process();
         if (res.get()) {
             return;
@@ -464,7 +453,7 @@ public class IterLoopRewriter {
     }
 
     public static void rewriteIteratorWhileLoops(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> loops = Functional.filter(statements, new TypeFilter<WhileStatement>(WhileStatement.class));
+        List<Op03SimpleStatement> loops = Functional.filter(statements, new TypeFilter<>(WhileStatement.class));
         for (Op03SimpleStatement loop : loops) {
             rewriteIteratorWhileLoop(loop, statements);
         }

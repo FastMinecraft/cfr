@@ -14,6 +14,7 @@ import org.benf.cfr.reader.state.TypeUsageCollector;
 import org.benf.cfr.reader.util.output.Dumper;
 
 import java.util.List;
+import java.util.Objects;
 
 public class DynamicInvokation extends AbstractExpression {
     private Expression innerInvokation;
@@ -107,8 +108,8 @@ public class DynamicInvokation extends AbstractExpression {
 
         DynamicInvokation that = (DynamicInvokation) o;
 
-        if (dynamicArgs != null ? !dynamicArgs.equals(that.dynamicArgs) : that.dynamicArgs != null) return false;
-        if (innerInvokation != null ? !innerInvokation.equals(that.innerInvokation) : that.innerInvokation != null)
+        if (!Objects.equals(dynamicArgs, that.dynamicArgs)) return false;
+        if (!Objects.equals(innerInvokation, that.innerInvokation))
             return false;
 
         return true;

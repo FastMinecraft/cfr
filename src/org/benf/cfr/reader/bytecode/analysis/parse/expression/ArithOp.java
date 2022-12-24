@@ -54,74 +54,33 @@ public enum ArithOp {
     }
 
     public static ArithOp getOpFor(JVMInstr instr) {
-        switch (instr) {
-            case LCMP:
-                return LCMP;
-            case DCMPG:
-                return DCMPG;
-            case DCMPL:
-                return DCMPL;
-            case FCMPG:
-                return FCMPG;
-            case FCMPL:
-                return FCMPL;
-            case ISUB:
-            case LSUB:
-            case FSUB:
-            case DSUB:
-                return MINUS;
-            case IMUL:
-            case LMUL:
-            case FMUL:
-            case DMUL:
-                return MULTIPLY;
-            case IADD:
-            case LADD:
-            case FADD:
-            case DADD:
-                return PLUS;
-            case LDIV:
-            case IDIV:
-            case FDIV:
-            case DDIV:
-                return DIVIDE;
-            case LOR:
-            case IOR:
-                return OR;
-            case LAND:
-            case IAND:
-                return AND;
-            case IREM:
-            case LREM:
-            case FREM:
-            case DREM:
-                return REM;
-            case ISHR:
-            case LSHR:
-                return SHR;
-            case IUSHR:
-            case LUSHR:
-                return SHRU;
-            case ISHL:
-            case LSHL:
-                return SHL;
-            case IXOR:
-            case LXOR:
-                return XOR;
-            default:
-                throw new ConfusedCFRException("Don't know arith op for " + instr);
-        }
+        return switch (instr) {
+            case LCMP -> LCMP;
+            case DCMPG -> DCMPG;
+            case DCMPL -> DCMPL;
+            case FCMPG -> FCMPG;
+            case FCMPL -> FCMPL;
+            case ISUB, LSUB, FSUB, DSUB -> MINUS;
+            case IMUL, LMUL, FMUL, DMUL -> MULTIPLY;
+            case IADD, LADD, FADD, DADD -> PLUS;
+            case LDIV, IDIV, FDIV, DDIV -> DIVIDE;
+            case LOR, IOR -> OR;
+            case LAND, IAND -> AND;
+            case IREM, LREM, FREM, DREM -> REM;
+            case ISHR, LSHR -> SHR;
+            case IUSHR, LUSHR -> SHRU;
+            case ISHL, LSHL -> SHL;
+            case IXOR, LXOR -> XOR;
+            default -> throw new ConfusedCFRException("Don't know arith op for " + instr);
+        };
     }
 
     public boolean canThrow(InferredJavaType inferredJavaType, ExceptionCheck caught, Set<? extends JavaTypeInstance> instances) {
         StackType stackType = inferredJavaType.getRawType().getStackType();
         switch (stackType) {
-            case DOUBLE:
-            case FLOAT:
-            case INT:
-            case LONG:
+            case DOUBLE, FLOAT, INT, LONG -> {
                 if (this != DIVIDE) return false;
-                break;
+            }
         }
         return caught.checkAgainst(instances);
     }

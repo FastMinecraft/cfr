@@ -2,19 +2,20 @@ package org.benf.cfr.reader.util.graph;
 
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.BinaryProcedure;
+import java.util.function.BiConsumer;
 
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 public abstract class AbstractGraphVisitorFI<T> implements GraphVisitor<T> {
     private final LinkedList<T> toVisit = ListFactory.newLinkedList();
     private final Set<T> visited = SetFactory.newSet();
-    private final BinaryProcedure<T, GraphVisitor<T>> callee;
+    private final BiConsumer<T, GraphVisitor<T>> callee;
     private boolean aborted = false;
 
-    AbstractGraphVisitorFI(T first, BinaryProcedure<T, GraphVisitor<T>> callee) {
+    AbstractGraphVisitorFI(T first, BiConsumer<T, GraphVisitor<T>> callee) {
         add(first);
         this.callee = callee;
     }
@@ -57,7 +58,7 @@ public abstract class AbstractGraphVisitorFI<T> implements GraphVisitor<T> {
     public void process() {
         do {
             T next = toVisit.removeFirst();
-            callee.call(next, this);
+            callee.accept(next, this);
         } while (!toVisit.isEmpty());
     }
 }

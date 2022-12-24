@@ -5,11 +5,11 @@ import java.util.*;
 @SuppressWarnings("unused")
 public class SetFactory {
     public static <X> Set<X> newSet() {
-        return new HashSet<X>();
+        return new HashSet<>();
     }
 
     public static <X> Set<X> newSortedSet() {
-        return new TreeSet<X>();
+        return new TreeSet<>();
     }
 
     public static <X extends Enum<X>> EnumSet<X> newSet(EnumSet<X> content) {
@@ -17,35 +17,37 @@ public class SetFactory {
     }
 
     public static <X> Set<X> newSet(Collection<X> content) {
-        return new HashSet<X>(content);
+        return new HashSet<>(content);
     }
 
     public static <X> Set<X> newSet(Collection<X> content, Collection<X> otherContent) {
-        HashSet<X> res = new HashSet<X>(content);
+        HashSet<X> res = new HashSet<>(content);
         res.addAll(otherContent);
         return res;
     }
 
     public static <X> Set<X> newIdentitySet() {
-        return Collections.newSetFromMap(new IdentityHashMap<X, Boolean>());
+        return Collections.newSetFromMap(new IdentityHashMap<>());
     }
 
+    @SafeVarargs
     public static <X> Set<X> newSet(X... content) {
-        Set<X> res = new HashSet<X>();
+        Set<X> res = new HashSet<>();
         Collections.addAll(res, content);
         return res;
     }
 
     public static <X> Set<X> newOrderedSet() {
-        return new LinkedHashSet<X>();
+        return new LinkedHashSet<>();
     }
 
     public static <X> Set<X> newOrderedSet(Collection<X> content) {
-        return new LinkedHashSet<X>(content);
+        return new LinkedHashSet<>(content);
     }
 
+    @SafeVarargs
     public static <X> Set<X> newOrderedSet(X... content) {
-        Set<X> res = new LinkedHashSet<X>();
+        Set<X> res = new LinkedHashSet<>();
         Collections.addAll(res, content);
         return res;
     }

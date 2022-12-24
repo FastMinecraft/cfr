@@ -40,18 +40,30 @@ public class LambdaUtils {
         TypedLiteral.LiteralType flavour = getLiteralType(arg);
 
         switch (flavour) {
-            case MethodHandle: {
+            case MethodHandle -> {
                 ConstantPoolEntryMethodHandle targetFnHandle = getHandle(arg);
                 ConstantPoolEntryMethodRef targetMethRef = targetFnHandle.getMethodRef();
                 return targetMethRef.getMethodPrototype();
             }
-            case MethodType: {
+            case MethodType -> {
                 ConstantPoolEntryMethodType targetFnType = getType(arg);
                 ConstantPoolEntryUTF8 descriptor = targetFnType.getDescriptor();
-                return ConstantPoolUtils.parseJavaMethodPrototype(null,null, null, null, false, Method.MethodConstructor.NOT, descriptor, targetFnType.getCp(), false, false, null, descriptor.getValue());
+                return ConstantPoolUtils.parseJavaMethodPrototype(
+                    null,
+                    null,
+                    null,
+                    null,
+                    false,
+                    Method.MethodConstructor.NOT,
+                    descriptor,
+                    targetFnType.getCp(),
+                    false,
+                    false,
+                    null,
+                    descriptor.getValue()
+                );
             }
-            default:
-                throw new ConfusedCFRException("Can't understand this lambda - disable lambdas.");
+            default -> throw new ConfusedCFRException("Can't understand this lambda - disable lambdas.");
         }
     }
 

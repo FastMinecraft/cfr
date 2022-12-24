@@ -2,7 +2,6 @@ package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
-import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.ExpressionReplacingRewriter;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
@@ -12,22 +11,21 @@ import org.benf.cfr.reader.bytecode.analysis.parse.expression.LValueExpression;
 import org.benf.cfr.reader.bytecode.analysis.parse.statement.*;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
-import org.benf.cfr.reader.util.*;
+import org.benf.cfr.reader.util.ConfusedCFRException;
 import org.benf.cfr.reader.util.collections.Functional;
 import org.benf.cfr.reader.util.collections.ListFactory;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetFactory;
-import org.benf.cfr.reader.util.functors.BinaryProcedure;
-import org.benf.cfr.reader.util.functors.Predicate;
 import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 
 public class Misc {
     public static void flattenCompoundStatements(List<Op03SimpleStatement> statements) {
@@ -42,7 +40,7 @@ public class Misc {
 
     public static Op03SimpleStatement getLastInRangeByIndex(Set<Op03SimpleStatement> stms) {
         List<Op03SimpleStatement> lst = ListFactory.newList(stms);
-        Collections.sort(lst, new CompareByIndex(false));
+        lst.sort(new CompareByIndex(false));
         return lst.get(0);
     }
 
@@ -94,7 +92,7 @@ public class Misc {
                     Statement statement = in.getStatement();
                     if (!(statement instanceof JumpingStatement)) {
                         if (statement instanceof JSRRetStatement ||
-                                statement instanceof WhileStatement) {
+                            statement instanceof WhileStatement) {
                             return false;
                         }
                         throw new ConfusedCFRException("Invalid back jump on " + statement);
@@ -122,17 +120,12 @@ public class Misc {
     }
 
 
-    private static class GraphVisitorReachableInThese implements BinaryProcedure<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>> {
-        private final Set<Integer> reachable;
-        private final Map<Op03SimpleStatement, Integer> instrToIdx;
-
-        GraphVisitorReachableInThese(Set<Integer> reachable, Map<Op03SimpleStatement, Integer> instrToIdx) {
-            this.reachable = reachable;
-            this.instrToIdx = instrToIdx;
-        }
-
+    private record GraphVisitorReachableInThese(
+        Set<Integer> reachable,
+        Map<Op03SimpleStatement, Integer> instrToIdx
+    ) implements BiConsumer<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>> {
         @Override
-        public void call(Op03SimpleStatement node, GraphVisitor<Op03SimpleStatement> graphVisitor) {
+        public void accept(Op03SimpleStatement node, GraphVisitor<Op03SimpleStatement> graphVisitor) {
             Integer idx = instrToIdx.get(node);
             if (idx == null) return;
             reachable.add(idx);
@@ -152,7 +145,7 @@ public class Misc {
 
         Set<Integer> reachableNodes = SetFactory.newSortedSet();
         GraphVisitorReachableInThese graphVisitorCallee = new GraphVisitorReachableInThese(reachableNodes, instrToIdx);
-        GraphVisitor<Op03SimpleStatement> visitor = new GraphVisitorDFS<Op03SimpleStatement>(statements.get(start), graphVisitorCallee);
+        GraphVisitor<Op03SimpleStatement> visitor = new GraphVisitorDFS<>(statements.get(start), graphVisitorCallee);
         visitor.process();
 
         final int first = start;
@@ -182,28 +175,25 @@ public class Misc {
 
         final Set<Op03SimpleStatement> result = SetFactory.newSet();
 
-        new GraphVisitorDFS<Op03SimpleStatement>(eventualtarget, new BinaryProcedure<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>>() {
-            @Override
-            public void call(Op03SimpleStatement arg1, GraphVisitor<Op03SimpleStatement> arg2) {
-                for (Op03SimpleStatement source : arg1.getSources()) {
-                    Statement statement = source.getStatement();
-                    Class clazz = statement.getClass();
-                    if (clazz == Nop.class ||
-                        clazz == CaseStatement.class) {
-                        arg2.enqueue(source);
-                    } else if (clazz == GotoStatement.class) {
-                        result.add(source);
-                        arg2.enqueue(source);
-                    }
-                    // It would be great to enable this, however it causes issues with dex2jar source.
-/*
-                    } else if (clazz == IfStatement.class) {
-                        if (source.getTargets().size() == 2 &&
-                            source.getTargets().get(1) == arg1) {
-                            result.add(source);
-                        }
-                        */
+        new GraphVisitorDFS<>(eventualtarget, (arg1, arg2) -> {
+            for (Op03SimpleStatement source : arg1.getSources()) {
+                Statement statement = source.getStatement();
+                Class clazz = statement.getClass();
+                if (clazz == Nop.class ||
+                    clazz == CaseStatement.class) {
+                    arg2.enqueue(source);
+                } else if (clazz == GotoStatement.class) {
+                    result.add(source);
+                    arg2.enqueue(source);
                 }
+                // It would be great to enable this, however it causes issues with dex2jar source.
+/*
+                } else if (clazz == IfStatement.class) {
+                    if (source.getTargets().size() == 2 &&
+                        source.getTargets().get(1) == arg1) {
+                        result.add(source);
+                    }
+                    */
             }
         }).process();
 
@@ -219,20 +209,29 @@ public class Misc {
         if (in.getTargets().size() != 1) return in;
         Statement statement = in.getStatement();
         if (statement instanceof Nop ||
-                statement instanceof GotoStatement ||
-                (aggressive && statement instanceof CaseStatement) ||
-                (aggressive && statement instanceof MonitorExitStatement)) {
+            statement instanceof GotoStatement ||
+            (aggressive && statement instanceof CaseStatement) ||
+            (aggressive && statement instanceof MonitorExitStatement)) {
 
             in = in.getTargets().get(0);
         }
         return in;
     }
 
-    public static Op03SimpleStatement followNopGotoChain(Op03SimpleStatement in, boolean requireJustOneSource, boolean skipLabels) {
+    public static Op03SimpleStatement followNopGotoChain(
+        Op03SimpleStatement in,
+        boolean requireJustOneSource,
+        boolean skipLabels
+    ) {
         return followNopGotoChainUntil(in, null, requireJustOneSource, skipLabels);
     }
 
-    public static Op03SimpleStatement followNopGotoChainUntil(Op03SimpleStatement in, Op03SimpleStatement until, boolean requireJustOneSource, boolean skipLabels) {
+    public static Op03SimpleStatement followNopGotoChainUntil(
+        Op03SimpleStatement in,
+        Op03SimpleStatement until,
+        boolean requireJustOneSource,
+        boolean skipLabels
+    ) {
         if (in == null) return null;
         Set<Op03SimpleStatement> seen = SetFactory.newSet();
         if (until != null) {
@@ -270,14 +269,21 @@ public class Misc {
     }
 
     static Op03SimpleStatement findSingleBackSource(Op03SimpleStatement start) {
-        List<Op03SimpleStatement> startSources = Functional.filter(start.getSources(), new IsForwardJumpTo(start.getIndex()));
+        List<Op03SimpleStatement> startSources = Functional.filter(
+            start.getSources(),
+            new IsForwardJumpTo(start.getIndex())
+        );
         if (startSources.size() != 1) {
             return null;
         }
         return startSources.get(0);
     }
 
-    static BlockIdentifier findOuterBlock(BlockIdentifier b1, BlockIdentifier b2, List<Op03SimpleStatement> statements) {
+    static BlockIdentifier findOuterBlock(
+        BlockIdentifier b1,
+        BlockIdentifier b2,
+        List<Op03SimpleStatement> statements
+    ) {
         for (Op03SimpleStatement s : statements) {
             Set<BlockIdentifier> contained = s.getBlockIdentifiers();
             if (contained.contains(b1)) {
@@ -295,7 +301,7 @@ public class Misc {
     }
 
 
-    public static class GraphVisitorBlockReachable implements BinaryProcedure<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>> {
+    public static class GraphVisitorBlockReachable implements BiConsumer<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>> {
 
         private final Op03SimpleStatement start;
         private final BlockIdentifier blockIdentifier;
@@ -308,7 +314,7 @@ public class Misc {
         }
 
         @Override
-        public void call(Op03SimpleStatement arg1, GraphVisitor<Op03SimpleStatement> arg2) {
+        public void accept(Op03SimpleStatement arg1, GraphVisitor<Op03SimpleStatement> arg2) {
             if (arg1 == start || arg1.getBlockIdentifiers().contains(blockIdentifier)) {
                 found.add(arg1);
                 for (Op03SimpleStatement target : arg1.getTargets()) arg2.enqueue(target);
@@ -318,9 +324,9 @@ public class Misc {
         }
 
         private Set<Op03SimpleStatement> privGetBlockReachable() {
-            GraphVisitorDFS<Op03SimpleStatement> reachableInBlock = new GraphVisitorDFS<Op03SimpleStatement>(
-                    start,
-                    this
+            GraphVisitorDFS<Op03SimpleStatement> reachableInBlock = new GraphVisitorDFS<>(
+                start,
+                this
             );
             reachableInBlock.process();
             return found;
@@ -332,15 +338,18 @@ public class Misc {
         }
 
         private Pair<Set<Op03SimpleStatement>, Set<Op03SimpleStatement>> privGetBlockReachableAndExits() {
-            GraphVisitorDFS<Op03SimpleStatement> reachableInBlock = new GraphVisitorDFS<Op03SimpleStatement>(
-                    start,
-                    this
+            GraphVisitorDFS<Op03SimpleStatement> reachableInBlock = new GraphVisitorDFS<>(
+                start,
+                this
             );
             reachableInBlock.process();
-            return Pair.make(found,exits);
+            return Pair.make(found, exits);
         }
 
-        static Pair<Set<Op03SimpleStatement>, Set<Op03SimpleStatement>> getBlockReachableAndExits(Op03SimpleStatement start, BlockIdentifier blockIdentifier) {
+        static Pair<Set<Op03SimpleStatement>, Set<Op03SimpleStatement>> getBlockReachableAndExits(
+            Op03SimpleStatement start,
+            BlockIdentifier blockIdentifier
+        ) {
             GraphVisitorBlockReachable r = new GraphVisitorBlockReachable(start, blockIdentifier);
             return r.privGetBlockReachableAndExits();
         }
@@ -354,7 +363,11 @@ public class Misc {
         return result;
     }
 
-    public static boolean justReachableFrom(Op03SimpleStatement target, Op03SimpleStatement maybeSource, int checkDepth) {
+    public static boolean justReachableFrom(
+        Op03SimpleStatement target,
+        Op03SimpleStatement maybeSource,
+        int checkDepth
+    ) {
         while (target != maybeSource && checkDepth-- > 0) {
             List<Op03SimpleStatement> sources = target.getSources();
             if (sources.size() != 1) return false;

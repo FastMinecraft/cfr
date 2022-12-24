@@ -15,42 +15,33 @@ import org.benf.cfr.reader.entities.ClassFileField;
 import org.benf.cfr.reader.entities.Field;
 import org.benf.cfr.reader.state.DCCommonState;
 import org.benf.cfr.reader.util.collections.MapFactory;
-import org.benf.cfr.reader.util.functors.BinaryPredicate;
 import org.benf.cfr.reader.util.functors.TrinaryFunction;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.function.BiPredicate;
 
 public class ConstantLinks {
     private static final Expression POISON = new WildcardMatch.ExpressionWildcard();
 
 
     public static Map<String, Expression> getLocalStringConstants(final ClassFile classFile, DCCommonState state) {
-        Map<Object, Expression> consts = getFinalConstants(classFile, state, new BinaryPredicate<ClassFile, Field>() {
-            @Override
-            public boolean test(ClassFile fieldClass, Field field) {
-
-                return field.testAccessFlag(AccessFlag.ACC_STATIC)
-                        && field.testAccessFlag(AccessFlag.ACC_FINAL)
-                        // While it's possible to relink other types, I think the chances of an external
-                        // reference are higher.  Constants abound, and I don't want Months[CUSTOMER_ID].
-                        && field.getJavaTypeInstance() == TypeConstants.STRING
-                        && field.isAccessibleFrom(classFile.getRefClassType(), fieldClass);
-            }
-        }, new TrinaryFunction<ClassFile, ClassFileField, Boolean, Expression>() {
-            @Override
-            public Expression invoke(ClassFile classFile, ClassFileField field, Boolean isLocal) {
-                return new LValueExpression(new StaticVariable(classFile, field, isLocal));
-            }
-        });
+        Map<Object, Expression> consts = getFinalConstants(classFile, state,
+            (fieldClass, field) -> field.testAccessFlag(AccessFlag.ACC_STATIC)
+                    && field.testAccessFlag(AccessFlag.ACC_FINAL)
+                    // While it's possible to relink other types, I think the chances of an external
+                    // reference are higher.  Constants abound, and I don't want Months[CUSTOMER_ID].
+                    && field.getJavaTypeInstance() == TypeConstants.STRING
+                    && field.isAccessibleFrom(classFile.getRefClassType(), fieldClass),
+            (classFile1, field, isLocal) -> new LValueExpression(new StaticVariable(classFile1, field, isLocal))
+        );
         if (consts.isEmpty()) return null;
 
         Map<String, Expression> res = MapFactory.newMap();
         for (Map.Entry<Object, Expression> entry : consts.entrySet()) {
             Object o = entry.getKey();
-            if (!(o instanceof String)) return null; // something pretty wrong here.
-            String key = (String) o;
+            if (!(o instanceof String key)) return null; // something pretty wrong here.
             res.put(key, entry.getValue());
         }
         return res;
@@ -60,23 +51,16 @@ public class ConstantLinks {
         final ClassFile classFile = fieldOf.getClassFile();
         if (classFile == null)
             return MapFactory.newMap();
-        return getFinalConstants(classFile, state, new BinaryPredicate<ClassFile, Field>() {
-            @Override
-            public boolean test(ClassFile fieldClass, Field in) {
-                return (!in.testAccessFlag(AccessFlag.ACC_STATIC)) && in.isAccessibleFrom(from, fieldClass);
-            }
-        }, new TrinaryFunction<ClassFile, ClassFileField, Boolean, Expression>() {
-            @Override
-            public Expression invoke(ClassFile host, ClassFileField field, Boolean immediate) {
-                return new LValueExpression(new FieldVariable(objectExp, field, host.getClassType()));
-            }
-        });
+        return getFinalConstants(classFile, state,
+            (fieldClass, in) -> (!in.testAccessFlag(AccessFlag.ACC_STATIC)) && in.isAccessibleFrom(from, fieldClass),
+            (host, field, immediate) -> new LValueExpression(new FieldVariable(objectExp, field, host.getClassType()))
+        );
     }
 
-    public static Map<Object, Expression> getFinalConstants(ClassFile classFile, DCCommonState state, BinaryPredicate<ClassFile, Field> fieldTest,
+    public static Map<Object, Expression> getFinalConstants(ClassFile classFile, DCCommonState state, BiPredicate<ClassFile, Field> fieldTest,
                                                             TrinaryFunction<ClassFile, ClassFileField, Boolean, Expression> expfact) {
-        Map<Object, Expression> spares = new HashMap<Object, Expression>();
-        Map<Object, Expression> rewrites = new HashMap<Object, Expression>();
+        Map<Object, Expression> spares = new HashMap<>();
+        Map<Object, Expression> rewrites = new HashMap<>();
         ClassFile currClass = classFile;
 
         boolean local = true;
@@ -106,12 +90,7 @@ public class ConstantLinks {
                 break;
             }
         }
-        Iterator<Map.Entry<Object, Expression>> rewriteIt = rewrites.entrySet().iterator();
-        while (rewriteIt.hasNext()) {
-            if (rewriteIt.next().getValue() == POISON) {
-                rewriteIt.remove();
-            }
-        }
+        rewrites.entrySet().removeIf(objectExpressionEntry -> objectExpressionEntry.getValue() == POISON);
         for (Map.Entry<Object, Expression> spare : spares.entrySet()) {
             if (spare.getValue() == POISON)
                 continue;

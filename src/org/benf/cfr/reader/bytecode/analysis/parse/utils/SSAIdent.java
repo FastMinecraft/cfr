@@ -48,8 +48,7 @@ public class SSAIdent {
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof SSAIdent)) return false;
-        SSAIdent other = (SSAIdent) o;
+        if (!(o instanceof SSAIdent other)) return false;
         return val.equals(other.val);
     }
 

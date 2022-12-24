@@ -24,30 +24,14 @@ public class QuotingUtils {
         stringBuilder.append("\"");
         for (char c : raw) {
             switch (c) {
-                case '\n':
-                    stringBuilder.append("\\n");
-                    break;
-                case '\r':
-                    stringBuilder.append("\\r");
-                    break;
-                case '\t':
-                    stringBuilder.append("\\t");
-                    break;
-                case '\b':
-                    stringBuilder.append("\\b");
-                    break;
-                case '\f':
-                    stringBuilder.append("\\f");
-                    break;
-                case '\\':
-                    stringBuilder.append("\\\\");
-                    break;
-                case '\"':
-                    stringBuilder.append("\\\"");
-                    break;
-                default:
-                    stringBuilder.append(c);
-                    break;
+                case '\n' -> stringBuilder.append("\\n");
+                case '\r' -> stringBuilder.append("\\r");
+                case '\t' -> stringBuilder.append("\\t");
+                case '\b' -> stringBuilder.append("\\b");
+                case '\f' -> stringBuilder.append("\\f");
+                case '\\' -> stringBuilder.append("\\\\");
+                case '\"' -> stringBuilder.append("\\\"");
+                default -> stringBuilder.append(c);
             }
         }
         stringBuilder.append("\"");

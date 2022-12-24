@@ -146,8 +146,7 @@ public class CastExpression extends AbstractExpression implements BoxingProcesso
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof CastExpression)) return false;
-        CastExpression other = (CastExpression) o;
+        if (!(o instanceof CastExpression other)) return false;
         if (!getInferredJavaType().getJavaTypeInstance().equals(other.getInferredJavaType().getJavaTypeInstance())) return false;
         return child.equals(other.child);
     }
@@ -159,8 +158,7 @@ public class CastExpression extends AbstractExpression implements BoxingProcesso
             return false;
         }
         JavaTypeInstance thisType = getInferredJavaType().getJavaTypeInstance();
-        while (child instanceof CastExpression) {
-            CastExpression childCast = (CastExpression) child;
+        while (child instanceof CastExpression childCast) {
             JavaTypeInstance childType = childCast.getInferredJavaType().getJavaTypeInstance();
             Expression grandChild = childCast.child;
             JavaTypeInstance grandChildType = grandChild.getInferredJavaType().getJavaTypeInstance();

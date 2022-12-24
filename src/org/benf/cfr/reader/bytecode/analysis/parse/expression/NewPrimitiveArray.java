@@ -101,8 +101,7 @@ public class NewPrimitiveArray extends AbstractNewArray {
     public boolean equals(Object o) {
         if (o == this) return true;
         if (o == null) return false;
-        if (!(o instanceof NewPrimitiveArray)) return false;
-        NewPrimitiveArray other = (NewPrimitiveArray) o;
+        if (!(o instanceof NewPrimitiveArray other)) return false;
         if (!size.equals(other.size)) return false;
         if (!type.equals(other.type)) return false;
         return true;

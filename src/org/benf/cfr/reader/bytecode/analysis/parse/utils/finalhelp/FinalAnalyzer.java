@@ -21,9 +21,6 @@ import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.entities.exceptions.ExceptionCheckSimple;
 import org.benf.cfr.reader.entities.exceptions.ExceptionGroup;
 import org.benf.cfr.reader.util.collections.*;
-import org.benf.cfr.reader.util.functors.BinaryProcedure;
-import org.benf.cfr.reader.util.functors.Predicate;
-import org.benf.cfr.reader.util.functors.UnaryFunction;
 import org.benf.cfr.reader.util.graph.GraphVisitor;
 import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 
@@ -38,10 +35,9 @@ public class FinalAnalyzer {
                                        BlockIdentifierFactory blockIdentifierFactory,
                                        Set<Op03SimpleStatement> analysedTries) {
         // Already modified.
-        if (!(in.getStatement() instanceof TryStatement)) return;
+        if (!(in.getStatement() instanceof final TryStatement tryStatement)) return;
         analysedTries.add(in);
 
-        final TryStatement tryStatement = (TryStatement) in.getStatement();
         final BlockIdentifier tryBlockIdentifier = tryStatement.getBlockIdentifier();
 
 
@@ -49,7 +45,7 @@ public class FinalAnalyzer {
          * We only need worry about try statements which have a 'Throwable' handler.
          */
         final List<Op03SimpleStatement> targets = in.getTargets();
-        List<Op03SimpleStatement> catchStarts = Functional.filter(targets, new TypeFilter<CatchStatement>(CatchStatement.class));
+        List<Op03SimpleStatement> catchStarts = Functional.filter(targets, new TypeFilter<>(CatchStatement.class));
         Set<Op03SimpleStatement> possibleCatches = SetFactory.newOrderedSet();
         for (Op03SimpleStatement catchS : catchStarts) {
             CatchStatement catchStatement = (CatchStatement) catchS.getStatement();
@@ -119,7 +115,7 @@ public class FinalAnalyzer {
          * Looking at the ORIGINAL try block, find the last catch block for it.
          */
         List<Op03SimpleStatement> originalTryTargets = ListFactory.newList(SetFactory.newOrderedSet(in.getTargets()));
-        Collections.sort(originalTryTargets, new CompareByIndex());
+        originalTryTargets.sort(new CompareByIndex());
         Op03SimpleStatement lastCatch = originalTryTargets.get(originalTryTargets.size() - 1);
         if (!(lastCatch.getStatement() instanceof CatchStatement)) {
             // For a try / finally, we'll still have a pointless catch-rethrow.
@@ -159,10 +155,9 @@ public class FinalAnalyzer {
                     continue;
                 }
 
-                if (!(peerTry.getStatement() instanceof TryStatement)) {
+                if (!(peerTry.getStatement() instanceof TryStatement peerTryStmt)) {
                     continue;
                 }
-                TryStatement peerTryStmt = (TryStatement) peerTry.getStatement();
                 final BlockIdentifier oldBlockIdent = peerTryStmt.getBlockIdentifier();
                 /*
                  * Decide whether this try really is artificial.
@@ -213,15 +208,14 @@ public class FinalAnalyzer {
                     tgt.getBlockIdentifiers().removeAll(previousTgtBlocks);
                     if (!previousTgtBlocks.isEmpty()) {
                         tgt.getBlockIdentifiers().removeAll(previousTgtBlocks);
-                        GraphVisitor<Op03SimpleStatement> gv2 = new GraphVisitorDFS<Op03SimpleStatement>(tgt.getTargets(), new BinaryProcedure<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>>() {
-                            @Override
-                            public void call(Op03SimpleStatement arg1, GraphVisitor<Op03SimpleStatement> arg2) {
+                        GraphVisitor<Op03SimpleStatement> gv2 = new GraphVisitorDFS<Op03SimpleStatement>(tgt.getTargets(),
+                            (arg1, arg2) -> {
                                 if (arg1.getBlockIdentifiers().contains(catchBlockIdent)) {
                                     arg1.getBlockIdentifiers().removeAll(previousTgtBlocks);
                                     arg2.enqueue(arg1.getTargets());
                                 }
                             }
-                        });
+                        );
                         gv2.process();
                     }
 
@@ -245,9 +239,9 @@ public class FinalAnalyzer {
                     //throw new IllegalStateException();
                     peerTry.getBlockIdentifiers().add(tryBlockIdentifier);
                 }
-                GraphVisitor<Op03SimpleStatement> gvpeer = new GraphVisitorDFS<Op03SimpleStatement>(handlers.get(0), new BinaryProcedure<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>>() {
-                    @Override
-                    public void call(Op03SimpleStatement arg1, GraphVisitor<Op03SimpleStatement> arg2) {
+                GraphVisitor<Op03SimpleStatement> gvpeer = new GraphVisitorDFS<>(
+                    handlers.get(0),
+                    (arg1, arg2) -> {
                         Set<BlockIdentifier> blockIdentifiers = arg1.getBlockIdentifiers();
                         if (blockIdentifiers.remove(oldBlockIdent)) {
                             if (peerSet == originalTryGroupPeers) {
@@ -264,7 +258,7 @@ public class FinalAnalyzer {
                             arg2.enqueue(arg1.getLinearlyNext());
                         }
                     }
-                });
+                );
                 gvpeer.process();
 
                 blocksToRemoveCompletely.add(oldBlockIdent);
@@ -291,7 +285,7 @@ public class FinalAnalyzer {
 
         Result cloneThis = results.iterator().next();
         List<Op03SimpleStatement> oldFinallyBody = ListFactory.newList(cloneThis.getToRemove());
-        Collections.sort(oldFinallyBody, new CompareByIndex());
+        oldFinallyBody.sort(new CompareByIndex());
         List<Op03SimpleStatement> newFinallyBody = ListFactory.newList();
         Set<BlockIdentifier> oldStartBlocks = SetFactory.newOrderedSet(oldFinallyBody.get(0).getBlockIdentifiers());
 
@@ -464,8 +458,7 @@ public class FinalAnalyzer {
                             if (returnType == RawJavaType.VOID) {
                                 source.removeTarget(start);
                                 // Append return.
-                            } else if (sourceStatement instanceof AssignmentSimple) {
-                                AssignmentSimple sourceAssignment = (AssignmentSimple) sourceStatement;
+                            } else if (sourceStatement instanceof AssignmentSimple sourceAssignment) {
                                 LValue lValue = sourceAssignment.getCreatedLValue();
                                 JavaTypeInstance lValueType = lValue.getInferredJavaType().getJavaTypeInstance();
                                 if (lValueType.implicitlyCastsTo(lValueType, null)) {
@@ -547,16 +540,15 @@ public class FinalAnalyzer {
              * FIXME.
              */
             Statement topStatement = topTry.getStatement();
-            if (!(topStatement instanceof TryStatement)) continue;
+            if (!(topStatement instanceof TryStatement topTryStatement)) continue;
 
-            TryStatement topTryStatement = (TryStatement) topStatement;
             final BlockIdentifier topTryIdent = topTryStatement.getBlockIdentifier();
 
             final Set<Op03SimpleStatement> peerTryExits = SetFactory.newOrderedSet();
 
-            GraphVisitor<Op03SimpleStatement> gv2 = new GraphVisitorDFS<Op03SimpleStatement>(topTry.getTargets().get(0), new BinaryProcedure<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>>() {
-                @Override
-                public void call(Op03SimpleStatement arg1, GraphVisitor<Op03SimpleStatement> arg2) {
+            GraphVisitor<Op03SimpleStatement> gv2 = new GraphVisitorDFS<>(
+                topTry.getTargets().get(0),
+                (arg1, arg2) -> {
                     if (arg1.getBlockIdentifiers().contains(topTryIdent)) {
                         arg2.enqueue(arg1.getTargets());
                         return;
@@ -576,7 +568,7 @@ public class FinalAnalyzer {
 
                     peerTryExits.add(arg1);
                 }
-            });
+            );
             gv2.process();
 
             /*
@@ -615,8 +607,7 @@ public class FinalAnalyzer {
                                             PeerTries peerTries,
                                             FinallyGraphHelper finallyGraphHelper,
                                             Set<Result> results) {
-        if (!(in.getStatement() instanceof TryStatement)) return false;
-        TryStatement tryStatement = (TryStatement) in.getStatement();
+        if (!(in.getStatement() instanceof TryStatement tryStatement)) return false;
         final BlockIdentifier tryBlockIdentifier = tryStatement.getBlockIdentifier();
 
 
@@ -625,7 +616,7 @@ public class FinalAnalyzer {
          * ... except if they immediately jump into try blocks.
          */
         List<Op03SimpleStatement> targets = in.getTargets();
-        List<Op03SimpleStatement> catchStarts = Functional.filter(targets, new TypeFilter<CatchStatement>(CatchStatement.class));
+        List<Op03SimpleStatement> catchStarts = Functional.filter(targets, new TypeFilter<>(CatchStatement.class));
         Set<Op03SimpleStatement> possibleCatches = SetFactory.newOrderedSet();
         Set<Op03SimpleStatement> recTries = SetFactory.newOrderedSet();
         for (Op03SimpleStatement catchS : catchStarts) {
@@ -667,9 +658,9 @@ public class FinalAnalyzer {
         final Set<Op03SimpleStatement> exitPaths = SetFactory.newOrderedSet();
         for (int attempt = 0;attempt < 2;++attempt) {
             final int attemptCopy = attempt;
-            GraphVisitor<Op03SimpleStatement> gv = new GraphVisitorDFS<Op03SimpleStatement>(in.getTargets().get(0), new BinaryProcedure<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>>() {
-                @Override
-                public void call(Op03SimpleStatement arg1, GraphVisitor<Op03SimpleStatement> arg2) {
+            GraphVisitor<Op03SimpleStatement> gv = new GraphVisitorDFS<>(
+                in.getTargets().get(0),
+                (arg1, arg2) -> {
                     if (arg1.getBlockIdentifiers().contains(tryBlockIdentifier)) {
                         if (arg1.isPossibleExitFor(tryBlockIdentifier)) {
                             if (attemptCopy == 1) exitPaths.add(arg1);
@@ -689,7 +680,7 @@ public class FinalAnalyzer {
                         exitPaths.add(arg1);
                     }
                 }
-            });
+            );
             gv.process();
             if (!exitPaths.isEmpty()) break;
         }
@@ -821,13 +812,12 @@ public class FinalAnalyzer {
     */
     private static boolean verifyCatchFinally(final Op03SimpleStatement in, final FinallyGraphHelper finallyGraphHelper,
                                               PeerTries peerTries, Set<Result> results) {
-        if (!(in.getStatement() instanceof CatchStatement)) {
+        if (!(in.getStatement() instanceof CatchStatement catchStatement)) {
             return false;
         }
         if (in.getTargets().size() != 1) {
             return false;
         }
-        CatchStatement catchStatement = (CatchStatement) in.getStatement();
         final BlockIdentifier catchBlockIdent = catchStatement.getCatchBlockIdent();
         Op03SimpleStatement firstStatementInCatch = in.getTargets().get(0);
 
@@ -836,15 +826,10 @@ public class FinalAnalyzer {
 
         final Set<Op03SimpleStatement> targetsOutsideCatch = SetFactory.newOrderedSet();
         final Set<Op03SimpleStatement> directExitsFromCatch = SetFactory.newOrderedSet();
-        final Map<Op03SimpleStatement, Set<Op03SimpleStatement>> exitParents = MapFactory.newLazyMap(new UnaryFunction<Op03SimpleStatement, Set<Op03SimpleStatement>>() {
-            @Override
-            public Set<Op03SimpleStatement> invoke(Op03SimpleStatement arg) {
-                return SetFactory.newOrderedSet();
-            }
-        });
-        GraphVisitor<Op03SimpleStatement> gv = new GraphVisitorDFS<Op03SimpleStatement>(firstStatementInCatch, new BinaryProcedure<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>>() {
-            @Override
-            public void call(Op03SimpleStatement arg1, GraphVisitor<Op03SimpleStatement> arg2) {
+        final Map<Op03SimpleStatement, Set<Op03SimpleStatement>> exitParents = MapFactory.newLazyMap(arg -> SetFactory.newOrderedSet());
+        GraphVisitor<Op03SimpleStatement> gv = new GraphVisitorDFS<>(
+            firstStatementInCatch,
+            (arg1, arg2) -> {
                 if (arg1.getBlockIdentifiers().contains(catchBlockIdent)) {
                     statementsInCatch.add(arg1);
                     arg2.enqueue(arg1.getTargets());
@@ -860,7 +845,7 @@ public class FinalAnalyzer {
                     targetsOutsideCatch.add(arg1);
                 }
             }
-        });
+        );
         gv.process();
 
         /*
@@ -876,7 +861,7 @@ public class FinalAnalyzer {
          * to find finally clauses, instead we search for the finally clauses first.
          * This is a little more expensive, but saves backtracking mismatches.
          */
-        Op03SimpleStatement finallyCodeStart = finallyGraphHelper.getFinallyCatchBody().getCatchCodeStart();
+        Op03SimpleStatement finallyCodeStart = finallyGraphHelper.finallyCatchBody().getCatchCodeStart();
         /*
          * If finallyCodestart is null, then ... we don't really have a finally statement.
          */
@@ -886,12 +871,9 @@ public class FinalAnalyzer {
 
         final Statement finallyStartStatement = finallyCodeStart.getStatement();
 
-        List<Op03SimpleStatement> possibleFinalStarts = Functional.filter(statementsInCatch, new Predicate<Op03SimpleStatement>() {
-            @Override
-            public boolean test(Op03SimpleStatement in) {
-                return in.getStatement().getClass() == finallyStartStatement.getClass();
-            }
-        });
+        List<Op03SimpleStatement> possibleFinalStarts = Functional.filter(statementsInCatch,
+            in1 -> in1.getStatement().getClass() == finallyStartStatement.getClass()
+        );
 
         List<Result> possibleFinallyBlocks = ListFactory.newList();
         for (Op03SimpleStatement possibleFinallyStart : possibleFinalStarts) {
@@ -918,7 +900,8 @@ public class FinalAnalyzer {
          * For try blocks which START inside the catch block, and ALSO vector to the same finally
          * as the ORIGINAL outer try, we expect them to have a Result after them.
          */
-        List<Op03SimpleStatement> tryStatements = Functional.filter(statementsInCatch, new TypeFilter<TryStatement>(TryStatement.class));
+        List<Op03SimpleStatement> tryStatements = Functional.filter(statementsInCatch,
+            new TypeFilter<>(TryStatement.class));
         addPeerTries(tryStatements, peerTries);
 
         /*
@@ -931,7 +914,7 @@ public class FinalAnalyzer {
          *
          * If it DOESN'T have a finally throw, then we expect the exit to BE CONTAINED IN the finally statement.
          */
-        if (finallyGraphHelper.getFinallyCatchBody().hasThrowOp()) {
+        if (finallyGraphHelper.finallyCatchBody().hasThrowOp()) {
             /*
              * Expect all SOURCES to be in finally blocks.
              */
@@ -979,7 +962,7 @@ public class FinalAnalyzer {
          * This is a hack.
          */
         List<Op03SimpleStatement> tmp = ListFactory.newList(possibleCatches);
-        Collections.sort(tmp, new CompareByIndex());
+        tmp.sort(new CompareByIndex());
         Op03SimpleStatement catchS = tmp.get(tmp.size() - 1);
         return catchS;
     }

@@ -15,7 +15,7 @@ public class AttributeLineNumberTable extends Attribute {
     private static final long OFFSET_OF_ENTRIES = 8;
 
     private final int length;
-    private final NavigableMap<Integer, Integer> entries = new TreeMap<Integer, Integer>();
+    private final NavigableMap<Integer, Integer> entries = new TreeMap<>();
 
 
     public AttributeLineNumberTable(ByteData raw) {

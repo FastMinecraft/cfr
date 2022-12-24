@@ -135,7 +135,7 @@ public class ToStringDumper extends AbstractDumper {
 
     private void doIndent() {
         if (!context.atStart) return;
-        for (int x = 0; x < context.indent; ++x) sb.append(STANDARD_INDENT);
+        sb.append(STANDARD_INDENT.repeat(Math.max(0, context.indent)));
         context.atStart = false;
         if (context.inBlockComment != BlockCommentState.Not) {
             sb.append(" * ");

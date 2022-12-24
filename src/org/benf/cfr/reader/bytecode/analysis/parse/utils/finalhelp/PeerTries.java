@@ -57,21 +57,20 @@ public class PeerTries {
     private Set<Op03SimpleStatement> guessPeerTryStarts = SetFactory.newOrderedSet();
 
     private final Map<CompositeBlockIdentifierKey, PeerTrySet> triesByLevel = MapFactory.newLazyMap(
-            new TreeMap<CompositeBlockIdentifierKey, PeerTrySet>(),
-            new UnaryFunction<CompositeBlockIdentifierKey, PeerTrySet>() {
-                @Override
-                public PeerTrySet invoke(CompositeBlockIdentifierKey arg) {
-                    return new PeerTrySet(nextIdx++);
-                }
-            });
+        new TreeMap<>(),
+        new UnaryFunction<>() {
+            @Override
+            public PeerTrySet invoke(CompositeBlockIdentifierKey arg) {
+                return new PeerTrySet(nextIdx++);
+            }
+        });
 
     PeerTries(Op03SimpleStatement possibleFinallyCatch) {
         this.possibleFinallyCatch = possibleFinallyCatch;
 
         for (Op03SimpleStatement source : possibleFinallyCatch.getSources()) {
             Statement statement = source.getStatement();
-            if (statement instanceof TryStatement) {
-                TryStatement tryStatement = (TryStatement) statement;
+            if (statement instanceof TryStatement tryStatement) {
                 BlockIdentifier blockIdentifier = tryStatement.getBlockIdentifier();
                 guessPeerTryBlocks.add(blockIdentifier);
                 guessPeerTryMap.put(blockIdentifier, source);

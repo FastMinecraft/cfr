@@ -5,7 +5,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
 import org.benf.cfr.reader.bytecode.analysis.parse.expression.LValueExpression;
 import org.benf.cfr.reader.bytecode.analysis.parse.lvalue.LocalVariable;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
-import org.benf.cfr.reader.util.functors.Predicate;
+import java.util.function.Predicate;
 
 import java.util.regex.Pattern;
 
@@ -18,12 +18,7 @@ public class MiscUtils {
 
     public static Predicate<String> mkRegexFilter(String pat, boolean anywhere) {
         if (pat == null) {
-            return new Predicate<String>() {
-                @Override
-                public boolean test(String in) {
-                    return true;
-                }
-            };
+            return in -> true;
         }
 
         final boolean positive = !pat.startsWith("!");
@@ -33,12 +28,9 @@ public class MiscUtils {
 
         if (anywhere) pat = "^.*" + pat + ".*$";
         final Pattern p = Pattern.compile(pat);
-        return new Predicate<String>() {
-            @Override
-            public boolean test(String in) {
-                boolean matches = p.matcher(in).matches();
-                return positive == matches;
-            }
+        return in -> {
+            boolean matches = p.matcher(in).matches();
+            return positive == matches;
         };
     }
 
@@ -55,8 +47,7 @@ public class MiscUtils {
     }
 
     public static boolean isThis(LValue thisExp, JavaTypeInstance thisType) {
-        if (!(thisExp instanceof LocalVariable)) return false;
-        LocalVariable lv = (LocalVariable)thisExp;
+        if (!(thisExp instanceof LocalVariable lv)) return false;
         if (!(lv.getIdx() == 0 && MiscConstants.THIS.equals(lv.getName().getStringName()))) return false;
         if (!thisType.equals(lv.getInferredJavaType().getJavaTypeInstance())) return false;
         return true;

@@ -14,8 +14,7 @@ public class XorRewriter implements ExpressionRewriter {
 
     @Override
     public Expression rewriteExpression(Expression expression, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
-        if (expression instanceof ArithmeticOperation) {
-            ArithmeticOperation arithmeticOperation = (ArithmeticOperation) expression;
+        if (expression instanceof ArithmeticOperation arithmeticOperation) {
             if (arithmeticOperation.isXorM1()) {
                 expression = arithmeticOperation.getReplacementXorM1();
             }

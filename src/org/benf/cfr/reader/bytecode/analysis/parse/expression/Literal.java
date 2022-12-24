@@ -61,24 +61,33 @@ public class Literal extends AbstractExpression {
 
     public static Expression getLiteralOrNull(RawJavaType rawCastType, InferredJavaType inferredCastType, int intValue) {
         switch (rawCastType) {
-            case BOOLEAN:
+            case BOOLEAN -> {
                 if (intValue == 0) return FALSE;
                 if (intValue == 1) return TRUE;
                 return null;
-            case BYTE:
-            case CHAR:
-            case SHORT:
-                return new CastExpression(BytecodeLoc.NONE, inferredCastType, new Literal(TypedLiteral.getInt(intValue)));
-            case INT:
+            }
+            case BYTE, CHAR, SHORT -> {
+                return new CastExpression(
+                    BytecodeLoc.NONE,
+                    inferredCastType,
+                    new Literal(TypedLiteral.getInt(intValue))
+                );
+            }
+            case INT -> {
                 return new Literal(TypedLiteral.getInt(intValue));
-            case LONG:
+            }
+            case LONG -> {
                 return new Literal(TypedLiteral.getLong(intValue));
-            case FLOAT:
+            }
+            case FLOAT -> {
                 return new Literal(TypedLiteral.getFloat(intValue));
-            case DOUBLE:
+            }
+            case DOUBLE -> {
                 return new Literal(TypedLiteral.getDouble(intValue));
-            default:
+            }
+            default -> {
                 return null;
+            }
         }
     }
 
@@ -131,8 +140,7 @@ public class Literal extends AbstractExpression {
     public void collectUsedLValues(LValueUsageCollector lValueUsageCollector) {
         if (value.getType() == TypedLiteral.LiteralType.Class) {
             Object x = value.getValue();
-            if (x instanceof JavaTypeInstance) {
-                JavaTypeInstance lValueType = (JavaTypeInstance)x;
+            if (x instanceof JavaTypeInstance lValueType) {
                 InnerClassInfo innerClassInfo = lValueType.getInnerClassHereInfo();
 
                 if (innerClassInfo.isMethodScopedClass() && !innerClassInfo.isAnonymousClass()) {
@@ -164,8 +172,7 @@ public class Literal extends AbstractExpression {
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof Literal)) return false;
-        Literal other = (Literal) o;
+        if (!(o instanceof Literal other)) return false;
         return value.equals(other.value);
     }
 
@@ -173,8 +180,7 @@ public class Literal extends AbstractExpression {
     public boolean equivalentUnder(Object o, EquivalenceConstraint constraint) {
         if (o == null) return false;
         if (o == this) return true;
-        if (!(o instanceof Literal)) return false;
-        Literal other = (Literal) o;
+        if (!(o instanceof Literal other)) return false;
         if (!constraint.equivalent(value, other.value)) return false;
         return true;
     }

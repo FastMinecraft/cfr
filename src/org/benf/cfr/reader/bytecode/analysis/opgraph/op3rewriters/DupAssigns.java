@@ -25,19 +25,16 @@ public class DupAssigns {
      */
     private static boolean normalizeDupAssigns_type1(Op03SimpleStatement stm) {
         Statement inner1 = stm.getStatement();
-        if (!(inner1 instanceof AssignmentSimple)) return false;
+        if (!(inner1 instanceof AssignmentSimple a1)) return false;
         List<Op03SimpleStatement> tgts = stm.getTargets();
         if (tgts.size() != 1) return false;
         Op03SimpleStatement next = tgts.get(0);
         Statement inner2 = next.getStatement();
-        if (!(inner2 instanceof AssignmentSimple)) return false;
+        if (!(inner2 instanceof AssignmentSimple a2)) return false;
 
         if (next.getTargets().size() != 1) return false;
         Op03SimpleStatement after = next.getTargets().get(0);
         if (!(after.getStatement() instanceof IfStatement)) return false;
-
-        AssignmentSimple a1 = (AssignmentSimple)inner1;
-        AssignmentSimple a2 = (AssignmentSimple)inner2;
 
         LValue l1 = a1.getCreatedLValue();
         LValue l2 = a2.getCreatedLValue();
@@ -55,7 +52,8 @@ public class DupAssigns {
     }
 
     public static boolean normalizeDupAssigns(List<Op03SimpleStatement> statements) {
-        List<Op03SimpleStatement> assignStatements = Functional.filter(statements, new TypeFilter<AssignmentSimple>(AssignmentSimple.class));
+        List<Op03SimpleStatement> assignStatements = Functional.filter(statements,
+            new TypeFilter<>(AssignmentSimple.class));
         boolean result = false;
         for (Op03SimpleStatement assign : assignStatements) {
             if (normalizeDupAssigns_type1(assign)) {
