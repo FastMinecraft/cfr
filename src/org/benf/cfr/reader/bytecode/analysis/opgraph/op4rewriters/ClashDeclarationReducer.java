@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters;
 
+import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
@@ -17,7 +18,6 @@ import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredComm
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 
 import java.util.List;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 /* If we've crippled lifetime checking to handle a clash we can't resolve, then
  * we can, at least, tidy
@@ -34,9 +34,9 @@ import it.unimi.dsi.fastutil.objects.ObjectSet;
  * (it's probably possible to keep an arbitrary name, however we can't rely on SSA to determine this of course)
  */
 public class ClashDeclarationReducer extends AbstractExpressionRewriter implements StructuredStatementTransformer {
-    private final ObjectSet<Integer> clashes;
+    private final IntSet clashes;
 
-    public ClashDeclarationReducer(ObjectSet<Integer> clashes) {
+    public ClashDeclarationReducer(IntSet clashes) {
         this.clashes = clashes;
     }
 

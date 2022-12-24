@@ -1,21 +1,21 @@
 package org.benf.cfr.reader.bytecode.analysis.loc;
 
+import it.unimi.dsi.fastutil.ints.IntSet;
 import org.benf.cfr.reader.entities.Method;
 
 import java.util.Collection;
 import java.util.Map;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class BytecodeLocSet extends BytecodeLoc {
-    private final Map<Method, ObjectSet<Integer>> locs;
+    private final Map<Method, IntSet> locs;
 
-    BytecodeLocSet(Map<Method, ObjectSet<Integer>> locs) {
+    BytecodeLocSet(Map<Method, IntSet> locs) {
         this.locs = locs;
     }
 
     @Override
     void addTo(BytecodeLocCollector collector) {
-        for (Map.Entry<Method, ObjectSet<Integer>> entry : locs.entrySet()) {
+        for (Map.Entry<Method, IntSet> entry : locs.entrySet()) {
             collector.add(entry.getKey(), entry.getValue());
         }
     }
@@ -23,7 +23,7 @@ public class BytecodeLocSet extends BytecodeLoc {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (Map.Entry<Method, ObjectSet<Integer>> entry : locs.entrySet()) {
+        for (Map.Entry<Method, IntSet> entry : locs.entrySet()) {
             sb.append(entry.getKey().getName()).append("[");
             for (Integer i : entry.getValue()) {
                 sb.append(i).append(",");

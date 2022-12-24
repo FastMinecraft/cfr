@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph;
 
+import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -306,7 +307,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
             source.replaceTarget(original, replacement);
         }
         replacement.setSources(original.getSources());
-        original.setSources(new ObjectArrayList<Op04StructuredStatement>());
+        original.setSources(new ObjectArrayList<>());
     }
 
     public static void replaceInTargets(Op04StructuredStatement original, Op04StructuredStatement replacement) {
@@ -314,7 +315,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
             target.replaceSource(original, replacement);
         }
         replacement.setTargets(original.getTargets());
-        original.setTargets(new ObjectArrayList<Op04StructuredStatement>());
+        original.setTargets(new ObjectArrayList<>());
     }
 
     /*
@@ -506,7 +507,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
          * End any blocks we're still in.
          */
         if (!stackedBlocks.isEmpty()) {
-            processEndingBlocks(new ObjectOpenHashSet<BlockIdentifier>(blocksCurrentlyIn), blocksCurrentlyIn, stackedBlocks, mutableProcessingBlockState);
+            processEndingBlocks(new ObjectOpenHashSet<>(blocksCurrentlyIn), blocksCurrentlyIn, stackedBlocks, mutableProcessingBlockState);
         }
         Block result = new Block(outerBlock, true);
         return new Op04StructuredStatement(result);
@@ -849,7 +850,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
     public static boolean checkTypeClashes(Op04StructuredStatement block, BytecodeMeta bytecodeMeta) {
         LValueTypeClashCheck clashCheck = new LValueTypeClashCheck();
         clashCheck.processOp04Statement(block);
-        ObjectSet<Integer> clashes = clashCheck.getClashes();
+        IntSet clashes = clashCheck.getClashes();
         if (!clashes.isEmpty()) {
             bytecodeMeta.informLivenessClashes(clashes);
             return true;

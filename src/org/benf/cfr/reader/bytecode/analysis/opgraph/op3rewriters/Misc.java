@@ -1,8 +1,9 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
+import it.unimi.dsi.fastutil.ints.IntRBTreeSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectRBTreeSet;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.InstrIndex;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.ExpressionReplacingRewriter;
@@ -122,7 +123,7 @@ public class Misc {
 
 
     private record GraphVisitorReachableInThese(
-        ObjectSet<Integer> reachable,
+        IntSet reachable,
         Map<Op03SimpleStatement, Integer> instrToIdx
     ) implements BiConsumer<Op03SimpleStatement, GraphVisitor<Op03SimpleStatement>> {
         @Override
@@ -144,7 +145,7 @@ public class Misc {
             instrToIdx.put(statement, x);
         }
 
-        ObjectSet<Integer> reachableNodes = new ObjectRBTreeSet<>();
+        IntSet reachableNodes = new IntRBTreeSet();
         GraphVisitorReachableInThese graphVisitorCallee = new GraphVisitorReachableInThese(reachableNodes, instrToIdx);
         GraphVisitor<Op03SimpleStatement> visitor = new GraphVisitorDFS<>(statements.get(start), graphVisitorCallee);
         visitor.process();

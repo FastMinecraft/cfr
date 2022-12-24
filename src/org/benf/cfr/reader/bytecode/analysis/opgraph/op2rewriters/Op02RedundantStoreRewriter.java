@@ -1,5 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op2rewriters;
 
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op02WithProcessedDataAndRefs;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
@@ -8,7 +10,6 @@ import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.bytecode.opcode.JVMInstr;
 import org.benf.cfr.reader.util.collections.SetUtil;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
@@ -173,7 +174,7 @@ public class Op02RedundantStoreRewriter {
      * If we *never* _load0, then _store0 is never useful.
      */
     private void removeUnreadStores(ObjectList<Op02WithProcessedDataAndRefs> instrs) {
-        ObjectSet<Integer> retrieves = new ObjectOpenHashSet<>();
+        IntSet retrieves = new IntOpenHashSet();
         for (Op02WithProcessedDataAndRefs op : instrs) {
             Integer idx = op.getRetrieveIdx();
             if (idx == null) continue;

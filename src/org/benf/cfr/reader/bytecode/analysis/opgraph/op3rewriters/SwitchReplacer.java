@@ -1,6 +1,8 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
 import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.ints.IntRBTreeSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.*;
 import org.benf.cfr.reader.bytecode.BytecodeMeta;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
@@ -1293,7 +1295,7 @@ public class SwitchReplacer {
         // add an additional control
         LValue intermed = vf.tempVariable(new InferredJavaType(RawJavaType.INT, InferredJavaType.Source.TRANSFORM));
         // We need to find a value which ISN'T a valid source.
-        ObjectSet<Integer> iVals = new ObjectRBTreeSet<>();
+        IntSet iVals = new IntRBTreeSet();
         for (Op03SimpleStatement cas : targets) {
             // This can only have legitimate sources of the preceeding switch block (linearly preceeding),
             // the switch statements itself, or (in theory) another statement in the same block.

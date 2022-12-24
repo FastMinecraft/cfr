@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph;
 
+import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.*;
 import org.benf.cfr.reader.bytecode.BytecodeMeta;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
@@ -1734,7 +1735,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
         }
         statements.get(0).ssaIdentifiers = new SSAIdentifiers<>(idents);
 
-        final ObjectSet<Integer> livenessClashes = bytecodeMeta.getLivenessClashes();
+        final IntSet livenessClashes = bytecodeMeta.getLivenessClashes();
 
         final BiPredicate<Slot, Slot> testSlot = (a, b) -> {
             StackType t1 = a.javaTypeInstance().getStackType();
@@ -1918,7 +1919,7 @@ public class Op02WithProcessedDataAndRefs implements Dumpable, Graph<Op02WithPro
             arg -> new ObjectOpenHashSet<>()
         );
 
-        final ObjectSet<Integer> livenessClashes = bytecodeMeta.getLivenessClashes();
+        final IntSet livenessClashes = bytecodeMeta.getLivenessClashes();
 
         for (Op02WithProcessedDataAndRefs op : op2list) {
             SSAIdentifiers<Slot> identifiers = op.ssaIdentifiers;

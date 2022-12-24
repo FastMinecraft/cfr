@@ -1,5 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph;
 
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -805,7 +807,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
     public String toString() {
         BytecodeLoc loc = getStatement().getCombinedLoc();
 
-        ObjectSet<Integer> blockIds = new ObjectOpenHashSet<>();
+        IntSet blockIds = new IntOpenHashSet();
         for (BlockIdentifier b : containedInBlocks) {
             blockIds.add(b.getIndex());
         }

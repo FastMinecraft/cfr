@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers;
 
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
@@ -23,11 +24,9 @@ import org.benf.cfr.reader.bytecode.analysis.types.RawJavaType;
 import org.benf.cfr.reader.bytecode.analysis.types.StackType;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 
-import it.unimi.dsi.fastutil.objects.ObjectSet;
-
 public class LValueTypeClashCheck implements LValueScopeDiscoverer, StructuredStatementTransformer {
 
-    private final ObjectSet<Integer> clashes = new ObjectOpenHashSet<>();
+    private final IntSet clashes = new IntOpenHashSet();
 
     @Override
     public void processOp04Statement(Op04StructuredStatement statement) {
@@ -133,7 +132,7 @@ public class LValueTypeClashCheck implements LValueScopeDiscoverer, StructuredSt
         return false;
     }
 
-    public ObjectSet<Integer> getClashes() {
+    public IntSet getClashes() {
         return clashes;
     }
 

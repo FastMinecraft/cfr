@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.variables;
 
+import it.unimi.dsi.fastutil.ints.IntSet;
 import org.benf.cfr.reader.bytecode.BytecodeMeta;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
 import org.benf.cfr.reader.bytecode.analysis.parse.lvalue.LocalVariable;
@@ -12,12 +13,11 @@ import org.benf.cfr.reader.util.collections.MapFactory;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class VariableFactory {
     private final VariableNamer variableNamer;
     private final Map<Integer, InferredJavaType> typedArgs;
-    private final ObjectSet<Integer> clashes;
+    private final IntSet clashes;
     private final Method method;
     private int ignored;
 

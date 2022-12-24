@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode;
 
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op01WithProcessedDataAndByteJumps;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
@@ -12,7 +13,6 @@ import org.benf.cfr.reader.util.getopt.PermittedOptionProvider;
 import java.util.EnumSet;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import java.util.function.Function;
 
 public class BytecodeMeta {
@@ -31,7 +31,7 @@ public class BytecodeMeta {
 
     private final EnumSet<CodeInfoFlag> flags = EnumSet.noneOf(CodeInfoFlag.class);
 
-    private final ObjectSet<Integer> livenessClashes = new ObjectOpenHashSet<>();
+    private final IntSet livenessClashes = new IntOpenHashSet();
     private final Map<Integer, JavaTypeInstance> iteratedTypeHints = MapFactory.newMap();
     private final Options options;
 
@@ -56,7 +56,7 @@ public class BytecodeMeta {
 
     public void set(CodeInfoFlag flag) {flags.add(flag);}
 
-    public void informLivenessClashes(ObjectSet<Integer> slots) {
+    public void informLivenessClashes(IntSet slots) {
         flags.add(CodeInfoFlag.LIVENESS_CLASH);
         livenessClashes.addAll(slots);
     }
@@ -81,7 +81,7 @@ public class BytecodeMeta {
         return iteratedTypeHints;
     }
 
-    public ObjectSet<Integer> getLivenessClashes() {
+    public IntSet getLivenessClashes() {
         return livenessClashes;
     }
 
