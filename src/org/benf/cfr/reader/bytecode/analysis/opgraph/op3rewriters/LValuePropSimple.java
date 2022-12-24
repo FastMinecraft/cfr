@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
@@ -93,7 +94,7 @@ public class LValuePropSimple {
         Map<StackSSALabel, StatementContainer<Statement>> created = assignmentCollector.assignments;
         ObjectList<StackSSALabel> singleUsages = usageCollector.getSingleUsages();
         Map<StackSSALabel, Op03SimpleStatement> createdAndUsed = MapFactory.newMap();
-        Map<Op03SimpleStatement, StackSSALabel> creations = MapFactory.newIdentityMap();
+        Map<Op03SimpleStatement, StackSSALabel> creations = new Reference2ObjectOpenHashMap<>();
         for (StackSSALabel single : singleUsages) {
             StatementContainer<Statement> creation = created.get(single);
             if (creation != null) {

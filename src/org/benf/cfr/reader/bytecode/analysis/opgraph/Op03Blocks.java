@@ -363,8 +363,8 @@ public class Op03Blocks {
      * If these are working, we're probably quite happy!
      */
     private static boolean detectMoves(ObjectList<Block3> blocks, Options options) {
-        Map<Op03SimpleStatement, Block3> opLocations = MapFactory.newIdentityMap();
-        Map<Block3, Integer> idxLut = MapFactory.newIdentityMap();
+        Map<Op03SimpleStatement, Block3> opLocations = new Reference2ObjectOpenHashMap<>();
+        Map<Block3, Integer> idxLut = new Reference2ObjectOpenHashMap<>();
         for (int i = 0, len = blocks.size(); i < len; ++i) {
             Block3 blk = blocks.get(i);
             idxLut.put(blk, i);

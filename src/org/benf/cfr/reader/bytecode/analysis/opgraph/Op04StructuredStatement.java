@@ -1,10 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph;
 
 import it.unimi.dsi.fastutil.ints.IntSet;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
+import it.unimi.dsi.fastutil.objects.*;
 import org.benf.cfr.reader.bytecode.AnonymousClassUsage;
 import org.benf.cfr.reader.bytecode.BytecodeMeta;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
@@ -932,7 +929,7 @@ public class Op04StructuredStatement implements MutableGraph<Op04StructuredState
         }
 
         Map<MethodPrototype, MethodPrototype> protos = new IdentityHashMap<>();
-        Map<MethodPrototype.ParameterLValue, CaptureExpression> captured = MapFactory.newIdentityMap();
+        Map<MethodPrototype.ParameterLValue, CaptureExpression> captured = new Reference2ObjectOpenHashMap<>();
 
         /*
          * Note that we're aggregating the captures from ALL constructors into a single map.

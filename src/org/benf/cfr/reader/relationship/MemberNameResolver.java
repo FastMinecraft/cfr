@@ -1,9 +1,6 @@
 package org.benf.cfr.reader.relationship;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.*;
 import org.benf.cfr.reader.bytecode.analysis.types.*;
 import org.benf.cfr.reader.entities.AccessFlagMethod;
 import org.benf.cfr.reader.entities.ClassFile;
@@ -42,7 +39,7 @@ public class MemberNameResolver {
     private transient final Function<ClassFile, Set<ClassFile>> mapFactory = arg -> new ObjectLinkedOpenHashSet<>();
     private final Map<ClassFile, Set<ClassFile>> childToParent = MapFactory.newLazyMap(mapFactory);
     private final Map<ClassFile, Set<ClassFile>> parentToChild = MapFactory.newLazyMap(mapFactory);
-    private final Map<ClassFile, MemberInfo> infoMap = MapFactory.newIdentityMap();
+    private final Map<ClassFile, MemberInfo> infoMap = new Reference2ObjectOpenHashMap<>();
 
 
     private MemberNameResolver(DCCommonState dcCommonState) {

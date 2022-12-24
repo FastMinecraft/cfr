@@ -2,9 +2,9 @@ package org.benf.cfr.reader.bytecode.analysis.loc;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.util.collections.CollectionUtils;
-import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.collections.SetUtil;
 
 import java.util.Map;
@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public class BytecodeLocCollector {
 
-    private final Map<Method, IntSet> data = MapFactory.newIdentityMap();
+    private final Map<Method, IntSet> data = new Reference2ObjectOpenHashMap<>();
 
     private IntSet getForMethod(Method method) {
         IntSet locs = data.get(method);

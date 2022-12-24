@@ -2,9 +2,7 @@ package org.benf.cfr.reader.bytecode.analysis.opgraph;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.*;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters.Cleaner;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.op3rewriters.CompareByIndex;
@@ -44,9 +42,7 @@ import org.benf.cfr.reader.util.graph.GraphVisitorDFS;
 import org.benf.cfr.reader.util.output.Dumpable;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, Dumpable, StatementContainer<Statement>, IndexedStatement {
     private final ObjectList<Op03SimpleStatement> sources = new ObjectArrayList<>();
@@ -612,7 +608,7 @@ public class Op03SimpleStatement implements MutableGraph<Op03SimpleStatement>, D
             private ObjectSet<LValue> read;
         }
 
-        Map<Op03SimpleStatement, RemoveState> state = MapFactory.newIdentityMap();
+        Map<Op03SimpleStatement, RemoveState> state = new Reference2ObjectOpenHashMap<>();
 
         for (Op03SimpleStatement stm : statements) {
             LValueUsageCollectorSimpleRW rw = new LValueUsageCollectorSimpleRW();

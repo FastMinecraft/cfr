@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.util.output;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.loc.HasByteCodeLoc;
 import org.benf.cfr.reader.entities.Method;
@@ -14,7 +15,8 @@ import java.util.TreeMap;
 
 class BytecodeTrackingDumper extends DelegatingDumper {
 
-    private final Map<Method, MethodBytecode> perMethod = MapFactory.newLazyMap(MapFactory.newIdentityMap(),
+    private final Map<Method, MethodBytecode> perMethod = MapFactory.newLazyMap(
+        new Reference2ObjectOpenHashMap<Method, MethodBytecode>(),
         arg -> new MethodBytecode()
     );
     private final BytecodeDumpConsumer consumer;

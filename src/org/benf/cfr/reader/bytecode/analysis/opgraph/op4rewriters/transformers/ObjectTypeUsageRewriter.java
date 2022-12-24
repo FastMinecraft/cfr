@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.opgraph.op4rewriters.transformers;
 
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import org.benf.cfr.reader.bytecode.AnonymousClassUsage;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
@@ -21,7 +22,6 @@ import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.discovery.InferredJavaType;
 import org.benf.cfr.reader.entities.ClassFile;
 import org.benf.cfr.reader.util.ClassFileVersion;
-import org.benf.cfr.reader.util.collections.MapFactory;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -32,7 +32,7 @@ import java.util.function.Function;
  */
 public class ObjectTypeUsageRewriter extends AbstractExpressionRewriter implements StructuredStatementTransformer {
 
-    private final Map<InferredJavaType, Boolean> isAnonVar = MapFactory.newIdentityMap();
+    private final Map<InferredJavaType, Boolean> isAnonVar = new Reference2ObjectOpenHashMap<>();
     private final boolean canHaveVar;
 
     public ObjectTypeUsageRewriter(AnonymousClassUsage anonymousClassUsage, ClassFile classFile) {

@@ -318,7 +318,7 @@ public class JumpsIntoLoopCloneRewriter {
      * We can establish a target set by doing a depth first search with a max depth of N.
      */
     private GraphVisitor<Op03SimpleStatement> visitCandidates(final BlockIdentifier blockIdent, Op03SimpleStatement possLast, final Map<Op03SimpleStatement, Op03SimpleStatement> candidates) {
-        final Map<Op03SimpleStatement, Integer> depthMap = MapFactory.newIdentityMap();
+        final Map<Op03SimpleStatement, Integer> depthMap = new Reference2ObjectOpenHashMap<>();
         depthMap.put(possLast, 0);
         GraphVisitor<Op03SimpleStatement> gv = new GraphVisitorDFS<>(possLast, (arg1, arg2) -> {
             int depth = depthMap.get(arg1);

@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.utils.scope;
 
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
@@ -19,7 +20,6 @@ import org.benf.cfr.reader.bytecode.analysis.variables.VariableFactory;
 import org.benf.cfr.reader.entities.Method;
 import org.benf.cfr.reader.state.AbstractTypeUsageCollector;
 import org.benf.cfr.reader.state.TypeUsageInformation;
-import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.output.Dumper;
 
@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class LocalClassScopeDiscoverImpl extends AbstractLValueScopeDiscoverer {
-    private final Map<JavaTypeInstance, Boolean> localClassTypes = MapFactory.newIdentityMap();
+    private final Map<JavaTypeInstance, Boolean> localClassTypes = new Reference2ObjectOpenHashMap<>();
     private final TypeUsageSpotter typeUsageSpotter = new TypeUsageSpotter();
     private final JavaTypeInstance scopeType;
 

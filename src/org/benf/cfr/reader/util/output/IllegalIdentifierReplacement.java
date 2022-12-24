@@ -1,5 +1,6 @@
 package org.benf.cfr.reader.util.output;
 
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import org.benf.cfr.reader.bytecode.analysis.variables.Keywords;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.MiscConstants;
@@ -9,7 +10,7 @@ import java.util.Map;
 public class IllegalIdentifierReplacement implements IllegalIdentifierDump {
     private final Map<String, Integer> identifiers = MapFactory.newMap();
     private final Map<String, String> classes = MapFactory.newMap();
-    private static final Map<String, Boolean> known = MapFactory.newIdentityMap();
+    private static final Map<String, Boolean> known = new Reference2ObjectOpenHashMap<>();
     private int next = 0;
 
     private static final IllegalIdentifierReplacement instance = new IllegalIdentifierReplacement();

@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.util.collections;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 
 import java.util.*;
 import java.util.function.Function;
@@ -10,12 +11,8 @@ public class MapFactory {
         return new HashMap<>();
     }
 
-    public static <X, Y> Map<X, Y> newIdentityMap() {
-        return new IdentityHashMap<>();
-    }
-
     public static <X, Y> Map<X, Y> newIdentityLazyMap(Function<X, Y> factory) {
-        return new LazyMap<>(MapFactory.newIdentityMap(), factory);
+        return new LazyMap<>(new Reference2ObjectOpenHashMap<>(), factory);
     }
 
     public static <X, Y> TreeMap<X, Y> newTreeMap() {
@@ -27,7 +24,7 @@ public class MapFactory {
     }
 
     public static <X, Y> Map<X, Y> newLinkedLazyMap(Function<X, Y> factory) {
-        return new LazyMap<>(new Object2ObjectLinkedOpenHashMap<X, Y>(), factory);
+        return new LazyMap<>(new Object2ObjectLinkedOpenHashMap<>(), factory);
     }
 
     public static <X, Y> Map<X, Y> newLazyMap(Map<X, Y> base, Function<X, Y> factory) {

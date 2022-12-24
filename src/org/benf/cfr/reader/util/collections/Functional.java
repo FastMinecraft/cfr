@@ -1,9 +1,6 @@
 package org.benf.cfr.reader.util.collections;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
+import it.unimi.dsi.fastutil.objects.*;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 
 import java.util.*;
@@ -119,7 +116,7 @@ public class Functional {
     }
 
     public static <X> Map<X, Integer> indexedIdentityMapOf(Collection<X> input) {
-        Map<X, Integer> temp = MapFactory.newIdentityMap();
+        Map<X, Integer> temp = new Reference2ObjectOpenHashMap<>();
         int idx = 0;
         for (X x : input) {
             temp.put(x, idx++);

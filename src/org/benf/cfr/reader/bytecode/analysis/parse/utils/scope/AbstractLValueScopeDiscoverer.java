@@ -1,9 +1,6 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.utils.scope;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import it.unimi.dsi.fastutil.objects.*;
 import org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement;
 import org.benf.cfr.reader.bytecode.analysis.parse.Expression;
 import org.benf.cfr.reader.bytecode.analysis.parse.LValue;
@@ -38,7 +35,7 @@ public abstract class AbstractLValueScopeDiscoverer implements LValueScopeDiscov
      * is defined at (i.e. scope depth goes above) we have to remove all earliest definitions at that level.
      */
     final Map<NamedVariable, ScopeDefinition> earliestDefinition = new Object2ObjectLinkedOpenHashMap<>();
-    final Map<Integer, Map<NamedVariable, Boolean>> earliestDefinitionsByLevel = MapFactory.newLazyMap(arg -> MapFactory.newIdentityMap());
+    final Map<Integer, Map<NamedVariable, Boolean>> earliestDefinitionsByLevel = MapFactory.newLazyMap(arg -> new Reference2ObjectOpenHashMap<>());
     int currentDepth = 0;
 
     final Stack<StatementContainer<StructuredStatement>> currentBlock = new Stack<>();
