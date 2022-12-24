@@ -8,9 +8,6 @@ targetCompatibility = 17
 
 version = '0.2-SNAPSHOT'
 
-def ENV = System.getenv()
-version = version + (ENV.GITHUB_ACTIONS ? "" : "+local")
-
 group = 'net.fabricmc'
 archivesBaseName = 'cfr'
 
@@ -43,19 +40,6 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
-        }
-    }
-
-    // select the repositories you want to publish to
-    repositories {
-        if (ENV.MAVEN_URL) {
-            maven {
-                url ENV.MAVEN_URL
-                credentials {
-                    username ENV.MAVEN_USERNAME
-                    password ENV.MAVEN_PASSWORD
-                }
-            }
         }
     }
 }
