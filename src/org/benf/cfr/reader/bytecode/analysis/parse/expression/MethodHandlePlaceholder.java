@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.bytecode.analysis.parse.expression;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
 import it.unimi.dsi.fastutil.objects.ObjectSets;
 import org.benf.cfr.reader.bytecode.analysis.loc.BytecodeLoc;
@@ -15,18 +16,8 @@ import org.benf.cfr.reader.bytecode.analysis.parse.rewriters.CloneHelper;
 import org.benf.cfr.reader.bytecode.analysis.parse.rewriters.ExpressionRewriter;
 import org.benf.cfr.reader.bytecode.analysis.parse.rewriters.ExpressionRewriterFlags;
 import org.benf.cfr.reader.bytecode.analysis.parse.rewriters.ExpressionVisitor;
-import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockIdentifier;
-import org.benf.cfr.reader.bytecode.analysis.parse.utils.BlockType;
-import org.benf.cfr.reader.bytecode.analysis.parse.utils.EquivalenceConstraint;
-import org.benf.cfr.reader.bytecode.analysis.parse.utils.LValueRewriter;
-import org.benf.cfr.reader.bytecode.analysis.parse.utils.LValueUsageCollector;
-import org.benf.cfr.reader.bytecode.analysis.parse.utils.QuotingUtils;
-import org.benf.cfr.reader.bytecode.analysis.parse.utils.SSAIdentifiers;
-import org.benf.cfr.reader.bytecode.analysis.structured.statement.Block;
-import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredCatch;
-import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredReturn;
-import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredThrow;
-import org.benf.cfr.reader.bytecode.analysis.structured.statement.StructuredTry;
+import org.benf.cfr.reader.bytecode.analysis.parse.utils.*;
+import org.benf.cfr.reader.bytecode.analysis.structured.statement.*;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.MethodPrototype;
 import org.benf.cfr.reader.bytecode.analysis.types.TypeConstants;
@@ -40,10 +31,7 @@ import org.benf.cfr.reader.entities.constantpool.ConstantPoolEntryMethodRef;
 import org.benf.cfr.reader.util.DecompilerComments;
 import org.benf.cfr.reader.util.output.Dumper;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumSet;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class MethodHandlePlaceholder extends AbstractExpression {
     private final ConstantPoolEntryMethodHandle handle;
@@ -75,7 +63,8 @@ public class MethodHandlePlaceholder extends AbstractExpression {
     @Override
     public Dumper dumpInner(Dumper d) {
         if (fake == null) {
-            d.print("/* method handle: ").dump(new Literal(TypedLiteral.getString(handle.getLiteralName()))).separator(" */ null");
+            d.print("/* method handle: ").dump(new Literal(TypedLiteral.getString(handle.getLiteralName()))).separator(
+                " */ null");
         } else {
             d.methodName(fake.getName(), null, false, false).separator("(").separator(")");
         }
@@ -83,17 +72,31 @@ public class MethodHandlePlaceholder extends AbstractExpression {
     }
 
     @Override
-    public Expression replaceSingleUsageLValues(LValueRewriter lValueRewriter, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer) {
+    public Expression replaceSingleUsageLValues(
+        LValueRewriter lValueRewriter,
+        SSAIdentifiers ssaIdentifiers,
+        StatementContainer statementContainer
+    ) {
         return this;
     }
 
     @Override
-    public Expression applyExpressionRewriter(ExpressionRewriter expressionRewriter, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
+    public Expression applyExpressionRewriter(
+        ExpressionRewriter expressionRewriter,
+        SSAIdentifiers ssaIdentifiers,
+        StatementContainer statementContainer,
+        ExpressionRewriterFlags flags
+    ) {
         return this;
     }
 
     @Override
-    public Expression applyReverseExpressionRewriter(ExpressionRewriter expressionRewriter, SSAIdentifiers ssaIdentifiers, StatementContainer statementContainer, ExpressionRewriterFlags flags) {
+    public Expression applyReverseExpressionRewriter(
+        ExpressionRewriter expressionRewriter,
+        SSAIdentifiers ssaIdentifiers,
+        StatementContainer statementContainer,
+        ExpressionRewriterFlags flags
+    ) {
         return this;
     }
 
@@ -127,22 +130,44 @@ public class MethodHandlePlaceholder extends AbstractExpression {
     private FakeMethod generateFake(String name) {
         BlockIdentifier identifier = new BlockIdentifier(-1, BlockType.TRYBLOCK);
         StructuredTry trys = new StructuredTry(
-                new Op04StructuredStatement(Block.getBlockFor(true, new StructuredReturn(BytecodeLoc.TODO, from(handle), TypeConstants.METHOD_HANDLE))),
-                identifier);
-        LValue caught = new LocalVariable("except", new InferredJavaType(TypeConstants.THROWABLE, InferredJavaType.Source.EXPRESSION));
+            new Op04StructuredStatement(Block.getBlockFor(
+                true,
+                new StructuredReturn(
+                    BytecodeLoc.TODO,
+                    from(handle),
+                    TypeConstants.METHOD_HANDLE
+                )
+            )),
+            identifier
+        );
+        LValue caught = new LocalVariable(
+            "except",
+            new InferredJavaType(
+                TypeConstants.THROWABLE,
+                InferredJavaType.Source.EXPRESSION
+            )
+        );
         ObjectList<JavaRefTypeInstance> catchTypes = new ObjectArrayList<>(new JavaRefTypeInstance[]{ TypeConstants.NOSUCHMETHOD_EXCEPTION, TypeConstants.ILLEGALACCESS_EXCEPTION });
         Expression[] original = new Expression[]{ new LValueExpression(caught) };
         StructuredCatch catche = new StructuredCatch(
-                catchTypes,
-                new Op04StructuredStatement(Block.getBlockFor(true,
-                        new StructuredThrow(BytecodeLoc.TODO,
-                                new ConstructorInvokationExplicit(getLoc(),
-                                        new InferredJavaType(TypeConstants.ILLEGALARGUMENT_EXCEPTION, InferredJavaType.Source.CONSTRUCTOR),
-                                        TypeConstants.ILLEGALARGUMENT_EXCEPTION,
-                                                                  new ObjectArrayList<>(original)
-                                )))),
-                caught,
-                ObjectSets.singleton(identifier)
+            catchTypes,
+            new Op04StructuredStatement(Block.getBlockFor(
+                true,
+                new StructuredThrow(
+                    BytecodeLoc.TODO,
+                    new ConstructorInvokationExplicit(
+                        getLoc(),
+                        new InferredJavaType(
+                            TypeConstants.ILLEGALARGUMENT_EXCEPTION,
+                            InferredJavaType.Source.CONSTRUCTOR
+                        ),
+                        TypeConstants.ILLEGALARGUMENT_EXCEPTION,
+                        new ObjectArrayList<>(original)
+                    )
+                )
+            )),
+            caught,
+            ObjectSets.singleton(identifier)
         );
         trys.getCatchBlocks().add(new Op04StructuredStatement(catche));
         Op04StructuredStatement stm = new Op04StructuredStatement(Block.getBlockFor(true, trys));
@@ -151,14 +176,23 @@ public class MethodHandlePlaceholder extends AbstractExpression {
         DecompilerComments comments = new DecompilerComments();
         comments.addComment("Works around MethodHandle LDC.");
 
-        return new FakeMethod(name, EnumSet.of(AccessFlagMethod.ACC_STATIC), TypeConstants.METHOD_HANDLE, stm, comments);
+        return new FakeMethod(
+            name,
+            EnumSet.of(AccessFlagMethod.ACC_STATIC),
+            TypeConstants.METHOD_HANDLE,
+            stm,
+            comments
+        );
     }
 
     private static Expression from(ConstantPoolEntryMethodHandle cpe) {
-        Expression lookup = new StaticFunctionInvokationExplicit(BytecodeLoc.TODO,
-                                                                 new InferredJavaType(
-                        TypeConstants.METHOD_HANDLES$LOOKUP, InferredJavaType.Source.EXPRESSION), TypeConstants.METHOD_HANDLES, "lookup",
-                                                                 ObjectLists.emptyList()
+        Expression lookup = new StaticFunctionInvokationExplicit(
+            BytecodeLoc.TODO,
+            new InferredJavaType(
+                TypeConstants.METHOD_HANDLES$LOOKUP, InferredJavaType.Source.EXPRESSION),
+            TypeConstants.METHOD_HANDLES,
+            "lookup",
+            ObjectLists.emptyList()
         );
 
         String behaviourName = lookupFunction(cpe.getReferenceKind());
@@ -166,12 +200,17 @@ public class MethodHandlePlaceholder extends AbstractExpression {
         MethodPrototype refProto = ref.getMethodPrototype();
         String descriptor = ref.getNameAndTypeEntry().getDescriptor().getValue();
 
-        Expression[] original = new Expression[]{ new Literal(TypedLiteral.getClass(refProto.getClassType())), new Literal(TypedLiteral.getString(
-            QuotingUtils.addQuotes(refProto.getName(), false))), getMethodType(new Literal(TypedLiteral.getString(QuotingUtils.enquoteString(descriptor)))) };
-        return new MemberFunctionInvokationExplicit(BytecodeLoc.TODO,
-                new InferredJavaType(TypeConstants.METHOD_HANDLE, InferredJavaType.Source.EXPRESSION), TypeConstants.METHOD_HANDLES$LOOKUP, lookup, behaviourName
-                ,
-            new ObjectArrayList<Expression>(original)
+        Expression[] original = new Expression[]{ new Literal(TypedLiteral.getClass(refProto.getClassType())), new Literal(
+            TypedLiteral.getString(
+                QuotingUtils.addQuotes(refProto.getName(), false))), getMethodType(new Literal(TypedLiteral.getString(
+            QuotingUtils.enquoteString(descriptor)))) };
+        return new MemberFunctionInvokationExplicit(
+            BytecodeLoc.TODO,
+            new InferredJavaType(TypeConstants.METHOD_HANDLE, InferredJavaType.Source.EXPRESSION),
+            TypeConstants.METHOD_HANDLES$LOOKUP,
+            lookup,
+            behaviourName,
+            new ObjectArrayList<>(original)
         );
 
         /*
@@ -236,10 +275,16 @@ public class MethodHandlePlaceholder extends AbstractExpression {
 
     // This isn't the right place for this.  Needs moving into a 'HandleUtils' or some such.
     public static Expression getMethodType(Expression descriptorString) {
-        return new StaticFunctionInvokationExplicit(BytecodeLoc.TODO,
-                new InferredJavaType(
-                        TypeConstants.METHOD_TYPE, InferredJavaType.Source.EXPRESSION), TypeConstants.METHOD_TYPE, TypeConstants.fromMethodDescriptorString,
-                ObjectList.of(descriptorString, new Literal(TypedLiteral.getNull()))
+        ObjectArrayList<Expression> expressions = new ObjectArrayList<>();
+        expressions.add(descriptorString);
+        expressions.add(new Literal(TypedLiteral.getNull()));
+        return new StaticFunctionInvokationExplicit(
+            BytecodeLoc.TODO,
+            new InferredJavaType(
+                TypeConstants.METHOD_TYPE, InferredJavaType.Source.EXPRESSION),
+            TypeConstants.METHOD_TYPE,
+            TypeConstants.fromMethodDescriptorString,
+            expressions
         );
     }
 }
