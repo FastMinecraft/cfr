@@ -18,6 +18,7 @@ import org.benf.cfr.reader.util.output.InternalDumperFactoryImpl;
 import org.benf.cfr.reader.util.output.SinkDumperFactory;
 
 import java.util.*;
+import java.util.concurrent.*;
 
 public class CfrDriverImpl implements CfrDriver {
     private final Options options;
@@ -42,6 +43,7 @@ public class CfrDriverImpl implements CfrDriver {
         this.classFileSource = tmpSource;
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public void analyse(ObjectList<String> toAnalyse) {
         /*
@@ -55,6 +57,8 @@ public class CfrDriverImpl implements CfrDriver {
         // Can't sort a 1.6 singleton list.
         toAnalyse = new ObjectArrayList<>(toAnalyse);
         Collections.sort(toAnalyse);
+        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
         for (String path : toAnalyse) {
             // TODO : We shouldn't have to discard state here.  But we do, because
             // it causes test fails.  (used class name table retains useful symbols).
@@ -71,10 +75,17 @@ public class CfrDriverImpl implements CfrDriver {
             }
 
             if (type == AnalysisType.JAR || type == AnalysisType.WAR) {
-                Driver.doJar(dcCommonState, path, type, dumperFactory);
+                Driver.doJar(executor, dcCommonState, path, type, dumperFactory);
             } else if (type == AnalysisType.CLASS) {
-                Driver.doClass(dcCommonState, path, skipInnerClass, dumperFactory);
+                executor.execute(() -> Driver.doClass(dcCommonState, path, skipInnerClass, dumperFactory));
             }
+        }
+
+        try {
+            executor.shutdown();
+            executor.awaitTermination(1, TimeUnit.DAYS);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 }

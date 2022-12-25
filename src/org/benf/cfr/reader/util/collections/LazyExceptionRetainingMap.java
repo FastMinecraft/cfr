@@ -4,10 +4,11 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class LazyExceptionRetainingMap<X, Y> extends LazyMap<X, Y> {
-    private final Map<X, RuntimeException> exceptionMap = MapFactory.newMap();
+    private final Map<X, RuntimeException> exceptionMap;
 
-    LazyExceptionRetainingMap(Map<X, Y> inner, Function<X, Y> factory) {
+    public LazyExceptionRetainingMap(Map<X, Y> inner, Map<X, RuntimeException> exceptionMap, Function<X, Y> factory) {
         super(inner, factory);
+        this.exceptionMap = exceptionMap;
     }
 
     @Override

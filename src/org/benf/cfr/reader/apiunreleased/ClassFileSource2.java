@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.apiunreleased;
 
 import org.benf.cfr.reader.api.ClassFileSource;
+import org.benf.cfr.reader.state.ClassFileRelocator;
 import org.benf.cfr.reader.util.AnalysisType;
 
 // TODO : Experimental API - before moving, snip ClassFileSource link.
@@ -12,4 +13,8 @@ public interface ClassFileSource2 extends ClassFileSource {
      * @return @{link JarContent} for this jar.
      */
     JarContent addJarContent(String jarPath, AnalysisType analysisType);
+
+    default ClassFileRelocator getClassRelocator() {
+        return null;
+    }
 }

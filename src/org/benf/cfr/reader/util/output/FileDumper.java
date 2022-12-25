@@ -44,6 +44,8 @@ public class FileDumper extends StreamDumper {
        this(dir,null,clobber,type,summaryDumper,typeUsageInformation,options,truncCount,illegalIdentifierDump);
     }
 
+    private static final Object lock = new Object();
+
     FileDumper(String dir, String encoding, boolean clobber, JavaTypeInstance type, SummaryDumper summaryDumper, TypeUsageInformation typeUsageInformation, Options options, AtomicInteger truncCount, IllegalIdentifierDump illegalIdentifierDump) {
 
         super(typeUsageInformation, options, illegalIdentifierDump, new MovableDumperContext());
@@ -56,23 +58,26 @@ public class FileDumper extends StreamDumper {
         String fileName = mkFilename(dir, ClassNameUtils.getPackageAndClassNames(type), summaryDumper);
         try {
             File file = new File(fileName);
-            File parent = file.getParentFile();
-            if (!parent.exists() && !parent.mkdirs()) {
-                throw new IllegalStateException("Couldn't create dir: " + parent);
+
+            synchronized (lock) {
+                File parent = file.getParentFile();
+                if (!parent.exists() && !parent.mkdirs()) {
+                    throw new IllegalStateException("Couldn't create dir: " + parent);
+                }
+                if (file.exists() && !clobber) {
+                    throw new CannotCreate("File already exists, and option '" + OptionsImpl.CLOBBER_FILES.getName() + "' not set");
+                }
             }
-            if (file.exists() && !clobber) {
-                throw new CannotCreate("File already exists, and option '" + OptionsImpl.CLOBBER_FILES.getName() + "' not set");
-            }
+
             path = fileName;
 
-            if(encoding != null)
-            {
+            if (encoding != null) {
                 try {
-                    writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file),encoding));
+                    writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), encoding));
                 } catch (UnsupportedEncodingException e) {
-                    throw new UnsupportedOperationException("Specified encoding '"+encoding+"' is not supported");
+                    throw new UnsupportedOperationException("Specified encoding '" + encoding + "' is not supported");
                 }
-            }else {
+            } else {
                 writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
             }
         } catch (FileNotFoundException e) {

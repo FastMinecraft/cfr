@@ -32,7 +32,7 @@ public class MapFactory {
     }
 
     public static <X, Y> Map<X, Y> newExceptionRetainingLazyMap(Function<X, Y> factory) {
-        return new LazyExceptionRetainingMap<>(MapFactory.newMap(), factory);
+        return new LazyExceptionRetainingMap<>(MapFactory.newMap(), MapFactory.newMap(), factory);
     }
 
 }

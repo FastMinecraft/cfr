@@ -1,8 +1,6 @@
 package org.benf.cfr.reader.state;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.*;
 import org.benf.cfr.reader.apiunreleased.ClassFileSource2;
 import org.benf.cfr.reader.apiunreleased.JarContent;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
@@ -14,26 +12,23 @@ import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import static org.benf.cfr.reader.bytecode.analysis.types.ClassNameUtils.getPackageAndClassNames;
 
 public class ClassFileSourceImpl implements ClassFileSource2 {
-    private final Set<String> explicitJars = new ObjectOpenHashSet<>();
-    private Map<String, JarSourceEntry> classToPathMap;
+    private final ObjectSet<String> explicitJars = ObjectSets.synchronize(new ObjectOpenHashSet<>());
+    private volatile Map<String, JarSourceEntry> classToPathMap;
     private final Options options;
     private ClassRenamer classRenamer;
+
     private ClassFileRelocator classRelocator;
     /*
      * Initialisation info
@@ -61,7 +56,7 @@ public class ClassFileSourceImpl implements ClassFileSource2 {
         int offset = 0;
         int numRead;
         while (offset < bytes.length
-                && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
+            && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
             offset += numRead;
         }
 
@@ -80,11 +75,16 @@ public class ClassFileSourceImpl implements ClassFileSource2 {
         if (classRenamer == null) return path;
         String res = classRenamer.getRenamedClass(path + ".class");
         if (res == null) return path;
-        return res.substring(0, res.length()-6);
+        return res.substring(0, res.length() - 6);
     }
 
     @Override
-    public Pair<byte [], String> getClassFileContent(final String inputPath) throws IOException {
+    public Pair<byte[], String> getClassFileContent(String path) throws IOException {
+        return getClassFileContent(path, classRelocator);
+    }
+
+    @Override
+    public Pair<byte[], String> getClassFileContent(final String inputPath, ClassFileRelocator classRelocator) throws IOException {
         Map<String, JarSourceEntry> classPathFiles = getClassPathClasses();
 
         JarSourceEntry jarEntry = classPathFiles.get(inputPath);
@@ -102,6 +102,9 @@ public class ClassFileSourceImpl implements ClassFileSource2 {
             InputStream is;
             long length;
 
+            if (classRelocator == null) {
+                classRelocator = this.classRelocator;
+            }
             String usePath = classRelocator.correctPath(path);
             boolean forceJar = jarEntry != null && explicitJars.contains(jarEntry.path());
             File file = forceJar ? null : new File(usePath);
@@ -148,9 +151,9 @@ public class ClassFileSourceImpl implements ClassFileSource2 {
             Class<?> moduleClass = Class.forName("java.lang.Module");
             Method getPackagesMethod = moduleClass.getMethod("getPackages");
             Method getNameMethod = moduleClass.getMethod("getName");
-            for (Object module : (Set)modules) {
-                Set<String> packageNames = (Set<String>)getPackagesMethod.invoke(module);
-                String moduleName = (String)getNameMethod.invoke(module);
+            for (Object module : (Set) modules) {
+                Set<String> packageNames = (Set<String>) getPackagesMethod.invoke(module);
+                String moduleName = (String) getNameMethod.invoke(module);
                 for (String packageName : packageNames) {
                     if (mapRes.containsKey(packageName)) {
                         mapRes.put(packageName, null);
@@ -253,7 +256,7 @@ public class ClassFileSourceImpl implements ClassFileSource2 {
         }
         jarPath = file.getAbsolutePath();
         JarContent jarContent = processClassPathFile(file, false, analysisType);
-        if (jarContent == null){
+        if (jarContent == null) {
             throw new ConfusedCFRException("Failed to load jar " + jarPath);
         }
 
@@ -268,7 +271,7 @@ public class ClassFileSourceImpl implements ClassFileSource2 {
             addToRelativeClassPath(file, jarClassPath);
         }
 
-        ObjectList< String > output = new ObjectArrayList<>();
+        ObjectList<String> output = new ObjectArrayList<>();
         for (String classPath : jarContent.getClassFiles()) {
             if (classPath.toLowerCase().endsWith(".class")) {
                 // nb : entry.value will always be the jar here, but ....
@@ -287,16 +290,16 @@ public class ClassFileSourceImpl implements ClassFileSource2 {
 
         @Override
         @SuppressWarnings("unused")
-            public AnalysisType analysisType() {
-                return analysisType;
-            }
+        public AnalysisType analysisType() {
+            return analysisType;
         }
+    }
 
     private Map<String, JarSourceEntry> getClassPathClasses() {
         if (classToPathMap == null) {
             boolean dump = options.getOption(OptionsImpl.DUMP_CLASS_PATH);
 
-            classToPathMap = MapFactory.newMap();
+            classToPathMap = new ConcurrentHashMap<>();
             String classPath = System.getProperty("java.class.path");
             String sunBootClassPath = System.getProperty("sun.boot.class.path");
             if (sunBootClassPath != null) {
@@ -369,7 +372,13 @@ public class ClassFileSourceImpl implements ClassFileSource2 {
         }
     }
 
-    private void processClassPathFile(File file, String absolutePath, Map<String, JarSourceEntry> classToPathMap, AnalysisType analysisType, boolean dump) {
+    private void processClassPathFile(
+        File file,
+        String absolutePath,
+        Map<String, JarSourceEntry> classToPathMap,
+        AnalysisType analysisType,
+        boolean dump
+    ) {
         JarContent content = processClassPathFile(file, dump, analysisType);
         if (content == null) {
             return;
@@ -411,7 +420,8 @@ public class ClassFileSourceImpl implements ClassFileSource2 {
         if (analysisType == AnalysisType.WAR) {
             // Strip WEB-INF/classes from the front of class files.
             final int prefixLen = MiscConstants.WAR_PREFIX.length();
-            content = Functional.map(Functional.filter(content, in -> in.startsWith(MiscConstants.WAR_PREFIX)),
+            content = Functional.map(
+                Functional.filter(content, in -> in.startsWith(MiscConstants.WAR_PREFIX)),
                 arg -> arg.substring(prefixLen)
             );
         }
@@ -447,5 +457,10 @@ public class ClassFileSourceImpl implements ClassFileSource2 {
     @Override
     public void informAnalysisRelativePathDetail(String usePath, String specPath) {
         classRelocator = new ClassFileRelocator.Configurator().configureWith(usePath, specPath);
+    }
+
+    @Override
+    public ClassFileRelocator getClassRelocator() {
+        return classRelocator;
     }
 }

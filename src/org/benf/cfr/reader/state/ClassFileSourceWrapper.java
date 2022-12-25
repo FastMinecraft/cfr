@@ -18,8 +18,11 @@ import java.util.Collections;
 public class ClassFileSourceWrapper implements ClassFileSource2 {
     private final ClassFileSource classFileSource;
 
+    private ClassFileRelocator classRelocator;
+
     public ClassFileSourceWrapper(ClassFileSource classFileSource) {
         this.classFileSource = classFileSource;
+        this.classRelocator = ((ClassFileSource2) classFileSource).getClassRelocator();
     }
 
     @Override
@@ -31,7 +34,7 @@ public class ClassFileSourceWrapper implements ClassFileSource2 {
 
     @Override
     public void informAnalysisRelativePathDetail(String usePath, String classFilePath) {
-        classFileSource.informAnalysisRelativePathDetail(usePath, classFilePath);
+        classRelocator = new ClassFileRelocator.Configurator().configureWith(usePath, classFilePath);
     }
 
     @Override
@@ -46,6 +49,16 @@ public class ClassFileSourceWrapper implements ClassFileSource2 {
 
     @Override
     public Pair<byte[], String> getClassFileContent(String path) throws IOException {
-        return classFileSource.getClassFileContent(path);
+        return classFileSource.getClassFileContent(path, classRelocator);
+    }
+
+    @Override
+    public Pair<byte[], String> getClassFileContent(String inputPath, ClassFileRelocator classRelocator) throws IOException {
+        return classFileSource.getClassFileContent(inputPath, classRelocator);
+    }
+
+    @Override
+    public ClassFileRelocator getClassRelocator() {
+        return classRelocator;
     }
 }

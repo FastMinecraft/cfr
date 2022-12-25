@@ -1,6 +1,7 @@
 package org.benf.cfr.reader.api;
 
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
+import org.benf.cfr.reader.state.ClassFileRelocator;
 import org.benf.cfr.reader.state.ClassFileSourceImpl;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
@@ -71,6 +72,8 @@ public interface ClassFileSource {
      * @throws IOException if you can't find the class.
      */
     Pair<byte[], String> getClassFileContent(final String path) throws IOException;
+
+    Pair<byte[], String> getClassFileContent(String inputPath, ClassFileRelocator classRelocator) throws IOException;
 
     /**
      * Helper to construct "Standard" {@link ClassFileSource}, which may be useful for delegating to.

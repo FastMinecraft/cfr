@@ -16,34 +16,35 @@ import org.benf.cfr.reader.util.DecompilerComment;
 import org.benf.cfr.reader.util.MiscConstants;
 import org.benf.cfr.reader.util.bytestream.BaseByteData;
 import org.benf.cfr.reader.util.bytestream.ByteData;
+import org.benf.cfr.reader.util.collections.LazyExceptionRetainingMap;
 import org.benf.cfr.reader.util.collections.MapFactory;
 import org.benf.cfr.reader.util.getopt.Options;
 
 import java.io.File;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 
 public class DCCommonState {
-
     private final ClassCache classCache;
     private final ClassFileSource2 classFileSource;
     private final Options options;
     private final Map<String, ClassFile> classFileCache;
     private ObjectSet<JavaTypeInstance> versionCollisions;
-    private final transient ObjectSet<String> couldNotLoadClasses = new ObjectLinkedOpenHashSet<>();
+    private final transient ObjectSet<String> couldNotLoadClasses = ObjectSets.synchronize(new ObjectLinkedOpenHashSet<>());
     private final ObfuscationMapping obfuscationMapping;
     private final OverloadMethodSetCache overloadMethodSetCache;
     private final ObjectSet<JavaTypeInstance> permittedSealed;
 
     public DCCommonState(Options options, ClassFileSource2 classFileSource) {
         this.options = options;
-        this.classFileSource = classFileSource;
+        this.classFileSource = new ClassFileSourceWrapper(classFileSource);
         this.classCache = new ClassCache(this);
-        this.classFileCache = MapFactory.newExceptionRetainingLazyMap(this::loadClassFileAtPath);
-        this.versionCollisions = new ObjectOpenHashSet<>();
+        this.classFileCache = new LazyExceptionRetainingMap<>(new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), this::loadClassFileAtPath
+        );
+        this.versionCollisions = ObjectSets.synchronize(new ObjectOpenHashSet<>());
         this.obfuscationMapping = NullMapping.INSTANCE;
         this.overloadMethodSetCache = new OverloadMethodSetCache();
         this.permittedSealed = new ObjectOpenHashSet<>();
@@ -51,9 +52,13 @@ public class DCCommonState {
 
     public DCCommonState(DCCommonState dcCommonState, final BiFunction<String, DCCommonState, ClassFile> cacheAccess) {
         this.options = dcCommonState.options;
-        this.classFileSource = dcCommonState.classFileSource;
+        this.classFileSource = new ClassFileSourceWrapper(dcCommonState.classFileSource);
         this.classCache = new ClassCache(this);
-        this.classFileCache = MapFactory.newExceptionRetainingLazyMap(arg -> cacheAccess.apply(arg, DCCommonState.this));
+        this.classFileCache = new LazyExceptionRetainingMap<>(
+            new ConcurrentHashMap<>(),
+            new ConcurrentHashMap<>(),
+            arg -> cacheAccess.apply(arg, this)
+        );
         this.versionCollisions = dcCommonState.versionCollisions;
         this.obfuscationMapping = dcCommonState.obfuscationMapping;
         this.overloadMethodSetCache = dcCommonState.overloadMethodSetCache;
@@ -65,7 +70,11 @@ public class DCCommonState {
         this.options = dcCommonState.options;
         this.classFileSource = dcCommonState.classFileSource;
         this.classCache = new ClassCache(this);
-        this.classFileCache = MapFactory.newExceptionRetainingLazyMap(this::loadClassFileAtPath);
+        this.classFileCache = new LazyExceptionRetainingMap<>(
+            new ConcurrentHashMap<>(),
+            new ConcurrentHashMap<>(),
+            this::loadClassFileAtPath
+        );
         this.versionCollisions = dcCommonState.versionCollisions;
         this.obfuscationMapping = mapping;
         this.overloadMethodSetCache = dcCommonState.overloadMethodSetCache;

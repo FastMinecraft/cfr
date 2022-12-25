@@ -1,12 +1,17 @@
 package org.benf.cfr.reader.util.output;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
 import org.benf.cfr.reader.state.OsInfo;
 import org.benf.cfr.reader.state.TypeUsageInformation;
-import org.benf.cfr.reader.util.*;
+import org.benf.cfr.reader.util.ConfusedCFRException;
+import org.benf.cfr.reader.util.DecompilerComment;
+import org.benf.cfr.reader.util.DecompilerCommentSource;
+import org.benf.cfr.reader.util.Troolean;
 import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
@@ -14,9 +19,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Collection;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Map;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class InternalDumperFactoryImpl implements DumperFactory {
@@ -31,7 +34,8 @@ public class InternalDumperFactoryImpl implements DumperFactory {
     public InternalDumperFactoryImpl(Options options) {
         this.checkDupes = OsInfo.OS().isCaseInsensitive() && !options.getOption(OptionsImpl.CASE_INSENSITIVE_FS_RENAME);
         this.options = options;
-        if (!options.getOption(OptionsImpl.SILENT) && (options.optionIsSet(OptionsImpl.OUTPUT_DIR) || options.optionIsSet(OptionsImpl.OUTPUT_PATH))) {
+        if (!options.getOption(OptionsImpl.SILENT) && (options.optionIsSet(OptionsImpl.OUTPUT_DIR) || options.optionIsSet(
+            OptionsImpl.OUTPUT_PATH))) {
             progressDumper = new ProgressDumperStdErr();
         } else {
             progressDumper = ProgressDumperNop.INSTANCE;
@@ -64,13 +68,38 @@ public class InternalDumperFactoryImpl implements DumperFactory {
     }
 
 
-    public Dumper getNewTopLevelDumper(JavaTypeInstance classType, SummaryDumper summaryDumper, TypeUsageInformation typeUsageInformation, IllegalIdentifierDump illegalIdentifierDump) {
+    public Dumper getNewTopLevelDumper(
+        JavaTypeInstance classType,
+        SummaryDumper summaryDumper,
+        TypeUsageInformation typeUsageInformation,
+        IllegalIdentifierDump illegalIdentifierDump
+    ) {
         Pair<String, Boolean> targetInfo = getPathAndClobber();
 
-        if (targetInfo == null) return new StdIODumper(typeUsageInformation, options, illegalIdentifierDump, new MovableDumperContext());
+        if (targetInfo == null) {
+            return new StdIODumper(
+                typeUsageInformation,
+                options,
+                illegalIdentifierDump,
+                new MovableDumperContext()
+            );
+        }
 
         String encoding = options.getOption(OptionsImpl.OUTPUT_ENCODING);
-        FileDumper res = new FileDumper(targetInfo.getFirst() + prefix ,encoding ,targetInfo.getSecond(), classType, summaryDumper, typeUsageInformation, options, truncCount, illegalIdentifierDump);
+        FileDumper res;
+        synchronized (this) {
+            res = new FileDumper(
+                targetInfo.getFirst() + prefix,
+                encoding,
+                targetInfo.getSecond(),
+                classType,
+                summaryDumper,
+                typeUsageInformation,
+                options,
+                truncCount,
+                illegalIdentifierDump
+            );
+        }
 
         if (checkDupes) {
             if (!seen.add(res.getFileName().toLowerCase())) {
@@ -83,26 +112,26 @@ public class InternalDumperFactoryImpl implements DumperFactory {
     private record BytecodeDumpConsumerImpl(Dumper dumper) implements BytecodeDumpConsumer {
 
         @Override
-            public void accept(Collection<Item> items) {
-                try {
-                    BufferedOutputStream stream = dumper.getAdditionalOutputStream("lineNumberTable");
-                    try (OutputStreamWriter sw = new OutputStreamWriter(stream)) {
-                        sw.write("------------------\n");
-                        sw.write("Line number table:\n\n");
-                        for (Item item : items) {
-                            sw.write(item.getMethod().getMethodPrototype().toString());
-                            sw.write("\n----------\n");
-                            for (Map.Entry<Integer, Integer> entry : item.getBytecodeLocs().entrySet()) {
-                                sw.write("Line " + entry.getValue() + "\t: " + entry.getKey() + "\n");
-                            }
-                            sw.write("\n");
+        public void accept(Collection<Item> items) {
+            try {
+                BufferedOutputStream stream = dumper.getAdditionalOutputStream("lineNumberTable");
+                try (OutputStreamWriter sw = new OutputStreamWriter(stream)) {
+                    sw.write("------------------\n");
+                    sw.write("Line number table:\n\n");
+                    for (Item item : items) {
+                        sw.write(item.getMethod().getMethodPrototype().toString());
+                        sw.write("\n----------\n");
+                        for (Map.Entry<Integer, Integer> entry : item.getBytecodeLocs().entrySet()) {
+                            sw.write("Line " + entry.getValue() + "\t: " + entry.getKey() + "\n");
                         }
+                        sw.write("\n");
                     }
-                } catch (IOException e) {
-                    throw new ConfusedCFRException(e);
                 }
+            } catch (IOException e) {
+                throw new ConfusedCFRException(e);
             }
         }
+    }
 
     @Override
     public Dumper wrapLineNoDumper(Dumper dumper) {

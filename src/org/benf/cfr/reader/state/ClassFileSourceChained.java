@@ -65,4 +65,17 @@ public class ClassFileSourceChained implements ClassFileSource2 {
         }
         return null;
     }
+
+
+
+    @Override
+    public Pair<byte[], String> getClassFileContent(String inputPath, ClassFileRelocator classRelocator) throws IOException {
+        for (ClassFileSource2 source : sources) {
+            Pair<byte[], String> res = source.getClassFileContent(inputPath, classRelocator);
+            if (res != null) {
+                return res;
+            }
+        }
+        return null;
+    }
 }

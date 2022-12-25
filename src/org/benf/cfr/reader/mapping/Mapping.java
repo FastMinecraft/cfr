@@ -1,7 +1,9 @@
 package org.benf.cfr.reader.mapping;
 
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaArrayTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaRefTypeInstance;
 import org.benf.cfr.reader.bytecode.analysis.types.JavaTypeInstance;
@@ -18,11 +20,8 @@ import org.benf.cfr.reader.util.output.Dumper;
 import org.benf.cfr.reader.util.output.IllegalIdentifierDump;
 import org.benf.cfr.reader.util.output.TypeContext;
 
-import it.unimi.dsi.fastutil.objects.ObjectList;
-
 import java.util.Collection;
 import java.util.Map;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import java.util.function.Function;
 
 public class Mapping implements ObfuscationMapping {
@@ -33,7 +32,11 @@ public class Mapping implements ObfuscationMapping {
     private final Options options;
     private final Map<JavaTypeInstance, ObjectList<InnerClassAttributeInfo>> innerInfo;
 
-    Mapping(Options options, ObjectList<ClassMapping> classMappings, Map<JavaTypeInstance, ObjectList<InnerClassAttributeInfo>> innerInfo) {
+    Mapping(
+        Options options,
+        ObjectList<ClassMapping> classMappings,
+        Map<JavaTypeInstance, ObjectList<InnerClassAttributeInfo>> innerInfo
+    ) {
         this.options = options;
         this.innerInfo = innerInfo;
         for (ClassMapping cls : classMappings) {
@@ -147,7 +150,7 @@ public class Mapping implements ObfuscationMapping {
 
         @Override
         public String generateInnerClassShortName(JavaRefTypeInstance clazz) {
-            return delegateRemapped.generateInnerClassShortName((JavaRefTypeInstance)get(clazz));
+            return delegateRemapped.generateInnerClassShortName((JavaRefTypeInstance) get(clazz));
         }
 
         @Override
@@ -173,13 +176,15 @@ public class Mapping implements ObfuscationMapping {
         public TypeUsageInformation getTypeUsageInformation() {
             if (mappingTypeUsage == null) {
                 TypeUsageInformation dti = delegate.getTypeUsageInformation();
-                Collection<JavaRefTypeInstance> content = Functional.map(dti.getUsedClassTypes(),
-arg -> (JavaRefTypeInstance)get(arg)
-);
-                TypeUsageInformation dtr = new TypeUsageInformationImpl(options,
-                                                                        (JavaRefTypeInstance)get(dti.getAnalysisType()),
-                                                                        new ObjectLinkedOpenHashSet<JavaRefTypeInstance>(
-                                                                            content), new ObjectOpenHashSet<DetectedStaticImport>()
+                Collection<JavaRefTypeInstance> content = Functional.map(
+                    dti.getUsedClassTypes(),
+                    arg -> (JavaRefTypeInstance) get(arg)
+                );
+                TypeUsageInformation dtr = new TypeUsageInformationImpl(
+                    options,
+                    (JavaRefTypeInstance) get(dti.getAnalysisType()),
+                    new ObjectLinkedOpenHashSet<>(content),
+                    new ObjectOpenHashSet<>()
                 );
                 mappingTypeUsage = new MappingTypeUsage(dtr, dti);
             }
@@ -200,24 +205,37 @@ arg -> (JavaRefTypeInstance)get(arg)
                 return this;
             }
 
-            delegate.methodName(c.getMethodName(s, p.getSignatureBoundArgs(), Mapping.this, delegate), p, special, defines);
+            delegate.methodName(
+                c.getMethodName(s, p.getSignatureBoundArgs(), Mapping.this, delegate),
+                p,
+                special,
+                defines
+            );
             return this;
         }
 
         @Override
-        public Dumper fieldName(String name, String descriptor, JavaTypeInstance owner, boolean hiddenDeclaration, boolean isStatic, boolean defines) {
+        public Dumper fieldName(
+            String name,
+            String descriptor,
+            JavaTypeInstance owner,
+            boolean hiddenDeclaration,
+            boolean isStatic,
+            boolean defines
+        ) {
             JavaTypeInstance deGenerifiedType = owner.getDeGenerifiedType();
             ClassMapping c = erasedTypeMap.get(deGenerifiedType);
             if (c == null || hiddenDeclaration) {
                 delegate.fieldName(name, descriptor, owner, hiddenDeclaration, isStatic, defines);
             } else {
                 delegate.fieldName(
-                        c.getFieldName(name, deGenerifiedType,this, Mapping.this, isStatic),
-                        descriptor,
-                        owner,
-                        hiddenDeclaration,
-                        isStatic,
-                        defines);
+                    c.getFieldName(name, deGenerifiedType, this, Mapping.this, isStatic),
+                    descriptor,
+                    owner,
+                    hiddenDeclaration,
+                    isStatic,
+                    defines
+                );
             }
             return this;
         }

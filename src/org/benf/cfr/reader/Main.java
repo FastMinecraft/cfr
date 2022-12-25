@@ -1,5 +1,7 @@
 package org.benf.cfr.reader;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.benf.cfr.reader.api.CfrDriver;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 import org.benf.cfr.reader.state.DCCommonState;
@@ -9,16 +11,27 @@ import org.benf.cfr.reader.util.getopt.Options;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.benf.cfr.reader.util.output.DumperFactory;
 
-import it.unimi.dsi.fastutil.objects.ObjectList;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Main {
 
-    @SuppressWarnings({"WeakerAccess", "unused"}) // too many people use it - left for historical reasons.
-    public static void doClass(DCCommonState dcCommonState, String path, boolean skipInnerClass, DumperFactory dumperFactory) {
+    @SuppressWarnings({ "WeakerAccess", "unused" }) // too many people use it - left for historical reasons.
+    public static void doClass(
+        DCCommonState dcCommonState,
+        String path,
+        boolean skipInnerClass,
+        DumperFactory dumperFactory
+    ) {
         Driver.doClass(dcCommonState, path, skipInnerClass, dumperFactory);
     }
 
-    @SuppressWarnings({"WeakerAccess", "unused"}) // too many people use it - left for historical reasons.
+    @SuppressWarnings({ "WeakerAccess", "unused" }) // too many people use it - left for historical reasons.
     public static void doJar(DCCommonState dcCommonState, String path, DumperFactory dumperFactory) {
         Driver.doJar(dcCommonState, path, AnalysisType.JAR, dumperFactory);
     }
@@ -48,6 +61,21 @@ public class Main {
         if (options.optionIsSet(OptionsImpl.VERSION)) {
             getOptParser.showVersion();
             return;
+        }
+
+        if (files.size() == 1) {
+            Path path = Paths.get(files.get(0));
+            if (Files.isDirectory(path)) {
+                try (Stream<Path> walk = Files.walk(path)) {
+                    files = walk
+                        .filter(Files::isRegularFile)
+                        .map(Path::toString)
+                        .filter(s -> s.endsWith(".class"))
+                        .collect(Collectors.toCollection(ObjectArrayList::new));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
 
         CfrDriver cfrDriver = new CfrDriver.Builder().withBuiltOptions(options).build();

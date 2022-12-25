@@ -38,14 +38,8 @@ public class LazyMap<X, Y> implements Map<X, Y> {
 
     @Override
     public Y get(Object o) {
-        Y res = inner.get(o);
-        if (res == null) {
-            //noinspection unchecked
-            X x = (X) o;
-            res = factory.apply(x);
-            inner.put(x, res);
-        }
-        return res;
+        //noinspection unchecked
+        return inner.computeIfAbsent((X) o, factory);
     }
 
     @Override
