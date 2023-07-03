@@ -4,9 +4,6 @@ plugins {
     id "dev.fastmc.maven-repo" version "1.0.0"
 }
 
-sourceCompatibility = 17
-targetCompatibility = 17
-
 version = '0.3-SNAPSHOT'
 
 group = 'net.fabricmc'
@@ -19,6 +16,9 @@ sourceSets {
 }
 
 java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
     withSourcesJar()
 }
 
