@@ -1,7 +1,7 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        maven { url "https://maven.fastmc.dev/" }
+        maven { url "https://maven.luna5ama.dev/" }
     }
 }
 
