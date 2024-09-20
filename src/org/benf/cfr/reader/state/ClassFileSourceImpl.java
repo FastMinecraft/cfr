@@ -24,7 +24,8 @@ import java.util.zip.ZipFile;
 import static org.benf.cfr.reader.bytecode.analysis.types.ClassNameUtils.getPackageAndClassNames;
 
 public class ClassFileSourceImpl implements ClassFileSource2 {
-    private final ObjectSet<String> explicitJars = ObjectSets.synchronize(new ObjectOpenHashSet<>());
+    private final Set<String> explicitJars = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private final Map<String, byte[]> zipCache = new ConcurrentHashMap<>();
     private volatile Map<String, JarSourceEntry> classToPathMap;
     private final Options options;
     private ClassRenamer classRenamer;
@@ -91,46 +92,53 @@ public class ClassFileSourceImpl implements ClassFileSource2 {
 
         // If path is an alias due to case insensitivity, restore to the correct name here, before
         // accessing zipfile.
-        String path = inputPath;
-        if (classRenamer != null) {
-            path = classRenamer.getOriginalClass(path);
+        String path = classRenamer == null ? inputPath : classRenamer.getOriginalClass(inputPath);
+
+        if (classRelocator == null) {
+            classRelocator = this.classRelocator;
         }
-
-        ZipFile zipFile = null;
-
-        try {
-            InputStream is;
-            long length;
-
-            if (classRelocator == null) {
-                classRelocator = this.classRelocator;
+        String usePath = classRelocator.correctPath(path);
+        boolean forceJar = jarEntry != null && explicitJars.contains(jarEntry.path());
+        File file = forceJar ? null : new File(usePath);
+        byte[] content;
+        if (file != null && file.exists()) {
+            InputStream is = new FileInputStream(file);
+            long length = file.length();
+            content = getBytesFromFile(is, length);
+        } else if (jarEntry != null) {
+            String zipPath = inputPath;
+            if (jarEntry.analysisType == AnalysisType.WAR) {
+                zipPath = MiscConstants.WAR_PREFIX + zipPath;
             }
-            String usePath = classRelocator.correctPath(path);
-            boolean forceJar = jarEntry != null && explicitJars.contains(jarEntry.path());
-            File file = forceJar ? null : new File(usePath);
-            byte[] content;
-            if (file != null && file.exists()) {
-                is = new FileInputStream(file);
-                length = file.length();
-                content = getBytesFromFile(is, length);
-            } else if (jarEntry != null) {
-                zipFile = new ZipFile(new File(jarEntry.path()), ZipFile.OPEN_READ);
-                if (jarEntry.analysisType == AnalysisType.WAR) {
-                    path = MiscConstants.WAR_PREFIX + path;
+            content = zipCache.get(zipPath);
+            if (content == null) {
+                synchronized (jarEntry) {
+                    content = zipCache.get(inputPath);
+                    if (content == null) {
+                        try (ZipFile zipFile = new ZipFile(new File(jarEntry.path()), ZipFile.OPEN_READ)) {
+                            zipFile.stream()
+                                .filter(zipEntry -> !zipEntry.isDirectory())
+                                .forEach(zipEntry -> {
+                                    try {
+                                        InputStream is = zipFile.getInputStream(zipEntry);
+                                        byte[] content2 = getBytesFromFile(is, zipEntry.getSize());
+                                        zipCache.put(zipEntry.getName(), content2);
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                });
+                        }
+                        content = zipCache.get(zipPath);
+                        assert content != null;
+                    }
                 }
-                ZipEntry zipEntry = zipFile.getEntry(path);
-                length = zipEntry.getSize();
-                is = zipFile.getInputStream(zipEntry);
-                content = getBytesFromFile(is, length);
-            } else {
-                // Fallback - can we get the bytes using a java9 extractor?
-                content = getInternalContent(inputPath);
             }
-
-            return Pair.make(content, inputPath);
-        } finally {
-            if (zipFile != null) zipFile.close();
+        } else {
+            // Fallback - can we get the bytes using a java9 extractor?
+            content = getInternalContent(inputPath);
         }
+
+        return Pair.make(content, inputPath);
     }
 
     /*
@@ -393,8 +401,7 @@ public class ClassFileSourceImpl implements ClassFileSource2 {
         ObjectList<String> content = new ObjectArrayList<>();
         Map<String, String> manifest;
         try {
-            ZipFile zipFile = new ZipFile(file, ZipFile.OPEN_READ);
-            try (zipFile) {
+            try (ZipFile zipFile = new ZipFile(file, ZipFile.OPEN_READ)) {
                 manifest = getManifestContent(zipFile);
                 Enumeration<? extends ZipEntry> enumeration = zipFile.entries();
                 while (enumeration.hasMoreElements()) {

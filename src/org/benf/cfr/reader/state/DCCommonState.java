@@ -44,7 +44,7 @@ public class DCCommonState {
         this.classCache = new ClassCache(this);
         this.classFileCache = new LazyExceptionRetainingMap<>(new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), this::loadClassFileAtPath
         );
-        this.versionCollisions = ObjectSets.synchronize(new ObjectOpenHashSet<>());
+        this.versionCollisions = new ObjectOpenHashSet<>();
         this.obfuscationMapping = NullMapping.INSTANCE;
         this.overloadMethodSetCache = new OverloadMethodSetCache();
         this.permittedSealed = new ObjectOpenHashSet<>();
@@ -82,7 +82,7 @@ public class DCCommonState {
     }
 
     public void setCollisions(ObjectSet<JavaTypeInstance> versionCollisions) {
-        this.versionCollisions = versionCollisions;
+        this.versionCollisions = ObjectSets.unmodifiable(versionCollisions);
     }
 
     public ObjectSet<JavaTypeInstance> getVersionCollisions() {
